@@ -33,6 +33,14 @@ See documentation for running [MongoDB within Docker](https://www.mongodb.com/co
 ```bash
 docker run --name mongodb -d -p 27017:27017 mongo
 ```
+能够上传转换过音频的接口：add_search_result
+
+search_history
+{
+    uid:
+    content:
+    time:
+}
 
 ### Machine learning client
 
@@ -49,6 +57,10 @@ The machine learning client will be written in Python and will connect to the da
 - Like the other parts, the machine learning client must run within its own Docker container.
 - Put all code for this subsystem within the `machine-learning-client` subdirectory of this repository.
 
+调用语音转换数据库接口（需要符合格式）
+test
+创建语音识别的接口：take audio 的 地址，output dict，并且需要上传database - speech_to_text
+
 ### Web app
 
 The web app allows visitors on the web to view the activity of the machine learning client and the results of its analysis.
@@ -62,13 +74,19 @@ The web app must be built using the Python [flask](https://palletsprojects.com/p
 - Like the other parts, the web app must run within its own Docker container.
 - Put all code for this subsystem within the `web-app` subdirectory of this repository.
 
+语音开始-暂停的button
+调用ml的接口去进行语音识别
+test
+get到结果，并搜索
+每次搜索完都需要调用add_search_result
+
 ## Developer workflow
 
 Teams are expected to follow a roughly "agile"-style development workflow, with the following specific requirements.
 
 ### Task boards
 
-ALl teams must use task boards to provide insight into the status of all work.
+All teams must use task boards to provide insight into the status of all work.
 
 - The task boards must have at least 4 columns: "`To Do`", "`In Progress`", "`Awaiting Review`", "`Done`".
 - Teams must represent all work to be done as discrete tasks on the task board, where each task represents about one day's work for one team member.
