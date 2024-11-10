@@ -1,5 +1,4 @@
 from flask import Flask, render_template, jsonify, request
-import numpy as np
 import logging
 import requests
 
@@ -23,48 +22,21 @@ def save_results_route():
     
     return '', 204
 
-import sys
-sys.path.insert(1, 'machine-learning-client')
-from mnist import mnist_classify
 
 @app.route('/classify', methods=['POST'])
 def classify():
     data = request.json
-    image_array = np.array(data['image'], dtype=np.float32).reshape(28, 28)
-    classification = mnist_classify(image_array)
-
-    # with open('image_info.txt', 'w') as f:
-    #     f.write(image_array)
-
-    # Save to file with formatting
-    with open('user_input.txt', 'w') as f:
-        # f.write("Image shape: {}\n".format(image_array.shape))
-        # f.write("Min value: {}\n".format(np.min(image_array)))
-        # f.write("Max value: {}\n".format(np.max(image_array)))
-        # f.write("\nImage array (28x28):\n")
-        
-        # Format each row with consistent spacing
-        for row in image_array:
-            # Format each number to have 3 decimal places and width of 8 characters
-            f.write(" ".join("{:8.3f}".format(x) for x in row))
-            f.write("\n")
     
-    #expects this format output
-    return({'classification': classification})
-    
-""" 
-    SAMPLE API CALL
     response = requests.post(
-        'http://localhost:8000/predict',  # Adjust URL/port as needed
-        json={"image": data['image']}
+        'http://localhost:8000/predict',
+        json=data
     )
     
     if response.status_code == 200:
         return response.json()
     else:
         return {"error": "Classification failed"}, 500
-"""
+    
 
 if __name__ == "__main__":
-    # app.run(host="0.0.0.0", port=5000, debug=True)
-    app.run(debug=True)
+    app.run(host="0.0.0.0", port=5000, debug=True)
