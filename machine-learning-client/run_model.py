@@ -3,6 +3,11 @@ import torch.nn as nn
 from torchvision import transforms
 import torch.nn.functional as F
 
+# import the pre-trained model
+import os
+current_dir = os.path.dirname(os.path.abspath(__file__))
+model_path = os.path.join(current_dir, 'mnist-cnn.pth')
+
 class CNNModel(nn.Module):
     def __init__(self):
         super(CNNModel, self).__init__()
@@ -25,7 +30,7 @@ class CNNModel(nn.Module):
         return x
 
 model = CNNModel()
-model.load_state_dict(torch.load('machine-learning-client/mnist-cnn.pth', weights_only=True))
+model.load_state_dict(torch.load(model_path, weights_only=True))
 model.eval()
 
 test_transform = transforms.Compose([
