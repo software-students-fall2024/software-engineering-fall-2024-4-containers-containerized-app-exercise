@@ -27,7 +27,7 @@ def save_to_mongo(data):
         }
         
         result = collection.insert_one(document)
-        logger.info(f"Document saved to MongoDB with id: {result.inserted_id}")
+        logger.info(f"Document saved to MongoDB with ig: {result.inserted_id}")
         return True
         
     except Exception as e:
