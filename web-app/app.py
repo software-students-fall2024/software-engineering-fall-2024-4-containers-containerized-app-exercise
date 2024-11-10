@@ -2,6 +2,8 @@ from flask import Flask, render_template, jsonify, request
 import logging
 import requests
 
+from save_data import save_to_mongo
+
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
@@ -14,11 +16,9 @@ def main_page():
 
 @app.route('/save_results', methods=['POST'])
 def save_results_route():
-    data = request.json
-    intended_num = data['intendedNum']
-    classified_num = data['classifiedNum']
     
-    logger.info(f"Saving results - Intended: {intended_num}, Classified: {classified_num}")
+    data = request.json
+    save_to_mongo(data)
     
     return '', 204
 
