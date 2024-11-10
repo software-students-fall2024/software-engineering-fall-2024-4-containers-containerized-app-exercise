@@ -23,19 +23,25 @@ def save_results_route():
     
     return '', 204
 
+import sys
+sys.path.insert(1, 'machine-learning-client')
+from mnist import mnist_classify
 
 @app.route('/classify', methods=['POST'])
 def classify():
     data = request.json
-    
     image_array = np.array(data['image'], dtype=np.float32).reshape(28, 28)
-    
+    classification = mnist_classify(image_array)
+
+    # with open('image_info.txt', 'w') as f:
+    #     f.write(image_array)
+
     # Save to file with formatting
     with open('user_input.txt', 'w') as f:
-        f.write("Image shape: {}\n".format(image_array.shape))
-        f.write("Min value: {}\n".format(np.min(image_array)))
-        f.write("Max value: {}\n".format(np.max(image_array)))
-        f.write("\nImage array (28x28):\n")
+        # f.write("Image shape: {}\n".format(image_array.shape))
+        # f.write("Min value: {}\n".format(np.min(image_array)))
+        # f.write("Max value: {}\n".format(np.max(image_array)))
+        # f.write("\nImage array (28x28):\n")
         
         # Format each row with consistent spacing
         for row in image_array:
@@ -44,7 +50,7 @@ def classify():
             f.write("\n")
     
     #expects this format output
-    return({'classification': 5})
+    return({'classification': classification})
     
 """ 
     SAMPLE API CALL
@@ -57,5 +63,8 @@ def classify():
         return response.json()
     else:
         return {"error": "Classification failed"}, 500
-    
 """
+
+if __name__ == "__main__":
+    # app.run(host="0.0.0.0", port=5000, debug=True)
+    app.run(debug=True)
