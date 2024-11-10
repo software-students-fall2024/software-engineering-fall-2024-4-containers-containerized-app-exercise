@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Classification Statistics</title>
+  <style>
+      body {
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          font-family: Arial, sans-serif;
+          margin: 10px;
+          background-color: #dbeaff;
+      }
+
+      h1 {
+          font-size: 20px;
+          font-weight: bold;
+          margin-bottom: 30px;
+      }
+
+      #statsContainer {
+          padding: 20px;
+          background-color: white;
+          border-radius: 8px;
+          width: 600px;
+      }
+
+      .accuracy-label {
+          font-weight: bold;
+          margin-bottom: 10px;
+          font-size: 16px;
+      }
+
+      .accuracy-bar-container {
+          width: 100%;
+          height: 30px;
+          background-color: #ff4444;
+          border-radius: 15px;
+          overflow: hidden;
+          margin: 10px 0;
+      }
+
+      .accuracy-bar {
+          height: 100%;
+          background-color: #4CAF50;
+          text-align: right;
+          line-height: 30px;
+          color: black;
+          padding-right: 10px;
+      }
+
+      .digit-container {
+          margin-top: 30px;
+          display: flex;
+          justify-content: space-between;
+          width: 100%;
+      }
+
+      .digit-bar {
+          height: 100%;
+          background-color: #113d93;
+          text-align: center;
+          line-height: 20px;
+          color: white;
+          padding-right: 10px;
+          font-size: 12px;
+      }
+
+      .digit-label {
+        font-size: 14px;
+        margin-bottom: 5px;
+        display: flex;
+        align-items: center;
+        gap: 15px;
+      }
+
+      .digit-number {
+        font-size: 16px;
+        font-weight: bold;
+      }
+
+      .digit-fraction {
+        font-size: 8px;
+        color: #000000;
+      }
+
+      .digit-column {
+          width: 45%;
+      }
+
+      .digit-bar-container {
+          width: 100%;
+          height: 20px;
+          background-color: #ff4444;
+          border-radius: 10px;
+          overflow: hidden;
+          margin: 5px 0;
+      }
+  </style>
+
+</head>
+<body>
+    <h1>Classification Statistics</h1>
+    <div id="statsContainer">
+        <div id="loadingText" style="text-align: center; padding: 20px;">Loading statistics...</div>
+
+        <div id="statsContent" style="display: none;">
+            <div id="overallLabel" class="accuracy-label">Overall Accuracy</div>
+            <div class="accuracy-bar-container">
+                <div id="accuracyBar" class="accuracy-bar"></div>
+            </div>
+    
+            <div id="digitStats" class="digit-container">
+                <div id="leftColumn" class="digit-column">
+                </div>
+                <div id="rightColumn" class="digit-column">
+                </div>
+            </div>
+        </div>
+    </div>
+  
+    <script>
+        fetch('/get-stats')
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById('loadingText').style.display = 'none';
+                document.getElementById('statsContent').style.display = 'block';
+
+                const overallLabel = document.getElementById('overallLabel');
+                overallLabel.textContent = `Overall Accuracy: ${data.correct_predictions}/${data.total_samples}`;
+                
+                const accuracyBar = document.getElementById('accuracyBar');
+                accuracyBar.style.width = `${data.overall_accuracy}%`;
+                accuracyBar.textContent = `${data.overall_accuracy}%`;
+  
+                const leftColumn = document.getElementById('leftColumn');
+                const rightColumn = document.getElementById('rightColumn');
+  
+                for (let i = 0; i < 10; i++) {
+                    const digitData = data.individual_digits[i];
+                    const digitAccuracy = digitData.accuracy;
+  
+                    const digitContainer = document.createElement('div');
+                    digitContainer.innerHTML = `
+                        <div class="digit-label">
+                            <span class="digit-number">${i}</span>
+                            <span class="digit-fraction">${digitData.correct_classifications}/${digitData.total_attempts} total samples</span>
+                        </div>
+                        <div class="digit-bar-container">
+                            <div class="digit-bar" style="width: ${digitAccuracy}%">
+                                ${digitAccuracy}%
+                            </div>
+                        </div>
+                    `;
+  
+                    if (i < 5) {
+                        leftColumn.appendChild(digitContainer);
+                    } else {
+                        rightColumn.appendChild(digitContainer);
+                    }
+                }
+            })
+            .catch(error => {
+                document.getElementById('loadingText').textContent = 
+                    'Error loading statistics: ' + error;
+            });
+    </script>
+</body>
+</html>

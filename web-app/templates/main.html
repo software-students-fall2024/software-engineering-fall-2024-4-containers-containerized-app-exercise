@@ -10,14 +10,14 @@
             flex-direction: column;
             align-items: center;
             font-family: Arial, sans-serif;
-            margin: 20px;
+            margin: 10px;
             background-color: #dbeaff;
         }
 
         h1 {
             font-size: 20px;
             font-weight: bold;
-            margin-bottom: 30px;
+            margin-bottom: 10px;
         }
 
         .instructions-box {
@@ -27,7 +27,7 @@
             width: 180px;
             position: absolute;
             left: 25px;
-            top: 160px; 
+            top: 140px; 
         }
 
         .instructions-title {
@@ -40,6 +40,21 @@
             font-size: 10px;
         }
 
+        .stats-link {
+            position: absolute;
+            left: 85px;
+            top: 280px;  
+            font-weight: bold;
+            color: #4B0082;
+            text-decoration: none;
+            font-size: 14px;
+            transition: text-decoration 0.3s;
+        }
+
+        .stats-link:hover {
+            text-decoration: underline;
+        }
+
         .result-box {
             padding: 20px;
             border-radius: 8px;
@@ -47,7 +62,7 @@
             width: 180px;
             position: absolute;
             right: 25px;
-            top: 160px; 
+            top: 140px; 
             display: none;
         }
 
@@ -154,7 +169,7 @@
             cursor: crosshair;
             touch-action: none;
             background: white;
-            margin-bottom: 20px;
+            margin-bottom: 10px;
         }
 
         .button-container {
@@ -202,6 +217,8 @@
             <li>Press "Clear" to empty the canvas</li>
         </ul>
     </div>
+
+    <a href="/statistics" class="stats-link" target="_blank" rel="noopener noreferrer">View Statistics</a>
 
     <div class="canvas-container">
         <canvas id="canvas" width="280" height="280"></canvas>
@@ -332,22 +349,17 @@
         }
 
         function processCanvas() {
-            // Create a temporary canvas for resizing to 28x28
             const tempCanvas = document.createElement('canvas');
             tempCanvas.width = 28;
             tempCanvas.height = 28;
             const tempCtx = tempCanvas.getContext('2d');
 
-            // Draw the original canvas content onto the 28x28 canvas
             tempCtx.drawImage(canvas, 0, 0, 28, 28);
             
-            // Get the raw pixel data
             const imageData = tempCtx.getImageData(0, 0, 28, 28);
             const pixelData = new Float32Array(28 * 28);
             
-            // Extract just the raw grayscale values (0-255)
             for (let i = 0; i < imageData.data.length; i += 4) {
-                // Using red channel as grayscale value, inverting so black becomes 255 and white becomes 0
                 pixelData[i/4] = 255 - imageData.data[i];
             }
 
@@ -414,7 +426,7 @@
         }
 
         function saveFeedback(intendedNum, classifiedNum) {
-            fetch('/save_results', {
+            fetch('/save-results', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
