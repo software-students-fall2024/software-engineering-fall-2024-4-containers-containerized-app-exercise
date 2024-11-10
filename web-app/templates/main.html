@@ -355,6 +355,8 @@
         }
 
         let classificationResult = null;
+        let currentProcessedData = null;
+
         function classifyNumber() {
             const errorMessage = document.getElementById('error-message');
             
@@ -364,7 +366,7 @@
             }
             
             errorMessage.textContent = "";
-            const processedData = processCanvas();
+            currentProcessedData = processCanvas();
             
             fetch('/classify', {
                 method: 'POST',
@@ -372,7 +374,7 @@
                     'Content-Type': 'application/json',
                 },
                 body: JSON.stringify({
-                    image: Array.from(processedData)
+                    image: Array.from(currentProcessedData)
                 })
             })
             .then(response => response.json())
@@ -419,7 +421,8 @@
                 },
                 body: JSON.stringify({
                     intendedNum: intendedNum,
-                    classifiedNum: classifiedNum
+                    classifiedNum: classifiedNum,
+                    imageData: Array.from(currentProcessedData)
                 })
             })
             .then(response => response.json())
@@ -431,6 +434,8 @@
             });
 
             clearCanvas();
+            classificationResult = null;
+            currentProcessedData = null;
         }
     </script>
 </body>
