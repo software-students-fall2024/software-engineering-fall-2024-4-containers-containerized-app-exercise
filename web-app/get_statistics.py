@@ -1,24 +1,23 @@
-import pymongo
-import os
-import certifi 
-from dotenv import load_dotenv
+""" Module for retrieving application statistics from mongodb """
+
 import logging
-from flask import request
+import os
+import pymongo
+import certifi
+from dotenv import load_dotenv
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 load_dotenv()
-
 mongo_cxn = os.getenv('MONGO_CXN_STRING')
-logger.info(mongo_cxn)
-
 client = pymongo.MongoClient(mongo_cxn, tlsCAFile=certifi.where())
 
 db = client['project4']
 collection = db['num_classifications']
 
 def get_statistics():
+    """ Function to retrieve application statistics from mongodb """
     try:
         # get total count of documents
         total_count = collection.count_documents({})
@@ -27,27 +26,27 @@ def get_statistics():
         correct_predictions = collection.count_documents(
             {"$expr": {"$eq": ["$intended_num", "$classified_num"]}}
         )
-        
+
         # calculate total accuracy
         overall_accuracy = (correct_predictions / total_count) * 100
 
         # calculate accuracy for each digit
         individual_digit_stats = {}
-        for digit in range(10): 
-            
+        for digit in range(10):
+
             # count total instances of this digit being drawn
             total_digit = collection.count_documents({"intended_num": digit})
             if total_digit > 0:
-                
+
                 # count correct classifications for this digit
                 correct_digit = collection.count_documents({
                     "intended_num": digit,
                     "classified_num": digit
                 })
-                
+
                 # calculate accuracy for this digit
                 digit_accuracy = (correct_digit / total_digit) * 100
-                
+
                 # save to output dict
                 individual_digit_stats[digit] = {
                     "total_attempts": total_digit,
@@ -67,7 +66,10 @@ def get_statistics():
             "overall_accuracy": round(overall_accuracy, 2),
             "individual_digits": individual_digit_stats
         }
-        
-    except Exception as e:
-        logger.error(f"Error calculating statistics: {str(e)}")
-        return {"error": f"Failed to calculate statistics: {str(e)}"}
+
+    except ZeroDivisionError as e:
+        logger.error("Division by zero error: %s", str(e))
+        return {"error": "No data available for statistics calculation"}
+    except ValueError as e:
+        logger.error("Value error in calculations: %s", str(e))
+        return {"error": f"Error in calculations: {str(e)}"}
