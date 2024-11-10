@@ -2,8 +2,6 @@ from flask import Flask, render_template, jsonify, request
 import numpy as np
 import logging
 import requests
-import numpy as np
-
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -55,7 +53,7 @@ def classify():
     return({'classification': classification})
     
 """ 
-    SAMPLE API CALLx                                                                         
+    SAMPLE API CALL
     response = requests.post(
         'http://localhost:8000/predict',  # Adjust URL/port as needed
         json={"image": data['image']}
@@ -65,7 +63,6 @@ def classify():
         return response.json()
     else:
         return {"error": "Classification failed"}, 500
-    
 """
 
 if __name__ == "__main__":
