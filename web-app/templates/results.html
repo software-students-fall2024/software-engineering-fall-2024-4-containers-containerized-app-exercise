@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Identification Result</title>
+</head>
+<body>
+    <h1>Identification Result</h1>
+
+    {% if result %}
+        <p><strong>Filename:</strong> {{ result.filename }}</p>
+        <p><strong>Filepath:</strong> {{ result.filepath }}</p>
+        
+        <!-- Display the image -->
+        <p><img src="{{ url_for('static', filename='uploads/' + result.filename) }}" alt="Uploaded Image" style="max-width: 400px;"></p>
+    {% else %}
+        <p>No result found for this image.</p>
+    {% endif %}
+
+    <a href="{{ url_for('history') }}">Back to History</a>
+</body>
+</html>

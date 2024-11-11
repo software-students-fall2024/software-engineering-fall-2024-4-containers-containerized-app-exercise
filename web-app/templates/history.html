@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Identification History</title>
+</head>
+<body>
+    <h1>Identification History</h1>
+    
+    {% if all_results %}
+        <ul>
+            {% for result in all_results %}
+                <li>
+                    <strong>Filename:</strong> {{ result.filename }}<br>
+                    <strong>Filepath:</strong> {{ result.filepath }}<br>
+                    <a href="{{ url_for('results', filename=result.filename) }}">View Details</a>
+                </li>
+                <hr>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <p>No identifications found.</p>
+    {% endif %}
+
+    <a href="{{ url_for('home') }}">Return to Home</a>
+</body>
+</html>
