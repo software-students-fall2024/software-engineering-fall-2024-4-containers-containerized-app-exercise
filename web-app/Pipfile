@@ -8,6 +8,10 @@ pylint = "*"
 black = "*"
 
 [dev-packages]
+python-dotenv = "*"
+flask = "*"
+pymongo = "*"
+werkzeug = "*"
 
 [requires]
-python_version = "3.10"
+python_version = "3.12"
