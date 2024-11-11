@@ -3,32 +3,29 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Free AI Sentence Checker</title>
+  <title>AI Sentence Checker</title>
   <link rel="stylesheet" href="../static/css/index.css">
 </head>
 <body>
   <div class="container">
     <header>
-      <h1>Free AI Sentence Checker</h1>
-      <p>Polish your sentences in seconds. Use this sentence checker to ensure your writing is clear, compelling, and easy to read.</p>
+      <h1>AI Sentence Checker</h1>
+      <p>Enter your sentence to check the sentiment.</p>
     </header>
 
     <div class="content">
       <div class="input-section">
         <textarea id="sentenceInput" placeholder="Start writing here..."></textarea>
+        <button onclick="analyzeSentence()">Analyze Sentiment</button>
       </div>
       
-      <div class="suggestions-section">
-        <h2>Suggestions</h2>
-        <p>Let’s get started.</p>
-        <p><strong>Step 1:</strong> Add your text, and any issues will be highlighted.</p>
-        <p><strong>Step 2:</strong> Hover over the highlights to see suggestions.</p>
-        <p><strong>Step 3:</strong> Click a suggestion to accept it.</p>
-        <button>Get Grammarly It's free</button>
+      <div class="result-section">
+        <h2>Sentiment Analysis Result</h2>
+        <div id="visualization"> <!-- Sentiment visualization will appear here --> </div>
       </div>
     </div>
   </div>
 
-  <script src="app.js"></script>
+  <script src="../static/app.js"></script>
 </body>
 </html>

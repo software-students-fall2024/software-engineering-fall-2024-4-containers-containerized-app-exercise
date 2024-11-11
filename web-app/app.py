@@ -1,15 +1,19 @@
-import os
-from dotenv import load_dotenv
-from pymongo import MongoClient
-from flask import Flask, jsonify, render_template, request, redirect, abort, url_for, make_response, send_from_directory,session
+from flask import Flask, render_template, request, jsonify
+import requests
 
-load_dotenv()
 app = Flask(__name__)
 
-mongo_uri = os.getenv("MONGO_URI")
-client = MongoClient(mongo_uri)
+@app.route('/')
+def index():
+    return render_template('index.html')
 
+@app.route('/checkSentiment', methods=['POST'])
+def check_sentiment():
+    data = request.get_json()
+    sentence = data.get('sentence')
+    
+    sentiment = sentence
+    return jsonify({'sentiment': sentiment})
 
-
-if __name__ == "__main__":
+if __name__ == '__main__':
     app.run(debug=True)
