@@ -1,0 +1,98 @@
+import pandas as pandas
+
+API_KEY = 'bd90c3a94f0f4ca2b1a44fdc9056e0d6'
+
+# Imports for image handling, machine learning, and MongoDB
+import requests
+import numpy as np
+import pymongo
+from io import BytesIO
+from PIL import Image
+from tensorflow.keras.models import load_model
+from tensorflow.keras.preprocessing.image import img_to_array
+import os
+import schedule
+import time
+from datetime import datetime
+from dotenv import load_dotenv
+
+# Load environment variables
+load_dotenv()
+
+# API key for 511NY API and MongoDB connection details
+API_KEY = os.getenv('API_KEY_511NY')
+MONGO_URI = os.getenv('MONGO_URI')
+
+# Connect to MongoDB
+client = pymongo.MongoClient(MONGO_URI)
+db = client['traffic_db']
+collection = db['traffic_density']
+
+def fetch_traffic_images():
+    """Fetches traffic images from 511NY API and returns a list of images and metadata."""
+    url = f"https://api.511ny.org/traffic/cameras?api_key={API_KEY}"
+    response = requests.get(url)
+    data = response.json()
+
+    images = []
+    for camera in data['cameras']:
+        img_url = camera['image_url']
+        metadata = {
+            'location': camera['location'],
+            'timestamp': datetime.now()
+        }
+        try:
+            img_response = requests.get(img_url)
+            img = Image.open(BytesIO(img_response.content))
+            images.append((img, metadata))
+        except Exception as e:
+            print(f"Failed to fetch image from {img_url}: {e}")
+    return images
+
+# Load pre-trained CNN model for traffic density classification
+model = load_model('traffic_density_model.h5')
+
+def classify_traffic_image(image):
+    """Classifies the congestion level and vehicle type counts in an image using the CNN model."""
+    image = image.resize((128, 128))
+    img_array = img_to_array(image) / 255.0
+    img_array = np.expand_dims(img_array, axis=0)
+    
+    # Predict using the multi-output model
+    congestion_prediction, vehicle_counts = model.predict(img_array)
+    
+    # Decode predictions
+    congestion_levels = ['Low', 'Medium', 'High']
+    congestion_level = congestion_levels[np.argmax(congestion_prediction)]
+    
+    vehicle_labels = ['Car', 'Truck', 'Bus']
+    vehicle_count = dict(zip(vehicle_labels, vehicle_counts[0].astype(int)))  # Round to integer counts
+    
+    return congestion_level, vehicle_count
+
+def store_results(metadata, congestion_level, vehicle_count):
+    """Stores image metadata, congestion level, and vehicle counts into MongoDB."""
+    record = {
+        'location': metadata['location'],
+        'timestamp': metadata['timestamp'],
+        'congestion_level': congestion_level,
+        'vehicle_count': vehicle_count
+    }
+    collection.insert_one(record)
+    print(f"Stored record for location: {metadata['location']} with congestion: {congestion_level} and vehicle count: {vehicle_count}")
+
+def process_traffic_data():
+    """Fetches traffic images, classifies congestion level and vehicle counts, and stores results in MongoDB."""
+    images = fetch_traffic_images()
+    for image, metadata in images:
+        congestion_level, vehicle_count = classify_traffic_image(image)
+        store_results(metadata, congestion_level, vehicle_count)
+
+# Schedule the task to run periodically
+schedule.every(15).minutes.do(process_traffic_data)
+
+# Keep the script running
+if __name__ == "__main__":
+    while True:
+        schedule.run_pending()
+        time.sleep(1)
