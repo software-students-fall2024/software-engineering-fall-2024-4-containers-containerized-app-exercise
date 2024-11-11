@@ -1,0 +1,18 @@
+version: '3.10'
+
+services:
+  # Machine Learning Client service
+  ml-client:
+    build:
+      context: ./machine-learning-client  # Path to the ML client directory
+    container_name: ml-client
+    command: ["python", "app.py"]  # Ensure it runs app.py in the ml-client
+
+  # Web App service
+  web-app:
+    build:
+      context: ./web-app  # Path to the web-app directory
+    container_name: web-app
+    ports:
+      - "5001:5000"  # Expose web-app on port 5000
+    command: ["python", "web-app.py"]  # Ensure it runs web-app.py in the web-app
