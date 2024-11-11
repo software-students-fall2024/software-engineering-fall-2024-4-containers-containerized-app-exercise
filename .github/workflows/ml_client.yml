@@ -24,8 +24,7 @@ jobs:
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
-        pip install pipenv
-        pipenv install --dev
+        pip install requirements.txt
 
     # - name: Start/Run the tests
     #   run: |
