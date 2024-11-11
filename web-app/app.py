@@ -1,12 +1,16 @@
+"""
+This module sets up the Flask application for the Plant Identifier project.
+"""
+import os
 from dotenv import load_dotenv
 from flask import Flask, request, render_template, redirect, url_for, make_response
-import os
 import pymongo
 from werkzeug.utils import secure_filename
 
 load_dotenv()
 
 def create_app():
+    """Initializes and configures the Flask app"""
     app = Flask(__name__)
     app.secret_key = os.getenv('SECRET_KEY', 'supersecretkey')
 
@@ -23,17 +27,15 @@ def create_app():
             file = request.files.get('plant_image')
             if file:
                 filename = secure_filename(file.filename)
-                filepath = os.path.join('uploads', filename) 
+                filepath = os.path.join('uploads', filename)
                 file.save(filepath)
 
                 db.identifications.insert_one({
                     "filename": filename,
                     "filepath": filepath
                 })
-                
                 return redirect(url_for('results', filename=filename))
-            else:
-                return make_response("No file uploaded", 400)
+            return make_response("No file uploaded", 400)
 
         return render_template('upload.html')
 
@@ -42,8 +44,7 @@ def create_app():
         result = db.identifications.find_one({"filename": filename})
         if result:
             return render_template('results.html', result=result)
-        else:
-            return make_response("Result not found", 404)
+        return make_response("Result not found", 404)
 
     @app.route('/history')
     def history():
@@ -54,5 +55,5 @@ def create_app():
 
 if __name__ == "__main__":
     FLASK_PORT = os.getenv("FLASK_PORT", "5000")
-    app = create_app()
-    app.run(port=FLASK_PORT)
+    application = create_app()
+    application.run(port=FLASK_PORT)
