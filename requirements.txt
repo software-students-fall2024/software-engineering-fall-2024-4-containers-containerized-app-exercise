@@ -1,4 +1,0 @@
-librosa
-numpy
-sounddevice
-scikit-learn
