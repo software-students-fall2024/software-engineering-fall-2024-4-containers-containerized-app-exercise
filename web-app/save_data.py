@@ -11,12 +11,13 @@ logger = logging.getLogger(__name__)
 
 load_dotenv()
 mongo_cxn = os.getenv('MONGO_CXN_STRING')
-#client = pymongo.MongoClient(mongo_cxn, tlsCAFile=certifi.where())
+# client = pymongo.MongoClient(mongo_cxn, tlsCAFile=certifi.where())
 client = pymongo.MongoClient(mongo_cxn)
 
 
 db = client['project4']
 collection = db['num_classifications']
+
 
 def save_to_mongo(data):
     """Function to save data to mongo db"""
@@ -28,7 +29,8 @@ def save_to_mongo(data):
         }
 
         result = collection.insert_one(document)
-        logger.info("Document saved to MongoDB with id: %s", result.inserted_id)
+        logger.info("Document saved to MongoDB with id: %s",
+                    result.inserted_id)
         return True
 
     except KeyError as e:

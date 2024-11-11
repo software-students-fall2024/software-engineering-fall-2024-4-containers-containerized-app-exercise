@@ -11,12 +11,13 @@ logger = logging.getLogger(__name__)
 
 load_dotenv()
 mongo_cxn = os.getenv('MONGO_CXN_STRING')
-#client = pymongo.MongoClient(mongo_cxn, tlsCAFile=certifi.where())
+# client = pymongo.MongoClient(mongo_cxn, tlsCAFile=certifi.where())
 client = pymongo.MongoClient(mongo_cxn)
 
 
 db = client['project4']
 collection = db['num_classifications']
+
 
 def get_statistics():
     """ Function to retrieve application statistics from mongodb """

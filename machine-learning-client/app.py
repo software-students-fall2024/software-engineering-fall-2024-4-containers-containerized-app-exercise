@@ -10,6 +10,7 @@ logger = logging.getLogger(__name__)
 
 app = Flask(__name__)
 
+
 @app.route('/predict', methods=['POST'])
 def predict():
     """ process data passed from web-app and call the function to run through model """
@@ -19,6 +20,7 @@ def predict():
 
     response = mnist_classify(image_array)
     return jsonify({'classification': int(response)})
+
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5002, debug=True)

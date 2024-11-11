@@ -16,6 +16,7 @@ app = Flask(__name__)
 load_dotenv()
 ml_base_url = os.getenv('ML_CLIENT_PORT')
 
+
 @app.route('/')
 def main_page():
     """ render main page """
@@ -44,6 +45,7 @@ def classify():
     else:
         return {"error": "Classification failed"}, 500
 
+
 @app.route('/save-results', methods=['POST'])
 def save_results():
     """ call to function that saves result of classification """
@@ -52,11 +54,13 @@ def save_results():
     save_to_mongo(data)
     return '', 204
 
+
 @app.route('/get-stats', methods=['GET'])
 def get_stats():
     """ call to function that retrieves app statistics """
 
     return get_statistics()
+
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5001, debug=True)

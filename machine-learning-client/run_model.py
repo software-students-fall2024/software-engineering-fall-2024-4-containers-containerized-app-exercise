@@ -37,10 +37,17 @@ model = CNNModel()
 model.load_state_dict(torch.load(model_path, map_location=torch.device('cpu'), weights_only=True))
 model.eval()
 
+class InvertGrayscale:
+    def __call__(self, tensor):
+        return 255.0 - tensor
+
+
 test_transform = transforms.Compose([
     transforms.ToTensor(),
+    # inverted here due to nature of how data is outputted from webpage
+    InvertGrayscale(),
     transforms.Resize((28, 28)),
-    transforms.Normalize((0.1307,), (0.3081,))
+    transforms.Normalize((254.8692,), (0.3015,))
 ])
 
 def mnist_classify(data):
