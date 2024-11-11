@@ -24,7 +24,7 @@ jobs:
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
-        pip install librosa numpy sounddevice scikit-learn
+        pip install librosa numpy sounddevice scikit-learn pylint
 
     # - name: Start/Run the tests
     #   run: |
