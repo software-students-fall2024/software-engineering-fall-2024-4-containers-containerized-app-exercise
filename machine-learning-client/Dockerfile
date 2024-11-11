@@ -2,7 +2,7 @@
 FROM python:3.8-slim-buster
 
 # Set the working directory in the image
-WORKDIR /app
+WORKDIR /
 
 # install dependencies into the image - doing this first will speed up subsequent builds, as Docker will cache this step
 COPY requirements.txt ./
