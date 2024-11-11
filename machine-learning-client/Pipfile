@@ -6,12 +6,12 @@ name = "pypi"
 [packages]
 pylint = "*"
 black = "*"
+
+[dev-packages]
 librosa = "*"
 numpy = "*"
 sounddevice = "*"
 scikit-learn = "*"
-
-[dev-packages]
 
 [requires]
 python_version = "3.10"
