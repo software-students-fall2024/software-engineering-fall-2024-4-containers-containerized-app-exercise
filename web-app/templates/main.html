@@ -1,0 +1,454 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Number Classifier</title>
+    <style>
+        body {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            font-family: Arial, sans-serif;
+            margin: 10px;
+            background-color: #dbeaff;
+        }
+
+        h1 {
+            font-size: 20px;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .instructions-box {
+            padding: 20px;
+            border-radius: 8px;
+            border: 1px solid #333;
+            width: 180px;
+            position: absolute;
+            left: 25px;
+            top: 140px; 
+        }
+
+        .instructions-title {
+            font-weight: bold;
+            margin-bottom: 10px;
+            font-size: 16px;
+        }
+
+        .instructions-text {
+            font-size: 10px;
+        }
+
+        .stats-link {
+            position: absolute;
+            left: 85px;
+            top: 280px;  
+            font-weight: bold;
+            color: #4B0082;
+            text-decoration: none;
+            font-size: 14px;
+            transition: text-decoration 0.3s;
+        }
+
+        .stats-link:hover {
+            text-decoration: underline;
+        }
+
+        .result-box {
+            padding: 20px;
+            border-radius: 8px;
+            border: 1px solid #333;
+            width: 180px;
+            position: absolute;
+            right: 25px;
+            top: 140px; 
+            display: none;
+        }
+
+        .result-header {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .result-title {
+            font-weight: bold;
+            font-size: 16px;
+            display: inline-block;  
+        }
+
+        .result-text {
+            font-size: 16px;  
+            display: inline-block;  
+            margin-left: 5px; 
+        }
+
+        .feedback-buttons {
+            display: flex;
+            gap: 10px;
+            justify-content: center;  
+            align-items: center;    
+            margin-top: 10px;
+        }
+
+        .feedback-button-yes {
+            padding: 5px 10px;
+            font-size: 10px;
+            width: 50px;
+            background-color: #4CAF50;
+            color: white;
+            border: 2px solid #333;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .feedback-button-no {
+            padding: 5px 10px;
+            font-size: 10px;
+            width: 50px;
+            background-color: #f44336;
+            color: white;
+            border: 2px solid #333;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .feedback-button-yes:hover {
+            background-color: #085b0a;
+        }
+
+        .feedback-button-no:hover {
+            background-color: #9e3030;
+        }
+
+        .correct-number-input {
+            display: none;
+            margin-top: 10px;
+            text-align: center;
+        }
+
+        .input-label {
+            font-size: 12px;
+            margin-bottom: 5px;
+        }
+
+        input::-webkit-outer-spin-button,
+        input::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+
+        .correct-number-input input {
+            width: 30px;
+            padding: 5px;
+            font-size: 12px;
+            text-align: center;
+            margin-right: 5px;
+        }
+
+        .correct-number-input button {
+            font-size: 10px;
+            padding: 5px 10px;
+            width: auto;
+        }
+
+        .feedback-text {
+            font-size: 12px;
+            text-align: center;
+            margin-top: 15px;
+            margin-bottom: 10px;
+        }
+
+        #canvas {
+            border: 3px solid #333;
+            border-radius: 3px;
+            cursor: crosshair;
+            touch-action: none;
+            background: white;
+            margin-bottom: 10px;
+        }
+
+        .button-container {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+        }
+
+        button {
+            padding: 10px 20px;
+            font-size: 12px;
+            border: 2px solid #333;
+            border-radius: 4px;
+            border-color: #000000;
+            background-color: #f1a347;
+            color: black;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            width: 100px;
+        }
+
+        button:hover {
+            background-color: #5127a4;
+            color: white;
+        }
+
+        .error-message {
+            color: red;
+            text-align: center;
+            margin-top: 10px;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Number Classifier</h1>
+    
+    <div class="instructions-box">
+        <div class="instructions-title">Instructions:</div>
+        <ul style="margin: 0; padding-left: 20px;" class="instructions-text">
+            <li>Draw a single digit (0-9)</li>
+            <li>Try to draw in the center</li>
+            <li>Use clear strokes</li>
+            <li>Click "Classify" once complete</li>
+            <li>Press "Clear" to empty the canvas</li>
+        </ul>
+    </div>
+
+    <a href="/statistics" class="stats-link" target="_blank" rel="noopener noreferrer">View Statistics</a>
+
+    <div class="canvas-container">
+        <canvas id="canvas" width="280" height="280"></canvas>
+        <div class="button-container">
+            <button onclick="clearCanvas()">Clear</button>
+            <button onclick="classifyNumber()">Classify</button>
+        </div>
+    </div>
+
+    <div class="result-box">
+        <div class="result-header">
+            <div class="result-title">Classification: </div>
+            <div class="result-text" id="classification-result"></div>
+        </div>
+        <div class="feedback-text">Was this correct?</div>
+        <div class="feedback-buttons">
+            <button class="feedback-button-yes" onclick="provideFeedback('yes')">Yes</button>
+            <button class="feedback-button-no" onclick="provideFeedback('no')">No</button>
+        </div>
+        <div class="correct-number-input" id="correct-number-input">
+            <div class="input-label">What number did you draw?</div>
+            <input type="number" id="correct-number" min="0" max="9" placeholder="">
+            <button onclick="submitCorrectNumber()">Submit</button>
+        </div>
+
+    </div>
+
+    <div class="error-message" id="error-message"></div>
+
+    <script>
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+        let isDrawing = false;
+        let lastX = 0;
+        let lastY = 0;
+
+        ctx.fillStyle = 'white';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        ctx.strokeStyle = 'black';
+        ctx.lineWidth = 10;
+        ctx.lineCap = 'round';
+        ctx.lineJoin = 'round';
+
+        canvas.addEventListener('mousedown', startDrawing);
+        canvas.addEventListener('mousemove', draw);
+        window.addEventListener('mouseup', stopDrawing);
+        canvas.addEventListener('mouseleave', pauseDrawing);
+        canvas.addEventListener('mouseenter', continueDrawing);
+
+        canvas.addEventListener('touchstart', handleTouchStart);
+        canvas.addEventListener('touchmove', handleTouchMove);
+        canvas.addEventListener('touchend', stopDrawing);
+
+        function startDrawing(e) {
+            isDrawing = true;
+            [lastX, lastY] = getCoordinates(e);
+        }
+
+        function pauseDrawing() {
+            isDrawing = false;
+        }
+
+        function continueDrawing(e) {
+            if (e.buttons === 1) {
+                isDrawing = true;
+                [lastX, lastY] = getCoordinates(e);
+            }
+        }
+
+        function handleTouchStart(e) {
+            e.preventDefault();
+            const touch = e.touches[0];
+            const mouseEvent = new MouseEvent('mousedown', {
+                clientX: touch.clientX,
+                clientY: touch.clientY
+            });
+            canvas.dispatchEvent(mouseEvent);
+        }
+
+        function handleTouchMove(e) {
+            e.preventDefault();
+            const touch = e.touches[0];
+            const mouseEvent = new MouseEvent('mousemove', {
+                clientX: touch.clientX,
+                clientY: touch.clientY
+            });
+            canvas.dispatchEvent(mouseEvent);
+        }
+
+        function getCoordinates(e) {
+            const rect = canvas.getBoundingClientRect();
+            return [
+                e.clientX - rect.left,
+                e.clientY - rect.top
+            ];
+        }
+
+        function draw(e) {
+            if (!isDrawing) return;
+
+            const [currentX, currentY] = getCoordinates(e);
+            
+            ctx.beginPath();
+            ctx.moveTo(lastX, lastY);
+            ctx.lineTo(currentX, currentY);
+            ctx.stroke();
+
+            [lastX, lastY] = [currentX, currentY];
+        }
+
+        function stopDrawing() {
+            isDrawing = false;
+        }
+
+        function clearCanvas() {
+            ctx.fillStyle = 'white';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            document.getElementById('error-message').textContent = ""; 
+            document.querySelector('.result-box').style.display = 'none'; 
+            document.getElementById('classification-result').textContent = "";
+            document.getElementById('correct-number-input').style.display = 'none';
+            document.getElementById('correct-number').value = '';
+        }
+
+        function isCanvasEmpty() {
+            const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height).data;
+            return !imageData.some(channel => channel !== 255);
+        }
+
+        function processCanvas() {
+            const tempCanvas = document.createElement('canvas');
+            tempCanvas.width = 28;
+            tempCanvas.height = 28;
+            const tempCtx = tempCanvas.getContext('2d');
+
+            tempCtx.drawImage(canvas, 0, 0, 28, 28);
+            
+            const imageData = tempCtx.getImageData(0, 0, 28, 28);
+            const pixelData = new Float32Array(28 * 28);
+            
+            for (let i = 0; i < imageData.data.length; i += 4) {
+                pixelData[i/4] = 255 - imageData.data[i];
+            }
+
+            return pixelData;
+        }
+
+        let classificationResult = null;
+        let currentProcessedData = null;
+
+        function classifyNumber() {
+            const errorMessage = document.getElementById('error-message');
+            
+            if (isCanvasEmpty()) {
+                errorMessage.textContent = "Error: Please draw a number!";
+                return;
+            }
+            
+            errorMessage.textContent = "";
+            currentProcessedData = processCanvas();
+            
+            fetch('/classify', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    image: Array.from(currentProcessedData)
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                classificationResult = data.classification;
+                document.getElementById('classification-result').textContent = classificationResult;
+                document.querySelector('.result-box').style.display = 'block';
+                console.log(classificationResult);
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                errorMessage.textContent = "Error: classification failed";
+            });
+        }
+
+        function provideFeedback(response) {
+            if (response === 'yes') {
+                saveFeedback(classificationResult, classificationResult);
+            } else {
+                document.getElementById('correct-number-input').style.display = 'block';
+            }
+        }  
+
+        function submitCorrectNumber() {
+            const inputElement = document.getElementById('correct-number');
+            const value = inputElement.value;
+            
+            if (value === '' || isNaN(value) || value < 0 || value > 9) {
+                alert('Please enter a valid number between 0 and 9');
+                return;
+            }
+
+            saveFeedback(parseInt(value), classificationResult);
+            
+            document.getElementById('correct-number-input').style.display = 'none';
+            inputElement.value = '';
+        }
+
+        function saveFeedback(intendedNum, classifiedNum) {
+            fetch('/save-results', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    intendedNum: intendedNum,
+                    classifiedNum: classifiedNum,
+                    imageData: Array.from(currentProcessedData)
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                console.log('Feedback saved:', data);
+            })
+            .catch(error => {
+                console.error('Error saving feedback:', error);
+            });
+
+            clearCanvas();
+            classificationResult = null;
+            currentProcessedData = null;
+        }
+    </script>
+</body>
+</html>

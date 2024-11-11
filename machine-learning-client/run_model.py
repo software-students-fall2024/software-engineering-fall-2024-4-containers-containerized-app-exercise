@@ -1,18 +1,19 @@
+""" Module to run the ml classification model """
+import os
 import torch
-import torch.nn as nn
+
+from torch import nn
+from torch.nn import functional as F
 from torchvision import transforms
-import torch.nn.functional as F
 
 # import the pre-trained model
-import os
 current_dir = os.path.dirname(os.path.abspath(__file__))
 model_path = os.path.join(current_dir, 'mnist-cnn.pth')
 
-
 class CNNModel(nn.Module):
+    """ define cnn model class """
     def __init__(self):
         super(CNNModel, self).__init__()
-        # 1 input channel (grayscale), 32 output channels
         self.conv1 = nn.Conv2d(1, 32, kernel_size=3, padding=1)
         self.conv2 = nn.Conv2d(32, 64, kernel_size=3, padding=1)
         self.conv3 = nn.Conv2d(64, 128, kernel_size=3, padding=1)
@@ -22,6 +23,7 @@ class CNNModel(nn.Module):
         self.dropout = nn.Dropout(0.25)
 
     def forward(self, x):
+        """ ml forward function """
         x = self.pool(F.relu(self.conv1(x)))
         x = self.pool(F.relu(self.conv2(x)))
         x = self.pool(F.relu(self.conv3(x)))
@@ -31,11 +33,9 @@ class CNNModel(nn.Module):
         x = self.fc2(x)
         return x
 
-
 model = CNNModel()
-model.load_state_dict(torch.load(model_path, weights_only=True))
+model.load_state_dict(torch.load(model_path, map_location=torch.device('cpu'), weights_only=True))
 model.eval()
-
 
 class InvertGrayscale:
     def __call__(self, tensor):
@@ -50,8 +50,8 @@ test_transform = transforms.Compose([
     transforms.Normalize((254.8692,), (0.3015,))
 ])
 
-
 def mnist_classify(data):
+    """ receives web-app data and returns the model output """
     model_input = test_transform(data).unsqueeze(0)
     with torch.no_grad():
         output = model(model_input)

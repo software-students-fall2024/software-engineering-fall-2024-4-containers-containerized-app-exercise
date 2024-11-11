@@ -1,25 +1,26 @@
-import pymongo
+""" Module for retrieving application statistics from mongodb """
+
+import logging
 import os
+import pymongo
 import certifi
 from dotenv import load_dotenv
-import logging
-from flask import request
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 load_dotenv()
-
 mongo_cxn = os.getenv('MONGO_CXN_STRING')
-logger.info(mongo_cxn)
+# client = pymongo.MongoClient(mongo_cxn, tlsCAFile=certifi.where())
+client = pymongo.MongoClient(mongo_cxn)
 
-client = pymongo.MongoClient(mongo_cxn, tlsCAFile=certifi.where())
 
 db = client['project4']
 collection = db['num_classifications']
 
 
 def get_statistics():
+    """ Function to retrieve application statistics from mongodb """
     try:
         # get total count of documents
         total_count = collection.count_documents({})
@@ -69,6 +70,9 @@ def get_statistics():
             "individual_digits": individual_digit_stats
         }
 
-    except Exception as e:
-        logger.error(f"Error calculating statistics: {str(e)}")
-        return {"error": f"Failed to calculate statistics: {str(e)}"}
+    except ZeroDivisionError as e:
+        logger.error("Division by zero error: %s", str(e))
+        return {"error": "No data available for statistics calculation"}
+    except ValueError as e:
+        logger.error("Value error in calculations: %s", str(e))
+        return {"error": f"Error in calculations: {str(e)}"}

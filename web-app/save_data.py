@@ -1,25 +1,26 @@
-import pymongo
+""" Module for saving classification outputs and user inputs to mongodb """
+
+import logging
 import os
+import pymongo
 import certifi
 from dotenv import load_dotenv
-import logging
-from flask import request
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 load_dotenv()
-
 mongo_cxn = os.getenv('MONGO_CXN_STRING')
-logger.info(mongo_cxn)
+# client = pymongo.MongoClient(mongo_cxn, tlsCAFile=certifi.where())
+client = pymongo.MongoClient(mongo_cxn)
 
-client = pymongo.MongoClient(mongo_cxn, tlsCAFile=certifi.where())
 
 db = client['project4']
 collection = db['num_classifications']
 
 
 def save_to_mongo(data):
+    """Function to save data to mongo db"""
     try:
         document = {
             'intended_num': data['intendedNum'],
@@ -28,9 +29,13 @@ def save_to_mongo(data):
         }
 
         result = collection.insert_one(document)
-        logger.info(f"Document saved to MongoDB with ig: {result.inserted_id}")
+        logger.info("Document saved to MongoDB with id: %s",
+                    result.inserted_id)
         return True
 
-    except Exception as e:
-        logger.error(f"Error saving to MongoDB: {str(e)}")
+    except KeyError as e:
+        logger.error("Missing required field in data: %s", str(e))
+        return False
+    except TypeError as e:
+        logger.error("Invalid data type: %s", str(e))
         return False

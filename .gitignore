@@ -147,8 +147,5 @@ dmypy.json
 
 # Cython debug symbols
 cython_debug/
-<<<<<<< Updated upstream
-=======
 
 machine-learning-client/data
->>>>>>> Stashed changes
