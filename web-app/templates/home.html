@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Plant Identifier</title>
+</head>
+<body>
+    <h1>Welcome to the Plant Identifier</h1>
+    <p>This app allows you to upload images of plants to identify them and view past identifications.</p>
+
+    <nav>
+        <ul>
+            <li><a href="{{ url_for('upload') }}">Upload an Image</a></li>
+            <li><a href="{{ url_for('history') }}">View Past Identifications</a></li>
+        </ul>
+    </nav>
+</body>
+</html>

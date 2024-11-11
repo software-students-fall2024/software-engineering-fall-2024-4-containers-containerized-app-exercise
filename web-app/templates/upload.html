@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Upload Plant Image</title>
+</head>
+<body>
+    <h1>Upload Plant Image</h1>
+    
+    <form action="{{ url_for('upload') }}" method="POST" enctype="multipart/form-data">
+        <label for="plant_image">Choose an image of a plant:</label>
+        <input type="file" name="plant_image" id="plant_image" required>
+        <br><br>
+        <button type="submit">Upload Image</button>
+    </form>
+
+    <br>
+    <a href="{{ url_for('home') }}">Return to Home</a>
+</body>
+</html>
