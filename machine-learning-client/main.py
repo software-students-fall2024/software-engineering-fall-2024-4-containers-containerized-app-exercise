@@ -4,9 +4,9 @@ from datetime import datetime
 
 import librosa
 import numpy as np
-import pymongo
 import sounddevice as sd
 from sklearn.neighbors import KNeighborsClassifier
+
 
 def record_audio(duration=2, fs=44100):
     """Record audio from the microphone."""
@@ -27,8 +27,8 @@ def extract_features(audio, fs):
 def train_model():
     """Train a simple KNN model with pre-recorded samples."""
     # Labels: 0 - Clapping, 1 - Snapping, 2 - Hitting Desk
-    X = []
-    y = []
+    x_data = []
+    y_labels = []
 
     data_dir = "training_data"
     labels = {"clapping": 0, "snapping": 1, "hitting": 2}
@@ -40,14 +40,14 @@ def train_model():
                 file_path = os.path.join(label_dir, file_name)
                 audio, fs = librosa.load(file_path, sr=None)
                 features = extract_features(audio, fs)
-                X.append(features)
-                y.append(idx)
+                x_data.append(features)
+                y_labels.append(idx)
 
-    X = np.array(X)
-    y = np.array(y)
+    x_data = np.array(x_data)
+    y_labels = np.array(y_labels)
 
     model = KNeighborsClassifier(n_neighbors=3)
-    model.fit(X, y)
+    model.fit(x_data, y_labels)
 
     # Save the trained model
     with open("sound_classification_model.pkl", "wb") as file:
@@ -75,7 +75,7 @@ def classify_sound(model, features):
 def main():
     """Main function to run the client."""
     try:
-        fs = 44100 
+        fs = 44100
         duration = 4  # Duration in seconds
         audio = record_audio(duration=duration, fs=fs)
 
@@ -95,13 +95,15 @@ def main():
         }
         print(metadata)
 
-        # Save metadata
-
         print(f"Sound classified as: {result}")
         print("Metadata saved successfully.")
 
+    except FileNotFoundError as e:
+        print(f"File not found: {e}")
+    except ValueError as e:
+        print(f"Value error: {e}")
     except Exception as e:
-        print(f"An error occurred: {e}")
+        print(f"An unexpected error occurred: {e}")
 
 
 if __name__ == "__main__":
