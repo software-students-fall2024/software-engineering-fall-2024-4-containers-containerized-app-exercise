@@ -112,9 +112,6 @@ def main():
         print(f"Value error: {e}")
     except OSError as e:
         print(f"OS error: {e}")
-    except Exception as e:  # This remains as a fallback for unexpected exceptions.
-        print(f"An unexpected error occurred: {e}")
-
 
 if __name__ == "__main__":
     main()
