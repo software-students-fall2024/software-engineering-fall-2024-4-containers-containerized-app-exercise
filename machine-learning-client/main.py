@@ -1,3 +1,11 @@
+"""
+Main module for sound classification using audio recording and feature extraction.
+
+This script records audio, extracts audio features, and classifies the sound
+using a pre-trained K-Nearest Neighbors (KNN) model. It includes functions for
+recording, feature extraction, model training, loading, and classification.
+"""
+
 import os
 import pickle
 from datetime import datetime
@@ -102,7 +110,9 @@ def main():
         print(f"File not found: {e}")
     except ValueError as e:
         print(f"Value error: {e}")
-    except Exception as e:
+    except OSError as e:
+        print(f"OS error: {e}")
+    except Exception as e:  # This remains as a fallback for unexpected exceptions.
         print(f"An unexpected error occurred: {e}")
 
 
