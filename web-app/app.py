@@ -1,15 +1,20 @@
 """ Flask server for web application - Project 4 """
 
 import logging
+import os
 from flask import Flask, render_template, request
 from save_data import save_to_mongo
 from get_statistics import get_statistics
 import requests
+from dotenv import load_dotenv
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 app = Flask(__name__)
+
+load_dotenv()
+ml_base_url = os.getenv('ML_CLIENT_PORT')
 
 @app.route('/')
 def main_page():
@@ -30,7 +35,7 @@ def classify():
     data = request.json
 
     response = requests.post(
-        'http://localhost:8000/predict',
+        ml_base_url + '/predict',
         json=data
     )
 
@@ -53,6 +58,5 @@ def get_stats():
 
     return get_statistics()
 
-
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=5000, debug=True)
+    app.run(host="0.0.0.0", port=5001, debug=True)
