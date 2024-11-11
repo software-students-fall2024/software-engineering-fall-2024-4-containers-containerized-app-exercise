@@ -6,7 +6,7 @@ Build a containerized app that uses machine learning. See [instructions](./instr
 
 ## Description
 
-TODO
+Our project is an audio-based recognition system for activity. It's designed to analyze various sound events, such as clapping, snapping, and hitting a desk and classify them accordingly. The system leverages Docker for scalability, and operates in a containerized environment, as per the instructions.
 
 ## Configuration Instructions
 

@@ -27,7 +27,7 @@ jobs:
         pip install pipenv
         pipenv install --dev
 
-    # - name: Start the tests
+    # - name: Start/Run the tests
     #   run: |
     #     cd machine-learning-client
     #     pipenv run pytest
