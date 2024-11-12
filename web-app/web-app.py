@@ -1,4 +1,3 @@
-print("web-app.py")
 from flask import Flask, jsonify
 from pymongo import MongoClient
 import os
@@ -32,4 +31,4 @@ def test_insert():
     return jsonify({"status": "success", "inserted_id": str(result.inserted_id)})
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=5000)
+    app.run(host='0.0.0.0', port=5001)
