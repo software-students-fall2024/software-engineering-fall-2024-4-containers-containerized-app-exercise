@@ -8,6 +8,10 @@ pylint = "*"
 black = "*"
 tomli = "*"
 typing-extensions = "*"
+librosa = "*"
+numpy = "*"
+sounddevice = "*"
+scikit-learn = "*"
 
 [dev-packages]
 
