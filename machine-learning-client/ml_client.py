@@ -1,12 +1,17 @@
 import requests
 import cv2
 import numpy as np
-from pymongo import MongoClient
+from pymongo.mongo_client import MongoClient
+from pymongo.server_api import ServerApi
+import os
+from dotenv import load_dotenv
 from datetime import datetime
 import time
 
 # MongoDB setup
-client = MongoClient("mongodb://localhost:27017/")
+load_dotenv()
+uri = os.getenv("URI")
+client = MongoClient(uri, server_api=ServerApi('1'))
 db = client['traffic_db']
 traffic_data_collection = db['traffic_data']
 
