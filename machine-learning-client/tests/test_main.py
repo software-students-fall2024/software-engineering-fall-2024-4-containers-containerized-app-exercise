@@ -10,7 +10,7 @@ from main import (
 )
 
 
-# Test for record_audio function
+# Test record_audio
 @mock.patch("main.sd.rec")
 @mock.patch("main.sd.wait")
 def test_record_audio(mock_wait, mock_rec):
@@ -19,7 +19,7 @@ def test_record_audio(mock_wait, mock_rec):
     assert audio.shape == (88200,)
 
 
-# Test for extract_features function
+# Test extract_features
 @mock.patch("main.librosa.feature.mfcc")
 def test_extract_features(mock_mfcc):
     mock_mfcc.return_value = np.zeros((40, 87))
@@ -29,7 +29,7 @@ def test_extract_features(mock_mfcc):
     assert features.shape == (40,)
 
 
-# Test for train_model function
+# Test train_model
 @mock.patch("main.os.path.exists")
 @mock.patch("main.librosa.load")
 @mock.patch("main.pickle.dump")
@@ -40,7 +40,7 @@ def test_train_model(mock_pickle, mock_load, mock_exists):
     assert mock_pickle.called
 
 
-# Test for load_model function
+# Test load_model
 @mock.patch("main.train_model")
 @mock.patch("main.os.path.exists")
 @mock.patch("main.pickle.load")
@@ -51,7 +51,7 @@ def test_load_model(mock_pickle_load, mock_exists, mock_train_model):
     assert model is not None
 
 
-# Test for classify_sound function
+# Test classify_sound
 def test_classify_sound():
     model_mock = mock.Mock()
     model_mock.predict.return_value = [0]
