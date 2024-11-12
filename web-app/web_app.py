@@ -1,10 +1,10 @@
 """
 This is a web app module for Attendify
 """
-
+import os
 from flask import Flask, jsonify
 from pymongo import MongoClient
-import os
+
 
 app = Flask(__name__)
 
