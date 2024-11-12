@@ -2,18 +2,8 @@
 Unit tests for main.py sound classification functions.
 """
 
-import os
-import sys
 from unittest import mock
 import numpy as np
-
-sys.path.insert(
-    0,
-    os.path.abspath(
-        os.path.join(os.path.dirname(__file__), "..", "machine-learning-client")
-    ),
-)
-
 from main import (
     record_audio,
     extract_features,
