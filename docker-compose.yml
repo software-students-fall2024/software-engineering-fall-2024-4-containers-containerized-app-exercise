@@ -18,7 +18,7 @@ services:
       context: ./web-app  # Path to the web-app directory
     container_name: web-app
     ports:
-      - "5001:5000"  # Expose web-app on port 5000
+      - "5000:5000"  # Expose web-app on port 5000
     command: ["python", "web-app.py"]
     depends_on:
       - mongo  # Ensure MongoDB is running before web-app starts
