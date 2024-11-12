@@ -10,7 +10,7 @@ import time
 
 # MongoDB setup
 load_dotenv()
-uri = os.getenv("uri")
+uri = os.getenv("URI")
 client = MongoClient(uri, server_api=ServerApi('1'))
 db = client['traffic_db']
 traffic_data_collection = db['traffic_data']
