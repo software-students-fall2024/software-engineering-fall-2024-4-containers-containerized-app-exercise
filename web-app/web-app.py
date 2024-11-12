@@ -31,4 +31,4 @@ def test_insert():
     return jsonify({"status": "success", "inserted_id": str(result.inserted_id)})
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=5001)
+    app.run(host='0.0.0.0', port=5000)
