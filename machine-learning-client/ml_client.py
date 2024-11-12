@@ -15,15 +15,13 @@ traffic_data_collection = db['traffic_data']
 CAMERA_IMAGE_URL = "https://ie.trafficland.com/v2.0/2308/huge?system=weatherbug-cmn&pubto…019ffb4…&refreshRate=30000&rnd=1731276551337"
 #API_KEY = 'bd90c3a94f0f4ca2b1a44fdc9056e0d6'
 
-def get_camera_image_url():
+def get_camera_data():
     """Fetch the image URL for a specific traffic camera using the 511 NY API."""
-    url = f"https://api.511ny.org/cameras?key=bd90c3a94f0f4ca2b1a44fdc9056e0d6&format=json&id={CAMERA_ID}"
+    url = f"https://511ny.org/api/getcameras?key=bd90c3a94f0f4ca2b1a44fdc9056e0d6&format=json
+"
     response = requests.get(url)
     if response.status_code == 200:
-        camera_data = response.json()
-        # Extract the image URL from the JSON response (adapt based on actual JSON structure)
-        image_url = camera_data['cameras'][0]['url']
-        return image_url
+        return response.json()
     else:
         print("Failed to fetch camera data.")
         return None
@@ -46,23 +44,36 @@ def detect_vehicles(img):
     vehicle_count = 0  # Update this with actual vehicle detection code
     return vehicle_count
 
-def save_to_db(vehicle_count):
+def save_to_db(vehicle_count, camera_info):
     """Save the vehicle count data to MongoDB."""
     data = {
         "timestamp": datetime.utcnow(),
         "vehicle_count": vehicle_count,
-        "location": "5th Ave @ 42nd St, NYC"
+        "camera_id": camera_info['ID'],
+        "location": camera_info['Name']
     }
     traffic_data_collection.insert_one(data)
     print(f"Data saved to MongoDB: {data}")
 
 def main():
+    camera_data = get_camera_data()
+    if not camera_data:
+        return
+
+    # Allow user to select a camera
+    print("Available Cameras:")
+    for idx, camera in enumerate(camera_data):
+        print(f"{idx}: {camera['Name']}")
+
+    camera_index = int(input("Enter the number of the camera you want to monitor: "))
+    selected_camera = camera_data[camera_index]
+
     while True:
-        img = fetch_image()
+        img = fetch_image(selected_camera['Url'])
         if img is not None:
             # Process image and count vehicles
             vehicle_count = detect_vehicles(img)
-            save_to_db(vehicle_count)
+            save_to_db(vehicle_count, selected_camera)
         
         # Wait before fetching the next image (adjust interval as needed)
         time.sleep(30)  # Fetch every 30 seconds
