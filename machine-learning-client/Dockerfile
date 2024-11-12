@@ -4,6 +4,7 @@ WORKDIR /app
 
 COPY . /app
 
-# RUN pip install -r requirements.txt
+RUN pip install pipenv
+RUN pipenv install
 
-CMD ["python", "app.py"]
+CMD ["pipenv", "run", "python", "app.py"]

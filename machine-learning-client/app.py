@@ -1,1 +1,5 @@
-print("HELLO WORLD, THIS DOCKER CONTAINER IS WORKING")
+import pymongo
+
+# client = pymongo.MongoClient("mongodb://localhost:27017/")
+
+print("Pymongo import successful")
