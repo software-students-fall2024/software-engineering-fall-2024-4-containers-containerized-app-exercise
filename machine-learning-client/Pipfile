@@ -6,8 +6,14 @@ name = "pypi"
 [packages]
 pylint = "*"
 black = "*"
+tomli = "*"
+typing-extensions = "*"
+librosa = "*"
+numpy = "*"
+sounddevice = "*"
+scikit-learn = "*"
 
 [dev-packages]
 
 [requires]
-python_version = "3.10"
+python_version = "3.12"
