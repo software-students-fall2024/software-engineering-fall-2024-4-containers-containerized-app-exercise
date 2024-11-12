@@ -32,7 +32,7 @@ jobs:
           source venv/bin/activate
           python -m pip install --upgrade pip
           pip install -r machine-learning-client/requirements.txt
-          pip install pytest pytest-cov
+          pip install pytest pytest-cov pylint
       
     - name: Start the Tests
       env:
@@ -46,4 +46,11 @@ jobs:
           PYTHONPATH: machine-learning-client
       run: |
           source venv/bin/activate
-          pylint machine-learning-client/main.py tests/test_main.py
+          pylint machine-learning-client/tests
+    
+    - name: Run tests with coverage
+      env:
+          PYTHONPATH: machine-learning-client
+      run: |
+          source venv/bin/activate
+          python -m pytest --cov=machine-learning-client/main --cov-report=html
