@@ -6,7 +6,11 @@ services:
     build:
       context: ./machine-learning-client  # Path to the ML client directory
     container_name: ml-client
-    command: ["python", "app.py"]  # Ensure it runs app.py in the ml-client
+    command: ["python", "app.py"]
+    depends_on:
+      - mongo  # Ensure MongoDB is running before ml-client starts
+    environment:
+      - MONGO_URI=${MONGO_URI}  # Use this URI to connect to MongoDB
 
   # Web App service
   web-app:
@@ -15,4 +19,20 @@ services:
     container_name: web-app
     ports:
       - "5001:5000"  # Expose web-app on port 5000
-    command: ["python", "web-app.py"]  # Ensure it runs web-app.py in the web-app
+    command: ["python", "web-app.py"]
+    depends_on:
+      - mongo  # Ensure MongoDB is running before web-app starts
+    environment:
+      - MONGO_URI=${MONGO_URI}  # Use this URI to connect to MongoDB
+
+  # MongoDB service
+  mongo:
+    image: mongo  # Use the official MongoDB image
+    container_name: mongo
+    ports:
+      - "27017:27017"  # Expose MongoDB's default port
+    volumes:
+      - mongo_data:/data/db  # Persist MongoDB data
+
+volumes:
+  mongo_data:
