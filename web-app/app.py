@@ -3,7 +3,7 @@ This module is the main entry point for the Flask web application, connecting
 to MongoDB and serving as the frontend for the client.
 """
 
-from flask import Flask, jsonify
+from flask import Flask
 from pymongo import MongoClient
 
 app = Flask(__name__)
