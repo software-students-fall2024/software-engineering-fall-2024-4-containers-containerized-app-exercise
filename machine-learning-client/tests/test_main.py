@@ -15,7 +15,6 @@ from main import (
 
 # Test record_audio
 @mock.patch("main.sd.rec")
-@mock.patch("main.sd.wait")
 def test_record_audio(mock_rec):
     """Test that record_audio function returns the correct shape."""
     mock_rec.return_value = np.zeros((88200, 1), dtype="float32")
@@ -47,7 +46,6 @@ def test_train_model(mock_pickle, mock_load, mock_exists):
 
 
 # Test load_model
-@mock.patch("main.train_model")
 @mock.patch("main.os.path.exists")
 @mock.patch("main.pickle.load")
 def test_load_model(mock_pickle_load, mock_exists):
