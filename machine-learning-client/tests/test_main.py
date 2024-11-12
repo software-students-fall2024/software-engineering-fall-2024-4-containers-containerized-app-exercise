@@ -4,7 +4,7 @@ Unit tests for main.py sound classification functions.
 
 from unittest import mock
 import numpy as np
-from main import (
+from ..main import (
     record_audio,
     extract_features,
     train_model,
