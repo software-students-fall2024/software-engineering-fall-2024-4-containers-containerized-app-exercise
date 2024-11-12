@@ -2,23 +2,21 @@ function analyzeSentence() {
   const sentence = document.getElementById('sentenceInput').value;
 
   fetch('/checkSentiment', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json'
-    },
-    body: JSON.stringify({ sentence })
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ sentence })
   })
   .then(response => response.json())
   .then(data => {
-    const analysis = data.analysis;
-    displaySentiment(analysis);
+      // Display the user's input sentence in the front end
+      displaySentiment(data.analysis);
   })
   .catch(error => console.error('Error:', error));
 }
 
 function displaySentiment(analysis) {
   const visualization = document.getElementById('visualization');
-  visualization.textContent = `Sentiment Analysis: ${JSON.stringify(analysis)}`;
+  visualization.textContent = `Sentiment: ${analysis}`;
 }
 
 // Speech recognition
