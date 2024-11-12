@@ -29,5 +29,5 @@ TODO
 
 # Acknowledgements
 
-- The structure of the Dockerfile is based on the example we were given in class (https://knowledge.kitchen/content/courses/software-engineering/notes/containers/)
-- While not used directly, this source helped out with making the imports and configuration of the main.py file in the machine learning client folder (https://realpython.com/introduction-to-mongodb-and-python/)
+- The structure of docker-compose.yaml and our Dockerfile are based on the examples we were given in class (https://knowledge.kitchen/content/courses/software-engineering/notes/containers/)
+- When writing the tests, librosa documentation, pytorch, and realpython were helpful sources to figure out mocking and just how the assertions should look (https://librosa.org/doc/0.8.1/index.html#id1), (https://discuss.pytorch.org/t/mfcc-extracterted-by-librosa-pytorch/161180), (https://realpython.com/python-mock-library/)

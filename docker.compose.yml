@@ -1,0 +1,27 @@
+version: "3.10"
+
+services:
+  db:
+    image: mongo
+    container_name: db
+    ports:
+      - 27017:27017 # Default
+    volumes:
+      - ./db:/data/db
+
+  ml-client:
+    build: ./machine-learning-client 
+    depends_on:
+      - db
+
+  web-app:
+    build: ./web-app
+    ports:
+      - 5000:5000 
+    depends_on:
+      - db
+      - ml-client
+
+networks:
+  default:
+    driver: bridge
