@@ -1,5 +1,9 @@
 version: "3.8"
 
+'''
+Docker-compose file
+Includes DB, ML Client, and Web App
+'
 services:
   mongodb:
     image: mongo
