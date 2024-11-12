@@ -3,27 +3,29 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Sentence Checker</title>
-  <link rel="stylesheet" href="index.css">
+  <title>AI Sentence Checker</title>
+  <link rel="stylesheet" href="../static/css/index.css">
 </head>
 <body>
   <div class="container">
     <header>
       <h1>AI Sentence Checker</h1>
-      <p>Check your sentences for tone, clarity, and sentiment.</p>
+      <p>Enter your sentence to check the sentiment.</p>
     </header>
 
-    <div class="input-section">
-      <textarea id="sentenceInput" placeholder="Start writing here..."></textarea>
-      <button onclick="analyzeSentence()">Analyze Sentence</button>
-    </div>
-
-    <div class="result-section">
-      <h2>Sentiment Analysis Result</h2>
-      <div id="visualization"> <!-- Placeholder for data visualization --> </div>
+    <div class="content">
+      <div class="input-section">
+        <textarea id="sentenceInput" placeholder="Start writing here..."></textarea>
+        <button onclick="analyzeSentence()">Analyze Sentiment</button>
+      </div>
+      
+      <div class="result-section">
+        <h2>Sentiment Analysis Result</h2>
+        <div id="visualization"> <!-- Sentiment visualization will appear here --> </div>
+      </div>
     </div>
   </div>
 
-  <script src="app.js"></script>
+  <script src="../static/app.js"></script>
 </body>
 </html>
