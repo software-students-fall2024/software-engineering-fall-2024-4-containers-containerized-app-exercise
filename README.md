@@ -12,7 +12,7 @@ Build a containerized app that uses machine learning. See [instructions](./instr
 
 ## DESCRIPTION
 
-Our containerized app...
+Our containerized web app utilizes machine learning (image recognition) to play Rock-Paper-Scissors with the user.
 
 ## CONFIGURATION STEPS
 
