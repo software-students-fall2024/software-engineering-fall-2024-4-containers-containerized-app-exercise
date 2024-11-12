@@ -1,3 +1,7 @@
+"""
+This is a web app module for Attendify
+"""
+
 from flask import Flask, jsonify
 from pymongo import MongoClient
 import os
@@ -13,10 +17,12 @@ print("MongoDB URI:", mongo_uri)
 
 @app.route('/')
 def home():
+    """Handles the home route."""
     return "Welcome to the Web App!"
 
 @app.route('/test-insert')
 def test_insert():
+    """Insert a test document into MongoDB and return the inserted ID."""
     collection = db["test_collection"]
 
     # Create a sample document to insert
