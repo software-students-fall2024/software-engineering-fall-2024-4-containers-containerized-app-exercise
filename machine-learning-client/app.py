@@ -1,6 +1,6 @@
 """
-This module is the main entry point for the machine learning client, connecting
-to MongoDB and serving as the backend API for the client.
+This application serves as the main entry point for the machine learning client,
+connecting to MongoDB and performing data analysis tasks.
 """
 
 from pymongo import MongoClient

@@ -1,6 +1,6 @@
 """
-This module is the main entry point for the Flask web application, connecting
-to MongoDB and serving as the frontend for the client.
+This application serves as the main entry point for the Flask web application,
+connecting to MongoDB and providing the frontend interface.
 """
 
 from flask import Flask
