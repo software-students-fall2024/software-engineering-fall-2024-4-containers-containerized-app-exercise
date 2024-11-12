@@ -8,9 +8,6 @@ pylint = "*"
 black = "*"
 flask = "*"
 pymongo = "*"
-pytest = "*"
-pytest-flask = "*"
-coverage = "*"
 
 [dev-packages]
 
