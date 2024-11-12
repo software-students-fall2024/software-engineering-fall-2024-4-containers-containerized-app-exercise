@@ -1,6 +1,11 @@
-import pytest
+"""
+Unit tests
+"""
+
 from unittest import mock
 import numpy as np
+
+# import pytest
 from main import (
     record_audio,
     extract_features,
@@ -13,7 +18,7 @@ from main import (
 # Test record_audio
 @mock.patch("main.sd.rec")
 @mock.patch("main.sd.wait")
-def test_record_audio(mock_wait, mock_rec):
+def test_record_audio(mock_rec):
     mock_rec.return_value = np.zeros((88200, 1), dtype="float32")
     audio = record_audio(duration=2, fs=44100)
     assert audio.shape == (88200,)
@@ -44,7 +49,7 @@ def test_train_model(mock_pickle, mock_load, mock_exists):
 @mock.patch("main.train_model")
 @mock.patch("main.os.path.exists")
 @mock.patch("main.pickle.load")
-def test_load_model(mock_pickle_load, mock_exists, mock_train_model):
+def test_load_model(mock_pickle_load, mock_exists):
     mock_exists.return_value = True
     mock_pickle_load.return_value = mock.Mock()
     model = load_model()
