@@ -2,7 +2,6 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>AI Sentence Checker</title>
   <link rel="stylesheet" href="../static/css/index.css">
 </head>
@@ -16,12 +15,13 @@
     <div class="content">
       <div class="input-section">
         <textarea id="sentenceInput" placeholder="Start writing here..."></textarea>
+        <br>
         <button onclick="analyzeSentence()">Analyze Sentiment</button>
       </div>
       
       <div class="result-section">
         <h2>Sentiment Analysis Result</h2>
-        <div id="visualization"> <!-- Sentiment visualization will appear here --> </div>
+        <div id="visualization"></div>
       </div>
     </div>
   </div>
