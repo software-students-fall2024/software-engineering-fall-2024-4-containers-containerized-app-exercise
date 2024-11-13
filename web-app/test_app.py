@@ -3,20 +3,13 @@ Unit tests for app.py web app.
 """
 
 import pytest
-from app import app as flask_app
 
 
 @pytest.fixture
-def set_app():
-    """Pytest-flask handling."""
-    flask_app.config["TESTING"] = True
-    return flask_app
-
-
-@pytest.fixture
-def app_client(set_app):
+def app_client(app):
     """Create a test client for the Flask app."""
-    with set_app.test_client() as client:
+    app["TESTING"] = True
+    with app.test_client() as client:
         yield client
 
 
