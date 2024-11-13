@@ -1,5 +1,4 @@
 import os
-import uuid
 import nltk
 from nltk.tokenize import word_tokenize
 from pymongo import MongoClient
@@ -17,7 +16,7 @@ from sumy.parsers.plaintext import PlaintextParser
 from sumy.nlp.tokenizers import Tokenizer
 from sumy.summarizers.lex_rank import LexRankSummarizer
 import text2emotion as te
-
+import time
 
 # step 1: retrive the data in this structure
 # {
@@ -258,12 +257,15 @@ def update_document_in_db(document):
     )
 
 def main():
-    pending_documents = texts_collection.find({"overall_status": "pending"})
-    for document in pending_documents:
-        updated_document = process_document(document)
-        update_document_in_db(updated_document)
-        print(f"Processed document with request_id: {document['request_id']}")
-    print("Sentiment analysis and additional analyses completed for all pending documents.")
+    while True:
+        pending_documents = texts_collection.find({"overall_status": "pending"})
+        for document in pending_documents:
+            updated_document = process_document(document)
+            update_document_in_db(updated_document)
+            print(f"Processed document with request_id: {document['request_id']}")
+        
+        # Add a delay to avoid overwhelming the database
+        time.sleep(5)
 
 if __name__ == "__main__":
     main()
