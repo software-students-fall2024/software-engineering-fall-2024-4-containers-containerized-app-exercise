@@ -11,9 +11,6 @@ black = "*"
 flask-cors = "*"
 
 [dev-packages]
-pytest-mock = "*"
-pylint = "*"
-black = "*"
 
 [requires]
 python_version = "3.12"
