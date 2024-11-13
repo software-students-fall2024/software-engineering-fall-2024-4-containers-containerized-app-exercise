@@ -11,6 +11,7 @@ pymongo = "*"
 tomli = "*"
 pytest = "*"
 python-dotenv = "*"
+requests = "*"
 
 [dev-packages]
 
