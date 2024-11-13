@@ -17,7 +17,7 @@ def setup_logging():
 
 def main():
     load_dotenv()
-    MONGO_URI=os.getenv('MONGO_URI','mongodb://root:FILL IN DATABSE')
+    MONGO_URI=os.getenv('MONGO_URI','mongodb://root:example@localhost:27017')
     AUDIO_DIR=os.getenv('AUDIO_DIR','./audio')
     setup_logging()
     logger = logging.getLogger(__name__)
@@ -60,6 +60,14 @@ def main():
 
         except Exception as e:
             logger.error(f"Error processing {file_path}:{e}")
+
+logging.basicConfig(
+    level=logging.DEBUG,  # Change to DEBUG for testing, revert to INFO later
+    format='%(asctime)s [%(levelname)s] %(message)s',
+    handlers=[
+        logging.StreamHandler()
+    ]
+)
 
 if __name__=='__main__':
     main()
