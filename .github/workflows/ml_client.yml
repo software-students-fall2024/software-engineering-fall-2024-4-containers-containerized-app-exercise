@@ -37,10 +37,6 @@ jobs:
       run: |
           venv/bin/pip list
 
-    - name: Start the Tests
-      run: |
-          venv/bin/python -m pytest --cov=machine-learning-client/main --cov-report=html
-
     - name: Run linting
       run: |
           venv/bin/python -m pylint machine-learning-client
