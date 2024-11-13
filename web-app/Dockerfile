@@ -8,4 +8,4 @@ RUN pip install pipenv && pipenv install --dev --deploy --ignore-pipfile
 
 COPY . .
 
-CMD ["python", "web-app.py"]
+CMD ["python", "web_app.py"]
