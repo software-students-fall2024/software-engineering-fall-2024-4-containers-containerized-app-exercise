@@ -14,6 +14,7 @@ def app_client():
         yield client
 
 
+@pytest.fixture
 def test_index_route(client):
     """Test the index route."""
     response = client.get("/")
