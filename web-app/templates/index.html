@@ -1,0 +1,29 @@
+<!-- templates/index.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Emotion Detection</title>
+</head>
+<body>
+    <h1>Emotion Detection App</h1>
+    <div>
+        <img src="{{ url_for('video_feed') }}" alt="Video feed">
+    </div>
+    <h2 id="emotion"></h2>
+
+    <script>
+        async function fetchEmotion() {
+            try {
+                const response = await fetch('/emotion');
+                const data = await response.json();
+                document.getElementById('emotion').innerText = `Emotion: ${data.emotion}`;
+            } catch (error) {
+                console.error("Error fetching emotion:", error);
+            }
+        }
+
+        setInterval(fetchEmotion, 2000);  // Fetch emotion every 2 seconds
+    </script>
+</body>
+</html>
