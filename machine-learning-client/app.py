@@ -7,6 +7,7 @@ app = Flask(__name__)
 
 @app.route("/encode", methods=["POST"])
 def encode_image():
+    """to encode images"""
     data = request.get_json()
     image_path = data.get("image_path")
 
@@ -24,12 +25,13 @@ def encode_image():
 
         # Return the first encoding (we assume there's only one face for registration)
         return jsonify({"encoding": encodings[0].tolist()}), 200
-    except Exception as e:
+    except (KeyError, ValueError) as e:
         return jsonify({"error": str(e)}), 500
 
 
 @app.route("/verify", methods=["POST"])
 def verify_identity():
+    """to verify identity"""
     data = request.get_json()
     image_path = data.get("image_path")
     stored_encoding = data.get("stored_encoding")
@@ -55,7 +57,7 @@ def verify_identity():
             return jsonify({"result": "verified"}), 200
         else:
             return jsonify({"result": "not verified"}), 401
-    except Exception as e:
+    except (KeyError, ValueError) as e:
         return jsonify({"error": str(e)}), 500
 
 
