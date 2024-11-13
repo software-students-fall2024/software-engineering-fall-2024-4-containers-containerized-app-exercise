@@ -22,14 +22,20 @@ mongo = MongoClient(os.getenv("MONGODB_URI"))
 db = mongo["object_detection"]
 
 # load MobileNet model and labels
-model = tf.keras.applications.MobileNetV2(weights="imagenet") # pylint: disable=no-member
-decode_predictions = tf.keras.applications.mobilenet_v2.decode_predictions # pylint: disable=no-member
+model = tf.keras.applications.MobileNetV2(
+    weights="imagenet"
+)  # pylint: disable=no-member
+decode_predictions = (
+    tf.keras.applications.mobilenet_v2.decode_predictions
+)  # pylint: disable=no-member
 
 
 def preprocess_image(image):
     """Preprocess the image for MobileNet input."""
     image = tf.image.resize(image, (224, 224))
-    image = tf.keras.applications.mobilenet_v2.preprocess_input(image) # pylint: disable=no-member
+    image = tf.keras.applications.mobilenet_v2.preprocess_input(
+        image
+    )  # pylint: disable=no-member
     return np.expand_dims(image, axis=0)
 
 
@@ -49,7 +55,7 @@ def detect_objects(image):
 
 def encode_image(image_array):
     """Encode image to base64."""
-    _, buffer = cv2.imencode(".png", image_array) # pylint: disable=no-member
+    _, buffer = cv2.imencode(".png", image_array)  # pylint: disable=no-member
     return base64.b64encode(buffer).decode("utf-8")
 
 
@@ -68,7 +74,7 @@ def detect():
     detected_objects = detect_objects(image)
 
     # convert the image for storage/display in mongo
-    _, buffer = cv2.imencode(".png", np.array(image)) # pylint: disable=no-member
+    _, buffer = cv2.imencode(".png", np.array(image))  # pylint: disable=no-member
     encoded_image = base64.b64encode(buffer).decode("utf-8")
 
     # Save to MongoDB
