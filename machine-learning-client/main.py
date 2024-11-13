@@ -6,42 +6,35 @@ using a pre-trained K-Nearest Neighbors (KNN) model. It includes functions for
 recording, feature extraction, model training, loading, and classification.
 """
 
-from flask import Flask, request, jsonify
 import os
 import pickle
 from datetime import datetime
-import numpy as np
-import librosa
-from sklearn.neighbors import KNeighborsClassifier
-import io
-from flask_cors import CORS
-from pydub import AudioSegment
 
-app = Flask(__name__)
-CORS(app)
+import librosa
+import numpy as np
+import sounddevice as sd
+from sklearn.neighbors import KNeighborsClassifier
+
+
+def record_audio(duration=2, fs=44100):
+    """Record audio from the microphone."""
+    print("Recording...")
+    audio = sd.rec(int(duration * fs), samplerate=fs, channels=1, dtype="float32")
+    sd.wait()
+    print("Recording complete.")
+    return np.squeeze(audio)
 
 
 def extract_features(audio, fs):
     """Extract audio features using MFCC."""
-    # Print the shape and sample rate of the audio data
-    print(
-        f"Extracting features from audio data of shape {audio.shape} with sampling rate {fs}"
-    )
-
     mfccs = librosa.feature.mfcc(y=audio, sr=fs, n_mfcc=40)
     mfccs_mean = np.mean(mfccs.T, axis=0)
-
-    # Print the shape and values of the extracted features
-    print(f"Extracted MFCCs shape: {mfccs.shape}")
-    print(f"Extracted MFCCs mean shape: {mfccs_mean.shape}")
-    print(f"Extracted MFCCs mean values: {mfccs_mean}")
-
     return mfccs_mean
 
 
 def train_model():
     """Train a simple KNN model with pre-recorded samples."""
-    print("Starting model training...")
+    # Labels: 0 - Clapping, 1 - Snapping, 2 - Hitting Desk
     x_data = []
     y_labels = []
 
@@ -50,14 +43,10 @@ def train_model():
 
     for label, idx in labels.items():
         label_dir = os.path.join(data_dir, label)
-        print(f"Processing training data for label '{label}' with index {idx}")
         for file_name in os.listdir(label_dir):
             if file_name.endswith(".wav"):
                 file_path = os.path.join(label_dir, file_name)
                 audio, fs = librosa.load(file_path, sr=None)
-                print(
-                    f"Loaded training audio file '{file_name}' with shape {audio.shape} and sampling rate {fs}"
-                )
                 features = extract_features(audio, fs)
                 x_data.append(features)
                 y_labels.append(idx)
@@ -65,72 +54,41 @@ def train_model():
     x_data = np.array(x_data)
     y_labels = np.array(y_labels)
 
-    # Print the shapes of the training data and labels
-    print(f"Training data shape: {x_data.shape}")
-    print(f"Training labels shape: {y_labels.shape}")
-    print(f"Training labels: {y_labels}")
-
-    model = KNeighborsClassifier(n_neighbors=1)
+    model = KNeighborsClassifier(n_neighbors=3)
     model.fit(x_data, y_labels)
 
     # Save the trained model
     with open("sound_classification_model.pkl", "wb") as file:
         pickle.dump(model, file)
 
-    print("Model trained and saved successfully.")
+    print("Model trained and saved.")
 
 
 def load_model():
     """Load the trained model."""
-    print("Loading model...")
-    train_model()
+    if not os.path.exists("sound_classification_model.pkl"):
+        train_model()
     with open("sound_classification_model.pkl", "rb") as file:
         model = pickle.load(file)
-    print("Model loaded successfully.")
     return model
 
 
 def classify_sound(model, features):
     """Classify the sound using the loaded model."""
-    print(f"Classifying sound with features: {features}")
     prediction = model.predict([features])[0]
     labels = {0: "clapping", 1: "snapping", 2: "hitting the desk"}
-    print(f"Prediction index: {prediction}, Predicted label: {labels[prediction]}")
     return labels[prediction]
 
 
-@app.route("/classify", methods=["POST"])
-def classify():
+def main():
+    """Main function to run the client."""
     try:
-        print("Received classification request...")
-        # Check if audio file is in the request
-        if "audio" not in request.files:
-            print("No audio file provided in the request.")
-            return jsonify({"error": "No audio file provided"}), 400
-
-        audio_file = request.files["audio"]
-        audio_bytes = audio_file.read()
-
-        # Use pydub to read the audio data
-        audio_segment = AudioSegment.from_file(io.BytesIO(audio_bytes))
-        print(f"Audio segment duration: {audio_segment.duration_seconds} seconds")
-        print(f"Audio segment frame rate: {audio_segment.frame_rate} Hz")
-        print(f"Audio segment sample width: {audio_segment.sample_width} bytes")
-
-        # Convert to mono and get raw audio data
-        audio_segment = audio_segment.set_channels(1)
-        audio_data = np.array(audio_segment.get_array_of_samples()).astype(np.float32)
-        fs = audio_segment.frame_rate
-
-        # Normalize audio data
-        sample_width = audio_segment.sample_width  # in bytes
-        max_val = float(2 ** (8 * sample_width - 1) - 1)
-        audio_data = audio_data / max_val
-
-        print(f"Received audio data shape: {audio_data.shape}, Sampling rate: {fs}")
+        fs = 44100
+        duration = 4  # Duration in seconds
+        audio = record_audio(duration=duration, fs=fs)
 
         # Extract features
-        features = extract_features(audio_data, fs)
+        features = extract_features(audio, fs)
 
         # Load model
         model = load_model()
@@ -140,18 +98,21 @@ def classify():
 
         # Prepare metadata
         metadata = {
-            "timestamp": datetime.utcnow().isoformat(),
+            "timestamp": datetime.utcnow(),
             "classification": result,
         }
+        print(metadata)
 
-        print(f"Classification result: {metadata}")
+        print(f"Sound classified as: {result}")
+        print("Metadata saved successfully.")
 
-        return jsonify(metadata), 200
-
-    except Exception as e:
-        print(f"Error during classification: {e}")
-        return jsonify({"error": str(e)}), 500
+    except FileNotFoundError as e:
+        print(f"File not found: {e}")
+    except ValueError as e:
+        print(f"Value error: {e}")
+    except OSError as e:
+        print(f"OS error: {e}")
 
 
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=5001)
+    main()
