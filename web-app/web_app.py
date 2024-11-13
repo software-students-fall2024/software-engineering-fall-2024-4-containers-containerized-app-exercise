@@ -3,14 +3,13 @@ This is a web app module for Attendify
 """
 
 import os
-from flask import Flask, jsonify, request, render_template, redirect, url_for, session
+from functools import wraps
+from flask import Flask, request, render_template, redirect, url_for, session
 from pymongo import MongoClient
 from werkzeug.security import generate_password_hash, check_password_hash
-from werkzeug.utils import secure_filename
-from functools import wraps
+from werkzeug.utils import secure_filename  # Add this import
 from dotenv import load_dotenv
 import requests
-
 
 load_dotenv()
 
@@ -34,14 +33,13 @@ def login_required(f):
         if "username" not in session:
             return redirect(url_for("login"))
         return f(*args, **kwargs)
-
     return decorated_function
 
 
 @app.route("/")
 @login_required
 def home():
-    """Handles the home route."""
+    """to handles the home route."""
     username = session.get("username")
     return render_template("home.html", username=username)
 
@@ -90,7 +88,7 @@ def signup():
             )
             return redirect(url_for("login"))
 
-        except Exception as e:
+        except (KeyError, ValueError, requests.RequestException) as e:
             print(f"Error during signup: {str(e)}")
             return render_template("encode_result.html", error="Internal Server Error")
 
@@ -132,7 +130,7 @@ def verify():
         result = response.json().get("result")
         return render_template("verify_result.html", result=result)
 
-    except Exception as e:
+    except (KeyError, ValueError, requests.RequestException) as e:
         print(f"Error during verification: {str(e)}")
         return render_template("verify_result.html", error="Internal Server Error")
 
@@ -147,8 +145,7 @@ def login():
         if user and check_password_hash(user["password"], password):
             session["username"] = username
             return redirect(url_for("home"))
-        else:
-            return "Invalid username or password"
+        return "Invalid username or password"
 
     return render_template("login.html")
 
