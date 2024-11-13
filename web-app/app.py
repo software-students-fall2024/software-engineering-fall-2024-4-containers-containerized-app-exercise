@@ -1,10 +1,12 @@
 """
 This module sets up the Flask application for the Plant Identifier project.
 """
+
 import os
 from dotenv import load_dotenv
 from flask import Flask, request, render_template, redirect, make_response
 import pymongo
+
 # from werkzeug.utils import secure_filename
 
 load_dotenv()
@@ -13,7 +15,7 @@ load_dotenv()
 def create_app():
     """Initializes and configures the Flask app"""
     app = Flask(__name__)
-    app.config['MAX_CONTENT_LENGTH'] = 5 * 1024 * 1024  # 5 MB limit
+    app.config["MAX_CONTENT_LENGTH"] = 5 * 1024 * 1024  # 5 MB limit
     app.secret_key = os.getenv("SECRET_KEY", "supersecretkey")
 
     connection = pymongo.MongoClient(os.getenv("MONGO_URI"))
@@ -26,11 +28,9 @@ def create_app():
     @app.route("/upload", methods=["GET", "POST"])
     def upload():
         if request.method == "POST":
-            photo_data = request.form['photo']
+            photo_data = request.form["photo"]
             print(photo_data)
-            db.plants.insert_one(
-                {"photo": photo_data}
-            )
+            db.plants.insert_one({"photo": photo_data})
             # file = request.files.get("plant_image")
             # if file:
             #     filename = secure_filename(file.filename)
@@ -44,7 +44,7 @@ def create_app():
             # return make_response("No file uploaded", 400)
 
             return redirect("/")
-        return render_template('upload.html')
+        return render_template("upload.html")
 
     @app.route("/results/<filename>")
     def results(filename):
