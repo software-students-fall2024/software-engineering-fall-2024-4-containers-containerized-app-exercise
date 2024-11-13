@@ -2,7 +2,10 @@
 This is the Flask web application that serves as the interface for
 the machine learning model.
 """
+
 from flask import Flask
+
+
 def create_app():
     """
     Create and configure the Flask application
@@ -11,6 +14,8 @@ def create_app():
     app = Flask(__name__)
     print("hello world!")
     return app
-if __name__ == '__main__':
+
+
+if __name__ == "__main__":
     web_app = create_app()
     web_app.run(debug=True)
