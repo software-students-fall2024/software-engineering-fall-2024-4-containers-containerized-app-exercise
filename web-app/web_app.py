@@ -141,7 +141,7 @@ def login():
     return render_template("login.html")
 
 
-@app.route("/logout")
+@app.route("/logout", methods=["GET", "POST"])
 def logout():
     """for users to log out"""
     session.pop("username", None)
