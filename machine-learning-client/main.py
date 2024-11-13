@@ -46,7 +46,7 @@ def train_model():
     x_data = []
     y_labels = []
 
-    data_dir = "training_data"
+    data_dir = "./training_data"
     labels = {"clapping": 0, "snapping": 1, "hitting": 2}
 
     for label, idx in labels.items():
