@@ -39,4 +39,4 @@ jobs:
 
       - name: Run tests with coverage
         run: |
-          venv/bin/python -m pytest web-app/test_app.py --cov=web-app/app --cov-report=html
+          venv/bin/python -m pytest web-app/test_app.py --cov=web-app --cov-report=html
