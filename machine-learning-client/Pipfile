@@ -16,6 +16,7 @@ pytest-cov = "*"
 pillow = "*"
 torch = "*"
 pandas = "*"
+dnspython = "*"
 scipy = "*"
 
 [dev-packages]
