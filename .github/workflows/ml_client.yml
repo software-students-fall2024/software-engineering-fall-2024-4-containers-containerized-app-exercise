@@ -47,4 +47,4 @@ jobs:
 
     - name: Run tests with coverage
       run: |
-          venv/bin/python -m pytest --cov=machine-learning-client/main --cov-report=html
+          venv/bin/python -m pytest machine-learning-client/test_main.py --cov=machine-learning-client/main --cov-report=html
