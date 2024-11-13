@@ -6,15 +6,16 @@ using a pre-trained K-Nearest Neighbors (KNN) model. It includes functions for
 recording, feature extraction, model training, loading, and classification.
 """
 
-from flask import Flask, request, jsonify
 import os
 import pickle
 from datetime import datetime
+import io
+
+from flask import Flask, request, jsonify
+from flask_cors import CORS
 import numpy as np
 import librosa
 from sklearn.neighbors import KNeighborsClassifier
-import io
-from flask_cors import CORS
 from pydub import AudioSegment
 
 app = Flask(__name__)
@@ -55,9 +56,6 @@ def train_model():
             if file_name.endswith(".wav"):
                 file_path = os.path.join(label_dir, file_name)
                 audio, fs = librosa.load(file_path, sr=None)
-                print(
-                    f"Loaded training audio file '{file_name}' with shape {audio.shape} and sampling rate {fs}"
-                )
                 features = extract_features(audio, fs)
                 x_data.append(features)
                 y_labels.append(idx)
