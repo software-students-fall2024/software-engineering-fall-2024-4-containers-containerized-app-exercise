@@ -4,11 +4,11 @@ connecting to MongoDB and performing data analysis tasks.
 """
 
 import os
-import base64
+from io import BytesIO
 from datetime import datetime
-import numpy as np
-import cv2
-import tensorflow as tf
+import base64
+import torch
+from PIL import Image
 from flask import Flask, request, jsonify
 from pymongo import MongoClient
 from dotenv import load_dotenv
@@ -21,69 +21,46 @@ CORS(app)
 mongo = MongoClient(os.getenv("MONGODB_URI"))
 db = mongo["object_detection"]
 
-# load MobileNet model and labels
-model = tf.keras.applications.MobileNetV2(  # pylint: disable=no-member
-    weights="imagenet"
-)
-decode_predictions = (  # pylint: disable=no-member
-    tf.keras.applications.mobilenet_v2.decode_predictions
-)
-
-
-def preprocess_image(image):
-    """Preprocess the image for MobileNet input."""
-    image = tf.image.resize(image, (224, 224))
-    image = tf.keras.applications.mobilenet_v2.preprocess_input(  # pylint: disable=no-member
-        image
-    )
-    return np.expand_dims(image, axis=0)
+# load YOLOv5 model
+model = torch.hub.load("ultralytics/yolov5", "yolov5s", pretrained=True)
 
 
 def detect_objects(image):
-    """Detect objects using MobileNet and return top predictions."""
-    preprocessed_image = preprocess_image(image)
-    predictions = model.predict(preprocessed_image)
-    decoded_predictions = decode_predictions(predictions, top=3)[
-        0
-    ]  # get top 3 predictions
-    detected_objects = [
-        {"label": label, "confidence": float(conf)}
-        for (_, label, conf) in decoded_predictions
+    """Detect objects using YOLOv5"""
+    results = model(image)
+    detections = results.pandas().xyxy[0].to_dict(orient="records")
+    return [
+        {"label": det["name"], "confidence": float(det["confidence"])}
+        for det in detections
     ]
-    return detected_objects
-
-
-def encode_image(image_array):
-    """Encode image to base64."""
-    _, buffer = cv2.imencode(".png", image_array)  # pylint: disable=no-member
-    return base64.b64encode(buffer).decode("utf-8")
 
 
 @app.route("/api/detect", methods=["POST"])
 def detect():
-    """Main endpoint for image detection."""
+    """POST route for image file processing"""
     if "file" not in request.files:
         return "No image file provided.", 400
 
-    # read and decode the image file
+    # read image in
     image_file = request.files["file"]
-    image_array = np.frombuffer(image_file.read(), np.uint8)
-    image = tf.image.decode_image(image_array, channels=3)
+    image = Image.open(image_file.stream)
 
     # detect objects
     detected_objects = detect_objects(image)
 
-    # convert the image for storage/display in mongo
-    _, buffer = cv2.imencode(".png", np.array(image))  # pylint: disable=no-member
-    encoded_image = base64.b64encode(buffer).decode("utf-8")
+    # encode image to base64 for mongo storage
+    buffered = BytesIO()
+    image.save(buffered, format="PNG")
+    encoded_image = base64.b64encode(buffered.getvalue()).decode("utf-8")
 
-    # Save to MongoDB
+    # save to mongo
     detection_data = {
         "timestamp": datetime.now(),
         "detected_objects": detected_objects,
         "image": encoded_image,
     }
-    db.detections.insert_one(detection_data)
+    result = db.detections.insert_one(detection_data)
+    detection_data["_id"] = str(result.inserted_id)
 
     return jsonify(detection_data), 200
 

@@ -16,6 +16,11 @@ pytest = "*"
 pytest-cov = "*"
 tensorflow = "*"
 h5py = "*"
+keras = "*"
+pillow = "*"
+torch = "*"
+pandas = "*"
+scipy = "*"
 
 [dev-packages]
 
