@@ -6,16 +6,23 @@ Includes DB, ML Client, and Web App
 '
 services:
   mongodb:
-    image: mongo
+    image: mongodb/mongodb-community-server:6.0-ubi8
     container_name: mongodb-container
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=${MONGODB_USERNAME}
+      - MONGO_INITDB_ROOT_PASSWORD=${MONGODB_PASSWORD}
+    volumes:
+      - type: bind
+        source: ./data
+        target: /data/db
 
   machine-learning-client:
     build: ./machine-learning-client
     container_name: ml-container
     depends_on:
       - mongodb
-    env_file:
-        - .env
+    environment:
+        - DB_URI=${MONGODB_URI}
     command: python3 app.py
 
   web-app:
@@ -24,8 +31,8 @@ services:
     depends_on:
       - mongodb
       - machine-learning-client
-    env_file:
-      - .env
+    environment:
+      - DB_URI=${MONGODB_URI}
     ports:
       - "8080:8080"
     command: python3 app.py
