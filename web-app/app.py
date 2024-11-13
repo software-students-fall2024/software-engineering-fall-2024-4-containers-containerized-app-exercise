@@ -8,6 +8,7 @@ from flask import Flask, render_template
 
 
 def launch_app():
+    """Get the app launched"""
     app = Flask(__name__)  # pylint: disable=invalid-name
 
     @app.route("/")
@@ -19,7 +20,9 @@ def launch_app():
     # def results():
     #     return render_template('results.html')
 
+    return app
+
 
 if __name__ == "__main__":
-    app = launch_app()
-    app.run(host="0.0.0.0", port=5000)
+    client_app = launch_app()
+    client_app.run(host="0.0.0.0", port=5000)
