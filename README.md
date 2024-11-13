@@ -11,7 +11,7 @@ Build a containerized app that uses machine learning. See [instructions](./instr
 [Jessie Kim](https://github.com/jessiekim0)
 [Nick Burwell](https://github.com/nickburwell)
 
-**App Description: Emotion Recognition and Wellness Advisor**
+# App Description: Emotion Recognition and Wellness Advisor
 
 Our Emotion Recognition and Wellness Advisor app uses cutting-edge emotion detection technology to help users enhance their mental well-being. By analyzing facial expressions in real-time, the app identifies emotions such as happiness, sadness, anger, and more. Based on the detected emotion, the app provides tailored wellness advice, like mindfulness exercises, motivational quotes, or self-care suggestions.
 
