@@ -6,17 +6,21 @@ using a pre-trained K-Nearest Neighbors (KNN) model. It includes functions for
 recording, feature extraction, model training, loading, and classification.
 """
 
+import io
 import os
 import pickle
 from datetime import datetime
-import io
 
-from flask import Flask, request, jsonify
-from flask_cors import CORS
-import numpy as np
 import librosa
-from sklearn.neighbors import KNeighborsClassifier
+import numpy as np
+from flask import Flask, jsonify, request
+from flask_cors import CORS
 from pydub import AudioSegment
+from sklearn.neighbors import KNeighborsClassifier
+
+app = Flask(__name__)
+CORS(app)
+
 
 app = Flask(__name__)
 CORS(app)
@@ -99,13 +103,14 @@ def classify_sound(model, features):
 
 @app.route("/classify", methods=["POST"])
 def classify():
+    """Handle the classification request from the client."""
     try:
         print("Received classification request...")
         # Check if audio file is in the request
         if "audio" not in request.files:
             print("No audio file provided in the request.")
             return jsonify({"error": "No audio file provided"}), 400
-
+    
         audio_file = request.files["audio"]
         audio_bytes = audio_file.read()
 
@@ -145,9 +150,14 @@ def classify():
         print(f"Classification result: {metadata}")
 
         return jsonify(metadata), 200
-
-    except Exception as e:
-        print(f"Error during classification: {e}")
+    except KeyError as e:
+        print(f"KeyError during classification: {e}")
+        return jsonify({"error": "Missing required data"}), 400
+    except ValueError as e:
+        print(f"ValueError during classification: {e}")
+        return jsonify({"error": "Invalid data format"}), 400
+    except Exception as e:  # pylint: disable=broad-except
+        print(f"Unexpected error during classification: {e}")
         return jsonify({"error": str(e)}), 500
 
 
