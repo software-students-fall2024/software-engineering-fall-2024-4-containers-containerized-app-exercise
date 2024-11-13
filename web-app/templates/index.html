@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Object Detection Dashboard</title>
+</head>
+<body>
+  <h1>Real-Time Object Detection</h1>
+  <table border="1">
+    <thead>
+      <tr>
+        <th>Label</th>
+        <th>Confidence</th>
+      </tr>
+    </thead>
+    <tbody id="data-table"></tbody>
+  </table>
+
+  <script>
+    async function fetchData() {
+      try {
+        const response = await fetch('/data');
+        const data = await response.json();
+        const tableBody = document.getElementById('data-table');
+        tableBody.innerHTML = ''; // Clear previous data
+
+        data.forEach(item => {
+          const row = document.createElement('tr');
+          row.innerHTML = `<td>${item.label}</td><td>${item.confidence.toFixed(2)}</td>`;
+          tableBody.appendChild(row);
+        });
+      } catch (error) {
+        console.error('Error fetching data:', error);
+      }
+    }
+
+    // Fetch data every second
+    setInterval(fetchData, 1000);
+  </script>
+</body>
+</html>
