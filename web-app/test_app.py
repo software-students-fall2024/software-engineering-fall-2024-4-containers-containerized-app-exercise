@@ -3,7 +3,7 @@ Unit tests for app.py web app.
 """
 
 import pytest
-from app import app
+import app
 
 
 @pytest.fixture
