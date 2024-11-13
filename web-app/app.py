@@ -17,13 +17,6 @@ client = MongoClient(mongo_uri)  # Adjust the connection string if necessary
 db = client["sentiment"]  # Database name
 collection = db["texts"]  # Collection name
 
-
-mongo_uri = os.getenv("MONGO_URI")
-client = MongoClient(mongo_uri)  # Adjust the connection string if necessary
-db = client["sentiment"]  # Database name
-collection = db["texts"]  # Collection name
-
-
 @app.route("/")
 def index():
     return render_template("index.html")
@@ -54,8 +47,12 @@ def submit_sentence():
         "timestamp": datetime.now(),
     }
 
-    # Insert into MongoDB
-    collection.insert_one(document)
+    try:
+        # Insert into MongoDB
+        result = collection.insert_one(document)
+        print("Inserted Document ID:", result.inserted_id)  # Debugging line to see if insert was successful
+    except Exception as e:
+        print(f"Error inserting document: {e}")
 
     # Return the request_id for fetching results later
     return jsonify({"request_id": request_id})
@@ -64,12 +61,17 @@ def submit_sentence():
 @app.route("/get_analysis", methods=["GET"])
 def get_analysis():
     request_id = request.args.get("request_id")
+    print(f"Received request to get analysis for request_id: {request_id}")  # Debugging line
+
     document = collection.find_one(
         {"request_id": request_id, "overall_status": "processed"}
     )
     if document:
+        print("Document found:", document)  # Debugging line
+        document["_id"] = str(document["_id"])
         return jsonify(document)
     else:
+        print("No processed analysis found for request_id:", request_id)  # Debugging line
         return jsonify({"message": "No processed analysis found"}), 404
 
 
