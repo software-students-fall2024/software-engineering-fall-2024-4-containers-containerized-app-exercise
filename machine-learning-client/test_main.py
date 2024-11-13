@@ -11,15 +11,6 @@ from main import (
     classify_sound,
 )
 
-# commenting this out for now as we no longer use this function
-# # Test record_audio
-# @mock.patch("main.sd.rec")
-# def test_record_audio(mock_rec):
-#     """Test that record_audio function returns the correct shape."""
-#     mock_rec.return_value = np.zeros((88200, 1), dtype="float32")
-#     audio = record_audio(duration=2, fs=44100)
-#     assert audio.shape == (88200,)
-
 
 # Test extract_features
 @mock.patch("main.librosa.feature.mfcc")
@@ -34,12 +25,16 @@ def test_extract_features(mock_mfcc):
 
 # Test train_model
 @mock.patch("main.os.path.exists")
+@mock.patch("main.os.listdir")
 @mock.patch("main.librosa.load")
 @mock.patch("main.pickle.dump")
-def test_train_model(mock_pickle, mock_load, mock_exists):
+def test_train_model(mock_pickle, mock_load, mock_listdir, mock_exists):
     """Test that train_model calls pickle.dump to save the model."""
+    # Mock the file structure and audio loading
     mock_exists.return_value = True
-    mock_load.return_value = (np.zeros(88200), 44100)
+    mock_listdir.return_value = ["file1.wav", "file2.wav"]  # Simulate files in each label directory
+    mock_load.return_value = (np.zeros(88200), 44100)       # Simulate audio data and sample rate
+
     train_model()
     assert mock_pickle.called
 
@@ -47,12 +42,17 @@ def test_train_model(mock_pickle, mock_load, mock_exists):
 # Test load_model
 @mock.patch("main.os.path.exists")
 @mock.patch("main.pickle.load")
-def test_load_model(mock_pickle_load, mock_exists):
-    """Test that load_model loads a model if it exists."""
-    mock_exists.return_value = True
-    mock_pickle_load.return_value = mock.Mock()
+@mock.patch("main.train_model")
+def test_load_model(mock_train_model, mock_pickle_load, mock_exists):
+    """Test that load_model loads a model if it exists, otherwise trains a new one."""
+    mock_exists.side_effect = [False, True]  # First check: model file does not exist; Second: does exist
+    mock_pickle_load.return_value = mock.Mock()  # Mock a loaded model
+    mock_train_model.return_value = None         # Mock train_model to avoid real training
+
+    # Call load_model, which should invoke train_model first and then load the model
     model = load_model()
     assert model is not None
+    assert mock_train_model.called or mock_pickle_load.called
 
 
 # Test classify_sound
