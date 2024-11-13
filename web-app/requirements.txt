@@ -1,5 +1,5 @@
 Flask
 pytest
-pylint-cov
+pytest-cov
 pytest-flask
 pylint
