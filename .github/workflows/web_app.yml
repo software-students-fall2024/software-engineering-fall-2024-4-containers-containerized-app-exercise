@@ -25,19 +25,14 @@ jobs:
       - name: Install Dependencies
         run: |
           python -m venv venv
-          source venv/bin/activate
-          python -m pip install --upgrade pip
-          pip install -r web-app/requirements.txt
-          pip install pylint black flask
+          venv/bin/pip install --upgrade pip
+          venv/bin/pip install -r web-app/requirements.txt
+          venv/bin/pip install pylint black
 
       - name: Run Black Formatter
         run: |
-          source venv/bin/activate
-          black --check web-app
+          venv/bin/black --check web-app
 
       - name: Run Pylint
-        env:
-          PYTHONPATH: web-app
         run: |
-          source venv/bin/activate
-          pylint web-app
+          venv/bin/python -m pylint web-app
