@@ -12,5 +12,5 @@ def create_app():
     print("hello world!")
     return app
 if __name__ == '__main__':
-    app = create_app()
-    app.run(debug=True)
+    web_app = create_app()
+    web_app.run(debug=True)
