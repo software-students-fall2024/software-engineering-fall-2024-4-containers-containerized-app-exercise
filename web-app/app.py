@@ -17,7 +17,6 @@ client = MongoClient(mongo_uri)  # Adjust the connection string if necessary
 db = client["sentiment"]  # Database name
 collection = db["texts"]  # Collection name
 
-
 @app.route("/")
 def index():
     return render_template("index.html")
@@ -48,8 +47,12 @@ def submit_sentence():
         "timestamp": datetime.now(),
     }
 
-    # Insert into MongoDB
-    collection.insert_one(document)
+    try:
+        # Insert into MongoDB
+        result = collection.insert_one(document)
+        print("Inserted Document ID:", result.inserted_id)  # Debugging line to see if insert was successful
+    except Exception as e:
+        print(f"Error inserting document: {e}")
 
     # Return the request_id for fetching results later
     return jsonify({"request_id": request_id})
