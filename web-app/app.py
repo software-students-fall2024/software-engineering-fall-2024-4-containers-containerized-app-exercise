@@ -61,12 +61,17 @@ def submit_sentence():
 @app.route("/get_analysis", methods=["GET"])
 def get_analysis():
     request_id = request.args.get("request_id")
+    print(f"Received request to get analysis for request_id: {request_id}")  # Debugging line
+
     document = collection.find_one(
         {"request_id": request_id, "overall_status": "processed"}
     )
     if document:
+        print("Document found:", document)  # Debugging line
+        document["_id"] = str(document["_id"])
         return jsonify(document)
     else:
+        print("No processed analysis found for request_id:", request_id)  # Debugging line
         return jsonify({"message": "No processed analysis found"}), 404
 
 

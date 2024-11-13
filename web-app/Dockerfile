@@ -12,7 +12,7 @@ RUN pip install -r requirements.txt
 
 # Install NLTK and download punkt tokenizer data
 RUN pip install --no-cache-dir nltk
-RUN python -m nltk.downloader punkt
+RUN python -m nltk.downloader punkt punkt_tab
 
 # Copy the application files into the container
 COPY . .

@@ -67,8 +67,9 @@ function fetchAnalysisWithRetry(requestId, retries) {
               console.error('Error:', error);
               fetchAnalysisWithRetry(requestId, retries - 1);
           });
-  }, 5000);
+  }, 10000);  // Increased retry interval to 10 seconds
 }
+
 
 function visualizeSentimentAnalysis(data) {
   const sentimentTrend = data.sentiment_trend;

@@ -15,7 +15,7 @@ services:
     ports:
       - "5000:5000"  # Map Flask web server to the host
     environment:
-      - MONGO_URI=mongodb://mongodb:27017/sentiment  # MongoDB connection URI
+      - MONGO_URI=mongodb://mongodb:27017/  # MongoDB connection URI
     depends_on:
       - mongodb  # Wait for MongoDB before starting
 
@@ -23,7 +23,7 @@ services:
     build: ./machine-learning-client  # Path to Dockerfile for machine-learning-client
     container_name: ml_client
     environment:
-      - MONGO_URI=mongodb://mongodb:27017/sentiment  # MongoDB connection URI
+      - MONGO_URI=mongodb://mongodb:27017/  # MongoDB connection URI
     depends_on:
       - mongodb  # Wait for MongoDB before starting
 

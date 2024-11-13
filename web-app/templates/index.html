@@ -7,33 +7,30 @@
 </head>
 <body>
   <div class="container">
-    <header>
-      <h1>AI Sentence Checker</h1>
-      <p>Enter your sentence to check the sentiment.</p>
-    </header>
+      <header>
+          <h1>AI Sentence Checker</h1>
+          <p>Enter your sentence to check the sentiment.</p>
+      </header>
 
-    <div class="content">
-      <div class="input-section">
-        <textarea id="sentenceInput" placeholder="Start writing here..."></textarea>
-        <br>
-        <button onclick="analyzeSentence()">Analyze Sentiment</button>
-        <button onclick="startDictation()">🎤 Speak</button>
+      <div class="content">
+          <div class="input-section">
+              <textarea id="sentenceInput" placeholder="Start writing here..."></textarea>
+              <br>
+              <button onclick="analyzeSentence()">Analyze Sentiment</button>
+              <button onclick="startDictation()">🎤 Speak</button>
+          </div>
+
+          <div class="result-section">
+              <h2>Sentiment Analysis Result</h2>
+              <div id="visualization"> <!-- Sentiment visualization will appear here --> </div>
+              <div class="redo-btn-container">
+                  <button onclick="redoAnalysis()">Redo Analysis</button>
+              </div>
+          </div>
       </div>
-      
-      <div class="result-section">
-        <h2>Sentiment Analysis Result</h2>
-        <div id="visualization"> <!-- Sentiment visualization will appear here --> </div>
-      </div>
-    </div>
   </div>
 
   <script src="../static/app.js"></script>
 </body>
-
-<div class="result-section">
-  <h2>Sentiment Analysis Result</h2>
-  <div id="visualization"> <!-- Sentiment visualization will appear here --> </div>
-  <button onclick="redoAnalysis()">Redo Analysis</button>
-</div>
 
 </html>
