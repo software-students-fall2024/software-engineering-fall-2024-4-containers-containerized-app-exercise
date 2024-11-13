@@ -1,6 +1,7 @@
 import os
 from pymongo import MongoClient
 import json
+import logging
 from utils import get_audio_files,transcribe_audio,analyze_sentiment,store_data
 from dotenv import load_dotenv
 from datetime import datetime
@@ -16,8 +17,8 @@ def setup_logging():
 
 def main():
     load_dotenv()
-    MONGO_URI = os.getenv('MONGO_URI', 'mongodb://root:example@mongodb:27017/')
-    AUDIO_DIR = os.getenv('AUDIO_DIR', './audio_files')
+    MONGO_URI = os.getenv('MONGO_URI','mongodb://root:example@mongodb:27017/')
+    AUDIO_DIR = os.getenv('AUDIO_DIR','./audio')
     setup_logging()
     logger = logging.getLogger(__name__)
 
@@ -42,24 +43,18 @@ def main():
     for file_path in audio_files:
         try:
             logger.info(f"Processing file: {file_path}")
-
-            # Transcribe audio
             text = transcribe_audio(file_path)
             logger.debug(f"Transcription: {text}")
-
-            # Analyze sentiment using TextBlob
-            sentiment = analyze_sentiment(text)
+            sentiment=analyze_sentiment(text)
             logger.debug(f"Sentiment: {sentiment}")
 
-            # Prepare data
-            data = {
+            data={
                 'file_name': os.path.basename(file_path),
                 'transcript': text,
                 'sentiment': sentiment,
                 'timestamp': datetime.utcnow()
             }
 
-            # Store data in MongoDB
             store_data(collection, data)
             logger.info(f"Successfully processed and stored data for {file_path}.")
 
