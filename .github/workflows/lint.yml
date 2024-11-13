@@ -22,7 +22,6 @@ jobs:
           python -m pip install pipenv
           pipenv sync --dev --python $(which python)
           pipenv shell --fancy --python $(which python)
-          pipenv install --dev
           pipenv install tomli
       - name: Lint with pylint
         if: ${{ hashFiles(format('{0}/**/*.py', matrix.subdir)) != '' }}
