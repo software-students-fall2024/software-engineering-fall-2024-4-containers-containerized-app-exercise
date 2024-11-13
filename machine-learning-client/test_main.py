@@ -11,6 +11,15 @@ from main import (
     classify_sound,
 )
 
+# commenting this out for now as we no longer use this function
+# # Test record_audio
+# @mock.patch("main.sd.rec")
+# def test_record_audio(mock_rec):
+#     """Test that record_audio function returns the correct shape."""
+#     mock_rec.return_value = np.zeros((88200, 1), dtype="float32")
+#     audio = record_audio(duration=2, fs=44100)
+#     assert audio.shape == (88200,)
+
 
 # Test extract_features
 @mock.patch("main.librosa.feature.mfcc")
@@ -25,18 +34,12 @@ def test_extract_features(mock_mfcc):
 
 # Test train_model
 @mock.patch("main.os.path.exists")
-@mock.patch("main.os.listdir")
 @mock.patch("main.librosa.load")
 @mock.patch("main.pickle.dump")
-def test_train_model(mock_pickle, mock_load, mock_listdir, mock_exists):
+def test_train_model(mock_pickle, mock_load, mock_exists):
     """Test that train_model calls pickle.dump to save the model."""
-    # Mock the existence of the training_data directory
     mock_exists.return_value = True
-    # Mock the list of files in each label directory
-    mock_listdir.return_value = ["file1.wav", "file2.wav"]
-    # Mock the audio loading process
     mock_load.return_value = (np.zeros(88200), 44100)
-    
     train_model()
     assert mock_pickle.called
 
@@ -44,18 +47,9 @@ def test_train_model(mock_pickle, mock_load, mock_listdir, mock_exists):
 # Test load_model
 @mock.patch("main.os.path.exists")
 @mock.patch("main.pickle.load")
-@mock.patch("main.pickle.dump")
-@mock.patch("main.os.listdir")
-@mock.patch("main.librosa.load")
-def test_load_model(mock_pickle_load, mock_exists, mock_pickle, mock_listdir, mock_load):
+def test_load_model(mock_pickle_load, mock_exists):
     """Test that load_model loads a model if it exists."""
-    # Mock the existence of the model file
-    mock_exists.side_effect = [False, True]  # First call (model not found) triggers train_model; second call (model found)
-    # Mock the list of files and audio loading for train_model
-    mock_listdir.return_value = ["file1.wav", "file2.wav"]
-    mock_load.return_value = (np.zeros(88200), 44100)
-    mock_pickle.return_value = None  # Mock saving process in train_model
-
+    mock_exists.return_value = True
     mock_pickle_load.return_value = mock.Mock()
     model = load_model()
     assert model is not None
