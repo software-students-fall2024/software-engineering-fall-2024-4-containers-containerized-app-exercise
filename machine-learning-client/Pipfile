@@ -8,6 +8,15 @@ pymongo = "*"
 flask = "*"
 pylint = "*"
 black = "*"
+numpy = "*"
+python-dotenv = "*"
+flask-cors = "*"
+pytest = "*"
+pytest-cov = "*"
+pillow = "*"
+torch = "*"
+pandas = "*"
+scipy = "*"
 
 [dev-packages]
 
