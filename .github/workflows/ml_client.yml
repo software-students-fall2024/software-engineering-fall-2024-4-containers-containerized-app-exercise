@@ -29,28 +29,22 @@ jobs:
     - name: Install Dependencies
       run: |
           python -m venv venv
-          source venv/bin/activate
-          python -m pip install --upgrade pip
-          pip install -r machine-learning-client/requirements.txt
-          pip install pytest pytest-cov pylint
-      
+          venv/bin/pip install --upgrade pip
+          venv/bin/pip install -r machine-learning-client/requirements.txt
+          venv/bin/pip install pytest pytest-cov pylint
+
+    - name: List Installed Packages
+      run: |
+          venv/bin/pip list
+
     - name: Start the Tests
-      env:
-          PYTHONPATH: machine-learning-client
       run: |
-          source venv/bin/activate
-          python -m pytest --cov=machine-learning-client/main --cov-report=html
-    
+          venv/bin/python -m pytest --cov=machine-learning-client/main --cov-report=html
+
     - name: Run linting
-      env:
-          PYTHONPATH: machine-learning-client
       run: |
-          source venv/bin/activate
-          pylint machine-learning-client
-    
+          venv/bin/python -m pylint machine-learning-client
+
     - name: Run tests with coverage
-      env:
-          PYTHONPATH: machine-learning-client
       run: |
-          source venv/bin/activate
-          python -m pytest --cov=machine-learning-client/main --cov-report=html
+          venv/bin/python -m pytest --cov=machine-learning-client/main --cov-report=html

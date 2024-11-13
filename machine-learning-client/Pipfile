@@ -4,6 +4,9 @@ verify_ssl = true
 name = "pypi"
 
 [packages]
+flask = "*"
+flask_cors = "*"
+pydub = "*"
 pylint = "*"
 black = "*"
 tomli = "*"
