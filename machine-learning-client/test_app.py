@@ -107,6 +107,10 @@ def test_encode_image():
 
 # capture an image from a webcam feed
 def capture_image_from_webcam():
+    """Capture an image from the webcam and return it as bytes.
+    
+    Initializes the webcam, captures a frame, and converts it to JPEG format.
+    Returns the image bytes if successful, or None if the capture fails."""
     # Initialize webcam
     cap = cv2.VideoCapture(0)
     
