@@ -1,4 +1,4 @@
 pymongo
-SpeechRecognition
+speechrecognition
 textblob
 python-dotenv
