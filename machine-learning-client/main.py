@@ -38,7 +38,7 @@ def train_model():
     x_data = []
     y_labels = []
 
-    data_dir = "training_data"
+    data_dir = "machine-learning-client/training_data"
     labels = {"clapping": 0, "snapping": 1, "hitting": 2}
 
     for label, idx in labels.items():
@@ -58,7 +58,7 @@ def train_model():
     model.fit(x_data, y_labels)
 
     # Save the trained model
-    with open("sound_classification_model.pkl", "wb") as file:
+    with open("machine-learning-client/sound_classification_model.pkl", "wb") as file:
         pickle.dump(model, file)
 
     print("Model trained and saved.")
@@ -68,7 +68,7 @@ def load_model():
     """Load the trained model."""
     if not os.path.exists("sound_classification_model.pkl"):
         train_model()
-    with open("sound_classification_model.pkl", "rb") as file:
+    with open("machine-learning-client/sound_classification_model.pkl", "rb") as file:
         model = pickle.load(file)
     return model
 
