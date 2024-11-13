@@ -14,10 +14,9 @@ def app_client():
         yield client
 
 
-@pytest.fixture
-def test_index_route(client):
+def test_index_route(app_client):
     """Test the index route."""
-    response = client.get("/")
+    response = app_client.get("/")
     assert response.status_code == 200
     assert b"Tap to Listen" in response.data
 
