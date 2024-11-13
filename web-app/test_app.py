@@ -7,22 +7,22 @@ from app import app as flask_app
 
 
 @pytest.fixture
-def app():
+def set_app():
     """Pytest-flask handling."""
     flask_app.config["TESTING"] = True
     return flask_app
 
 
 @pytest.fixture
-def app_client(app):
+def app_client(set_app):
     """Create a test client for the Flask app."""
-    with app.test_client() as client:
+    with set_app.test_client() as client:
         yield client
 
 
-def test_index_route():
+def test_index_route(client):
     """Test the index route."""
-    response = app_client.get("/")
+    response = client.get("/")
     assert response.status_code == 200
     assert b"Tap to Listen" in response.data
 
