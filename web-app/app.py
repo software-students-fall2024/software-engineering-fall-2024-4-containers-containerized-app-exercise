@@ -3,7 +3,7 @@ This is the Flask web application that serves as the interface for
 the machine learning model.
 """
 
-from flask import Flask
+from flask import Flask, render_template
 
 
 def create_app():
@@ -13,9 +13,12 @@ def create_app():
     """
     app = Flask(__name__)
     print("hello world!")
+    @app.route("/")
+    def index():
+        return render_template("index.html")
     return app
 
 
 if __name__ == "__main__":
     web_app = create_app()
-    web_app.run(debug=True)
+    web_app.run(host="0.0.0.0")

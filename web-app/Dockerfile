@@ -11,4 +11,4 @@ ADD . .
 
 EXPOSE 5000
 
-CMD ["pipenv","run","python3","app.py"]
+CMD ["pipenv","run","python3","app.py","--host=0.0.0.0"]
