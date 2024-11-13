@@ -32,8 +32,14 @@ def test_train_model(mock_pickle, mock_load, mock_listdir, mock_exists):
     """Test that train_model calls pickle.dump to save the model."""
     # Mock the file structure and audio loading
     mock_exists.return_value = True
-    mock_listdir.return_value = ["file1.wav", "file2.wav"]  # Simulate files in each label directory
-    mock_load.return_value = (np.zeros(88200), 44100)       # Simulate audio data and sample rate
+    mock_listdir.return_value = [
+        "file1.wav",
+        "file2.wav",
+    ]  # Simulate files in each label directory
+    mock_load.return_value = (
+        np.zeros(88200),
+        44100,
+    )  # Simulate audio data and sample rate
 
     train_model()
     assert mock_pickle.called
