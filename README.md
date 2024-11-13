@@ -30,4 +30,9 @@ TODO
 # Acknowledgements
 
 - The structure of docker-compose.yaml and our Dockerfile are based on the examples we were given in class (https://knowledge.kitchen/content/courses/software-engineering/notes/containers/)
-- When writing the tests, sourcing librosa documentation, pytorch, and realpython was done to to figure out mocking and just how the assertions should look (https://librosa.org/doc/0.8.1/index.html#id1), (https://discuss.pytorch.org/t/mfcc-extracterted-by-librosa-pytorch/161180), (https://realpython.com/python-mock-library/)
+- When writing the tests, these sources were helpful to figure out mocking, Flask config testing, and mostly just how the assertions should look 
+    - (https://librosa.org/doc/0.8.1/index.html#id1)
+    - (https://discuss.pytorch.org/t/mfcc-extracterted-by-librosa-pytorch/161180)-
+    - (https://realpython.com/python-mock-library/)
+    - (https://testdriven.io/blog/flask-pytest/)
+    - (https://flask.palletsprojects.com/en/stable/config/)
