@@ -3,24 +3,13 @@ This module contains tests for the ML client. Run with 'python -m pytest test_ap
 or to see with coverage run with 'python -m pytest --cov=app test_app.py'
 """
 
-import base64
+from unittest.mock import patch
 import numpy as np
-import pytest
 import tensorflow as tf
-from io import BytesIO
 from app import app, preprocess_image, detect_objects, encode_image
-from flask import json
-from unittest.mock import patch, Mock
 
 # configure app for testing
 app.config["TESTING"] = True
-
-
-@pytest.fixture
-def client():
-    """Flask client for testing."""
-    with app.test_client() as client:
-        yield client
 
 
 def test_preprocess_image():
@@ -66,14 +55,9 @@ def test_encode_image():
 
 def test_detect_route_no_file(client):
     """Test /api/detect route when no file is provided."""
-    response = client.post("/api/detect")
-    data = response.get_data(as_text=True)
+    with client as test_client:
+        response = test_client.post("/api/detect")
+        data = response.get_data(as_text=True)
 
     assert response.status_code == 400
     assert "No image file provided." in data
-
-
-@patch("app.detect_objects")
-def test_detect_route_with_file(mock_detect_objects, client):
-    """Test /api/detect route with a valid image file."""
-    ## TODO
