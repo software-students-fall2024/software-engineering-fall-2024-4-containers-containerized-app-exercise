@@ -20,7 +20,7 @@ def app_client():
         yield client
 
 
-def test_index_route(client):
+def test_index_route():
     """Test the index route."""
     response = app_client.get("/")
     assert response.status_code == 200
