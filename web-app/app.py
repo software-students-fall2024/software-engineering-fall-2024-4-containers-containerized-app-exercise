@@ -3,10 +3,10 @@ This application serves as the main entry point for the Flask web application,
 connecting to MongoDB and providing the frontend interface.
 """
 
+import os
 from flask import Flask, render_template, jsonify
 from pymongo import MongoClient
 from dotenv import load_dotenv
-import os
 
 # Load environment variables
 load_dotenv()
@@ -20,6 +20,7 @@ collection = db["detected_objects"]
 
 @app.route("/")
 def index():
+    """Index returns index home page html"""
     return render_template("index.html")
 
 
