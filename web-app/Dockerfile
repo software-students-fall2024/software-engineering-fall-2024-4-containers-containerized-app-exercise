@@ -2,11 +2,13 @@ FROM python:3.10-slim-buster
 
 WORKDIR /app
 
-COPY requirements.txt ./
-RUN pip3 install -r requirements.txt
+COPY . /app
+
+RUN pip install pipenv
+RUN pipenv install
 
 ADD . .
 
 EXPOSE 5000
 
-CMD ["python3","app.py"]
+CMD ["pipenv","run","python3","app.py"]
