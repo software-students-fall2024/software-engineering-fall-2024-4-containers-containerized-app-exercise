@@ -1,0 +1,4 @@
+pymongo
+SpeechRecognition
+textblob
+python-dotenv
