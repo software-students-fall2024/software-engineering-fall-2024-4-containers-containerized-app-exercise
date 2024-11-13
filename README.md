@@ -11,10 +11,15 @@ Build a containerized app that uses machine learning. See [instructions](./instr
 [Jessie Kim](https://github.com/jessiekim0)
 [Nick Burwell](https://github.com/nickburwell)
 
-# App Description 
+# App Description: Emotion Recognition and Wellness Advisor
 
-Our project is a real-time traffic monitoring dashboard focused on New York City's 5th Avenue. Using a live camera feed, the system identifies and counts different types of vehicles, such as cars, trucks, and buses, on this busy street. This data is then processed and displayed on a web dashboard, providing an up-to-date view of traffic conditions.
+Our Emotion Recognition and Wellness Advisor app uses cutting-edge emotion detection technology to help users enhance their mental well-being. By analyzing facial expressions in real-time, the app identifies emotions such as happiness, sadness, anger, and more. Based on the detected emotion, the app provides tailored wellness advice, like mindfulness exercises, motivational quotes, or self-care suggestions.
 
-The dashboard shows the current number of each type of vehicle and an overall congestion level, which changes color based on traffic conditions (e.g., green for low, yellow for moderate, and red for heavy traffic). This setup allows anyone to get a quick sense of how busy 5th Avenue is at any given moment, potentially helping city planners, residents, and visitors make informed decisions about travelling in this area.
+**How It Works:**
 
+- **Emotion Detection:** Using a machine learning model, the app captures real-time images or videos and identifies the user’s current emotional state.
+- **Personalized Advice:** Based on the recognized emotion, the app recommends activities or tips to help maintain or improve the user's mood. For example, if sadness is detected, the app might suggest calming meditation exercises or uplifting music.
+- **Dashboard Display:** The web app presents a user-friendly dashboard where users can see their current and past emotions along with personalized advice.
+
+The app aims to promote emotional awareness and provide quick, personalized guidance for mental well-being. Whether you’re looking to uplift your mood or enhance your mindfulness practice, this app supports you on your wellness journey.
 
