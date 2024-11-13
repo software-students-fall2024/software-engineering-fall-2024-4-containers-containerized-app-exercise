@@ -22,14 +22,20 @@ mongo = MongoClient(os.getenv("MONGODB_URI"))
 db = mongo["object_detection"]
 
 # load MobileNet model and labels
-model = tf.keras.applications.MobileNetV2(weights="imagenet") # pylint: disable=no-member
-decode_predictions = tf.keras.applications.mobilenet_v2.decode_predictions # pylint: disable=no-member
+model = tf.keras.applications.MobileNetV2(  # pylint: disable=no-member
+    weights="imagenet"
+)
+decode_predictions = (  # pylint: disable=no-member
+    tf.keras.applications.mobilenet_v2.decode_predictions
+)
 
 
 def preprocess_image(image):
     """Preprocess the image for MobileNet input."""
     image = tf.image.resize(image, (224, 224))
-    image = tf.keras.applications.mobilenet_v2.preprocess_input(image) # pylint: disable=no-member
+    image = tf.keras.applications.mobilenet_v2.preprocess_input(  # pylint: disable=no-member
+        image
+    )
     return np.expand_dims(image, axis=0)
 
 
