@@ -2,13 +2,15 @@ from flask import Flask, render_template, request, jsonify
 from pymongo import MongoClient
 import uuid
 import datetime
+import os
 
 app = Flask(__name__)
 
 # Connect to MongoDB
-client = MongoClient('mongodb://localhost:27017/')  # Adjust the connection string if necessary
-db = client['sentiment_db']  # Database name
-collection = db['sentiments']  # Collection name
+mongo_uri = os.getenv("MONGO_URI")
+client = MongoClient(mongo_uri)  # Adjust the connection string if necessary
+db = client['sentiment']  # Database name
+collection = db['texts']  # Collection name
 
 @app.route('/')
 def index():
