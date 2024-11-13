@@ -42,5 +42,9 @@ def analyze_sentiment(text):
     }
     return sentiment
 
-def store_data(collection, data):
-    collection.insert_one(data)
+def store_data(collection,data):
+    try:
+        collection.insert_one(data)
+        logging.info("Data stored successfully.")
+    except Exception as e:
+        logging.error(f"Failed to store data: {e}")
