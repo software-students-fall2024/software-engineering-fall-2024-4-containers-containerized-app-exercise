@@ -12,14 +12,14 @@ from main import (
     classify_sound,
 )
 
-
-# Test record_audio
-@mock.patch("main.sd.rec")
-def test_record_audio(mock_rec):
-    """Test that record_audio function returns the correct shape."""
-    mock_rec.return_value = np.zeros((88200, 1), dtype="float32")
-    audio = record_audio(duration=2, fs=44100)
-    assert audio.shape == (88200,)
+# commenting this out for now as we no longer use this function
+# # Test record_audio
+# @mock.patch("main.sd.rec")
+# def test_record_audio(mock_rec):
+#     """Test that record_audio function returns the correct shape."""
+#     mock_rec.return_value = np.zeros((88200, 1), dtype="float32")
+#     audio = record_audio(duration=2, fs=44100)
+#     assert audio.shape == (88200,)
 
 
 # Test extract_features
