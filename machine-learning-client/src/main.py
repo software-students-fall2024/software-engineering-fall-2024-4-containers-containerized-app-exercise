@@ -17,7 +17,7 @@ def setup_logging():
 
 def main():
     load_dotenv()
-    MONGO_URI = os.getenv('MONGO_URI','mongodb://root:example@mongodb:27017/')
+    MONGO_URI = os.getenv('MONGO_URI','mongodb://root:FILL IN DATABSE')
     AUDIO_DIR = os.getenv('AUDIO_DIR','./audio')
     setup_logging()
     logger = logging.getLogger(__name__)
