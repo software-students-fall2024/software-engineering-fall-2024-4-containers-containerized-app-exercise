@@ -14,8 +14,6 @@ client = MongoClient(mongo_uri)
 
 db = client["test_db"]
 
-print("MongoDB URI:", mongo_uri)
-
 
 @app.route("/")
 def home():
@@ -29,7 +27,7 @@ def test_insert():
     collection = db["test_collection"]
 
     # Create a sample document to insert
-    sample_data = {"name": "Test User", "email": "testuser@example.com", "age": 25}
+    sample_data = {"name": "Test", "email": "test@nyu.edu", "age": 21}
 
     result = collection.insert_one(sample_data)
 
