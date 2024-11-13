@@ -2,18 +2,25 @@
 FROM python:3.8-slim-buster
 
 # Set the working directory in the image
-WORKDIR /
+WORKDIR /app
 
-# install dependencies into the image - doing this first will speed up subsequent builds, as Docker will cache this step
+RUN apt-get update && apt-get install -y \
+    libsndfile1 \
+    ffmpeg \
+    && rm -rf /var/lib/apt/lists/*
+
+# install dependencies into the image 
 COPY requirements.txt ./
-RUN pip install -r requirements.txt
+COPY training_data ./training_data
+RUN pip3 install --no-cache-dir -r requirements.txt
+
 
 # the ADD command is how you add files from your local machine into a Docker image
 # Copy the current directory contents into the container at /app
-ADD . .
+COPY . .
 
-# expose the port that the Flask app is running on... by default 5000
-EXPOSE 5000
+# expose the port that the Flask app is running on...
+EXPOSE 5001
 
 # Run main.py when the container launches
-CMD [ "python3", "-m" , "flask", "run", "--host=0.0.0.0"]
+CMD [ "python3", "main.py"]

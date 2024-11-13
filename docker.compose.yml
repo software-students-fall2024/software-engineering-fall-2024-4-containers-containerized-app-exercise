@@ -1,27 +1,37 @@
-version: "3.10"
+version: '3.8'
 
 services:
-  db:
+  mongodb:
     image: mongo
-    container_name: db
+    container_name: mongodb
     ports:
-      - 27017:27017 # Default
+      - "27017:27017"
     volumes:
-      - ./db:/data/db
+      - mongodbdata:/data/db
 
   ml-client:
-    build: ./machine-learning-client 
+    build: ./machine-learning-client
+    container_name: ml-client
     depends_on:
-      - db
+      - mongodb
+    ports:
+      - "5001:5001"
+    environment:
+      - FLASK_ENV=development
+    volumes:
+      - ./machine-learning-client:/app
 
   web-app:
     build: ./web-app
-    ports:
-      - 5000:5000 
+    container_name: web-app
     depends_on:
-      - db
       - ml-client
+    ports:
+      - "5000:5000"
+    environment:
+      - FLASK_ENV=development
+    volumes:
+      - ./web-app:/app
 
-networks:
-  default:
-    driver: bridge
+volumes:
+  mongodbdata:
