@@ -1,7 +1,7 @@
 from flask import Flask, render_template, request, jsonify
 from pymongo import MongoClient
 import uuid
-import datetime
+from datetime import datetime
 import os
 
 app = Flask(__name__)
@@ -35,14 +35,23 @@ def submit_sentence():
             }
         ],
         "overall_status": "pending",
-        "timestamp": datetime.datetime.utcnow()
+        "timestamp": datetime.now()
     }
 
     # Insert into MongoDB
     collection.insert_one(document)
 
     # Return the user's input sentence
-    return jsonify({'analysis': sentence})
+    return jsonify({'request_id': request_id, 'analysis': sentence})
+
+@app.route("/get_analysis", methods=["GET"])
+def get_analysis():
+    request_id = request.args.get("request_id")
+    document = collection.find_one({"request_id": request_id, "overall_status": "processed"})
+    if document:
+        return jsonify(document)
+    else:
+        return jsonify({"message": "No processed analysis found"}), 404
 
 if __name__ == '__main__':
     app.run(debug=True)
