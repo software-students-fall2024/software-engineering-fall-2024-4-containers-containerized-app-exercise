@@ -28,7 +28,7 @@ jobs:
           source venv/bin/activate
           python -m pip install --upgrade pip
           pip install -r web-app/requirements.txt
-          pip install pylint black
+          pip install pylint black flask
 
       - name: Run Black Formatter
         run: |
@@ -36,6 +36,8 @@ jobs:
           black --check web-app
 
       - name: Run Pylint
+        env:
+          PYTHONPATH: web-app
         run: |
           source venv/bin/activate
           pylint web-app
