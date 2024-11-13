@@ -1,0 +1,41 @@
+name: Web App CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        python-version: ["3.10", "3.11", "3.12"]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Install Dependencies
+        run: |
+          python -m venv venv
+          source venv/bin/activate
+          python -m pip install --upgrade pip
+          pip install -r web-app/requirements.txt
+          pip install pylint black
+
+      - name: Run Black Formatter
+        run: |
+          source venv/bin/activate
+          black --check web-app
+
+      - name: Run Pylint
+        run: |
+          source venv/bin/activate
+          pylint web-app

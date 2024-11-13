@@ -5,7 +5,7 @@ Web application for sound classification.
 This Flask app provides a web interface for recording audio and displaying classification results.
 """
 
-from flask import Flask, render_template 
+from flask import Flask, render_template
 
 
 app = Flask(__name__)  # pylint: disable=invalid-name
