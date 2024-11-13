@@ -13,6 +13,7 @@ pytest = "*"
 coverage = "*"
 tomli = "*"
 face-recognition = "*"
+flask = "*"
 
 [dev-packages]
 
