@@ -4,6 +4,7 @@ import cv2
 
 app = Flask(__name__)
 
+
 @app.route("/encode", methods=["POST"])
 def encode_image():
     data = request.get_json()
