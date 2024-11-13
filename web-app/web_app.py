@@ -6,9 +6,11 @@ import os
 from flask import Flask, jsonify, request, render_template, redirect, url_for, session
 from pymongo import MongoClient
 from werkzeug.security import generate_password_hash, check_password_hash
-from werkzeug.utils import secure_filename  # Add this import
+from werkzeug.utils import secure_filename  
 from functools import wraps
 from dotenv import load_dotenv
+import requests  
+
 
 load_dotenv()
 
@@ -46,7 +48,6 @@ def home():
 
 @app.route("/signup", methods=["GET", "POST"])
 def signup():
-    """for users to sign up"""
     if request.method == "POST":
         try:
             username = request.form["username"]
@@ -56,32 +57,74 @@ def signup():
             if not username or not password or not image:
                 return "Missing required fields", 400
 
+            # Save the uploaded image
             filename = secure_filename(image.filename)
-            image_path = os.path.join(app.config["UPLOAD_FOLDER"], filename)
+            image_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
             image.save(image_path)
 
+            # Hash the password
             hashed_password = generate_password_hash(password)
 
-            # simulate the face encoding (mocked response)
-            face_encoding = [0.1, 0.2, 0.3, 0.4, 0.5]
+            # Send the image to the ML client for encoding
+            ml_client_url = "http://localhost:5001/encode"
+            response = requests.post(ml_client_url, json={"image_path": image_path})
+            if response.status_code != 200:
+                return render_template("encode_result.html", error="Failed to encode image")
 
-            users_collection.insert_one(
-                {
-                    "username": username,
-                    "password": hashed_password,
-                    "image_path": image_path,
-                    "encoding": face_encoding,
-                }
-            )
+            face_encoding = response.json().get("encoding")
+            if not face_encoding:
+                return render_template("encode_result.html", error="No face found in the image")
+
+            # Store user details in MongoDB
+            users_collection.insert_one({
+                "username": username,
+                "password": hashed_password,
+                "image_path": image_path,
+                "encoding": face_encoding
+            })
             return redirect(url_for("login"))
 
         except Exception as e:
             print(f"Error during signup: {str(e)}")
-            return "Internal Server Error", 500
+            return render_template("encode_result.html", error="Internal Server Error")
 
     return render_template("signup.html")
 
+@app.route("/verify", methods=["POST"])
+@login_required
+def verify():
+    try:
+        username = session["username"]
+        user = users_collection.find_one({"username": username})
 
+        if not user:
+            return render_template("verify_result.html", error="User not found")
+
+        image = request.files.get("image")
+        if not image:
+            return render_template("verify_result.html", error="Image is required for verification")
+
+        # Save the uploaded image for verification
+        filename = secure_filename(image.filename)
+        image_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+        image.save(image_path)
+
+        # Send the image to the ML client for verification
+        ml_client_url = "http://localhost:5001/verify"
+        response = requests.post(ml_client_url, json={
+            "image_path": image_path,
+            "stored_encoding": user["encoding"]
+        })
+        if response.status_code != 200:
+            return render_template("verify_result.html", error="Failed to verify identity")
+
+        result = response.json().get("result")
+        return render_template("verify_result.html", result=result)
+
+    except Exception as e:
+        print(f"Error during verification: {str(e)}")
+        return render_template("verify_result.html", error="Internal Server Error")
+    
 @app.route("/login", methods=["GET", "POST"])
 def login():
     """for users to log in"""
