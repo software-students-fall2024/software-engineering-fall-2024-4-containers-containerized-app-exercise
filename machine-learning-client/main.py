@@ -110,7 +110,6 @@ def classify():
         if "audio" not in request.files:
             print("No audio file provided in the request.")
             return jsonify({"error": "No audio file provided"}), 400
-    
         audio_file = request.files["audio"]
         audio_bytes = audio_file.read()
 
