@@ -46,7 +46,7 @@ jobs:
           PYTHONPATH: machine-learning-client
       run: |
           source venv/bin/activate
-          pylint machine-learning-client/tests
+          pylint machine-learning-client
     
     - name: Run tests with coverage
       env:
