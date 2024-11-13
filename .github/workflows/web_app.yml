@@ -35,7 +35,7 @@ jobs:
 
       - name: Run Pylint
         run: |
-          venv/bin/python -m pylint --ignored-modules=pytest web-app
+          venv/bin/python -m pylint web-app
 
       - name: Run tests with coverage
         run: |
