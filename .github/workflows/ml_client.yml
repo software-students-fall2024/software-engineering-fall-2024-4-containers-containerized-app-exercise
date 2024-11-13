@@ -1,4 +1,4 @@
-name: CI / CD
+name: ML Client CI / CD
 
 on:
   push:

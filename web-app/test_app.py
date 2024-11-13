@@ -6,6 +6,7 @@ import pytest
 from app import app as flask_app
 
 
+@pytest.fixture
 def app():
     """Pytest-flask handling."""
     flask_app.config["TESTING"] = True
