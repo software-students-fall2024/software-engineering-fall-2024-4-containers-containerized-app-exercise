@@ -1,4 +1,3 @@
-<!-- templates/index.html -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -7,23 +6,23 @@
 </head>
 <body>
     <h1>Emotion Detection App</h1>
-    <div>
-        <img src="{{ url_for('video_feed') }}" alt="Video feed">
-    </div>
+    <button onclick="captureEmotion()">Capture Emotion</button>
     <h2 id="emotion"></h2>
 
     <script>
-        async function fetchEmotion() {
+        async function captureEmotion() {
             try {
-                const response = await fetch('/emotion');
+                const response = await fetch('/capture_emotion');
                 const data = await response.json();
-                document.getElementById('emotion').innerText = `Emotion: ${data.emotion}`;
+                if (data.emotion) {
+                    document.getElementById('emotion').innerText = `Detected Emotion: ${data.emotion}`;
+                } else {
+                    document.getElementById('emotion').innerText = "Error: Could not capture emotion.";
+                }
             } catch (error) {
-                console.error("Error fetching emotion:", error);
+                console.error("Error capturing emotion:", error);
             }
         }
-
-        setInterval(fetchEmotion, 2000);  // Fetch emotion every 2 seconds
     </script>
 </body>
 </html>

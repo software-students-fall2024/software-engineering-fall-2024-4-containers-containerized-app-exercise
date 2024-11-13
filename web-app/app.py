@@ -13,57 +13,23 @@ app = Flask(__name__)
 
 # Set up MongoDB connection
 client = MongoClient("mongodb://localhost:27017/")
-db = client['traffic_db']
-traffic_data_collection = db['traffic_data']
-
-# Generate frames from camera and use ML client to detect emotion
-def gen_frames():
-    camera = cv2.VideoCapture(0)
-    while True:
-        success, frame = camera.read()
-        if not success:
-            break
-        else:
-            emotion_text = detect_emotion(frame)
-
-            # Save the detected emotion and timestamp to MongoDB
-            traffic_data_collection.insert_one({
-                "emotion": emotion_text,
-                "timestamp": datetime.now()
-            })
-
-            _, buffer = cv2.imencode('.jpg', frame)
-            frame = buffer.tobytes()
-
-            # Yield the frame as multipart/jpeg and emotion as JSON
-            yield (b'--frame\r\n'
-                   b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n\r\n',
-                   emotion_text)
-
-@app.route('/video_feed')
-def video_feed():
-    # Stream the video frames
-    return Response(gen_frames(), mimetype='multipart/x-mixed-replace; boundary=frame')
+db = client["emotion_db"]
+emotion_data_collection = db["emotion_data"]
 
 @app.route('/')
 def index():
-    # Render the main HTML page
     return render_template('index.html')
 
-@app.route('/emotion')
-def emotion():
-    # Fetch the latest emotion detected from the camera feed
-    _, emotion_text = next(gen_frames())
-    return jsonify({'emotion': emotion_text})
-def dashboard():
-    # Example data for vehicle counts and congestion level
-    vehicle_counts = {'cars': 12, 'trucks': 3, 'buses': 1}
-    congestion_level = "Moderate"
-
-    # Determine color based on congestion level
-    color = "orange" if congestion_level == "Moderate" else "green" if congestion_level == "Low" else "red"
-    
-    return render_template('dashboard.html', vehicle_counts=vehicle_counts, congestion_level=congestion_level, color=color)
+@app.route('/capture_emotion')
+def capture_enotion():
+    camera = cv2.VideoCapture(0)
+    success, frame = camera.read()
+    if not success:
+        camera.release()
+        return jsonify({"error": "could not capture image"}), 500
+    emotion_text = detect_emotion(frame)
+    camera.release()
+    return jsonify({"emotion": emotion_text})
 
 if __name__ == '__main__':
     app.run(debug=True)
