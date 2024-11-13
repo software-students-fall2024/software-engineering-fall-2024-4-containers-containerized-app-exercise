@@ -26,6 +26,7 @@ os.makedirs(app.config["UPLOAD_FOLDER"], exist_ok=True)
 
 def login_required(f):
     """to log in"""
+
     @wraps(f)
     def decorated_function(*args, **kwargs):
         if "username" not in session:
@@ -40,15 +41,6 @@ def login_required(f):
 def home():
     """Handles the home route."""
     return "Welcome to the Web App!"
-
-
-@app.route("/test-insert")
-def test_insert():
-    """Insert a test document into MongoDB and return the inserted ID."""
-    collection = db["test_collection"]
-    sample_data = {"name": "Test", "email": "test@nyu.edu", "age": 21}
-    result = collection.insert_one(sample_data)
-    return jsonify({"status": "success", "inserted_id": str(result.inserted_id)})
 
 
 @app.route("/signup", methods=["GET", "POST"])
