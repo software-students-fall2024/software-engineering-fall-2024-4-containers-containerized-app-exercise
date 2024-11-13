@@ -18,10 +18,8 @@ def index():
     return render_template("index.html")
 
 
-# Route to handle results display if needed
 # @app.route('/results')
 # def results():
-#     # Logic to display results
 #     return render_template('results.html')
 
 if __name__ == "__main__":
