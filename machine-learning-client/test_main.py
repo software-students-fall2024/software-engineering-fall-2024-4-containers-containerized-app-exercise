@@ -45,11 +45,9 @@ def test_train_model(mock_pickle, mock_load, mock_listdir, mock_exists):
 @mock.patch("main.train_model")
 def test_load_model(mock_train_model, mock_pickle_load, mock_exists):
     """Test that load_model loads a model if it exists, otherwise trains a new one."""
-    mock_exists.side_effect = [False, True]  # First check: model file does not exist; Second: does exist
-    mock_pickle_load.return_value = mock.Mock()  # Mock a loaded model
-    mock_train_model.return_value = None         # Mock train_model to avoid real training
-
-    # Call load_model, which should invoke train_model first and then load the model
+    mock_exists.side_effect = [False, True]
+    mock_pickle_load.return_value = mock.Mock()
+    mock_train_model.return_value = None
     model = load_model()
     assert model is not None
     assert mock_train_model.called or mock_pickle_load.called
