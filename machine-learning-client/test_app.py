@@ -3,6 +3,9 @@ This module contains tests for the ML client. Run with 'python -m pytest test_ap
 or to see with coverage run with 'python -m pytest --cov=app test_app.py'
 """
 
+import cv2
+import requests
+
 from unittest.mock import patch, MagicMock
 from io import BytesIO
 import base64
@@ -98,3 +101,54 @@ def test_encode_image():
     # check encoding result is a string and not empty
     assert isinstance(encoded_image, str)
     assert len(encoded_image) > 0
+
+# send POST request to /api/detect for image screenshots from webcam
+
+# capture an image from a webcam feed
+def capture_image_from_webcam():
+    # Initialize webcam
+    cap = cv2.VideoCapture(0)
+    
+    # Read a frame from the webcam
+    ret, frame = cap.read()
+    
+    # Release the webcam
+    cap.release()
+    cv2.destroyAllWindows()
+
+    if not ret:
+        print("Failed to capture image")
+        return None
+
+    # Convert to JPEG format for the API
+    _, buffer = cv2.imencode('.jpg', frame)
+    image_bytes = buffer.tobytes()
+    return image_bytes
+
+def send_image_to_detect(image_bytes):
+    # Create a form-data payload
+    files = {'file': ('webcam-image.jpg', image_bytes, 'image/jpeg')}
+    url = 'http://localhost:3001/api/detect'
+
+    try:
+        # Send the image to the ML client for detection
+        response = requests.post(url, files=files)
+        response.raise_for_status()  # Raise an error if the request was unsuccessful
+        result = response.json()
+        
+        print("Detection Result:", result)
+        display_detection_result(result)
+    except requests.RequestException as e:
+        print("Error:", e)
+
+def display_detection_result(result):
+    # Display the detection results in the console
+    print(f"Timestamp: {result['timestamp']}")
+    print("Detected Objects:")
+    for obj in result['detected_objects']:
+        print(f" - {obj['label']}: {obj['confidence']:.2f}")
+
+# Capture and process an image when script runs
+image_bytes = capture_image_from_webcam()
+if image_bytes:
+    send_image_to_detect(image_bytes)
