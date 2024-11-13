@@ -14,18 +14,21 @@ load_dotenv()
 app = Flask(__name__)
 mongo_uri = os.getenv("MONGO_URI")
 client = MongoClient(mongo_uri)
-db = client['object_detection']
-collection = db['detected_objects']
+db = client["object_detection"]
+collection = db["detected_objects"]
 
-@app.route('/')
+
+@app.route("/")
 def index():
-    return render_template('index.html')
+    return render_template("index.html")
 
-@app.route('/data')
+
+@app.route("/data")
 def get_data():
     """Fetch data from MongoDB"""
-    data = list(collection.find({}, {'_id': 0}))  # Exclude MongoDB IDs
+    data = list(collection.find({}, {"_id": 0}))  # Exclude MongoDB IDs
     return jsonify(data)
+
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000, debug=True)
