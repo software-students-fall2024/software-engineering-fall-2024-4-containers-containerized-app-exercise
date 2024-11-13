@@ -1,0 +1,27 @@
+version: '3.8'
+
+services:
+  mongodb:
+    image: mongo
+    container_name: mongodb
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo-data:/data/db
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: example
+
+  machine-learning-client:
+    build:
+      context: ./machine-learning-client  
+    environment:
+      - MONGO_URI=mongodb://root:example@mongodb:27017
+      - AUDIO_DIR=/app/audio
+    volumes:
+      - ./audio:/app/audio  
+    depends_on:
+      - mongodb  
+
+volumes:
+  mongo-data:
