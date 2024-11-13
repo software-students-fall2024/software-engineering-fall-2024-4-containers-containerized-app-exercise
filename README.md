@@ -25,4 +25,4 @@ Our containerized web app utilizes machine learning (image recognition) to play 
 - ***Wenli Shi:*** ([WenliShi2332](https://github.com/WenliShi2332))
 - ***Alex Hsu:*** ([hsualexotake](https://github.com/hsualexotake))
 - ***Reese Burns:*** ([reeseburns](https://github.com/reeseburns))
-- - ***Finn Eskeland:*** ([a](https://github.com/aa))
+- ***Finn Eskeland:*** ([a](https://github.com/aa))
