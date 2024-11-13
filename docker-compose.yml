@@ -1,4 +1,3 @@
-version: "3.8"
 services:
   mongodb:
     image: mongo
@@ -7,34 +6,23 @@ services:
       - "27017:27017"
     networks:
       - app-network
-    healthcheck:
-      test: ["CMD", "mongo", "--eval", "db.adminCommand('ping')"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-
   ml-client:
     build: ./machine-learning-client
     container_name: ml-client
     depends_on:
-      mongodb:
-        condition: service_healthy
+      - mongodb
     networks:
       - app-network
-
   web-app:
     build: ./web-app
     container_name: web-app
     ports:
       - "5000:5000"
     depends_on:
-      mongodb:
-        condition: service_healthy
-      ml-client:
-        condition: service_started
+      - mongodb
+      - ml-client
     networks:
       - app-network
-
 networks:
   app-network:
     driver: bridge
