@@ -4,9 +4,8 @@ WORKDIR /app
 
 COPY Pipfile Pipfile.lock /app/
 
-RUN pip install pipenv
-
-RUN pipenv install --deploy --ignore-pipfile
+RUN pip install --no-cache-dir pipenv && \
+    pipenv install --deploy --ignore-pipfile
 
 COPY . /app/
 
