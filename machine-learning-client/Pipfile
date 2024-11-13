@@ -6,13 +6,13 @@ name = "pypi"
 [packages]
 pylint = "*"
 black = "*"
-face-recognition = "*"
 opencv-python = "*"
 pymongo = "*"
 cmake = "*"
 pytest = "*"
 coverage = "*"
 tomli = "*"
+face-recognition = "*"
 
 [dev-packages]
 

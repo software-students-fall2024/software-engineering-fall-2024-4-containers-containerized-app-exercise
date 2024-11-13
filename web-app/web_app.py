@@ -3,7 +3,7 @@ This is a web app module for Attendify
 """
 
 import os
-from flask import Flask, jsonify, request, render_template, redirect, url_for, session
+from flask import Flask, request, render_template, redirect, url_for, session
 from pymongo import MongoClient
 from werkzeug.security import generate_password_hash, check_password_hash
 from werkzeug.utils import secure_filename
@@ -41,13 +41,14 @@ def login_required(f):
 @app.route("/")
 @login_required
 def home():
-    """Handles the home route."""
+    """handles the home route."""
     username = session.get("username")
     return render_template("home.html", username=username)
 
 
 @app.route("/signup", methods=["GET", "POST"])
 def signup():
+    """handles user signup by collecting credentials and storing them with a face encoding."""
     if request.method == "POST":
         try:
             username = request.form["username"]
@@ -67,7 +68,9 @@ def signup():
 
             # Send the image to the ML client for encoding
             ml_client_url = "http://localhost:5001/encode"
-            response = requests.post(ml_client_url, json={"image_path": image_path})
+            response = requests.post(
+                ml_client_url, json={"image_path": image_path}, timeout=10
+            )
             if response.status_code != 200:
                 return render_template(
                     "encode_result.html", error="Failed to encode image"
@@ -90,7 +93,7 @@ def signup():
             )
             return redirect(url_for("login"))
 
-        except Exception as e:
+        except (KeyError, requests.RequestException, ValueError) as e:
             print(f"Error during signup: {str(e)}")
             return render_template("encode_result.html", error="Internal Server Error")
 
@@ -100,6 +103,7 @@ def signup():
 @app.route("/verify", methods=["POST"])
 @login_required
 def verify():
+    """handles face verification by comparing a new image with the stored face encoding."""
     try:
         username = session["username"]
         user = users_collection.find_one({"username": username})
@@ -123,6 +127,7 @@ def verify():
         response = requests.post(
             ml_client_url,
             json={"image_path": image_path, "stored_encoding": user["encoding"]},
+            timeout=10,
         )
         if response.status_code != 200:
             return render_template(
@@ -132,7 +137,7 @@ def verify():
         result = response.json().get("result")
         return render_template("verify_result.html", result=result)
 
-    except Exception as e:
+    except (KeyError, requests.RequestException, ValueError) as e:
         print(f"Error during verification: {str(e)}")
         return render_template("verify_result.html", error="Internal Server Error")
 
