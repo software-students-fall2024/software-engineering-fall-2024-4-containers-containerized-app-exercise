@@ -12,7 +12,7 @@ from app import app, preprocess_image, detect_objects, encode_image
 from flask import json
 from unittest.mock import patch, Mock
 
-# Configure the app for testing
+# configure app for testing
 app.config["TESTING"] = True
 
 
@@ -25,12 +25,12 @@ def client():
 
 def test_preprocess_image():
     """Test image preprocessing for MobileNet input."""
-    # Create a sample random image tensor
+    # create a sample random image tensor
     image = tf.random.uniform(shape=(500, 500, 3), minval=0, maxval=255, dtype=tf.int32)
     image = tf.cast(image, tf.float32)  # Convert to float32
     preprocessed_image = preprocess_image(image)
 
-    # Check the preprocessed image shape and type
+    # check the preprocessed image shape and type
     assert preprocessed_image.shape == (1, 224, 224, 3)
     assert preprocessed_image.dtype == np.float32
 
@@ -38,15 +38,14 @@ def test_preprocess_image():
 @patch("app.model.predict")
 def test_detect_objects(mock_predict):
     """Test object detection using mocked MobileNet predictions."""
-    # Mock MobileNet's predict output
+    # mock MobileNet's predict output
     mock_predict.return_value = np.random.rand(1, 1000)  # Simulate a prediction output
     image = tf.random.uniform(shape=(224, 224, 3), minval=0, maxval=255, dtype=tf.int32)
     image = tf.cast(image, tf.float32)  # Convert to float32
 
-    # Run detection
+    # run detection
     detected_objects = detect_objects(image)
 
-    # Assertions
     assert isinstance(detected_objects, list)
     assert len(detected_objects) == 3  # Should return top 3 predictions
     for obj in detected_objects:
@@ -56,11 +55,11 @@ def test_detect_objects(mock_predict):
 
 def test_encode_image():
     """Test image encoding to base64."""
-    # Create a sample blank image
+    # create a sample blank image
     image = np.zeros((100, 100, 3), np.uint8)
     encoded_image = encode_image(image)
 
-    # Check that the encoding result is a string and not empty
+    # check encoding result is a string and not empty
     assert isinstance(encoded_image, str)
     assert len(encoded_image) > 0
 
@@ -70,7 +69,6 @@ def test_detect_route_no_file(client):
     response = client.post("/api/detect")
     data = response.get_data(as_text=True)
 
-    # Check response status code and message
     assert response.status_code == 400
     assert "No image file provided." in data
 
