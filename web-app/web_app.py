@@ -21,13 +21,16 @@ client = MongoClient(mongo_uri)
 db = client["test_db"]
 users_collection = db["users"]
 
+
 def login_required(f):
     @wraps(f)
     def decorated_function(*args, **kwargs):
         if "username" not in session:
             return redirect(url_for("login"))
         return f(*args, **kwargs)
+
     return decorated_function
+
 
 @app.route("/")
 @login_required
@@ -48,6 +51,7 @@ def test_insert():
 
     return jsonify({"status": "success", "inserted_id": str(result.inserted_id)})
 
+
 @app.route("/login", methods=["GET", "POST"])
 def login():
     if request.method == "POST":
@@ -62,10 +66,12 @@ def login():
 
     return render_template("login.html")
 
+
 @app.route("/logout")
 def logout():
     session.pop("username", None)
     return redirect(url_for("login"))
+
 
 print(os.urandom(24).hex())
 
