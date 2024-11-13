@@ -1,25 +1,27 @@
-from flask import Flask, render_template, request, jsonify
-from pymongo import MongoClient
 import uuid
 from datetime import datetime
 import os
+from flask import Flask, render_template, request, jsonify
+from pymongo import MongoClient
 
 app = Flask(__name__)
 
 # Connect to MongoDB
 mongo_uri = os.getenv("MONGO_URI")
 client = MongoClient(mongo_uri)  # Adjust the connection string if necessary
-db = client['sentiment']  # Database name
-collection = db['texts']  # Collection name
+db = client["sentiment"]  # Database name
+collection = db["texts"]  # Collection name
 
-@app.route('/')
+@app.route("/")
 def index():
-    return render_template('index.html')
+    """Render the main index page."""
+    return render_template("index.html")
 
-@app.route('/checkSentiment', methods=['POST'])
+@app.route("/checkSentiment", methods=["POST"])
 def submit_sentence():
+    """Handle sentiment check requests and store the sentence in MongoDB."""
     data = request.get_json()
-    sentence = data.get('sentence')
+    sentence = data.get("sentence")
 
     # Generate a unique request_id
     request_id = str(uuid.uuid4())
@@ -27,13 +29,7 @@ def submit_sentence():
     # Create the data structure with status "pending" and analysis as null
     document = {
         "request_id": request_id,
-        "sentences": [
-            {
-                "sentence": sentence,
-                "status": "pending",
-                "analysis": None
-            }
-        ],
+        "sentences": [{"sentence": sentence, "status": "pending", "analysis": None}],
         "overall_status": "pending",
         "timestamp": datetime.now()
     }
@@ -53,5 +49,5 @@ def get_analysis():
     else:
         return jsonify({"message": "No processed analysis found"}), 404
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     app.run(debug=True)
