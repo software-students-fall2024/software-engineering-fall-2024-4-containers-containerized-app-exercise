@@ -3,9 +3,9 @@ This module sets up the Flask application for the Plant Identifier project.
 """
 import os
 from dotenv import load_dotenv
-from flask import Flask, request, render_template, redirect, url_for, make_response
+from flask import Flask, request, render_template, redirect, make_response
 import pymongo
-from werkzeug.utils import secure_filename
+# from werkzeug.utils import secure_filename
 
 load_dotenv()
 
