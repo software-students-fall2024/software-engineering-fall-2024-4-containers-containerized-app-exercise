@@ -40,7 +40,8 @@ def login_required(f):
 @login_required
 def home():
     """Handles the home route."""
-    return "Welcome to the Web App!"
+    username = session.get("username")
+    return render_template("home.html", username=username)
 
 
 @app.route("/signup", methods=["GET", "POST"])
