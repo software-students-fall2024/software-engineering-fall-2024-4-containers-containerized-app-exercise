@@ -30,6 +30,9 @@ jobs:
           # Start only MongoDB and machine-learning-client services
           docker compose up -d mongodb machine-learning-client
 
+      - name: Wait for MongoDB to be Ready
+        run: sleep 10  # Increase the delay as necessary
+
       - name: Run Tests in Machine Learning Client
         run: |
           docker compose exec machine-learning-client pytest tests/
