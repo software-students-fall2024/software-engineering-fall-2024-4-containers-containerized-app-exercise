@@ -27,9 +27,10 @@ def predict():
             return jsonify({"error": "No image file provided"}), 400
 
         file = request.files["image"]
-        image = cv2.imdecode(
-            np.frombuffer(file.read(), np.uint8), cv2.IMREAD_COLOR
-        )  # pylint: disable=E1101
+        image = cv2.imdecode(  # pylint: disable=E1101
+            np.frombuffer(file.read(), np.uint8),
+            cv2.IMREAD_COLOR,  # pylint: disable=E1101
+        )
         processed_image = cv2.resize(image, (224, 224)) / 255.0  # pylint: disable=E1101
         processed_image = np.expand_dims(processed_image, axis=0)
 
