@@ -18,9 +18,9 @@ jobs:
 
       - name: Start MongoDB and Machine Learning Client
         env:
-          MONGODB_URI: ${{ secrets.MONGODB_URI }}
-          MONGODB_USERNAME: ${{ secrets.MONGODB_USERNAME }}
-          MONGODB_PASSWORD: ${{ secrets.MONGODB_PASSWORD }}
+          MONGODB_URI: "${{ secrets.MONGODB_URI }}"
+          MONGODB_USERNAME: "${{ secrets.MONGODB_USERNAME }}"
+          MONGODB_PASSWORD: "${{ secrets.MONGODB_PASSWORD }}"
         run: |
           # Start only MongoDB and machine-learning-client services
           docker compose up -d mongodb machine-learning-client
