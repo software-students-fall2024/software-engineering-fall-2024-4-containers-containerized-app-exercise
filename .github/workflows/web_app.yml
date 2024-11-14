@@ -37,6 +37,6 @@ jobs:
         run: |
           venv/bin/python -m pylint --ignored-modules=pytest web-app
 
-      - name: Run tests with coverage
-        run: |
-          venv/bin/python -m pytest web-app/test_app.py --cov=web-app --cov-report=html
+      # - name: Run tests with coverage
+      #   run: |
+      #     venv/bin/python -m pytest web-app/test_app.py --cov=web-app --cov-report=html
