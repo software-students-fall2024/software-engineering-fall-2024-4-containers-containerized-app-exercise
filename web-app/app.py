@@ -20,6 +20,7 @@ collection = db['entries']
 
 @app.route('/')
 def index():
+    
     """Render the homepage with mood summary data."""
     mood_entries = collection.find().sort("timestamp", -1).limit(100)
     entries = [{
@@ -28,7 +29,7 @@ def index():
         "sentiment": entry["sentiment"],
         "timestamp": entry["timestamp"]
     } for entry in mood_entries]
-
+    
     return render_template('index.html', entries=entries)
 
 @app.route('/api/mood-trends')
