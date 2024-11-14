@@ -2,27 +2,18 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Emotion Detection</title>
+    <title>Welcome to the Emotion Detection App</title>
 </head>
 <body>
-    <h1>Emotion Detection App</h1>
-    <button onclick="captureEmotion()">Capture Emotion</button>
-    <h2 id="emotion"></h2>
-
-    <script>
-        async function captureEmotion() {
-            try {
-                const response = await fetch('/capture_emotion');
-                const data = await response.json();
-                if (data.emotion) {
-                    document.getElementById('emotion').innerText = `Detected Emotion: ${data.emotion}`;
-                } else {
-                    document.getElementById('emotion').innerText = "Error: Could not capture emotion.";
-                }
-            } catch (error) {
-                console.error("Error capturing emotion:", error);
-            }
-        }
-    </script>
+    <h1>Welcome to the Emotion Detection App</h1>
+    
+    {% if session['user_id'] %}
+        <p>Welcome back!</p>
+        <a href="{{ url_for('dashboard') }}">Go to Dashboard</a>
+        <a href="{{ url_for('logout') }}">Logout</a>
+    {% else %}
+        <a href="{{ url_for('login') }}">Login</a>
+        <a href="{{ url_for('signup') }}">Sign Up</a>
+    {% endif %}
 </body>
 </html>
