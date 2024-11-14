@@ -1,8 +1,13 @@
+"""
+This module sets up a Flask application to handle routes and connect to MongoDB.
+It uses environment variables for configuration.
+"""
+import os # Standard library imports
+#from datetime import datetime
 from flask import Flask, render_template, jsonify
 from pymongo import MongoClient
-import os
 from dotenv import load_dotenv
-from datetime import datetime
+
 
 load_dotenv()
 MONGO_URI = os.getenv("MONGO_URI", "mongodb://localhost:27017")
