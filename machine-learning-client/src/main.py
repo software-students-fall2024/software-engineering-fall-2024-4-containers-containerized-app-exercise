@@ -6,7 +6,7 @@ import os
 import logging
 from datetime import datetime
 import pymongo
-from pymongo import MongoClient 
+from pymongo import MongoClient
 from dotenv import load_dotenv
 from utils import get_audio_files, transcribe_audio, analyze_sentiment, store_data
 

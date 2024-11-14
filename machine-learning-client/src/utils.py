@@ -8,6 +8,7 @@ import glob
 import logging
 import speech_recognition as sr
 from textblob import TextBlob
+from pymongo.errors import PyMongoError
 
 def get_audio_files(directory):
     """
@@ -85,5 +86,5 @@ def store_data(collection,data):
     try:
         collection.insert_one(data)
         logging.info("Data stored successfully.")
-    except Exception as e:
+    except PyMongoError as e:
         logging.error("Failed to store data: %s", e)
