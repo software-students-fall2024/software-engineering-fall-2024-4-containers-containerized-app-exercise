@@ -108,7 +108,6 @@ def test_encode_image():
 # capture an image from a webcam feed
 def capture_image_from_webcam():
     """Capture an image from the webcam and return it as bytes.
-    
     Initializes the webcam, captures a frame, and converts it to JPEG format.
     Returns the image bytes if successful, or None if the capture fails."""
     # Initialize webcam
@@ -132,7 +131,6 @@ def capture_image_from_webcam():
 
 def send_image_to_detect(image_bytes):
     """Send the captured image to the /api/detect route for object detection.
-    
     Sends the image as a form-data payload and prints the detection result.
     Handles errors if the request fails."""
     # Create a form-data payload
@@ -152,7 +150,6 @@ def send_image_to_detect(image_bytes):
 
 def display_detection_result(result):
     """Display the detection results in the console.
-
     Iterates over the detected objects and prints the label and confidence score."""
     print(f"Timestamp: {result['timestamp']}")
     print("Detected Objects:")
