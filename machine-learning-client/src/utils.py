@@ -1,15 +1,38 @@
+"""
+Utility module for handling audio files, performing transcription,
+sentiment analysis, and storing data in MongoDB.
+"""
+
 import os
-from datetime import datetime
 import glob
+import logging
 import speech_recognition as sr
 from textblob import TextBlob
-import logging
 
 def get_audio_files(directory):
+    """
+    Retrieves a list of audio files from the specified directory.
+    
+    Args:
+        directory (str): The path to the directory containing audio files.
+
+    Returns:
+        list: A list of paths to audio files.
+    """
+
     audio_files=glob.glob(os.path.join(directory, '*.wav'))
     return audio_files
 
 def transcribe_audio(file_path):
+    """
+        Transcribes the audio file at the given path to text.
+        
+        Args:
+            file_path (str): The path to the audio file.
+
+        Returns:
+            str: Transcribed text from the audio.
+    """
     recognizer=sr.Recognizer()
     with sr.AudioFile(file_path) as source:
         audio=recognizer.record(source)
@@ -20,10 +43,19 @@ def transcribe_audio(file_path):
         logging.error("Speech Recognition could not understand audio")
         return ""
     except sr.RequestError as e:
-        logging.error(f"Could not request results; {e}")
+        logging.error("Could not request results; %s", e)
         return ""
 
 def analyze_sentiment(text):
+    """
+    Analyzes the sentiment of the provided text using TextBlob.
+    
+    Args:
+        text (str): The text to analyze.
+
+    Returns:
+        dict: A dictionary with polarity, subjectivity, and mood as keys.
+    """
     blob=TextBlob(text)
     polarity=blob.sentiment.polarity
     subjectivity=blob.sentiment.subjectivity
@@ -43,8 +75,15 @@ def analyze_sentiment(text):
     return sentiment
 
 def store_data(collection,data):
+    """
+    Stores the provided data in the specified MongoDB collection.
+    
+    Args:
+        collection (pymongo.collection.Collection): The MongoDB collection to store data in.
+        data (dict): The data to store.
+    """
     try:
         collection.insert_one(data)
         logging.info("Data stored successfully.")
     except Exception as e:
-        logging.error(f"Failed to store data: {e}")
+        logging.error("Failed to store data: %s", e)

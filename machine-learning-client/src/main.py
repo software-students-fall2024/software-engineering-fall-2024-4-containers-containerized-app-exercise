@@ -25,7 +25,7 @@ def setup_logging():
     )
 
 def main():
-     """
+    """
     Main function to run the audio processing and sentiment analysis pipeline.
     
     This function loads environment variables, connects to the MongoDB database,
