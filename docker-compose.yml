@@ -1,9 +1,8 @@
 version: "3.8"
 
-'''
-Docker-compose file
-Includes DB, ML Client, and Web App
-'
+# Docker-compose file
+# Includes DB, ML Client, and Web App
+
 services:
   mongodb:
     image: mongodb/mongodb-community-server:6.0-ubi8
@@ -22,7 +21,7 @@ services:
     depends_on:
       - mongodb
     environment:
-        - DB_URI=${MONGODB_URI}
+      - DB_URI=${MONGODB_URI}
     command: python3 app.py
 
   web-app:
