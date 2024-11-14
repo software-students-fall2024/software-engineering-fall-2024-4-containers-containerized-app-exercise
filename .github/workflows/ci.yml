@@ -42,7 +42,8 @@ jobs:
           pipenv run pylint app.py
         fi
     - name: Format code with Black
-      run: black ./${{ matrix.service }}   
+      working-directory: ./${{ matrix.service }}
+      run: pipenv run black .
     - name: Run tests
       working-directory: ./${{ matrix.service }}
       run: |
