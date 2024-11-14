@@ -79,6 +79,8 @@ def signup():
     return render_template("signup.html")
 
 
+# web_app.py
+
 @app.route("/login", methods=["GET", "POST"])
 def login():
     if request.method == "POST":
@@ -87,32 +89,34 @@ def login():
             print("Debug: Image data not received or is empty.")
             return render_template("verify_result.html", result="Image capture failed")
 
+        # Decode the image data
         image_path = decode_base64_image(image_data)
         if not image_path:
             print("Debug: Failed to decode the image data.")
-            return render_template(
-                "verify_result.html", result="Failed to process image"
-            )
+            return render_template("verify_result.html", result="Failed to process image")
 
+        print(f"Debug: Image saved successfully at {image_path}")
+
+        # Retrieve all stored encodings from the database
         users = users_collection.find()
         stored_encodings = [user["encoding"] for user in users]
 
+        # Perform facial recognition using ml_client
         result, error = ml_client.recognize_face(stored_encodings, image_path)
         if error:
             print(f"Debug: {error}")
             return render_template("verify_result.html", result=error)
 
         if result == "verified":
-            session["username"] = "User"
+            session["username"] = "User"  # Customize this as needed
             return redirect(url_for("home"))
         elif result == "not_recognized":
             return render_template("verify_result.html", result="Face not recognized")
         else:
-            return render_template(
-                "verify_result.html", result="No face detected in the image"
-            )
+            return render_template("verify_result.html", result="No face detected in the image")
 
     return render_template("login.html")
+
 
 
 @app.route("/logout", methods=["POST"])
