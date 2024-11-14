@@ -5,7 +5,6 @@ and stores the results in a MongoDB database.
 import os
 import logging
 from datetime import datetime
-from pickletools import pylong
 from pymongo import MongoClient
 from dotenv import load_dotenv
 from utils import get_audio_files, transcribe_audio, analyze_sentiment, store_data

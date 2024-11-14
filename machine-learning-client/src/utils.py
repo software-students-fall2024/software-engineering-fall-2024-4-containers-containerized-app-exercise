@@ -86,8 +86,4 @@ def store_data(collection,data):
         collection.insert_one(data)
         logging.info("Data stored successfully.")
     except Exception as e:
-<<<<<<< HEAD
         logging.error("Failed to store data: %s", e)
-=======
-        logging.error("Failed to store data: %s", e)
->>>>>>> 39d67016d6645a327b2630e546409c3649439002
