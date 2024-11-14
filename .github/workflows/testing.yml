@@ -16,6 +16,9 @@ jobs:
       - name: Check out repository
         uses: actions/checkout@v4
 
+      - name: Create Data Directory
+        run: mkdir -p ./data
+
       - name: Start MongoDB and Machine Learning Client
         env:
           MONGODB_URI: "${{ secrets.MONGODB_URI }}"
