@@ -17,6 +17,7 @@ sys.path.append(
         os.path.join(os.path.dirname(__file__), "../machine_learning_client")
     )
 )
+
 import ml_client
 
 load_dotenv()

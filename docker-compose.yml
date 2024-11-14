@@ -13,7 +13,7 @@ services:
 
   ml-client:
     build:
-      context: ./machine-learning-client
+      context: ./machine_learning_client
     container_name: ml-client
     env_file:
       - .env
