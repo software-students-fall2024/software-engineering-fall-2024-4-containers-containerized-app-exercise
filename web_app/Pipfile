@@ -12,6 +12,7 @@ tomli = "*"
 pytest = "*"
 python-dotenv = "*"
 requests = "*"
+pillow = "*"
 
 [dev-packages]
 
