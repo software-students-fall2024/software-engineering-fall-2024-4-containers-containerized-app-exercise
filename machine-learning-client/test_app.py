@@ -140,7 +140,6 @@ def send_image_to_detect(image_bytes):
         response = requests.post(url, files=files)
         response.raise_for_status()  # Raise an error if the request was unsuccessful
         result = response.json()
-        
         print("Detection Result:", result)
         display_detection_result(result)
     except requests.RequestException as e:
