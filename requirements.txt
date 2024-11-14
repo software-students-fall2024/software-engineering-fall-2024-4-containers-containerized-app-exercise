@@ -8,4 +8,8 @@ pymongo==4.5.0
 python-dotenv==1.0.0
 regex== 2024.9.11
 Flask-Login==0.6.3
+<<<<<<< HEAD
 Werkzeug==2.3.7
+=======
+Werkzeug==2.3.7
+>>>>>>> 39d67016d6645a327b2630e546409c3649439002

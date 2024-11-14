@@ -1,0 +1,54 @@
+name: CI / CD
+
+on: [push, pull_request]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    strategy:
+      matrix:
+        python-version: ["3.9", "3.11"]
+    steps:
+      - uses: actions/checkout@v4
+      
+      # Set up Python
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v2
+        with:
+          python-version: ${{ matrix.python-version }}
+          
+      # Install dependencies from requirements.txt
+      - name: Install dependencies
+        run: |
+          python3 -m pip install --upgrade pip
+          pip3 install -r requirements.txt
+      
+      # Run linting
+      - name: Lint with pylint
+        run: |
+          pylint src/main.py src/utils.py
+      
+      # Run formatting
+      - name: Format with black
+        run: |
+          black src
+      
+      # Run tests
+      - name: Test with pytest
+        run: |
+          pytest --cov=src
+    
+  deliver:
+    needs: [build]
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      
+      # Install dependencies from requirements.txt for delivery step
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+     
