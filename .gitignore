@@ -149,9 +149,3 @@ dmypy.json
 cython_debug/
 
 *.idea
-
-#Ignore Everything in Data Folder
-data/*
-
-# Except keep the folder itself
-!data/
