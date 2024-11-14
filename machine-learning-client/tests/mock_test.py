@@ -1,4 +1,7 @@
 import pytest
 
 def test_mock():
-    assert True is True
+    try:
+        assert True is True
+    except Exception:
+        pytest.fail("An unexpected exception was raised.")
