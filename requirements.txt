@@ -1,0 +1,5 @@
+opencv-python
+pymongo
+SpeechRecognition
+pyaudio
+geopy

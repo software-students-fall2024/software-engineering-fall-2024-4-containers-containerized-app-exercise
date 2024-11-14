@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rock Paper Scissors</title>
+</head>
+<body>
+    <h1>Rock Paper Scissors</h1>
+
+    
+    <video id="video" autoplay playsinline width="640" height="480"></video>
+    <canvas id="canvas" width="640" height="480" style="display:none;"></canvas>
+
+    
+    <button id="capture">Capture Gesture</button>
+    <form id="game-form" action="/result" method="POST" enctype="multipart/form-data">
+        <input type="file" id="image-input" name="image" style="display: none;">
+        <button type="submit">Play!</button>
+    </form>
+
+    
+    <script>
+        const video = document.getElementById('video');
+        const canvas = document.getElementById('canvas');
+        const captureButton = document.getElementById('capture');
+        const imageInput = document.getElementById('image-input');
+
+        
+        navigator.mediaDevices.getUserMedia({ video: true })
+            .then((stream) => {
+                video.srcObject = stream;
+            })
+            .catch((err) => {
+                console.error("Error accessing the camera: ", err);
+            });
+
+        
+        captureButton.addEventListener('click', () => {
+            const context = canvas.getContext('2d');
+            context.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+            
+            canvas.toBlob((blob) => {
+                const file = new File([blob], "gesture.jpg", { type: "image/jpeg" });
+                const dataTransfer = new DataTransfer();
+                dataTransfer.items.add(file);
+                imageInput.files = dataTransfer.files;
+
+                alert("Gesture captured! Now click 'Play!' to submit.");
+            }, "image/jpeg");
+        });
+    </script>
+</body>
+</html>

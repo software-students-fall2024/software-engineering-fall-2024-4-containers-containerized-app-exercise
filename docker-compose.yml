@@ -1,0 +1,31 @@
+version: '3.8'
+
+services:
+  web-app:
+    build:
+      context: ./web-app
+      dockerfile: Dockerfile
+    ports:
+      - "5003:5000"
+    depends_on:
+      - machine-learning-client
+      - mongodb
+    volumes:
+      - ./web-app:/app
+    environment:
+      - ML_CLIENT_URL=http://machine-learning-client:5000
+
+  machine-learning-client:
+    build:
+      context: ./machine-learning-client
+      dockerfile: Dockerfile
+    ports:
+      - "5005:5000"
+    volumes:
+      - ./machine-learning-client:/app
+    
+
+  mongodb:
+    image: mongo
+    ports:
+      - "27017:27017"
