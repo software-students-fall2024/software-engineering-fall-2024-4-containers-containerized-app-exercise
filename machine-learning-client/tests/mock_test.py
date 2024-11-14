@@ -1,9 +1,10 @@
 """
-This module contains tests for the machine learning client.
+This module contains tests for environment variable retrieval.
 """
 
 from os import getenv
 import pytest
+
 
 def test_env():
     """
