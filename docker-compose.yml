@@ -1,24 +1,30 @@
 version: '3.8'
 
 services:
-  mangodb:
+  mongodb:
     image: mongo:latest
-    container_name: mangodb
+    container_name: mongodb
   web-app:
     build:
       context: ./web-app
     container_name: web-app
     ports:
       - "5001:5000"
+    volumes:
+      - /Users/apple/Downloads:/host_files
     depends_on:
-      - mangodb
+      - mongodb
     environment:
-      - MANGO_URI=mangodb://mangodb:27017
+      - MONGO_URI=mongodb://mongodb:27017
   ml-client:
     build:
       context: ./machine-learning-client
     container_name: ml-client
+    volumes:
+      - /Users/apple/Downloads:/host_files
+    expose:
+      - 5000
     depends_on:
-      - mangodb
+      - mongodb
     environment:
-      - MANGO_URI=mangodb://mangodb:27017
+      - MONGO_URI=mongodb://mongodb:27017

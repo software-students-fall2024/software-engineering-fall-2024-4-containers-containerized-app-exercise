@@ -1,6 +1,7 @@
 window.onload = function(){
     const toggleButton = document.getElementById("toggle-recording");
     const statusElement = document.getElementById("status");
+    const resultElement = document.getElementById("result"); // Element to display transcription result
     let mediaRecorder;
     let audioChunks = [];
     let isRecording = false;
@@ -25,10 +26,31 @@ window.onload = function(){
                     mediaRecorder.onstop = function() {
                         // When recording stops, process the audio data
                         const audioBlob = new Blob(audioChunks, {type:'audio/wav'});
-                        const audioUrl = URL.createObjectURL(audioBlob);
-                        const audio = new Audio(audioUrl);
-                        audio.play(); // You can also append it to a <audio> element to play
-                        // Optinally, save or upload the recording here
+
+                        // Send the audio blob to the ml-client via a POST request
+                        const formData = new FormData();
+                        formData.append("audio",audioBlob,"recording.wav");
+
+                        // Make the POST request to ml-client to process the audio
+                        fetch("http://ml-client:5000/transcribe", {  // Use the ml-client's Docker service name and port
+                            method: "POST",
+                            body: formData
+                        })
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.error){
+                                resultElement.textContent = "Error: " + data.error;
+                            }
+                            else{
+                                // Display the transcription and store the transcription ID
+                                const transcriptionId = data.id;
+                                resultElement.textContent = "Transcription: " + data.transcription;
+                            }
+                        })
+                        .catch(function(error){
+                            console.error("Error sending audio to ML client:", error);
+                            resultElement.textContent = "Error processing the audio.";
+                        })
                         audioChunks = []; // Clear audio chunks for the next recording
                     };
                     // Start recording
