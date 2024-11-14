@@ -15,4 +15,4 @@ RUN pip install pipenv && pipenv install --dev --deploy --ignore-pipfile --verbo
 
 COPY . .
 
-CMD ["python", "app.py"]
+CMD ["python", "ml_client.py"]
