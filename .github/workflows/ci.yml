@@ -23,7 +23,7 @@ jobs:
     - name: Set up Python
       uses: actions/setup-python@v2
       with:
-        python-version: '3.10'  # Specify the Python version you need
+        python-version: '3.12'  # Specify the Python version you need
 
     - name: Install pipenv
       run: pip install pipenv
@@ -41,7 +41,9 @@ jobs:
         elif [ "${{ matrix.service }}" == "web-app" ]; then
           pipenv run pylint app.py
         fi
-
+    - name: Format code with Black
+      working-directory: ./${{ matrix.service }}
+      run: pipenv run black .
     - name: Run tests
       working-directory: ./${{ matrix.service }}
       run: |

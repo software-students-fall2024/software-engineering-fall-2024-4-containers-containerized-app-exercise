@@ -8,11 +8,13 @@ import glob
 import logging
 import speech_recognition as sr
 from textblob import TextBlob
+from pymongo.errors import PyMongoError
+
 
 def get_audio_files(directory):
     """
     Retrieves a list of audio files from the specified directory.
-    
+
     Args:
         directory (str): The path to the directory containing audio files.
 
@@ -20,24 +22,25 @@ def get_audio_files(directory):
         list: A list of paths to audio files.
     """
 
-    audio_files=glob.glob(os.path.join(directory, '*.wav'))
+    audio_files = glob.glob(os.path.join(directory, "*.wav"))
     return audio_files
+
 
 def transcribe_audio(file_path):
     """
-        Transcribes the audio file at the given path to text.
-        
-        Args:
-            file_path (str): The path to the audio file.
+    Transcribes the audio file at the given path to text.
 
-        Returns:
-            str: Transcribed text from the audio.
+    Args:
+        file_path (str): The path to the audio file.
+
+    Returns:
+        str: Transcribed text from the audio.
     """
-    recognizer=sr.Recognizer()
+    recognizer = sr.Recognizer()
     with sr.AudioFile(file_path) as source:
-        audio=recognizer.record(source)
+        audio = recognizer.record(source)
     try:
-        text=recognizer.recognize_google(audio)
+        text = recognizer.recognize_google(audio)
         return text
     except sr.UnknownValueError:
         logging.error("Speech Recognition could not understand audio")
@@ -46,38 +49,36 @@ def transcribe_audio(file_path):
         logging.error("Could not request results; %s", e)
         return ""
 
+
 def analyze_sentiment(text):
     """
     Analyzes the sentiment of the provided text using TextBlob.
-    
+
     Args:
         text (str): The text to analyze.
 
     Returns:
         dict: A dictionary with polarity, subjectivity, and mood as keys.
     """
-    blob=TextBlob(text)
-    polarity=blob.sentiment.polarity
-    subjectivity=blob.sentiment.subjectivity
+    blob = TextBlob(text)
+    polarity = blob.sentiment.polarity
+    subjectivity = blob.sentiment.subjectivity
 
-    if polarity>0:
-        mood='Positive'
-    elif polarity<0:
-        mood='Negative'
+    if polarity > 0:
+        mood = "Positive"
+    elif polarity < 0:
+        mood = "Negative"
     else:
-        mood='Neutral'
+        mood = "Neutral"
 
-    sentiment={
-        'polarity':polarity,
-        'subjectivity':subjectivity,
-        'mood':mood
-    }
+    sentiment = {"polarity": polarity, "subjectivity": subjectivity, "mood": mood}
     return sentiment
 
-def store_data(collection,data):
+
+def store_data(collection, data):
     """
     Stores the provided data in the specified MongoDB collection.
-    
+
     Args:
         collection (pymongo.collection.Collection): The MongoDB collection to store data in.
         data (dict): The data to store.
@@ -85,5 +86,5 @@ def store_data(collection,data):
     try:
         collection.insert_one(data)
         logging.info("Data stored successfully.")
-    except Exception as e:
+    except PyMongoError as e:
         logging.error("Failed to store data: %s", e)
