@@ -16,7 +16,9 @@ services:
     depends_on:
       - mongodb
     environment:
-      - DB_URI=${MONGODB_URI}
+    - MONGODB_URI=${MONGODB_URI}
+    - MONGODB_USERNAME=${MONGODB_USERNAME}
+    - MONGODB_PASSWORD=${MONGODB_PASSWORD}
     command: python3 app.py
 
   web-app:
