@@ -1,0 +1,42 @@
+name: Test Machine Learning Client
+
+on:
+  push:
+    branches:
+      - main  # Runs on pushes to the main branch
+  pull_request:
+    branches:
+      - main  # Runs on PRs targeting the main branch
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Create Data Directory
+        run: mkdir -p ./data
+
+      - name: Set Environment Variables
+        run: |
+          echo "MONGODB_URI=${{ secrets.MONGODB_URI }}" >> $GITHUB_ENV
+          echo "MONGODB_USERNAME=${{ secrets.MONGODB_USERNAME }}" >> $GITHUB_ENV
+          echo "MONGODB_PASSWORD=${{ secrets.MONGODB_PASSWORD }}" >> $GITHUB_ENV       
+
+      - name: Start MongoDB and Machine Learning Client
+        run: |
+          # Start only MongoDB and machine-learning-client services
+          docker compose up -d mongodb machine-learning-client
+
+      - name: Wait for MongoDB to be Ready
+        run: sleep 10  # Increase the delay as necessary
+
+      - name: Run Tests in Machine Learning Client
+        run: |
+          docker compose exec machine-learning-client pytest tests/
+
+      - name: Shut Down Services
+        if: always()
+        run: docker compose down
