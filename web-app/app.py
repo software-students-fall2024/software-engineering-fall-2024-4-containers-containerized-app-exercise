@@ -1,34 +1,51 @@
-from flask import Flask, render_template
-from pymongo import MongoClient
+"""
+Flask web application for Trackly
+"""
+
 import os
+from flask import Flask, render_template
+from pymongo import MongoClient, errors
 from dotenv import load_dotenv
 
 load_dotenv()
 
 def create_app():
 
+    """
+    Configure Flask Application
+    Returns: Flask App
+    """
+
     app = Flask(__name__)
 
-    MONGO_URI = os.getenv("MONGO_URI")
+    mongo_uri = os.getenv("MONGO_URI")
 
-    if MONGO_URI is None:
+    if mongo_uri is None:
         raise ValueError("Error with URI")
-    
+
     try:
-        client = MongoClient(MONGO_URI)
+        client = MongoClient(mongo_uri)
         db = client.get_database("Trackly")
-        collection = db["entries"]
-        print("Connected")
-    except Exception as e:
-        print(f"Error: {e}")
+        app.db = db
+        #collection = db["entries"]
+        print("Connected to MongoDB")
+    except errors.ServerSelectionTimeoutError as con_e:
+        print(f"Error connecting to MongoDB Database: {con_e}")
+        app.db =  None
+    except errors.ConfigurationError as fig_e:
+        print(f"Error configuring MongoDB Database: {fig_e}")
+        app.db = None
 
     @app.route("/")
     def home():
+        """
+        Serves home page
+        """
         return render_template("home.html")
-        
+
     return app
-    
+
 if __name__ == "__main__":
     FLASK_PORT = os.getenv("FLASK_PORT", "5000")
-    app = create_app()
-    app.run(port=FLASK_PORT)
+    flask_app = create_app()
+    flask_app.run(port=FLASK_PORT)
