@@ -1,3 +1,7 @@
+"""
+This is a web app module for FaceBox
+"""
+
 import os
 import base64
 from flask import Flask, request, render_template, redirect, url_for, session
