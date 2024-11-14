@@ -11,6 +11,7 @@ from requests.exceptions import RequestException
 
 app = Flask(__name__)
 
+
 def retry_request(url, files, retries=5, delay=2, timeout=10):
     """
     Retry a POST request multiple times with a delay on failure.
@@ -37,20 +38,24 @@ def retry_request(url, files, retries=5, delay=2, timeout=10):
                 return None
     return None
 
+
 @app.route("/")
 def home():
     """Render the home page."""
     return render_template("title.html")
+
 
 @app.route("/index")
 def index():
     """Render the index page."""
     return render_template("index.html")
 
+
 @app.route("/statistics")
 def statistics():
     """Render the statistics page."""
     return render_template("statistics.html")
+
 
 @app.route("/result", methods=["POST"])
 def result():
@@ -65,19 +70,25 @@ def result():
             return jsonify({"error": "No image file provided"}), 400
 
         file = request.files["image"]
-        ml_client_url = os.getenv("ML_CLIENT_URL", "http://machine-learning-client:5000")
+        ml_client_url = os.getenv(
+            "ML_CLIENT_URL", "http://machine-learning-client:5000"
+        )
         response = retry_request(f"{ml_client_url}/predict", files={"image": file})
         if not response:
             return jsonify({"error": "ML client did not respond"}), 500
         user_gesture = response.json().get("gesture", "Unknown")
     except RequestException as error:
-        return jsonify({"error": f"Error communicating with ML client: {str(error)}"}), 500
+        return (
+            jsonify({"error": f"Error communicating with ML client: {str(error)}"}),
+            500,
+        )
 
     ai_gesture = random.choice(["Rock", "Paper", "Scissors"])
     game_result = determine_winner(user_gesture, ai_gesture)
     return render_template(
         "result.html", user=user_gesture, ai=ai_gesture, result=game_result
     )
+
 
 def determine_winner(user, ai_choice):
     """
@@ -100,6 +111,7 @@ def determine_winner(user, ai_choice):
     if ai_choice == winning_cases.get(user):
         return "You win!"
     return "AI wins!"
+
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000)
