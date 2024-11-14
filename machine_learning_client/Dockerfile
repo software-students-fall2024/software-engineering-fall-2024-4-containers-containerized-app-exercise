@@ -20,5 +20,9 @@ RUN pip install pipenv && pipenv install --dev --deploy --ignore-pipfile --verbo
 # Copy the application code
 COPY . .
 
+<<<<<<< HEAD:machine-learning-client/Dockerfile
 # Command to run the application
 CMD ["python", "app.py"]
+=======
+CMD ["python", "ml_client.py"]
+>>>>>>> 35998e1afc79c0de57db50a1bf75074082bc881f:machine_learning_client/Dockerfile

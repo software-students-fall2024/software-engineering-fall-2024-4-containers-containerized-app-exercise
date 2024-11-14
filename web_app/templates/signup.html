@@ -1,18 +1,47 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Signup</title>
 </head>
 <body>
-    <h2>Signup</h2>
-    <form action="/signup" method="POST" enctype="multipart/form-data">
-        <label for="username">Username:</label><br>
-        <input type="text" name="username" required><br>
-        <label for="password">Password:</label><br>
-        <input type="password" name="password" required><br>
-        <label for="image">Upload Image:</label><br>
-        <input type="file" name="image" required><br><br>
-        <button type="submit">Sign Up</button>
+    <h2>Register with Your Face</h2>
+    <video id="video" autoplay></video>
+    <button id="capture">Capture Image</button>
+    <canvas id="canvas" style="display: none;"></canvas>
+
+    <form action="{{ url_for('signup') }}" method="POST">
+        <input type="hidden" name="image_data" id="image_data">
+        <button type="submit">Register</button>
     </form>
+
+    <script>
+        const video = document.getElementById('video');
+        navigator.mediaDevices.getUserMedia({ video: true })
+            .then(stream => {
+                video.srcObject = stream;
+            })
+            .catch(err => {
+                console.error("Error accessing the webcam: ", err);
+            });
+    
+        const captureButton = document.getElementById('capture');
+        captureButton.addEventListener('click', () => {
+            const canvas = document.getElementById('canvas');
+            canvas.width = video.videoWidth;
+            canvas.height = video.videoHeight;
+            const context = canvas.getContext('2d');
+            context.drawImage(video, 0, 0, canvas.width, canvas.height);
+    
+            const imageData = canvas.toDataURL('image/jpeg', 0.5);  
+            document.getElementById('image_data').value = imageData;
+    
+            console.log("Image captured and compressed successfully");
+            alert("Image captured successfully! Please proceed by clicking 'Register' or 'Login'.");
+        });
+    </script>
+    
+    
 </body>
 </html>
