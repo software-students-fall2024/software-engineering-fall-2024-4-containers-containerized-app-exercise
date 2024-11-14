@@ -9,6 +9,8 @@ services:
       - type: bind
         source: ./data
         target: /data/db
+    ports:
+      - "27017:27017"
 
   machine-learning-client:
     build: ./machine-learning-client
@@ -20,6 +22,8 @@ services:
     - MONGODB_USERNAME=${MONGODB_USERNAME}
     - MONGODB_PASSWORD=${MONGODB_PASSWORD}
     command: python3 app.py
+    ports:
+      - "5050:5050"
 
   web-app:
     build: ./web-app
