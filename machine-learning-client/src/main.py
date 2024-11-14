@@ -5,7 +5,8 @@ and stores the results in a MongoDB database.
 import os
 import logging
 from datetime import datetime
-from pymongo import MongoClient
+import pymongo
+from pymongo import MongoClient 
 from dotenv import load_dotenv
 from utils import get_audio_files, transcribe_audio, analyze_sentiment, store_data
 
@@ -48,9 +49,8 @@ def main():
         return
 
     audio_files = get_audio_files(audio_dir)
-    """
-    Retrieves audio files from the specified directory.
-    """
+    #Retrieves audio files from the specified directory.
+
     if not audio_files:
 
         logger.warning("There are no audio files in the directory.")
