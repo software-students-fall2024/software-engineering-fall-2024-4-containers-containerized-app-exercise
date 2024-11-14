@@ -5,6 +5,7 @@ and stores the results in a MongoDB database.
 import os
 import logging
 from datetime import datetime
+from pickletools import pylong
 from pymongo import MongoClient
 from dotenv import load_dotenv
 from utils import get_audio_files, transcribe_audio, analyze_sentiment, store_data
@@ -43,7 +44,7 @@ def main():
         db = client['voice_mood_journal']
         collection = db['entries']
         logger.info("Connected to MongoDB.")
-    except Exception as e:
+    except pymongo.errors.ConnectionFailure as e:
         logger.error("Failed to connect to MongoDB: %s", e)
         return
 
@@ -74,7 +75,7 @@ def main():
             store_data(collection, data)
             logger.info("Successfully processed and stored data for %s", file_path)
 
-        except Exception as e:
+        except Exception as e:  # pylint: disable=broad-except
             logger.error("Error processing %s: %s", file_path, e)
 if __name__ == '__main__':
     main()
