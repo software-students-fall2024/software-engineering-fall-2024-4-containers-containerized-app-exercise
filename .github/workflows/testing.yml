@@ -1,10 +1,13 @@
 name: Test Machine Learning Client
 
+
 on:
   push:
     branches:
-      - main
+      - main  # Runs on pushes to the main branch
   pull_request:
+    branches:
+      - main  # Runs on PRs targeting the main branch
 
 jobs:
   test:
