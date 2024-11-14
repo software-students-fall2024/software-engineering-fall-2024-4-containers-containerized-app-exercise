@@ -33,6 +33,8 @@ Werkzeug = "==2.3.7"
 pylint = "*"
 black = "*"
 tomli = "*"
-
+typing_extensions = "*"
+mccabe = "*"           
+isort = "*" 
 [requires]
 python_version = "3.12"
