@@ -5,6 +5,11 @@
 Build a containerized app that uses machine learning. See [instructions](./instructions.md) for details.
 
 # Description
+To run: 
+
+1. Setup `.env` file. 
+1. Create data folder: `mkdir data`
+1. Start Containers: `docker compose up`
 
 # Group Members
 Neha Magesh: [link](https://github.com/nehamagesh)
