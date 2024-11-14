@@ -8,13 +8,13 @@ services:
       - "27017:27017"
     environment:
       MONGO_INITDB_ROOT_USERNAME: root
-      MONGO_INITDB_ROOT_PASSWORD: example
+      MONGO_INITDB_ROOT_PASSWORD: secret
 
   machine-learning-client:
     build:
       context: ./machine-learning-client
     environment:
-      - MONGO_URI=mongodb://root:example@mongodb:27017
+      - MONGO_URI=mongodb://root:voice_mood@mongodb:27017
       - AUDIO_DIR=/app/audio
     volumes:
       - ./audio:/app/audio
@@ -25,7 +25,7 @@ services:
     build:
       context: ./web-app
     environment:
-      - MONGO_URI=mongodb://root:example@mongodb:27017
+      - MONGO_URI=mongodb://root:voice_mood@mongodb:27017
     ports:
       - "5000:5000"
     depends_on:
