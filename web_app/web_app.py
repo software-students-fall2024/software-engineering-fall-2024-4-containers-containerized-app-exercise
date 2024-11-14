@@ -1,5 +1,5 @@
 """
-This is a web app module for Attendify
+This is a web app module for FaceBox
 """
 
 import os
