@@ -19,7 +19,7 @@ services:
       - .env
     depends_on:
       - mongodb
-    command: ["pipenv", "run", "python", "app.py"]
+    command: ["pipenv", "run", "python", "ml_client.py"]
 
   mongodb:
     image: mongo

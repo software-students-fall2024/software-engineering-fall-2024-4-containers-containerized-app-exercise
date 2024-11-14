@@ -14,6 +14,7 @@ coverage = "*"
 tomli = "*"
 face-recognition = "*"
 flask = "*"
+python-dotenv = "*"
 
 [dev-packages]
 

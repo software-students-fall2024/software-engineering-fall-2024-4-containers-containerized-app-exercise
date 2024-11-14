@@ -11,8 +11,8 @@ pymongo = "*"
 tomli = "*"
 pytest = "*"
 python-dotenv = "*"
-requests = "*"
 pillow = "*"
+requests = "*"
 
 [dev-packages]
 
