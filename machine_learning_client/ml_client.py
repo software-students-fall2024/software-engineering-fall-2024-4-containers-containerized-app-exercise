@@ -26,7 +26,7 @@ emotion_dict = {
     1: "Sad 😢",
     2: "Angry 😡",
     3: "Surprised 😮",
-    4: "Neutral 😐",  # Update based on your model's classes
+    4: "Neutral 😐",
 }
 
 
@@ -60,3 +60,44 @@ def detect_emotion(frame):
     )
 
     return emotion_text
+
+def run_emotion_detection():
+    """
+    Opens the camera and runs the emotion detection model in real-time.
+    Each frame's detected emotion is displayed and saved to MongoDB.
+    """
+    cap = cv2.VideoCapture(0)  # Open the default camera (0)
+
+    if not cap.isOpened():
+        print("Error: Could not open video.")
+        return
+
+    print("Press 'q' to quit.")
+
+    while True:
+        ret, frame = cap.read()
+        
+        if not ret:
+            print("Error: Could not read frame.")
+            break
+
+        # Detect emotion from the current frame
+        emotion_text = detect_emotion(frame)
+
+        # Display the emotion text on the frame
+        cv2.putText(frame, f"Emotion: {emotion_text}", (10, 30), 
+                    cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2, cv2.LINE_AA)
+
+        # Show the frame with the detected emotion
+        cv2.imshow('Emotion Detection', frame)
+
+        # Press 'q' to quit the video window
+        if cv2.waitKey(1) & 0xFF == ord('q'):
+            break
+
+    # Release the video capture object and close all OpenCV windows
+    cap.release()
+    cv2.destroyAllWindows()
+
+if __name__ == "__main__":
+    run_emotion_detection()

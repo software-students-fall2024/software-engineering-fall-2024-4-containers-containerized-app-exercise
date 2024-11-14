@@ -1,0 +1,37 @@
+version: '3.10'
+
+services:
+  webapp:
+    build:
+      context: ./web-app  # Adjust to the path where the web app code is located
+    ports:
+      - "5002:5000"
+    environment:
+      - .env
+    depends_on:
+      - mongo
+      - machine_learning_client
+    command: ["pipenv", "run", "python", "app.py"] 
+
+  machine_learning_client:
+    build:
+      context: ./machine_learning_client
+    ports:
+      - "5003:5000"
+    environment:
+      - .env
+    depends_on:
+      - mongo
+    command: ["pipenv", "run", "python", "app.py"]  
+
+  mongo:
+    image: mongo:latest
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo_data:/data/db
+    environment:
+      - .env
+
+volumes:
+  mongo_data:
