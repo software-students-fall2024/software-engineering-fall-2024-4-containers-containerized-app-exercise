@@ -4,3 +4,6 @@ requests
 tensorflow
 opencv-python-headless
 numpy
+pylint
+black
+pipenv
