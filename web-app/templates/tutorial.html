@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+
+    <!-- Setup html file -->
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Rock, Paper, Scissors</title>
+        <link rel="stylesheet" href="../static/style.css">
+        <link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet">
+    </head>
+
+    
+    <body>
+        <!-- HEADING -->
+        <header>
+            <a href="index.html" class="webName"><img src="../static/logo.png" id="logo">Rock, Paper, Scissors</a>
+
+            <!-- Buttons -->
+            <div class="button-container">
+                <div class="replay-button"><a href="index.html">New Game</a></div>
+                <div class="stats-button"><a href="stats.html">Stats</a></div>
+            </div>
+        </header>
+
+        <!-- TUTORIAL PAGE -->
+        <section class="tutorial" id="tutorial">
+            <div class="main-container">
+                <!-- Steps -->
+                <h2 id="steps-heading">How to Play:</h2>
+                <div class="steps-container">
+                    <p><i class='bx bx-dice-1' id="step"></i> Choose how many wins needed to end a game</p> <!-- Step 1 -->
+                    <p><i class='bx bx-dice-2' id="step"></i> Hold up <i>rock, paper, or scissors</i> so the camera can see your choice</p> <!-- Step 2 -->
+                    <p><i class='bx bx-dice-3' id="step"></i> Play until someone wins!</p> <!-- Step 3 -->
+                </div>
+
+                <!-- Rules -->
+                <h2 id="rules-heading">Rules:</h2>
+                <div class="rules-container">
+                    <!-- Win, Lose col labels -->
+                    <div class="labels">
+                        <p id="win">Win</p>
+                        <p id="lose">Lose</p>
+                    </div>
+
+                    <!-- Rock vs Scissors -->
+                    <div class="combo">
+                        <img src="../static/rock.png" id="rock">
+                        <p>></p>
+                        <img src="../static/scissors.png" id="scissors">
+                    </div>
+
+                    <!-- Scissors vs Paper -->
+                    <div class="combo">
+                        <img src="../static/scissors.png" id="scissors">
+                        <p>></p>
+                        <img src="../static/paper.png" id="paper">
+                    </div>
+
+                    <!-- Paper vs Rock -->
+                    <div class="combo">
+                        <img src="../static/paper.png" id="paper">
+                        <p>></p>
+                        <img src="../static/rock.png" id="rock">
+                    </div>
+                </div>
+            </div>
+            <a href="game.html" id="play">Let's Play!</a>
+        </section>
+
+        <script src="../static/script.js"></script>
+    </body>
+</html>
