@@ -42,7 +42,8 @@ jobs:
         elif [ "${{ matrix.service }}" == "web-app" ]; then
           pipenv run pylint app.py
         fi
-
+    - name: Format code with Black
+      run: black ./${{ matrix.service }}   
     - name: Run tests
       working-directory: ./${{ matrix.service }}
       run: |
