@@ -5,7 +5,7 @@ A Flask web application for a Rock-Paper-Scissors game with AI and ML integratio
 import os
 import time
 import random
-from flask import Flask, render_template, request
+from flask import Flask, render_template, request, jsonify
 import requests
 from requests.exceptions import RequestException
 
@@ -29,9 +29,11 @@ def retry_request(url, files, retries=5, delay=2):
             response = requests.post(url, files=files)
             response.raise_for_status()
             return response
-        except RequestException as exception:
+        except RequestException:
             if attempt < retries - 1:
                 time.sleep(delay)
+            else:
+                return None
     return None
 
 @app.route("/")
@@ -58,17 +60,23 @@ def result():
         Rendered result page with user and AI gestures and the game result.
     """
     try:
+        if "image" not in request.files:
+            return jsonify({"error": "No image file provided"}), 400
+
         file = request.files["image"]
         ml_client_url = os.getenv("ML_CLIENT_URL", "http://machine-learning-client:5000")
         response = retry_request(f"{ml_client_url}/predict", files={"image": file})
         if not response:
-            return "Error: ML client did not respond."
+            return jsonify({"error": "ML client did not respond"}), 500
         user_gesture = response.json().get("gesture", "Unknown")
-    except RequestException as exception:
-        return f"Error communicating with ML client: {str(exception)}"
+    except RequestException as error:
+        return jsonify({"error": f"Error communicating with ML client: {str(error)}"}), 500
+
     ai_gesture = random.choice(["Rock", "Paper", "Scissors"])
     game_result = determine_winner(user_gesture, ai_gesture)
-    return render_template("result.html", user=user_gesture, ai=ai_gesture, result=game_result)
+    return render_template(
+        "result.html", user=user_gesture, ai=ai_gesture, result=game_result
+    )
 
 def determine_winner(user, ai_choice):
     """
