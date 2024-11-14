@@ -1,6 +1,5 @@
 name: Test Machine Learning Client
 
-
 on:
   push:
     branches:
@@ -14,22 +13,22 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Check out repository
-      uses: actions/checkout@v4
+      - name: Check out repository
+        uses: actions/checkout@v4
 
-    - name: Start MongoDB and Machine Learning Client
-      run: |
-        # Start only MongoDB and machine-learning-client services
-        docker compose up -d mongodb machine-learning-client
+      - name: Start MongoDB and Machine Learning Client
+        env:
+          MONGODB_URI: ${{ secrets.MONGODB_URI }}
+          MONGODB_USERNAME: ${{ secrets.MONGODB_USERNAME }}
+          MONGODB_PASSWORD: ${{ secrets.MONGODB_PASSWORD }}
+        run: |
+          # Start only MongoDB and machine-learning-client services
+          docker compose up -d mongodb machine-learning-client
 
-    - name: Run Tests in Machine Learning Client
-      run: |
-        docker compose exec machine-learning-client pytest tests/
-      env:
-        MONGODB_URI: ${{ secrets.MONGODB_URI }}
-        MONGODB_USERNAME: ${{ secrets.MONGODB_USERNAME }}
-        MONGODB_PASSWORD: ${{ secrets.MONGODB_PASSWORD }}
+      - name: Run Tests in Machine Learning Client
+        run: |
+          docker compose exec machine-learning-client pytest tests/
 
-    - name: Shut Down Services
-      if: always()
-      run: docker compose down
+      - name: Shut Down Services
+        if: always()
+        run: docker compose down
