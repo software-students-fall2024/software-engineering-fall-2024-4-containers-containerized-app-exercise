@@ -3,11 +3,11 @@ This module processes audio files, performs transcription and sentiment analysis
 and stores the results in a MongoDB database.
 """
 import os
-from pymongo import MongoClient
 import logging
-from utils import get_audio_files, transcribe_audio, analyze_sentiment, store_data
-from dotenv import load_dotenv
 from datetime import datetime
+from pymongo import MongoClient
+from dotenv import load_dotenv
+from utils import get_audio_files, transcribe_audio, analyze_sentiment, store_data
 
 def setup_logging():
     """
@@ -48,7 +48,9 @@ def main():
         return
 
     audio_files = get_audio_files(audio_dir)
-
+    """
+    Retrieves audio files from the specified directory.
+    """
     if not audio_files:
 
         logger.warning("There are no audio files in the directory.")
@@ -73,7 +75,6 @@ def main():
             logger.info("Successfully processed and stored data for %s", file_path)
 
         except Exception as e:
-            logger.error(f"Error processing {file_path}: {e}")
-
+            logger.error("Error processing %s: %s", file_path, e)
 if __name__ == '__main__':
     main()
