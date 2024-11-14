@@ -36,5 +36,6 @@ tomli = "*"
 typing_extensions = "*"
 mccabe = "*"           
 isort = "*" 
+pytest = "*"
 [requires]
 python_version = "3.12"
