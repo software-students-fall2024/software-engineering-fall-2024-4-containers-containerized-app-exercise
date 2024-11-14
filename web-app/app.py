@@ -22,7 +22,6 @@ collection = db['entries']
 def index():
     """Render the homepage with mood summary data."""
     mood_entries = collection.find().sort("timestamp", -1).limit(100)
-    
     entries = [{
         "file_name": entry["file_name"],
         "transcript": entry["transcript"],
