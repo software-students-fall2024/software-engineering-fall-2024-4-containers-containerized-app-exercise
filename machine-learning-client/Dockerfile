@@ -9,4 +9,4 @@ COPY . .
 
 ENV AUDIO_DIR=/app/audio
 
-CMD ["python", "main.py"]
+CMD ["python", "src/main.py"]
