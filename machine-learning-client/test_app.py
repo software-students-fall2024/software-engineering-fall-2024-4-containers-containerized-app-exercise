@@ -91,8 +91,8 @@ def test_detect_route_with_file(test_client):
 
 
 def test_encode_image():
-    """Test the encoding of an image to base64. 
-    Verifies that the encoded image is a valid non-empty string."""   
+    """Test the encoding of an image to base64.
+    Verifies that the encoded image is a valid non-empty string."""
     # create a sample blank image
     image = Image.new("RGB", (100, 100), color="white")
     buffered = BytesIO()
@@ -112,10 +112,8 @@ def capture_image_from_webcam():
     Returns the image bytes if successful, or None if the capture fails."""
     # Initialize webcam
     cap = cv2.VideoCapture(0)
-    
     # Read a frame from the webcam
     ret, frame = cap.read()
-    
     # Release the webcam
     cap.release()
     cv2.destroyAllWindows()
@@ -157,6 +155,6 @@ def display_detection_result(result):
         print(f" - {obj['label']}: {obj['confidence']:.2f}")
 
 # Capture and process an image when script runs
-image_bytes = capture_image_from_webcam()
-if image_bytes:
-    send_image_to_detect(image_bytes)
+image_bytes_original = capture_image_from_webcam()
+if image_bytes_original:
+    send_image_to_detect(image_bytes_original)
