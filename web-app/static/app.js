@@ -18,29 +18,65 @@ function analyzeSentence() {
     .catch(error => console.error('Error:', error));
 }
 
-// Speech recognition function
+let isRecording = false;
+let recognition;
+
 function startDictation() {
-    if ('webkitSpeechRecognition' in window) {
+  const speakButton = document.getElementById("speakButton");
 
-        const recognition = new webkitSpeechRecognition();
+  if (!('webkitSpeechRecognition' in window)) {
+    alert("Your browser does not support speech recognition. Please try Chrome.");
+    return;
+  }
 
-        recognition.continuous = false;
-        recognition.interimResults = false;
+  if (!recognition) {
+    // Initialize speech recognition
+    recognition = new webkitSpeechRecognition();
+    recognition.continuous = true;
+    recognition.interimResults = true;
+    recognition.lang = "en-US";
 
-        recognition.lang = 'en-US';
-        recognition.start();
+    recognition.onstart = function () {
+      console.log("Voice recognition started.");
+    };
 
-        recognition.onresult = function(e) {
-            document.getElementById('sentenceInput').value = e.results[0][0].transcript;
-            recognition.stop();
-        };
+    recognition.onresult = function (event) {
+      let transcript = "";
+      for (let i = event.resultIndex; i < event.results.length; ++i) {
+        if (event.results[i].isFinal) {
+          transcript += event.results[i][0].transcript + " ";
+        }
+      }
+      document.getElementById("sentenceInput").value += transcript;
+    };
 
-        recognition.onerror = function(e) {
-            recognition.stop();
-        };
-    } else {
-        alert('Speech recognition not supported in this browser.');
-    }
+    recognition.onerror = function (event) {
+      console.error("Recognition error:", event.error);
+    };
+
+    recognition.onend = function () {
+      console.log("Voice recognition ended.");
+      stopRecognition(speakButton);  // Reset button when recognition ends
+    };
+  }
+
+  if (!isRecording) {
+    startRecognition(speakButton);
+  } else {
+    stopRecognition(speakButton);
+  }
+}
+
+function startRecognition(button) {
+  recognition.start();
+  isRecording = true;
+  button.innerText = "Recording..."; // Update button text to "Recording..."
+}
+
+function stopRecognition(button) {
+  recognition.stop();
+  isRecording = false;
+  button.innerText = "🎤 Speak"; // Update button text back to "🎤 Speak"
 }
 
 // Function to fetch analysis with retries
