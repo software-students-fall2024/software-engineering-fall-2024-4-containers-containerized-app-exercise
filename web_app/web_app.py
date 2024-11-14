@@ -7,7 +7,7 @@ from functools import wraps
 from flask import Flask, request, render_template, redirect, url_for, session
 from pymongo import MongoClient
 from werkzeug.security import generate_password_hash, check_password_hash
-from werkzeug.utils import secure_filename  # Add this import
+from werkzeug.utils import secure_filename
 from dotenv import load_dotenv
 import requests
 
