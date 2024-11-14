@@ -3,8 +3,8 @@ Flask application for predicting Rock-Paper-Scissors gestures using a TensorFlow
 """
 
 from flask import Flask, request, jsonify
-from tensorflow.keras.models import load_model
-import cv2
+from tensorflow.keras.models import load_model  # pylint: disable=E0401,E0611
+import cv2  # pylint: disable=E1101
 import numpy as np
 
 app = Flask(__name__)
@@ -26,11 +26,8 @@ def predict():
             return jsonify({'error': 'No image file provided'}), 400
 
         file = request.files['image']
-        if not hasattr(cv2, "imdecode") or not hasattr(cv2, "IMREAD_COLOR"):
-            return jsonify({'error': 'cv2 module is missing required attributes.'}), 500
-
-        image = cv2.imdecode(np.frombuffer(file.read(), np.uint8), cv2.IMREAD_COLOR)
-        processed_image = cv2.resize(image, (224, 224)) / 255.0
+        image = cv2.imdecode(np.frombuffer(file.read(), np.uint8), cv2.IMREAD_COLOR)  # pylint: disable=E1101
+        processed_image = cv2.resize(image, (224, 224)) / 255.0  # pylint: disable=E1101
         processed_image = np.expand_dims(processed_image, axis=0)
 
         predictions = model.predict(processed_image)

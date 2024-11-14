@@ -11,7 +11,7 @@ from requests.exceptions import RequestException
 
 app = Flask(__name__)
 
-def retry_request(url, files, retries=5, delay=2):
+def retry_request(url, files, retries=5, delay=2, timeout=10):
     """
     Retry a POST request multiple times with a delay on failure.
 
@@ -20,13 +20,14 @@ def retry_request(url, files, retries=5, delay=2):
         files (dict): Files to send in the POST request.
         retries (int): Number of retry attempts.
         delay (int): Delay between retries in seconds.
+        timeout (int): Timeout for the request in seconds.
 
     Returns:
         Response: Response object from the successful POST request, or None if all retries fail.
     """
     for attempt in range(retries):
         try:
-            response = requests.post(url, files=files)
+            response = requests.post(url, files=files, timeout=timeout)
             response.raise_for_status()
             return response
         except RequestException:
