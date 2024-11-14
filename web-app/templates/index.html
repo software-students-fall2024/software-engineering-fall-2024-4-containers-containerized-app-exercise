@@ -1,0 +1,48 @@
+
+
+{% block body %}
+    <h2>Counter</h2>
+    {% if swears %}
+    <p>Swears: {{swears}}</p>
+    {% endif %}
+    </ul>
+
+    <button id="requestMicButton">Request Microphone Access</button>
+    <button id="stop">Stop</button>
+
+    <script>
+        const requestMicButton = document.getElementById('requestMicButton');
+        const stopButton = document.getElementById('stop');
+        let mediaRecorder;
+        let chunks = [];
+
+        // Event listener for requesting microphone access
+        requestMicButton.addEventListener('click', async () => {
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                mediaRecorder = new MediaRecorder(stream);
+                console.log('Microphone access granted:', stream);
+
+                // Handle data available from the media recorder
+                mediaRecorder.ondataavailable = (e) => {
+                    chunks.push(e.data);
+                };
+                mediaRecorder.start();
+                console.log(mediaRecorder.state);
+
+            } catch (err) {
+                console.error('Error accessing microphone:', err);
+            }
+        });
+
+        // Event listener for stopping the recording
+        stopButton.addEventListener('click', () => {
+            if (mediaRecorder) {
+                mediaRecorder.stop();
+                console.log(mediaRecorder.state);
+                // You can save or process the recorded data here
+                console.log(mediaRecorder.mimeType);
+            }
+        });
+    </script>
+{% endblock %}
