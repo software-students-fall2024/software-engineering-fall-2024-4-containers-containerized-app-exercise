@@ -4,17 +4,20 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Signup</title>
+    <link rel="stylesheet" href="../styles.css">
 </head>
 <body>
-    <h2>Register with Your Face</h2>
-    <video id="video" autoplay></video>
-    <button id="capture">Capture Image</button>
-    <canvas id="canvas" style="display: none;"></canvas>
-
-    <form action="{{ url_for('signup') }}" method="POST">
-        <input type="hidden" name="image_data" id="image_data">
-        <button type="submit">Register</button>
-    </form>
+    <div class="page-layout">
+        <h2>Register with Your Face</h2>
+        <video id="video" autoplay></video>
+        <button id="capture">Capture Image</button>
+        <canvas id="canvas" style="display: none;"></canvas>
+    
+        <form action="{{ url_for('signup') }}" method="POST">
+            <input type="hidden" name="image_data" id="image_data">
+            <button type="submit">Register</button>
+        </form>
+    </div>
 
     <script>
         const video = document.getElementById('video');
