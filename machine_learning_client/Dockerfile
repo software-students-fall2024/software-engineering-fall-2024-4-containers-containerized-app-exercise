@@ -15,9 +15,13 @@ WORKDIR /app
 # Copy Pipfile and Pipfile.lock and install dependencies with pipenv
 COPY Pipfile Pipfile.lock ./
 RUN python -m pip install --upgrade pip
-RUN pip install pipenv && pipenv install --dev --deploy --ignore-pipfile --verbose
+RUN pip install pipenv && pipenv install --deploy --ignore-pipfile
 
 # Copy the application code
 COPY . .
 
-CMD ["python", "ml_client.py"]
+# Expose the port the Flask app runs on
+#EXPOSE 5001
+
+# Command to run the Flask application
+CMD ["pipenv", "run", "python", "ml_client.py"]
