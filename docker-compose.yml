@@ -26,9 +26,12 @@ services:
       context: ./web-app
     environment:
       - MONGO_URI=mongodb://root:voice_mood@mongodb:27017
+      - ML_CLIENT_URL=http://machine-learning-client:5001/process-audio
     ports:
       - "5000:5000"
     depends_on:
       - mongodb
+      - machine-learning-client
     links:
       - mongodb
+      - machine-learning-client
