@@ -11,6 +11,7 @@ coverage = "*"
 pylint = "*"
 black = "*"
 tomli = "*"
+typing-extensions = "*"
 
 [requires]
 python_version = "3.11"
