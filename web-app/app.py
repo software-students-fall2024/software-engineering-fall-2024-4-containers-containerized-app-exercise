@@ -59,7 +59,11 @@ def create_app():
         print(all_results)
         # return render_template("home.html")
         return render_template("history.html", all_results=all_results)
-
+    
+    @app.route("/status")
+    def test_ml():
+        res = request.get("http://ml-client:6000/status")
+        print(res)
     return app
 
 

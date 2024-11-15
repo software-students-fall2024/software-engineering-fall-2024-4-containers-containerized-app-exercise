@@ -6,12 +6,13 @@ name = "pypi"
 [packages]
 pylint = "*"
 black = "*"
+flask = "*"
+pymongo = "*"
 
 [dev-packages]
 python-dotenv = "*"
-flask = "*"
 pymongo = "*"
 werkzeug = "*"
 
 [requires]
-python_version = "3.12"
+python_version = "3.8"
