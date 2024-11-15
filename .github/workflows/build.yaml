@@ -18,7 +18,7 @@ jobs:
       - name: Turn on 'editable' mode
         working-directory: ./machine-learning-client 
         run: |
-          pipenv install -e .
+          pipenv install --dev
       - name: Test with pytest
         working-directory: ./machine-learning-client 
         run: |
