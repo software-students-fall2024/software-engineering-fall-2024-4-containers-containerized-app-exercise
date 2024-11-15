@@ -8,11 +8,13 @@ from flask import Flask, render_template, jsonify
 # Initialize the Flask app
 app = Flask(__name__)
 
+
 # Define a route for the homepage
-@app.route('/')
+@app.route("/")
 def home():
     """Returns the index.html file."""
-    return render_template('index.html')
+    return render_template("index.html")
+
 
 # Define a route for the tutorial page
 @app.route("/tutorial")
@@ -20,11 +22,13 @@ def tutorial():
     """Returns the tutorial.html file."""
     return render_template("tutorial.html")
 
+
 # Define a route for the game page
 @app.route("/game")
 def game():
     """Returns the game.html file."""
     return render_template("game.html")
+
 
 # Define another sample route for JSON data
 @app.route("/data")
