@@ -1,8 +1,5 @@
-name: CI / CD ML
-on: 
-  pull_request:
-    paths:
-      - 'machine-learning-client/**'
+name: CI / CD
+on: [pull_request]
 
 jobs: 
   build:
@@ -11,6 +8,7 @@ jobs:
     strategy:
       matrix:
         python-version: ["3.9","3.11", "3.10"]
+      
     steps:
       - uses: actions/checkout@v4
       - name: Install Python, pipenv and Pipfile packages
@@ -19,7 +17,9 @@ jobs:
           python-version: ${{ matrix.python-version }}
       - name: Turn on 'editable' mode
         run: |
+          cd machine-learning-client
           pipenv install -e .
       - name: Test with pytest
         run: |
+          cd machine-learning-client
           pipenv run python -m pytest
