@@ -9,6 +9,8 @@ black = "*"
 requests = "*"
 pymongo = "*"
 opencv-python = "*"
+tensorflow = "*"
+flask = "*"
 
 [dev-packages]
 

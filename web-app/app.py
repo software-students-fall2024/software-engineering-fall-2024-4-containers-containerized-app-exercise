@@ -3,25 +3,57 @@ from pymongo import MongoClient
 from datetime import datetime
 import cv2
 import sys
+import requests
 import os
-from machine_learning_client.ml_client import detect_emotion
 from werkzeug.security import generate_password_hash, check_password_hash
 
-project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
-sys.path.insert(0, project_root)
-from machine_learning_client.ml_client import detect_emotion
+# project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
+# sys.path.insert(0, project_root)
+
+sys.path.append('')
 
 app = Flask(__name__)
+
+ML_CLIENT_URL = os.getenv("ML_CLIENT_URL", "http://machine_learning_client:5000")
 
 # Set up MongoDB connection
 client = MongoClient("mongodb://localhost:27017/")
 db = client["emotion_db"]
 emotion_data_collection = db["emotion_data"]
 
-@app.route('/')
+def detect_emotion(image_data):
+    response = requests.post("http://machine_learning_client:5000/detect_emotion", files={"image": image_data})
+    if response.status_code == 200:
+        return response.json()["emotion"]
+    else:
+        return "Error: Unable to detect emotion"
+    
+
+@app.route('/process_emotion', methods=['POST'])
+def process_emotion():
+    # Call the detect_emotion function without needing an image path
+    result = detect_emotion()
+    
+    return jsonify(result)
+
+@app.route("/", methods=["GET", "POST"])
 def index():
-    # Show index.html with login, signup, and dashboard options
-    return render_template('index.html')
+    if request.method == "POST":
+        # Handle file upload
+        image = request.files.get("image")
+        if not image:
+            return "No image provided", 400
+
+        # Send the image to the machine learning client
+        response = requests.post(ML_CLIENT_URL, files={"image": image})
+        if response.status_code == 200:
+            emotion = response.json().get("emotion", "Unknown")
+            return render_template("result.html", emotion=emotion)
+        else:
+            error = response.json().get("error", "An error occurred")
+            return render_template("error.html", error=error)
+
+    return render_template("index.html")
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
@@ -91,4 +123,4 @@ def logout():
     return redirect(url_for('index'))
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(host='0.0.0.0', port=5001)
