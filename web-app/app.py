@@ -29,6 +29,45 @@ ML_CLIENT_URL = os.getenv("ML_CLIENT_URL", "http://machine_learning_client:5000"
 
 camera = cv2.VideoCapture(0)  # Initialize camera
 
+@app.route("/login", methods=["GET", "POST"])
+def login():
+    if request.method == "POST":
+        username = request.form["username"]
+        password = request.form["password"].encode("utf-8")
+
+        user = users_collection.find_one({"username": username})
+        if user and bcrypt.checkpw(password, user["password"]):
+            session["user_id"] = str(user["_id"])
+            session["username"] = username
+            session.permanent = False
+            flash("Login successful!", "success")
+            return redirect(url_for("dashboard"))
+        else:
+            flash("Invalid username or password.", "error")
+            return redirect(url_for("login"))
+
+    return render_template("login.html")
+
+@app.route("/signup", methods=["GET", "POST"])
+def signup():
+    if request.method == "POST":
+        username = request.form["username"]
+        password = request.form["password"].encode("utf-8")
+
+        if users_collection.find_one({"username": username}):
+            flash("Username already exists. Please choose a different one.", "error")
+            return redirect(url_for("signup"))
+
+        hashed_password = bcrypt.hashpw(password, bcrypt.gensalt())
+        users_collection.insert_one({
+            "username": username,
+            "password": hashed_password
+        })
+        flash("Account created successfully. Please log in.", "success")
+        return redirect(url_for("login"))
+
+    return render_template("signup.html")
+
 def detect_emotion(image_data):
     response = requests.post(ML_CLIENT_URL, files={"image": image_data})
     if response.status_code == 200:
