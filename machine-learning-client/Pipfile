@@ -6,10 +6,13 @@ name = "pypi"
 [packages]
 pylint = "*"
 black = "*"
-pymongo = {extras = ["srv"], version = "*"}
+pymongo = "*"
 tomli = "*"
 typing-extensions = "*"
 dill = "*"
+flask = "*"
+speechrecognition = "*"
+flask-cors = "*"
 
 [dev-packages]
 
