@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+
+    <!-- Setup html file -->
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Rock, Paper, Scissors</title>
+        <link rel="stylesheet" href="../static/style.css">
+        <link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet">
+    </head>
+
+    
+    <body>
+        <!-- HEADING -->
+        <header>
+            <a href="index.html" class="webName"><img src="../static/logo.png" id="logo">Rock, Paper, Scissors</a>
+
+            <!-- Buttons -->
+            <div class="button-container">
+                <div class="replay-button"><a href="index.html">New Game</a></div>
+                <div class="stats-button"><a href="stats.html">Stats</a></div>
+            </div>
+        </header>
+
+        <!-- HOME PAGE -->
+        <section class="home" id="home">
+            <h2>Welcome to Rock, Paper, Scissors!</h2>
+            <h3>User vs Puter Edition!</h3>
+            <p>Would you like to learn how to play?</p>
+
+            <div class="tutorial-container">
+                <a href="{{ url_for('tutorial') }}" id="yes">Yes</a>
+                <a href="{{ url_for('game') }}" id="no">No</a>
+            </div>
+        </section>
+        <script src="../static/script.js"></script>
+    </body>
+</html>
