@@ -24,7 +24,7 @@ def create_app():
         raise ValueError("Error with URI")
 
     try:
-        client = MongoClient(mongo_uri)
+        client = MongoClient(mongo_uri, serverSelectionTimeoutMS=5000)
         db = client.get_database("Trackly")
         app.db = db
         #collection = db["entries"]
@@ -46,6 +46,6 @@ def create_app():
     return app
 
 if __name__ == "__main__":
-    FLASK_PORT = os.getenv("FLASK_PORT", "5000")
+    FLASK_PORT = os.getenv("FLASK_PORT", "5001")
     flask_app = create_app()
-    flask_app.run(port=FLASK_PORT)
+    flask_app.run(host="0.0.0.0", port=int(FLASK_PORT))
