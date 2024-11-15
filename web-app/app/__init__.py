@@ -2,6 +2,7 @@
 Flask application initialization module.
 This module creates and configures the Flask application instance.
 """
+
 from flask import Flask
 from config import Config
 
