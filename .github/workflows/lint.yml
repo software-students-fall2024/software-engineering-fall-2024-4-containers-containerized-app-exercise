@@ -19,8 +19,8 @@ jobs:
           cd ${{ matrix.subdir }}
           python -m pip install --upgrade pip
           python -m pip install pipenv
-          python -m pip install tomli
-          pipenv sync --dev --python $(which python)
+          pipenv install pylint black tomli --dev
+          pipenv install opencv-python numpy pillow deepface pymongo
       - name: Lint with pylint
         if: ${{ hashFiles(format('{0}/**/*.py', matrix.subdir)) != '' }}
         run: |
