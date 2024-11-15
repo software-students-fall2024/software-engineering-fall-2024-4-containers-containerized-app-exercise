@@ -42,7 +42,7 @@ def create_app():
                 response = requests.post(
                     "http://ml-client:5000/transcribe",
                     files={"audio": ("audio.wav", buffer, "audio/wav")},
-                    timeout = 10
+                    timeout=10,
                 )
                 data = response.json()
                 if data.get("status") == "success":
