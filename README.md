@@ -7,8 +7,11 @@ Build a containerized app that uses machine learning. See [instructions](./instr
 # Teammates 
 
 [Dasha Miroshnichenko](https://github.com/dm5198)
+
 [Emily Huang](https://github.com/emilyjhuang)
+
 [Jessie Kim](https://github.com/jessiekim0)
+
 [Nick Burwell](https://github.com/nickburwell)
 
 # App Description: Emotion Recognition and Wellness Advisor
