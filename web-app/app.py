@@ -4,15 +4,16 @@ It uses environment variables for configuration.
 """
 
 import os  # Standard library imports
-
+import requests
 # from datetime import datetime
-from flask import Flask, render_template, jsonify
+from flask import Flask, render_template, jsonify, request
 from pymongo import MongoClient
 from dotenv import load_dotenv
 
 
 load_dotenv()
 MONGO_URI = os.getenv("MONGO_URI", "mongodb://localhost:27017")
+ML_CLIENT_URL = os.getenv("ML_CLIENT_URL", "http://machine-learning-client:5001/process-audio")
 
 app = Flask(__name__)
 
@@ -64,7 +65,7 @@ def upload_audio():
     # Forward the file to the machine learning client
     try:
         with open(file_path, "rb") as file_obj:
-            response = requests.post(ml_client_url, files={"audio": file_obj})
+            response = requests.post(ML_CLIENT_URL, files={"audio": file_obj})
 
         if response.status_code == 200:
             return jsonify({"message": "File uploaded and processed successfully",
@@ -77,7 +78,7 @@ def upload_audio():
     except requests.exceptions.RequestException as req_error:
         return jsonify({"error": "Failed to forward file to ML client",
                         "details": str(req_error)}), 500
-        
+
 @app.route("/api/mood-trends")
 def mood_trends():
     """Provide mood trend data for visualization."""
