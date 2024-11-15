@@ -7,6 +7,8 @@ name = "pypi"
 pylint = "*"
 black = "*"
 flask = "*"
+requests = "*"
+pydub = "*"
 
 [dev-packages]
 

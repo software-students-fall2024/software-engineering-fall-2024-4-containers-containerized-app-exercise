@@ -16,7 +16,6 @@ mongo_uri = os.getenv("MONGO_URI")
 client = MongoClient(mongo_uri)
 db = client.database
 collections = db.transcriptions
-print("before the function go")
 
 
 @app.route("/transcribe", methods=["POST"])
@@ -27,38 +26,50 @@ def transcribe():
         JSON: the object with transcribed text there
     """
     if "audio" not in request.files:
-        return jsonify({"error": "No audio file provided"}), 400
+        return jsonify({"status": "fail","text": "No audio file provided"})
 
     # Get the audio file from the request
     audio_file = request.files["audio"]
-    print("Received audio file:", request.files["audio"].filename)
-
-    # Use SpeechRecogniction to convert audio to text
     recognizer = sr.Recognizer()
     with sr.AudioFile(audio_file) as source:
         audio_data = recognizer.record(source)
-
     try:
         # Use the recognizer to transcribe the audio
         text = recognizer.recognize_google(audio_data)
-        # Store the transcription in MongoDB
-        transcription_entry = {"transcription": text}
-        result = collections.insert_one(transcription_entry)
-        return jsonify({"transcription": text, "id": str(result.inserted_id)})
+        print("Transcription result:", text)
+        return jsonify({"status": "success","text":text})
     except sr.UnknownValueError:
-        return jsonify({"error": "Could not understand audio"}), 400
+        return jsonify({"status": "fail","text":"Could not understand audio"})
     except sr.RequestError as e:
-        return (
-            jsonify(
-                {
-                    "error": (
-                        f"Could not request results from Google Speech Recognition service; "
-                        f"{e}"
-                    )
-                }
-            ),
-            500,
-        )
+        return jsonify({"status": "fail","text": f"Could not request results from Google Speech Recognition service {e}"})
+    # print("Received audio file:", request.files["audio"].filename)
+
+    # # Use SpeechRecogniction to convert audio to text
+    # recognizer = sr.Recognizer()
+    # with sr.AudioFile(audio_file) as source:
+    #     audio_data = recognizer.record(source)
+
+    # try:
+    #     # Use the recognizer to transcribe the audio
+    #     text = recognizer.recognize_google(audio_data)
+    #     # Store the transcription in MongoDB
+    #     transcription_entry = {"transcription": text}
+    #     result = collections.insert_one(transcription_entry)
+    #     return jsonify({"transcription": text, "id": str(result.inserted_id)})
+    # except sr.UnknownValueError:
+    #     return jsonify({"error": "Could not understand audio"}), 400
+    # except sr.RequestError as e:
+    #     return (
+    #         jsonify(
+    #             {
+    #                 "error": (
+    #                     f"Could not request results from Google Speech Recognition service; "
+    #                     f"{e}"
+    #                 )
+    #             }
+    #         ),
+    #         500,
+    #     )
 
 
 if __name__ == "__main__":

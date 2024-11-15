@@ -4,7 +4,9 @@ the machine learning model.
 """
 
 from flask import Flask, render_template, request, jsonify
-
+from pydub import AudioSegment
+import io
+import requests
 
 def create_app():
     """
@@ -22,10 +24,18 @@ def create_app():
     def record():
         audio_data = request.files["audio"]
         if audio_data:
-            response = requests.post("http://ml-client:5000/transcribe", files={'audio': audio_data})
-            return jsonify({'status': 'success','text':'trial successfully!'})
-        else:
-            return jsonify({'status': 'error'})
+            try:
+                audio = AudioSegment.from_file(audio_data)
+                audio = audio.set_channels(1).set_sample_width(2).set_frame_rate(16000)
+                buffer = io.BytesIO()
+                audio.export(buffer, format="wav")
+                buffer.seek(0)
+                response = requests.post("http://ml-client:5000/transcribe", files={'audio': ('audio.wav', buffer, 'audio/wav')})
+                if response.json().get("status")=="success":
+                    return jsonify({'status': 'success','text':response.json().get("text")})
+            except ValueError:
+                return jsonify({'status': 'error','text':"ValueError happens"})
+        return jsonify({'status': 'error','text':response.json().get("text")})
     return app
 
 
