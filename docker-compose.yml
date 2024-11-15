@@ -8,6 +8,7 @@ services:
       - "5001:5001"
     environment:
       - .env
+      - ML_CLIENT_URL=http://machine_learning_client:5002
     depends_on:
       - mongo
       - machine_learning_client
@@ -16,6 +17,8 @@ services:
   machine_learning_client:
     build:
       context: ./machine_learning_client
+    ports:
+      - "5002:5000"
     environment:
       - .env
     depends_on:

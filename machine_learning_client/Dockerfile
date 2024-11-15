@@ -25,5 +25,7 @@ COPY . .
 # Ensure the model file is available
 RUN test -f /machine_learning_client/face_model.h5 || (echo "Model file not found!" && exit 1)
 
+EXPOSE 5002
+
 # Set the command to run the ML client
 CMD ["pipenv", "run", "python", "ml_client.py"]
