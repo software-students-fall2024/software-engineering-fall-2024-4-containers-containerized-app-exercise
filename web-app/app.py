@@ -1,126 +1,116 @@
-from flask import Flask, render_template, Response, jsonify, request, redirect, url_for, session
+from flask import Flask, render_template, Response, request, redirect, url_for, session, flash
 from pymongo import MongoClient
 from datetime import datetime
 import cv2
-import sys
 import requests
 import os
-from werkzeug.security import generate_password_hash, check_password_hash
+import bcrypt
+from dotenv import load_dotenv
+# pylint: disable=all
 
-# project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
-# sys.path.insert(0, project_root)
 
-sys.path.append('')
+# Load environment variables from .env file
+load_dotenv()
 
+# Flask configuration
 app = Flask(__name__)
+app.secret_key = os.getenv("SECRET_KEY", "default_secret_key")
 
+# MongoDB configuration
+MONGO_URI = os.getenv("MONGO_URI")
+MONGO_DBNAME = os.getenv("MONGO_DBNAME")
+client = MongoClient(MONGO_URI)
+db = client[MONGO_DBNAME]
+emotion_data_collection = db["emotion_data"]
+users_collection = db["users"]
+
+# Machine Learning Client URL
 ML_CLIENT_URL = os.getenv("ML_CLIENT_URL", "http://machine_learning_client:5000")
 
-# Set up MongoDB connection
-client = MongoClient("mongodb://localhost:27017/")
-db = client["emotion_db"]
-emotion_data_collection = db["emotion_data"]
+camera = cv2.VideoCapture(0)  # Initialize camera
 
 def detect_emotion(image_data):
-    response = requests.post("http://machine_learning_client:5000/detect_emotion", files={"image": image_data})
+    response = requests.post(ML_CLIENT_URL, files={"image": image_data})
     if response.status_code == 200:
-        return response.json()["emotion"]
+        return response.json().get("emotion", "Unknown")
     else:
         return "Error: Unable to detect emotion"
-    
 
-@app.route('/process_emotion', methods=['POST'])
-def process_emotion():
-    # Call the detect_emotion function without needing an image path
-    result = detect_emotion()
-    
-    return jsonify(result)
-
-@app.route("/", methods=["GET", "POST"])
-def index():
-    if request.method == "POST":
-        # Handle file upload
-        image = request.files.get("image")
-        if not image:
-            return "No image provided", 400
-
-        # Send the image to the machine learning client
-        response = requests.post(ML_CLIENT_URL, files={"image": image})
-        if response.status_code == 200:
-            emotion = response.json().get("emotion", "Unknown")
-            return render_template("result.html", emotion=emotion)
+def generate_frames():
+    """Generate frames from the camera for video streaming."""
+    while True:
+        success, frame = camera.read()
+        if not success:
+            break
         else:
-            error = response.json().get("error", "An error occurred")
-            return render_template("error.html", error=error)
+            # Encode the frame in JPEG format
+            _, buffer = cv2.imencode('.jpg', frame)
+            frame = buffer.tobytes()
 
+            # Yield the frame as part of a multipart HTTP response
+            yield (b'--frame\r\n'
+                   b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n')
+
+@app.route("/")
+def index():
+    """Render the home page with the video feed."""
     return render_template("index.html")
 
-@app.route('/login', methods=['GET', 'POST'])
-def login():
-    if request.method == 'POST':
-        username = request.form['username']
-        password = request.form['password']
-        user = users_collection.find_one({"username": username})
-        
-        if user and check_password_hash(user['password'], password):
-            session['user_id'] = str(user['_id'])
-            return redirect(url_for('dashboard'))
-        else:
-            return "Invalid credentials", 401
+@app.route("/video_feed")
+def video_feed():
+    """Video streaming route. Put this in the src attribute of an img tag."""
+    return Response(generate_frames(), mimetype="multipart/x-mixed-replace; boundary=frame")
 
-    return render_template('login.html')
+@app.route("/capture", methods=["POST"])
+def capture():
+    """Capture the current frame and detect emotion."""
+    if "user_id" not in session:
+        flash("Please log in to access this feature.", "error")
+        return redirect(url_for("login"))
 
-@app.route('/signup', methods=['GET', 'POST'])
-def signup():
-    if request.method == 'POST':
-        username = request.form['username']
-        password = request.form['password']
-        hashed_password = generate_password_hash(password)
-        
-        if users_collection.find_one({"username": username}):
-            return "Username already exists", 400
-        
-        users_collection.insert_one({"username": username, "password": hashed_password})
-        return redirect(url_for('login'))
-
-    return render_template('signup.html')
-
-@app.route('/dashboard')
-def dashboard():
-    if 'user_id' not in session:
-        return redirect(url_for('login'))
-    
-    # Get the last captured emotion data for the user
-    last_emotion = emotion_data_collection.find_one({"user_id": session['user_id']}, sort=[("timestamp", -1)])
-    return render_template('dashboard.html', last_emotion=last_emotion)
-
-@app.route('/capture_emotion')
-def capture_emotion():
-    if 'user_id' not in session:
-        return redirect(url_for('login'))
-
-    camera = cv2.VideoCapture(0)
     success, frame = camera.read()
     if not success:
-        camera.release()
-        return jsonify({"error": "Could not capture image"}), 500
+        flash("Could not capture image from camera.", "error")
+        return redirect(url_for("index"))
 
-    emotion_text = detect_emotion(frame)
-    camera.release()
+    # Encode the frame to JPEG format
+    _, buffer = cv2.imencode('.jpg', frame)
+    image_data = buffer.tobytes()
+
+    # Detect emotion
+    emotion_text = detect_emotion(image_data)
 
     # Save emotion and user information to MongoDB
     emotion_data_collection.insert_one({
-        "user_id": session['user_id'],
+        "user_id": session["user_id"],
         "emotion": emotion_text,
         "timestamp": datetime.utcnow()
     })
 
-    return redirect(url_for('dashboard'))
+    flash(f"Emotion detected: {emotion_text}", "success")
+    return redirect(url_for("dashboard"))
 
-@app.route('/logout')
+@app.route("/dashboard")
+def dashboard():
+    if "user_id" not in session:
+        return redirect(url_for("login"))
+
+    last_emotion = emotion_data_collection.find_one(
+        {"user_id": session["user_id"]},
+        sort=[("timestamp", -1)]
+    )
+    return render_template("dashboard.html", last_emotion=last_emotion)
+
+@app.route("/logout")
 def logout():
-    session.pop('user_id', None)
-    return redirect(url_for('index'))
+    session.pop("user_id", None)
+    session.pop("username", None)
+    flash("Logged out successfully.", "info")
+    return redirect(url_for("index"))
 
-if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=5001)
+if __name__ == "__main__":
+    app.run(
+        host="0.0.0.0",
+        port=int(os.getenv("FLASK_PORT", 5001)),
+        debug=bool(int(os.getenv("FLASK_DEBUG", 0)))
+    )
