@@ -9,8 +9,14 @@ black = "*"
 pytest = "*"
 opencv-python = "*"
 numpy = "*"
+pillow = "*"
+deepface = "*"
+pymongo = "*"
 
 [dev-packages]
+pylint = "*"
+black = "*"
+tomli = "*"
 
 [requires]
 python_version = "3.10"
