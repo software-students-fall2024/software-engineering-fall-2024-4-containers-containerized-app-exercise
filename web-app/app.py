@@ -21,9 +21,10 @@ db = client["voice_mood_journal"]
 collection = db["entries"]
 
 # Directory to temporarily store uploaded files
-UPLOAD_FOLDER = './uploads'
+UPLOAD_FOLDER = "./uploads"
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
-app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+app.config["UPLOAD_FOLDER"] = UPLOAD_FOLDER
+
 
 @app.route("/")
 def index():
@@ -40,6 +41,7 @@ def index():
     ]
 
     return render_template("index.html", entries=entries)
+
 
 # @app.route("/upload", methods=["POST"])
 # def upload_audio():
@@ -71,6 +73,7 @@ def index():
 
 #         return jsonify({"error": "ML client failed",
 #                         "details": response.json()}), response.status_code
+
 
 #     except requests.exceptions.RequestException as req_error:
 #         return jsonify({"error": "Failed to forward file to ML client",
