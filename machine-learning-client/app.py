@@ -42,7 +42,8 @@ def transcribe():
     except sr.UnknownValueError:
         return jsonify({"status": "fail","text":"Could not understand audio"})
     except sr.RequestError as e:
-        return jsonify({"status": "fail","text": f"Could not request results from Google Speech Recognition service {e}"})
+        return jsonify({"status": "fail","text":
+            f"Could not request results from Google Speech Recognition service {e}"})
     # print("Received audio file:", request.files["audio"].filename)
 
     # # Use SpeechRecogniction to convert audio to text

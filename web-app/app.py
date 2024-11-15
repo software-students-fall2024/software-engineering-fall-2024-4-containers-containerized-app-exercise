@@ -3,13 +3,13 @@ This is the Flask web application that serves as the interface for
 the machine learning model.
 """
 
+import io
+import os
 from flask import Flask, render_template, request, jsonify
 from pymongo import MongoClient
 from pydub import AudioSegment
 from bson import ObjectId
-import io
 import requests
-import os
 
 mongo_uri = os.getenv("MONGO_URI")
 client = MongoClient(mongo_uri)
@@ -38,7 +38,10 @@ def create_app():
                 buffer = io.BytesIO()
                 audio.export(buffer, format="wav")
                 buffer.seek(0)
-                response = requests.post("http://ml-client:5000/transcribe", files={'audio': ('audio.wav', buffer, 'audio/wav')})
+                response = requests.post(
+                    "http://ml-client:5000/transcribe", 
+                    files={'audio': ('audio.wav', buffer, 'audio/wav')}
+                )
                 data = response.json()
                 if data.get("status")=="success":
                     data_id = ObjectId(data.get("id"))
