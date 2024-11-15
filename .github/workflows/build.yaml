@@ -16,10 +16,11 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
       - name: Turn on 'editable' mode
+        working-directory: ./machine-learning-client 
         run: |
-          cd machine-learning-client
           pipenv install -e .
       - name: Test with pytest
+        working-directory: ./machine-learning-client 
         run: |
           cd machine-learning-client
           pipenv run python -m pytest
