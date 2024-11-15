@@ -22,5 +22,4 @@ jobs:
       - name: Test with pytest
         working-directory: ./machine-learning-client 
         run: |
-          cd machine-learning-client
           pipenv run python -m pytest

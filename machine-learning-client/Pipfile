@@ -21,3 +21,8 @@ pytest-flask = "*"
 
 [requires]
 python_version = "3.11"
+
+[project]
+name = "machine-learning-client"
+version = "0.1.0"
+description = "A machine learning client application"
