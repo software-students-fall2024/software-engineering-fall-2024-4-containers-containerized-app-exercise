@@ -9,12 +9,15 @@ services:
       - .env
     depends_on:
       - mongodb
+      - ml-client
     command: ["pipenv", "run", "python", "web_app.py"]
 
   ml-client:
     build:
       context: ./machine_learning_client
     container_name: ml-client
+    ports:
+      - "5000:5000"
     env_file:
       - .env
     depends_on:
