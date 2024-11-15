@@ -16,6 +16,7 @@ client = MongoClient(mongo_uri)
 db = client.database
 collections = db.transcriptions
 
+
 def create_app():
     """
     Create and configure the Flask application
@@ -28,7 +29,7 @@ def create_app():
     def index():
         return render_template("index.html")
 
-    @app.route("/record",methods=["POST"])
+    @app.route("/record", methods=["POST"])
     def record():
         audio_data = request.files["audio"]
         if audio_data:
@@ -39,17 +40,18 @@ def create_app():
                 audio.export(buffer, format="wav")
                 buffer.seek(0)
                 response = requests.post(
-                    "http://ml-client:5000/transcribe", 
-                    files={'audio': ('audio.wav', buffer, 'audio/wav')}
+                    "http://ml-client:5000/transcribe",
+                    files={"audio": ("audio.wav", buffer, "audio/wav")},
                 )
                 data = response.json()
-                if data.get("status")=="success":
+                if data.get("status") == "success":
                     data_id = ObjectId(data.get("id"))
-                    text = collections.find_one({"_id":data_id}).get("transcription")
-                    return jsonify({'status': 'success','text':text})
+                    text = collections.find_one({"_id": data_id}).get("transcription")
+                    return jsonify({"status": "success", "text": text})
             except ValueError:
-                return jsonify({'status': 'error','text':"ValueError happens"})
-        return jsonify({'status': 'error','text':response.json().get("text")})
+                return jsonify({"status": "error", "text": "ValueError happens"})
+        return jsonify({"status": "error", "text": response.json().get("text")})
+
     return app
 
 
