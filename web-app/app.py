@@ -65,7 +65,7 @@ def upload_audio():
     # Forward the file to the machine learning client
     try:
         with open(file_path, "rb") as file_obj:
-            response = requests.post(ML_CLIENT_URL, files={"audio": file_obj})
+            response = requests.post(ML_CLIENT_URL, files={"audio": file_obj}, timeout=60)
 
         if response.status_code == 200:
             return jsonify({"message": "File uploaded and processed successfully",
