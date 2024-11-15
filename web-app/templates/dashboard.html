@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css">
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="/">Emotion Detection</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="/logout">Logout</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container mt-5">
+        <h1 class="text-center">Dashboard</h1>
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            <div>
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }}">{{ message }}</div>
+                {% endfor %}
+            </div>
+        {% endif %}
+        {% endwith %}
+
+        <div class="card mt-4">
+            <div class="card-body text-center">
+                <h3>Live Camera Feed</h3>
+                <div class="mt-3">
+                    <img src="/video_feed" width="640" height="480" class="border rounded" alt="Live Camera Feed">
+                </div>
+            </div>
+        </div>
+
+        <div class="card mt-4">
+            <div class="card-body text-center">
+                <h3>Last Detected Emotion</h3>
+                {% if last_emotion %}
+                    <p class="mt-3">
+                        <strong>Emotion:</strong> {{ last_emotion['emotion'] }} <br>
+                        <strong>Timestamp:</strong> {{ last_emotion['timestamp'] }}
+                    </p>
+                {% else %}
+                    <p>No emotion data available. Capture your emotion using the live feed.</p>
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="mt-5 text-center">
+            <form action="/capture" method="POST">
+                <button type="submit" class="btn btn-primary">Capture Emotion</button>
+            </form>
+        </div>
+    </div>
+
+    <footer class="mt-5 text-center">
+        <p>&copy; 2024 Emotion Detection App. All Rights Reserved.</p>
+    </footer>
+</body>
+</html>
