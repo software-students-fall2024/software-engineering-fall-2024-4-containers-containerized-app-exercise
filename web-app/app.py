@@ -20,6 +20,10 @@ client = MongoClient(MONGO_URI)
 db = client["voice_mood_journal"]
 collection = db["entries"]
 
+# Directory to temporarily store uploaded files
+UPLOAD_FOLDER = './uploads'
+os.makedirs(UPLOAD_FOLDER, exist_ok=True)
+app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
 @app.route("/")
 def index():
@@ -37,7 +41,41 @@ def index():
 
     return render_template("index.html", entries=entries)
 
+# @app.route("/upload", methods=["POST"])
+# def upload_audio():
+#     """
+#     Handle audio file uploads from the frontend.
+#     Saves the file locally and forwards it to the machine learning client.
+#     """
+#     if "audio" not in request.files:
+#         return jsonify({"error": "No audio file provided"}), 400
 
+#     # Save the uploaded file locally
+#     audio_file = request.files["audio"]
+#     file_path = os.path.join(app.config["UPLOAD_FOLDER"], audio_file.filename)
+
+#     try:
+#         audio_file.save(file_path)
+#     except IOError as io_error:
+#         return jsonify({"error": "Failed to save file", "details": str(io_error)}), 500
+
+#     # Forward the file to the machine learning client
+#     ml_client_url = "http://localhost:5001/process-audio"
+#     try:
+#         with open(file_path, "rb") as file_obj:
+#             response = requests.post(ml_client_url, files={"audio": file_obj})
+
+#         if response.status_code == 200:
+#             return jsonify({"message": "File uploaded and processed successfully",
+#                             "data": response.json()}), 200
+
+#         return jsonify({"error": "ML client failed",
+#                         "details": response.json()}), response.status_code
+
+#     except requests.exceptions.RequestException as req_error:
+#         return jsonify({"error": "Failed to forward file to ML client",
+#                         "details": str(req_error)}), 500
+    
 @app.route("/api/mood-trends")
 def mood_trends():
     """Provide mood trend data for visualization."""
