@@ -7,10 +7,13 @@ name = "pypi"
 pylint = "*"
 black = "*"
 opencv-python-headless = "*"
+opencv-python = "*"
 tensorflow = "*"
 keras = "*"
 librosa = "*"
 pymongo = "*"
+pytest = "*"
+python-dotenv = "*"
 
 [dev-packages]
 

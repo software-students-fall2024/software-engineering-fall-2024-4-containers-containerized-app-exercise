@@ -1,0 +1,20 @@
+services:
+  client:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    volumes:
+      - .:/app
+    command: pipenv run python client.py
+    environment:
+      - MONGO_URI=mongodb://database:27017  # MongoDB connection URI
+    depends_on:
+      - database
+    ports:
+      - "5000:5000"
+
+  database:
+    image: mongo
+    container_name: mongodb
+    ports:
+      - "27017:27017"
