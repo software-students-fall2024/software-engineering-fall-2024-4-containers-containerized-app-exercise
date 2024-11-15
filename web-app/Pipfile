@@ -9,6 +9,8 @@ black = "*"
 flask = "*"
 requests = "*"
 pydub = "*"
+pymongo = "*"
+bson = "*"
 
 [dev-packages]
 

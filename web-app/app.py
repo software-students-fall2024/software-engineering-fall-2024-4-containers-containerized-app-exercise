@@ -4,9 +4,17 @@ the machine learning model.
 """
 
 from flask import Flask, render_template, request, jsonify
+from pymongo import MongoClient
 from pydub import AudioSegment
+from bson import ObjectId
 import io
 import requests
+import os
+
+mongo_uri = os.getenv("MONGO_URI")
+client = MongoClient(mongo_uri)
+db = client.database
+collections = db.transcriptions
 
 def create_app():
     """
@@ -31,8 +39,11 @@ def create_app():
                 audio.export(buffer, format="wav")
                 buffer.seek(0)
                 response = requests.post("http://ml-client:5000/transcribe", files={'audio': ('audio.wav', buffer, 'audio/wav')})
-                if response.json().get("status")=="success":
-                    return jsonify({'status': 'success','text':response.json().get("text")})
+                data = response.json()
+                if data.get("status")=="success":
+                    data_id = ObjectId(data.get("id"))
+                    text = collections.find_one({"_id":data_id}).get("transcription")
+                    return jsonify({'status': 'success','text':text})
             except ValueError:
                 return jsonify({'status': 'error','text':"ValueError happens"})
         return jsonify({'status': 'error','text':response.json().get("text")})

@@ -10,8 +10,6 @@ services:
     container_name: web-app
     ports:
       - "5001:5000"
-    volumes:
-      - /Users/apple/Downloads:/host_files
     depends_on:
       - mongodb
     environment:

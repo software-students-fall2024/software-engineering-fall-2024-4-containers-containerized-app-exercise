@@ -36,8 +36,9 @@ def transcribe():
     try:
         # Use the recognizer to transcribe the audio
         text = recognizer.recognize_google(audio_data)
-        print("Transcription result:", text)
-        return jsonify({"status": "success","text":text})
+        transcription_entry = {"transcription": text}
+        result = collections.insert_one(transcription_entry)
+        return jsonify({"status": "success","id":str(result.inserted_id)})
     except sr.UnknownValueError:
         return jsonify({"status": "fail","text":"Could not understand audio"})
     except sr.RequestError as e:
