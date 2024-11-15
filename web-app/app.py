@@ -75,7 +75,6 @@ def index():
 #     except requests.exceptions.RequestException as req_error:
 #         return jsonify({"error": "Failed to forward file to ML client",
 #                         "details": str(req_error)}), 500
-    
 @app.route("/api/mood-trends")
 def mood_trends():
     """Provide mood trend data for visualization."""
