@@ -13,8 +13,12 @@ dill = "*"
 flask = "*"
 speechrecognition = "*"
 flask-cors = "*"
+pytest = "*"
+pytest-mock = "*"
+pytest-flask = "*"
 
 [dev-packages]
 
 [requires]
 python_version = "3.11"
+
