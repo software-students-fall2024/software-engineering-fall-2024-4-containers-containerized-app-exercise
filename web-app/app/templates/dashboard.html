@@ -1,0 +1,77 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                Upload image
+            </div>
+            <div class="card-body">
+                <form method="post" enctype="multipart/form-data">
+                    <div class="mb-3">
+                        <label for="image" class="form-label">Select image</label>
+                        <input type="file" class="form-control" id="image" name="image" accept="image/*">
+                    </div>
+                    <button type="submit" class="btn btn-primary">Start Detection</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                Detection result
+            </div>
+            <div class="card-body">
+                {% if result %}
+                <div class="result-container">
+                    <img src="{{ result.image_url }}" class="img-fluid mb-3">
+                    <h5>Detected emotions: {{ result.emotion }}</h5>
+                    <div class="progress">
+                        <div class="progress-bar" role="progressbar" style="width: {{ result.confidence }}%">
+                            Confidence: {{ result.confidence }}%
+                        </div>
+                    </div>
+                </div>
+                {% else %}
+                <p class="text-center">There are no test results</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row mt-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                History
+            </div>
+            <div class="card-body">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>time</th>
+                            <th>photo</th>
+                            <th>Detection result</th>
+                            <th>confidence</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for record in history %}
+                        <tr>
+                            <td>{{ record.timestamp }}</td>
+                            <td><img src="{{ record.image_url }}" height="50"></td>
+                            <td>{{ record.emotion }}</td>
+                            <td>{{ record.confidence }}%</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

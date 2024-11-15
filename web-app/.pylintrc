@@ -1,0 +1,15 @@
+[MASTER]
+disable=
+    C0111,  # missing-docstring
+    C0103,  # invalid-name
+    C0303,  # trailing-whitespace
+    R0903,  # too-few-public-methods
+    R0401,  # cyclic-import
+    W0611,  # unused-import
+    C0413,  # wrong-import-position
+
+[FORMAT]
+max-line-length=120
+
+[MESSAGES CONTROL]
+disable=C0111,C0103,C0303,R0903,R0401,W0611,C0413

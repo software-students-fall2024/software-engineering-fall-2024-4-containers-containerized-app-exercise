@@ -1,0 +1,18 @@
+.result-container {
+    text-align: center;
+}
+
+.result-container img {
+    max-width: 100%;
+    margin-bottom: 1rem;
+}
+
+.progress {
+    height: 25px;
+    margin-top: 1rem;
+}
+
+.table img {
+    max-height: 50px;
+    width: auto;
+} 
