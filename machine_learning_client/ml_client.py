@@ -2,6 +2,7 @@
 This module contains functions for emotion detection 
 using a pre-trained machine learning model.
 """
+from flask import Flask, request, jsonify
 from datetime import datetime
 import cv2
 import numpy as np
@@ -9,8 +10,11 @@ import tensorflow as tf
 from pymongo import MongoClient
 import os
 
-# Connect to MongoDB (update the URI with your MongoDB details)
-client = MongoClient("mongodb://localhost:27017/")
+# Initialize the Flask app
+app = Flask(__name__)
+
+# Connect to MongoDB
+client = MongoClient("mongodb://mongo:27017/")  # Use Docker service name for MongoDB
 db = client["emotion_db"]
 emotion_data_collection = db["emotion_data"]
 
@@ -29,7 +33,7 @@ emotion_dict = {
     4: "Neutral 😐",
 }
 
-
+@app.route("/detect_emotion", methods=["POST"])
 def detect_emotion(frame):
     """
     Detects emotion from a given frame, saves the result with a timestamp to MongoDB, 
@@ -68,9 +72,11 @@ def run_emotion_detection():
     """
     cap = cv2.VideoCapture(0)  # Open the default camera (0)
 
+    cap = cv2.VideoCapture(0)
     if not cap.isOpened():
         print("Error: Could not open video.")
-        return
+        cap.release()
+        exit(1)
 
     print("Press 'q' to quit.")
 
@@ -99,5 +105,5 @@ def run_emotion_detection():
     cap.release()
     cv2.destroyAllWindows()
 
-if __name__ == "__main__":
-    run_emotion_detection()
+if __name__ == '__main__':
+    app.run(host='0.0.0.0', port=5000)
