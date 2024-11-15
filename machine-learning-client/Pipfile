@@ -6,6 +6,9 @@ name = "pypi"
 [packages]
 pylint = "*"
 black = "*"
+pytest = "*"
+opencv-python = "*"
+numpy = "*"
 
 [dev-packages]
 

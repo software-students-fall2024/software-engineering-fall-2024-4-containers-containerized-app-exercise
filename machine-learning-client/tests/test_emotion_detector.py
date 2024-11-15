@@ -2,7 +2,6 @@
 Test module for emotion detector functionality.
 This module contains unit tests for the EmotionDetector class.
 """
-import pytest
 import cv2
 import numpy as np
 from emotion_detector import EmotionDetector
