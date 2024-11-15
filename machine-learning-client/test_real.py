@@ -6,7 +6,7 @@ def main():
     detector = EmotionDetector()
     
     # 读取测试图片
-    img = cv2.imread("tests/images/test_face2.png")
+    img = cv2.imread("tests/images/test_face3.jpg")
     if img is not None:
         # 检测情绪
         result = detector.detect_emotion(img)

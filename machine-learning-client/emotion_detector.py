@@ -43,16 +43,14 @@ class EmotionDetector:
                 emotion: float(emotions.get(emotion, 0))
                 for emotion in self.emotions
             }
-            
             # Sort emotions by probability
             sorted_emotions = dict(
                 sorted(filtered_emotions.items(), key=lambda x: x[1], reverse=True)
             )
             
-            return {
+            return{
                 "status": "success",
                 "emotions": sorted_emotions
-            }
-            
+            }            
         except Exception as e:
-            return {"error": f"Error processing image: {str(e)}"} 
+            return {"error": f"Error processing image: {str(e)}"}
