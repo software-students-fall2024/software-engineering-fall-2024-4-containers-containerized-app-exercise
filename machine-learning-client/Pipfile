@@ -13,6 +13,9 @@ dill = "*"
 flask = "*"
 speechrecognition = "*"
 flask-cors = "*"
+pytest = "*"
+pytest-mock = "*"
+pytest-flask = "*"
 
 [dev-packages]
 
