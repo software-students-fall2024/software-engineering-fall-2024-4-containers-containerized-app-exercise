@@ -3,34 +3,163 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Voice Mood Journal</title>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <title>Voice Journal - Record Your Thoughts</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            margin: 0;
+            padding: 0;
+            background: linear-gradient(120deg, #FFDEE9, #B5FFFC);
+            color: #333;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+        }
+        h1 {
+            font-size: 3.5rem;
+            margin-bottom: 10px;
+            color: #444;
+            text-shadow: 0px 4px 6px rgba(0, 0, 0, 0.2);
+        }
+        p {
+            font-size: 1.2rem;
+            margin-bottom: 30px;
+            color: #666;
+            text-align: center;
+            max-width: 600px;
+        }
+        button {
+            padding: 15px 30px;
+            margin: 10px;
+            border: none;
+            border-radius: 25px;
+            font-size: 1rem;
+            background: rgba(255, 255, 255, 0.6);
+            color: #333;
+            cursor: pointer;
+            transition: background 0.3s ease, transform 0.2s ease, box-shadow 0.2s ease;
+        }
+        button:hover {
+            background: rgba(255, 255, 255, 0.8);
+            transform: scale(1.05);
+            box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.3);
+        }
+        #visualizer {
+            margin: 20px 0;
+            width: 300px;
+            height: 100px;
+            position: relative;
+            background: rgba(255, 255, 255, 0.6);
+            border-radius: 10px;
+            overflow: hidden;
+            display: none; /* Hidden by default, shown during recording */
+        }
+        .bar {
+            position: absolute;
+            bottom: 0;
+            width: 8px;
+            height: 20px;
+            background: #6A5ACD;
+            animation: bounce 1s infinite ease-in-out;
+        }
+        .bar:nth-child(1) { left: 0%; animation-delay: 0.1s; }
+        .bar:nth-child(2) { left: 10%; animation-delay: 0.2s; }
+        .bar:nth-child(3) { left: 20%; animation-delay: 0.3s; }
+        .bar:nth-child(4) { left: 30%; animation-delay: 0.4s; }
+        .bar:nth-child(5) { left: 40%; animation-delay: 0.5s; }
+        .bar:nth-child(6) { left: 50%; animation-delay: 0.6s; }
+        .bar:nth-child(7) { left: 60%; animation-delay: 0.7s; }
+        .bar:nth-child(8) { left: 70%; animation-delay: 0.8s; }
+        .bar:nth-child(9) { left: 80%; animation-delay: 0.9s; }
+        .bar:nth-child(10) { left: 90%; animation-delay: 1s; }
+
+        @keyframes bounce {
+            0%, 100% { transform: scaleY(0.3); }
+            50% { transform: scaleY(1); }
+        }
+        audio {
+            margin-top: 20px;
+        }
+        #upload-form button {
+            background: rgba(255, 255, 255, 0.6);
+        }
+    </style>
 </head>
 <body>
-    <h1>Voice Mood Journal</h1>
-    
-    <h2>Mood Trends</h2>
-    <canvas id="moodChart" width="400" height="200"></canvas>
+    <h1>Voice Journal</h1>
+    <p>
+        Welcome to your Voice Journal, a place to reflect and express your thoughts. 
+        Record your voice, capture your mood, and let your words tell your story.
+    </p>
+    <button id="start">Start Recording</button>
+    <button id="stop" disabled>Stop Recording</button>
+    <div id="visualizer">
+        <div class="bar"></div>
+        <div class="bar"></div>
+        <div class="bar"></div>
+        <div class="bar"></div>
+        <div class="bar"></div>
+        <div class="bar"></div>
+        <div class="bar"></div>
+        <div class="bar"></div>
+        <div class="bar"></div>
+        <div class="bar"></div>
+    </div>
+    <audio id="player" controls></audio>
+    <form id="upload-form" enctype="multipart/form-data">
+        <input type="file" id="audio-file" name="audio" hidden>
+        <button type="submit">Upload</button>
+    </form>
+    <button onclick="window.location.href='show_results.html'">View Results</button>
 
     <script>
-        fetch('/api/mood-trends')
-            .then(response => response.json())
-            .then(data => {
-                const ctx = document.getElementById('moodChart').getContext('2d');
-                new Chart(ctx, {
-                    type: 'pie',
-                    data: {
-                        labels: Object.keys(data),
-                        datasets: [{
-                            data: Object.values(data),
-                            backgroundColor: ['#4CAF50', '#F44336', '#FFEB3B']
-                        }]
-                    },
-                    options: {
-                        responsive: true
-                    }
-                });
-            });
+        let mediaRecorder;
+        let audioChunks = [];
+        const startButton = document.getElementById("start");
+        const stopButton = document.getElementById("stop");
+        const player = document.getElementById("player");
+        const uploadForm = document.getElementById("upload-form");
+        const audioFileInput = document.getElementById("audio-file");
+        const visualizer = document.getElementById("visualizer");
+
+        startButton.addEventListener("click", async () => {
+            const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+            mediaRecorder = new MediaRecorder(stream);
+            mediaRecorder.ondataavailable = (event) => audioChunks.push(event.data);
+            mediaRecorder.onstop = () => {
+                const audioBlob = new Blob(audioChunks, { type: "audio/wav" });
+                const audioUrl = URL.createObjectURL(audioBlob);
+                player.src = audioUrl;
+
+                const file = new File([audioBlob], "recording.wav", { type: "audio/wav" });
+                const dataTransfer = new DataTransfer();
+                dataTransfer.items.add(file);
+                audioFileInput.files = dataTransfer.files;
+            };
+
+            mediaRecorder.start();
+            startButton.disabled = true;
+            stopButton.disabled = false;
+            visualizer.style.display = "block"; // Show visualizer
+        });
+
+        stopButton.addEventListener("click", () => {
+            mediaRecorder.stop();
+            startButton.disabled = false;
+            stopButton.disabled = true;
+            visualizer.style.display = "none"; // Hide visualizer
+        });
+
+        uploadForm.addEventListener("submit", (event) => {
+            event.preventDefault();
+            const formData = new FormData(uploadForm);
+            fetch('/upload', { method: 'POST', body: formData })
+                .then(response => response.json())
+                .then(data => alert("File uploaded successfully!"))
+                .catch(error => console.error("Error uploading file:", error));
+        });
     </script>
 </body>
 </html>
