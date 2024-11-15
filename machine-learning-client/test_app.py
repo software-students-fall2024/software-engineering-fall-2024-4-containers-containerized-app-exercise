@@ -13,12 +13,12 @@ from app import app
 def client():
     """Fixture for the Flask test client."""
     app.config["TESTING"] = True
-    with app.test_client() as client: # pylint: disable=redefined-outer-name
+    with app.test_client() as client:  # pylint: disable=redefined-outer-name
         yield client
 
 
 # @patch("app.sr.Recognizer")
-def test_transcribe_no_audio(client): # pylint: disable=redefined-outer-name
+def test_transcribe_no_audio(client):  # pylint: disable=redefined-outer-name
     """Test the /transcribe endpoint with no audio file provided."""
     response = client.post("/transcribe", content_type="multipart/form-data")
 
