@@ -16,6 +16,7 @@ client = MongoClient(mongo_uri)
 db = client.database
 collections = db.transcriptions
 
+
 def create_app():
     """
     Create and configure the Flask application
