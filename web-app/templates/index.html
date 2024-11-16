@@ -21,8 +21,8 @@
               <textarea id="sentenceInput" placeholder="Start writing here..."></textarea>
               <br>
               <button onclick="analyzeSentence()">Analyze Sentiment</button>
-              <button onclick="startDictation()">🎤 Speak</button>
-              <p id="uploadMessage" class="hidden">The text has been uploaded successfully, analyzing...</p>
+              <button id="speakButton" onclick="startDictation()">🎤 Speak</button>
+              <p id="uploadMessage" class="hidden" style="display: none; visibility: hidden;">The text has been uploaded successfully, analyzing...</p>
           </div>
 
           <!-- Result Sections -->

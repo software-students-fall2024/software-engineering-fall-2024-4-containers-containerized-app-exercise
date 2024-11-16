@@ -231,6 +231,29 @@ function visualizeOverallEmotions(data) {
         .attr("transform", d => `translate(${d3.arc().innerRadius(0).outerRadius(radius).centroid(d)})`)
         .style("text-anchor", "middle")
         .style("font-size", 12);
+
+    // Add legend
+    const legend = svg.append("g")
+        .attr("transform", `translate(${width / 2 + 20}, ${-height / 2})`);
+
+    legend.selectAll(".legend-item")
+        .data(pieData)
+        .enter()
+        .append("g")
+        .attr("class", "legend-item")
+        .attr("transform", (d, i) => `translate(0, ${i * 20})`)
+        .call(g => {
+            g.append("rect")
+                .attr("width", 10)
+                .attr("height", 10)
+                .attr("fill", d => color(d.emotion));
+
+            g.append("text")
+                .attr("x", 15)
+                .attr("y", 10)
+                .text(d => d.emotion)
+                .style("font-size", 12);
+        });
 }
 
 // Function to visualize sentiment trend using a line chart
@@ -243,7 +266,7 @@ function visualizeSentimentTrend(data) {
     // Set dimensions and margins
     const width = 600;
     const height = 300;
-    const margin = { top: 20, right: 30, bottom: 50, left: 50 };
+    const margin = { top: 20, right: 100, bottom: 50, left: 50 };
 
     const svg = d3.select("#sentimentTrend")
         .append("svg")
@@ -290,6 +313,22 @@ function visualizeSentimentTrend(data) {
         .attr("cy", d => y(d.compound))
         .attr("r", 3)
         .attr("fill", "#4CAF50");
+
+    // Add legend
+    const legend = svg.append("g")
+        .attr("transform", `translate(${width + 20}, ${0})`)
+        .call(g => {
+            g.append("rect")
+                .attr("width", 10)
+                .attr("height", 10)
+                .attr("fill", "#4CAF50");
+
+            g.append("text")
+                .attr("x", 15)
+                .attr("y", 10)
+                .text("Sentiment Trend")
+                .style("font-size", 12);
+        });
 }
 
 // Function to visualize sentiment intensity per sentence using a bar chart
@@ -481,4 +520,5 @@ function redoAnalysis() {
     document.getElementById('sentenceInput').value = '';
     d3.selectAll("svg").remove();
     document.getElementById('summaryText').textContent = '';
+    document.getElementById('uploadMessage').classList.add('hidden'); // Ensure the upload message is hidden
 }

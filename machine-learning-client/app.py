@@ -119,7 +119,7 @@ def perform_topic_modeling(sentences, num_topics=5):
     texts = [bigram_mod[doc] for doc in texts]
     # Create dictionary and filter extremes
     dictionary = corpora.Dictionary(texts)
-    dictionary.filter_extremes(no_below=5, no_above=0.9)
+    dictionary.filter_extremes(no_below=5, no_above=0.4)
     # Create corpus
     corpus = [dictionary.doc2bow(text) for text in texts]
     if len(dictionary) == 0:
