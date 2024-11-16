@@ -24,11 +24,11 @@ jobs:
           echo "MONGODB_URI=${{ secrets.MONGODB_URI }}" >> $GITHUB_ENV
           echo "MONGODB_USERNAME=${{ secrets.MONGODB_USERNAME }}" >> $GITHUB_ENV
           echo "MONGODB_PASSWORD=${{ secrets.MONGODB_PASSWORD }}" >> $GITHUB_ENV       
+          echo "SECRET=${{ secrets.SECRET }}" >> $GITHUB_ENV       
 
-      - name: Start MongoDB and Machine Learning Client
+      - name: Start Containers
         run: |
-          # Start only MongoDB and machine-learning-client services
-          docker compose up -d mongodb machine-learning-client
+          docker compose up -d
 
       - name: Wait for MongoDB to be Ready
         run: sleep 3  # Increase the delay as necessary
