@@ -3,6 +3,7 @@
 
 # Containerized App Exercise
 
+Build a containerized app that uses machine learning. See [instructions](./instructions.md) for details.
 
 ## Team members
 
@@ -10,5 +11,3 @@
 * Hanna Han [Profile](https://github.com/HannaHan2)
 * Sewon Kim [Profile](https://github.com/SewonKim0)
 * Rhan Chen [Profile](https://github.com/xc528)
-
-Build a containerized app that uses machine learning. See [instructions](./instructions.md) for details.
