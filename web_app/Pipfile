@@ -13,6 +13,7 @@ pytest = "*"
 python-dotenv = "*"
 pillow = "*"
 requests = "*"
+numpy = "*"
 
 [dev-packages]
 

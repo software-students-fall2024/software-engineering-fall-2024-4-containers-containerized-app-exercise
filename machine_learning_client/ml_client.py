@@ -1,84 +1,68 @@
 from flask import Flask, request, jsonify
 import face_recognition
-import cv2
-import pymongo
-import os
 import numpy as np
-from dotenv import load_dotenv
-
-load_dotenv()
+import json  # Add this import
 
 app = Flask(__name__)
 
-mongo_uri = os.getenv("MONGO_URI", "mongodb://localhost:27017/")
-client = pymongo.MongoClient(mongo_uri)
-db = client["attendify"]
-users_collection = db["users"]
 
-def encode_face(image_path):
+def encode_face_image(image_file):
     try:
-        image = face_recognition.load_image_file(image_path)
+        image = face_recognition.load_image_file(image_file)
         encodings = face_recognition.face_encodings(image)
-
-        if len(encodings) == 0:
+        if not encodings:
             return None, "No face detected in the image."
-
         return encodings[0], None
     except Exception as e:
-        print(f"Error in encode_face: {e}")
+        print(f"Error in encode_face_image: {e}")
         return None, "Error during face encoding."
 
-def recognize_face(stored_encodings, test_image_path):
-    try:
-        test_image = face_recognition.load_image_file(test_image_path)
-        test_encoding = face_recognition.face_encodings(test_image)
 
-        if len(test_encoding) == 0:
+def recognize_face_encodings(stored_encodings, image_file):
+    try:
+        test_image = face_recognition.load_image_file(image_file)
+        test_encodings = face_recognition.face_encodings(test_image)
+        if not test_encodings:
             return "no_face", "No face detected in the test image."
 
-        results = face_recognition.compare_faces(stored_encodings, test_encoding[0])
+        test_encoding = test_encodings[0]
+        stored_encodings = [np.array(enc) for enc in stored_encodings]
+        results = face_recognition.compare_faces(stored_encodings, test_encoding)
         if any(results):
             return "verified", None
         else:
             return "not_recognized", None
     except Exception as e:
-        print(f"Error in recognize_face: {e}")
+        print(f"Error in recognize_face_encodings: {e}")
         return "error", "Error during face recognition."
 
-def save_metadata(encoding, metadata):
-    users_collection.insert_one({"encoding": encoding, "metadata": metadata})
 
-@app.route('/encode_face', methods=['POST'])
+@app.route("/encode_face", methods=["POST"])
 def encode_face_route():
-    image_path = request.json.get('image_path')
-    encoding, error = encode_face(image_path)
+    if "file" not in request.files:
+        return jsonify({"error": "No file part"}), 400
+
+    file = request.files["file"]
+    encoding, error = encode_face_image(file)
     if error:
         return jsonify({"error": error}), 400
     return jsonify({"encoding": encoding.tolist()}), 200
 
-@app.route('/recognize_face', methods=['POST'])
+
+@app.route("/recognize_face", methods=["POST"])
 def recognize_face_route():
-    stored_encodings = request.json.get('stored_encodings')
-    test_image_path = request.json.get('test_image_path')
-    result, error = recognize_face(stored_encodings, test_image_path)
+    if "file" not in request.files or "stored_encodings" not in request.form:
+        return jsonify({"error": "Invalid request data"}), 400
+
+    file = request.files["file"]
+    stored_encodings_str = request.form.get("stored_encodings")
+    # Deserialize stored_encodings from JSON string to Python object
+    stored_encodings = json.loads(stored_encodings_str)
+    result, error = recognize_face_encodings(stored_encodings, file)
     if error:
         return jsonify({"error": error}), 400
     return jsonify({"result": result}), 200
 
-@app.route('/collect_and_save_metadata', methods=['POST'])
-def collect_and_save_metadata_route():
-    image_path = request.json.get('image_path')
-    encoding, error = encode_face(image_path)
-    if error:
-        return jsonify({"error": error}), 400
 
-    metadata = {
-        "source": "camera",
-        "timestamp": "2024-11-13T15:00:00",
-        "notes": "Initial registration",
-    }
-    save_metadata(encoding.tolist(), metadata)
-    return jsonify({"message": "Metadata saved successfully"}), 200
-
-if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=5000)
+if __name__ == "__main__":
+    app.run(host="0.0.0.0", port=5000)
