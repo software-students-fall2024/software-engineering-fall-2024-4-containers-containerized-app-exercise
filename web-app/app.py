@@ -38,7 +38,6 @@ def submit_sentence():
 
     # Insert into MongoDB
     collection.insert_one(document)
-
     # Return the user's input sentence
     return jsonify({'analysis': sentence})
 
