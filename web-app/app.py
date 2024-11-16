@@ -5,9 +5,12 @@ A Flask web application for a Rock-Paper-Scissors game with AI and ML integratio
 import os
 import time
 import random
+import logging  # Fixed import order
 from flask import Flask, render_template, request, jsonify
 import requests
 from requests.exceptions import RequestException
+
+logging.basicConfig(level=logging.DEBUG)
 
 app = Flask(__name__)
 
@@ -60,24 +63,29 @@ def statistics():
 @app.route("/result", methods=["POST"])
 def result():
     """
-    Handle user input, send it to the ML client, and determine the result of the game.
+    Handle the result of the Rock-Paper-Scissors game.
 
-    Returns:
-        Rendered result page with user and AI gestures and the game result.
+    Accepts an image from the user, sends it to the machine learning client
+    for gesture prediction, and returns the game result.
     """
+    app.logger.debug("Received request at /result")
     try:
         if "image" not in request.files:
+            app.logger.error("No image file provided")
             return jsonify({"error": "No image file provided"}), 400
 
         file = request.files["image"]
         ml_client_url = os.getenv(
             "ML_CLIENT_URL", "http://machine-learning-client:5000"
         )
+        app.logger.debug("Sending image to ML client at %s/predict", ml_client_url)
         response = retry_request(f"{ml_client_url}/predict", files={"image": file})
         if not response:
+            app.logger.error("ML client did not respond")
             return jsonify({"error": "ML client did not respond"}), 500
         user_gesture = response.json().get("gesture", "Unknown")
     except RequestException as error:
+        app.logger.error("Error communicating with ML client: %s", str(error))
         return (
             jsonify({"error": f"Error communicating with ML client: {str(error)}"}),
             500,
@@ -85,6 +93,7 @@ def result():
 
     ai_gesture = random.choice(["Rock", "Paper", "Scissors"])
     game_result = determine_winner(user_gesture, ai_gesture)
+    app.logger.debug("Game result: %s", game_result)
     return render_template(
         "result.html", user=user_gesture, ai=ai_gesture, result=game_result
     )

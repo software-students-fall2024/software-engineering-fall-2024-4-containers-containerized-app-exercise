@@ -6,3 +6,5 @@ Werkzeug==2.1.2
 pylint
 black  
 pipenv 
+pymongo
+inference-sdk

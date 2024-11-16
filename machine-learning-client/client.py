@@ -1,49 +1,72 @@
 """
-Flask application for predicting Rock-Paper-Scissors gestures using a TensorFlow model.
+A Flask application for predicting Rock-Paper-Scissors gestures using the Roboflow Inference API
+and storing predictions in MongoDB.
 """
 
+import os
+import logging
 from flask import Flask, request, jsonify
-from tensorflow.keras.models import load_model  # pylint: disable=E0401,E0611
-import cv2  # pylint: disable=E1101
-import numpy as np
+from pymongo import MongoClient
+from pymongo.errors import PyMongoError  # Specific exception for MongoDB
+from inference_sdk import InferenceHTTPClient
+from requests.exceptions import RequestException  # For handling request errors
 
 app = Flask(__name__)
+logging.basicConfig(level=logging.DEBUG)
 
-MODEL_PATH = "model/rock_paper_scissors_model.h5"
-model = load_model(MODEL_PATH)
-CLASS_LABELS = ["Rock", "Paper", "Scissors"]
+# MongoDB connection
+MONGO_URI = os.getenv("MONGO_URI", "mongodb://mongodb:27017")
+client = MongoClient(MONGO_URI)
+db = client["rps_database"]
+collection = db["predictions"]
+
+# Roboflow Inference Client
+API_URL = os.getenv("INFERENCE_SERVER_URL", "http://localhost:9001")
+API_KEY = os.getenv("ROBOFLOW_API_KEY")  # API key passed via environment variables
+MODEL_ID = os.getenv("ROBOFLOW_MODEL_ID")  # Model ID passed via environment variables
+rf_client = InferenceHTTPClient(api_url=API_URL, api_key=API_KEY)
 
 
 @app.route("/predict", methods=["POST"])
 def predict():
     """
-    Predict the gesture in the uploaded image using the trained model.
+    Handle prediction requests.
 
-    Returns:
-        JSON response with the predicted gesture or error message.
+    Accepts an image file, performs inference using the Roboflow model, and stores the result
+    in MongoDB. Returns the predicted gesture and confidence score.
     """
     try:
         if "image" not in request.files:
+            logging.error("No image file provided")
             return jsonify({"error": "No image file provided"}), 400
 
+        # Save the uploaded image temporarily
         file = request.files["image"]
-        image = cv2.imdecode(  # pylint: disable=E1101
-            np.frombuffer(file.read(), np.uint8),
-            cv2.IMREAD_COLOR,  # pylint: disable=E1101
-        )
-        processed_image = cv2.resize(image, (224, 224)) / 255.0  # pylint: disable=E1101
-        processed_image = np.expand_dims(processed_image, axis=0)
+        image_path = f"./temp/{file.filename}"
+        os.makedirs("./temp", exist_ok=True)
+        file.save(image_path)
 
-        predictions = model.predict(processed_image)
-        gesture = CLASS_LABELS[np.argmax(predictions)]
+        # Perform inference using the Roboflow model
+        result = rf_client.infer(image_path, model_id=MODEL_ID)
 
-        return jsonify({"gesture": gesture})
-    except KeyError as error:
-        return jsonify({"error": f"Key error: {str(error)}"}), 400
-    except ValueError as error:
-        return jsonify({"error": f"Value error: {str(error)}"}), 400
-    except RuntimeError as error:
-        return jsonify({"error": f"Runtime error: {str(error)}"}), 500
+        # Extract prediction details
+        gesture = result.get("predictions", [{}])[0].get("class", "Unknown")
+        prediction_score = result.get("predictions", [{}])[0].get("confidence", 0)
+
+        # Store prediction in MongoDB
+        prediction_data = {
+            "gesture": gesture,
+            "prediction_score": prediction_score,
+            "image_metadata": {"filename": file.filename},
+        }
+        collection.insert_one(prediction_data)
+        logging.debug("Prediction data stored in MongoDB: %s", prediction_data)
+
+        # Return the result
+        return jsonify({"gesture": gesture, "confidence": prediction_score})
+    except (RequestException, PyMongoError, FileNotFoundError) as prediction_error:
+        logging.error("Prediction error: %s", str(prediction_error))
+        return jsonify({"error": f"Prediction error: {str(prediction_error)}"}), 500
 
 
 if __name__ == "__main__":
