@@ -1,9 +1,10 @@
 """
-This is the web-app, running as a flask server.
+This is the web-app
 """
 
+from datetime import datetime
 from os import getenv
-from flask import Flask, jsonify, render_template, request
+from flask import Flask, jsonify, render_template, request, redirect, url_for
 from pymongo import MongoClient
 import requests
 
@@ -21,7 +22,8 @@ app.secret_key = key
 
 client = MongoClient(connstr)
 db = client["audio_db"]
-medata_collection = db["audio_metadata"]
+audio_collection = db["audio_files"]
+metadata_collection = db["audio_metadata"]
 
 
 @app.route("/")
@@ -33,7 +35,7 @@ def index():
 
 
 @app.route("/record")
-def register():
+def record():
     """
     Record route
     """
@@ -46,23 +48,60 @@ def upload_audio():
     Endpoint to upload files and send to ml client
     """
     ml_client_url = "http://localhost:5050/predict"
-    if "audio" not in request.files:
-        return jsonify({"error": "No audio file provided"}), 400
+
+    if "audio" not in request.files or "name" not in request.form:
+        return jsonify({"error": "Audio file and name are required"}), 400
 
     audio_file = request.files["audio"]
+    file_name = request.form["name"]
 
+    file_id = audio_collection.insert_one(
+        {
+            "file_name": file_name,
+            "file_data": audio_file.read(),
+            "content_type": audio_file.mimetype,
+        }
+    ).inserted_id
+    if not file_id:
+        return jsonify({"error": "Failed to store the audio file in the database"}), 500
+
+    metadata = {
+        "file_id": file_id,
+        "name": file_name,
+        "upload_time": datetime.utcnow(),
+        "transcription": "",
+    }
+
+    metadata_result = metadata_collection.insert_one(metadata)
+
+    if not metadata_result.acknowledged:
+        return jsonify({"error": "Failed to store the metadata in the database"}), 500
+
+    print("File successfully uploaded with file_id", file_id)
     try:
-        response = requests.post(
+        response = requests.get(
             ml_client_url,
-            files={
-                "audio": (audio_file.filename, audio_file.stream, audio_file.mimetype)
-            },
+            params={"file_id": file_id},
             timeout=10,
         )
-        return jsonify(response.json()), response.status_code
+
+        if not response.ok:
+            return (
+                jsonify(
+                    {
+                        "error": "ML client responded with an error",
+                        "details": response.text,
+                    }
+                ),
+                response.status_code,
+            )
+
+        return redirect(url_for("index"))
+
     except requests.exceptions.RequestException as e:
+        # Handle exceptions during the request
         return (
-            jsonify({"error": "Failed to send audio to ML client", "details": str(e)}),
+            jsonify({"error": "Failed to notify ML client", "details": str(e)}),
             500,
         )
 

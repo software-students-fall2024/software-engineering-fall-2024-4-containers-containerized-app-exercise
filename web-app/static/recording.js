@@ -1,4 +1,5 @@
 const recordButton = document.getElementById("recordButton");
+const nameInput = document.getElementById("nameInput");
 const statusText = document.getElementById("status");
 
 let mediaRecorder;
@@ -24,6 +25,7 @@ recordButton.addEventListener("click", async () => {
 
       const formData = new FormData();
       formData.append("audio", audioBlob);
+      formData.append("name", nameInput.value);
 
       try {
         const response = await fetch(UPLOAD_URL, {

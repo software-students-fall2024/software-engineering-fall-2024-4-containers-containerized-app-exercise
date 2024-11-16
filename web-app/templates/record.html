@@ -4,16 +4,18 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>document</title>
+  <title>Record Voice</title>
 </head>
 
 <body>
-  <h1>record voice</h1>
+  <h1>Record Voice</h1>
   <div>
     <p>
-      click the button below to begin recording. once you click again, the recording will stop.
+      Click the button below to begin recording. Once you click again, the recording will stop.
     </p>
-    <button id="recordButton">record</button>
+    <label for="nameInput">Enter file name:</label>
+    <input type="text" id="nameInput" placeholder="File name">
+    <button id="recordButton">Record</button>
     <p id="status"></p>
   </div>
   <div>
