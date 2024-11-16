@@ -1,12 +1,18 @@
 FROM python:3.10-slim
 
-# Install CMake, build-essential, and other dependencies, including libGL and libglib
+# Install CMake, build-essential, and other dependencies
 RUN apt-get update && apt-get install -y \
     cmake \
     build-essential \
     g++ \
     libgl1-mesa-glx \
     libglib2.0-0 \
+    libjpeg-dev \
+    libpng-dev \
+    libtiff-dev \
+    libatlas-base-dev \
+    liblapack-dev \
+    libblas-dev \
     && rm -rf /var/lib/apt/lists/*
 
 # Set the working directory
@@ -21,7 +27,7 @@ RUN pip install pipenv && pipenv install --deploy --ignore-pipfile
 COPY . .
 
 # Expose the port the Flask app runs on
-#EXPOSE 5001
+EXPOSE 5000
 
 # Command to run the Flask application
 CMD ["pipenv", "run", "python", "ml_client.py"]
