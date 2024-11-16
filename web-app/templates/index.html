@@ -5,9 +5,10 @@
         <link rel="stylesheet" href="{{url_for('static',filename='css/styles.css')}}">
     </head>
     <body>
+        <h1>Speech Texter</h1>
         <button id="toggle-recording">Start Recording</button>
         <p id="status">Waiting for permission to access the microphone...</p>
-        <div id="result"></div>
+        <div id="result" contenteditable="true"></div>
     </body>
     <!--<script src="{{url_for('static',filename='js/script.js')}}"></script>-->
     <script>

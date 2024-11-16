@@ -18,8 +18,6 @@ services:
     build:
       context: ./machine-learning-client
     container_name: ml-client
-    volumes:
-      - /Users/apple/Downloads:/host_files
     expose:
       - 5000
     depends_on:
