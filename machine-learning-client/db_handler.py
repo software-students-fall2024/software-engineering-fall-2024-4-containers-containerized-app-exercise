@@ -5,7 +5,7 @@ import os
 class DatabaseHandler:
     def __init__(self):
         self.client = MongoClient(
-            host=os.environ.get("MONGODB_HOST", "mongodb"),
+            host=os.environ.get("MONGODB_HOST", "localhost"),
             port=int(os.environ.get("MONGODB_PORT", 27017)),
             username=os.environ.get("MONGODB_USERNAME", "admin"),
             password=os.environ.get("MONGODB_PASSWORD", "password"),

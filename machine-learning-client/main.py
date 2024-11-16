@@ -28,7 +28,7 @@ def process_image(image_data):
     return result
 
 if __name__ == "__main__":
-    # This is just for testing
+    # for testing
     import cv2
     test_image = cv2.imread("tests/images/test_face.jpg")
     if test_image is not None:
