@@ -10,7 +10,7 @@ services:
         source: ./data
         target: /data/db
     ports:
-      - "27017:27017"
+      - "27017:27017"  
 
   machine-learning-client:
     build: ./machine-learning-client
@@ -33,6 +33,7 @@ services:
       - machine-learning-client
     environment:
       - DB_URI=${MONGODB_URI}
+      - SECRET=${SECRET}
     ports:
       - "8080:8080"
     command: python3 app.py

@@ -5,18 +5,14 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>TODO App</title>
-  <link rel="stylesheet" href="{{ url_for('static_path', path='style.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 
 <body>
   <div class="frame">
     <div class="container">
-      <h1>The TODO App</h1>
+      <h1>The ML App</h1>
       <div class="button-container">
-        <a href="{{ url_for('add_task') }}" class="button button-add">Add Task</a>
-        <a href="{{ url_for('search_task') }}" class="button button-search">Search Tasks</a>
-        <a href="{{ url_for('list_tasks') }}" class="button button-list">List Tasks</a>
-        <a href="{{url_for('logout')}}" class="button button-logout"> Logout </a>
       </div>
     </div>
   </div>

@@ -122,3 +122,9 @@ def home():
     if current_user.is_authenticated:
         return redirect(url_for('index'))
     return redirect(url_for('login'))
+
+
+
+if __name__ == '__main__':
+    print("App listening on port 8080")
+    app.run(host="0.0.0.0", port=8080)
