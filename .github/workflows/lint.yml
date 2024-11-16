@@ -39,5 +39,5 @@ jobs:
       - name: Run linting
         run: |
           cd ${{ matrix.component }}
-          pipenv run pylint app/*.py run.py config.py || true
-          pipenv run black --check .
+          pipenv run pylint *.py tests/*.py || true
+          pipenv run black .
