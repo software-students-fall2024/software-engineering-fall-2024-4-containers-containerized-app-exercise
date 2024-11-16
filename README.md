@@ -1,10 +1,3 @@
-![Lint-free](https://github.com/nyu-software-engineering/containerized-app-exercise/actions/workflows/lint.yml/badge.svg)
-
-![ML Client Workflow Status] (https://github.com/software-students-fall2024/4-containers-super-awesome-team-name/actions/workflows/ml_client.yml/badge.svg?branch=main)
-
-![Web App Workflow Status] (https://github.com/software-students-fall2024/4-containers-super-awesome-team-name/actions/workflows/web_app.yml/badge.svg?branch=main)
-
-
 # Containerized App Exercise
 
 Build a containerized app that uses machine learning. See [instructions](./instructions.md) for details.
@@ -12,6 +5,14 @@ Build a containerized app that uses machine learning. See [instructions](./instr
 ## Description
 
 Our project is an audio-based recognition system for activity. It's designed to analyze various sound events, such as clapping, snapping, and hitting a desk and classify them accordingly. The system leverages Docker for scalability, and operates in a containerized environment, as per the instructions.
+
+# Build Badges
+
+![Lint-free](https://github.com/nyu-software-engineering/containerized-app-exercise/actions/workflows/lint.yml/badge.svg)
+
+![ML Client Workflow Status](https://github.com/software-students-fall2024/4-containers-super-awesome-team-name/actions/workflows/ml_client.yml/badge.svg?branch=main)
+
+![Web App Workflow Status](https://github.com/software-students-fall2024/4-containers-super-awesome-team-name/actions/workflows/web_app.yml/badge.svg?branch=main)
 
 ## Configuration Instructions
 
