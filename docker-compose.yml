@@ -1,0 +1,51 @@
+
+services:
+  database:
+    build:
+      context: ./mongodb
+      dockerfile: Dockerfile
+    container_name: mongodb
+    ports:
+      - "27017:27017"
+    networks:
+      - shared-network
+    volumes:
+      - ./mongo_data:/data/db
+
+  flask-app:
+    build: 
+      context: ./web-app
+      dockerfile: Dockerfile
+    container_name: flask-app
+    ports:
+      - "5001:5001"
+    depends_on:
+      - database
+      - machine-learning-client
+    networks:
+      - shared-network
+    environment:
+      - MONGO_URI=mongodb://mongodb:27017
+      - FLASK_PORT=5001
+      - ML_URL=http://machine-learning-client:5000
+    volumes:
+      - shared_data:/shared
+  machine-learning-client:
+    build: 
+      context: ./machine-learning-client
+      dockerfile: Dockerfile
+    ports:
+      - 5000:5000
+    environment:
+      - MONGO_URI=mongodb://database:27017
+    depends_on:
+      - database
+    networks:
+      - shared-network
+    volumes:
+      - shared_data:/shared
+networks:
+  shared-network:
+volumes:
+  mongo_data:
+  shared_data:

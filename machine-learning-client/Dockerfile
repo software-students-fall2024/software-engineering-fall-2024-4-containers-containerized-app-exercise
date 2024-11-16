@@ -19,7 +19,8 @@ RUN pip install --no-cache-dir pipenv
 COPY Pipfile Pipfile.lock /app/
 
 # Install Python dependencies from Pipfile using pipenv
-RUN pipenv install --deploy --ignore-pipfile  # --ignore-pipfile ensures it uses the Pipfile.lock
+RUN pipenv install --deploy --ignore-pipfile  
+# --ignore-pipfile ensures it uses the Pipfile.lock
 
 # Copy the rest of the application code into the container
 COPY . /app
