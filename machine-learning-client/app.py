@@ -6,7 +6,7 @@ It's primarily used to keep the container running for testing and service purpos
 """
 
 
-from flask import Flask, jsonify
+from flask import Flask, jsonify, request
 
 app = Flask(__name__)
 
@@ -22,11 +22,15 @@ def home():
     return "<h1>Hello!<!h1>"
 
 
-@app.route("/predict/<file_id>")
-def predict(file_id):
+@app.route("/predict")
+def predict():
     """
     Will handle the prediction based on file_id
     """
+    file_id = request.args.get("file_id")  # Retrieve file_id from query parameters
+    if not file_id:
+        return jsonify({"error": "file_id is required"}), 400
+
     return (
         jsonify(
             {
@@ -40,5 +44,5 @@ def predict(file_id):
 
 
 if __name__ == "__main__":
-    print("ML Client running on port 5000")
-    app.run(host="0.0.0.0", port=5000, debug=True)
+    print("ML Client running on port 5050")
+    app.run(host="0.0.0.0", port=5050, debug=True)

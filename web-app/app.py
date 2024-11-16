@@ -47,7 +47,7 @@ def upload_audio():
     """
     Endpoint to upload files and send to ml client
     """
-    ml_client_url = "http://localhost:5000/predict"
+    ml_client_url = "http://machine-learning-client:5050/predict"
 
     if "audio" not in request.files or "name" not in request.form:
         return jsonify({"error": "Audio file and name are required"}), 400
