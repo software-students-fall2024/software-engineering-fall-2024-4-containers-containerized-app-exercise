@@ -3,6 +3,8 @@
 // Function to analyze the input sentence
 function analyzeSentence() {
     const sentence = document.getElementById('sentenceInput').value;
+    const uploadMessage = document.getElementById('uploadMessage');
+    uploadMessage.classList.remove('hidden'); // Show upload message
 
     fetch('/checkSentiment', {
         method: 'POST',
@@ -97,6 +99,7 @@ function fetchAnalysisWithRetry(requestId, retries) {
                 } else {
                     // Pass the data to visualization functions
                     visualizeResults(data);
+                    document.getElementById('uploadMessage').classList.add('hidden'); // Hide upload message once results are available
                 }
             })
             .catch(error => {
