@@ -1,0 +1,59 @@
+import speech_recognition as sr
+import numpy as np
+import wave
+
+recognizer = sr.Recognizer()
+
+# Analyze the audio for noise
+def analyze_noise(audio_file_path, noise_amp):
+    with wave.open(audio_file_path, "rb") as wave_file:
+        frame_rate = wave_file.getframerate()
+        frames = wave_file.readframes(-1)
+        amplitude = np.frombuffer(frames, dtype=np.int16)
+        duration = len(amplitude) / frame_rate
+        
+        # Calculate average amplitude as a proxy for noise level
+        avg_amp = np.mean(np.abs(amplitude))
+        print(f"Average Amplitude: {avg_amp}")
+        print(f"Audio Duration: {duration} seconds")
+        
+        # Determine if the audio is noisy
+        if avg_amp > noise_amp:
+            print("The audio contains high noise levels.")
+        else:
+            print("The audio appears clean.")
+        return avg_amp
+
+# Speech-to-text function with noise detection
+def speech_to_text():
+    with sr.Microphone() as source:
+        print("Listening...")
+        recognizer.adjust_for_ambient_noise(source)  # Account for background noise
+        audio = recognizer.listen(source)
+
+    try:
+        text = recognizer.recognize_google(audio)
+        print(f"Transcribed Text: {text}")
+    except sr.UnknownValueError:
+        print("Could not understand the audio. Likely noise.")
+    except sr.RequestError as e:
+        print(f"API error: {e}")
+
+# Audio-to-text function with noise analysis
+def audio_to_text_with_noise_analysis(noise_amp):
+    audio_file_path = "example_audio.wav"
+    avg_amp = analyze_noise(audio_file_path)
+
+    # If noise is low, attempt transcription
+    if avg_amp < noise_amp:
+        with sr.AudioFile(audio_file_path) as source:
+            audio = recognizer.record(source)
+        try:
+            text = recognizer.recognize_google(audio)
+            print(f"Transcribed Text: {text}")
+        except sr.UnknownValueError:
+            print("Could not understand the audio. Possibly noisy.")
+        except sr.RequestError as e:
+            print(f"API error: {e}")
+    else:
+        print("Skipping transcription due to high noise levels.")
