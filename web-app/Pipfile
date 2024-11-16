@@ -11,6 +11,7 @@ requests = "*"
 pydub = "*"
 pymongo = "*"
 bson = "*"
+exceptiongroup = "*"
 
 [dev-packages]
 pytest = "*"
