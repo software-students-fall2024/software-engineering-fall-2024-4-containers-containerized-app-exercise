@@ -1,0 +1,29 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>document</title>
+</head>
+
+<body>
+  <h1>record voice</h1>
+  <div>
+    <p>
+      click the button below to begin recording. once you click again, the recording will stop.
+    </p>
+    <button id="recordButton">record</button>
+    <p id="status"></p>
+  </div>
+  <div>
+    <a href="{{ url_for('index') }}" class="button">Go to Index</a>
+  </div>
+
+  <script>
+    const UPLOAD_URL = "{{ url_for('upload_audio') }}";
+  </script>
+  <script src="{{ url_for('static', filename='recording.js') }}"></script>
+</body>
+
+</html>
