@@ -18,9 +18,7 @@ def main():
     mongo_uri = os.getenv("MONGO_URI")
     client = pymongo.MongoClient(mongo_uri)
     db = client['sensor_data']
-    
     print(f"Connected to MongoDB database: {db.name}")
-    
     try:
         while True:
             print("ML client is connected and running...")
