@@ -114,7 +114,7 @@
         <input type="file" id="audio-file" name="audio" hidden>
         <button type="submit">Upload</button>
     </form>
-    <button onclick="window.location.href='show_results.html'">View Results</button>
+    <button onclick="window.location.href='/show_results'">View Results</button>
 
     <script>
         let mediaRecorder;
@@ -128,6 +128,9 @@
 
         startButton.addEventListener("click", async () => {
             const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+           
+            const mimeType = MediaRecorder.isTypeSupported('audio/wav') ? 'audio/wav' : 'audio/webm';
+
             mediaRecorder = new MediaRecorder(stream);
             mediaRecorder.ondataavailable = (event) => audioChunks.push(event.data);
             mediaRecorder.onstop = () => {

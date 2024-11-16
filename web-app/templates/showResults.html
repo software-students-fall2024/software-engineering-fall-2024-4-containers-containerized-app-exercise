@@ -4,33 +4,213 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Voice Mood Journal</title>
+    <style>
+        @import url(https://fonts.googleapis.com/css?family=Satisfy|Pathway+Gothic+One);
+        body {
+            font-family: 'Arial', sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: linear-gradient(120deg, #FFDEE9, #B5FFFC);
+            color: #333;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+        }
+        h1, h2 {
+            font-family: 'Satisfy', 'cursive';
+            color: #444;
+            text-shadow: 0px 4px 6px rgba(0, 0, 0, 0.2);
+            text-align: center;
+        }
+        h1 {
+            font-size: 3.5rem;
+            margin-bottom: 10px;
+        }
+        h2 {
+            font-size: 2rem;
+            margin-top: 40px;
+            margin-bottom: 20px;
+        }
+        .chart-container {
+            width: 80%;
+            max-width: 600px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.6);
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+        }
+        .entries-table {
+            width: 80%;
+            max-width: 800px;
+            margin: 30px auto;
+            border-collapse: collapse;
+            background: rgba(255, 255, 255, 0.6);
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+        }
+        .entries-table th, .entries-table td {
+            border: 1px solid #ddd;
+            padding: 12px;
+            text-align: center;
+        }
+        .entries-table th {
+            background-color: #f2f2f2;
+            font-weight: bold;
+        }
+        button {
+            padding: 15px 30px;
+            margin: 20px;
+            border: none;
+            border-radius: 25px;
+            font-size: 1rem;
+            background: rgba(255, 255, 255, 0.6);
+            color: #333;
+            cursor: pointer;
+            transition: background 0.3s ease, transform 0.2s ease, box-shadow 0.2s ease;
+        }
+        button:hover {
+            background: rgba(255, 255, 255, 0.8);
+            transform: scale(1.05);
+            box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.3);
+        }
+        @media (max-width: 768px) {
+            .chart-container, .entries-table {
+                width: 95%;
+            }
+            h1 {
+                font-size: 2.5rem;
+            }
+            h2 {
+                font-size: 1.5rem;
+            }
+        }
+    </style>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
     <h1>Voice Mood Journal</h1>
     
     <h2>Mood Trends</h2>
-    <canvas id="moodChart" width="400" height="200"></canvas>
+    <div class="chart-container">
+        <canvas id="moodChart" width="400" height="200"></canvas>
+    </div>
+
+   <table class="entries-table">
+        <thead>
+            <tr>
+                <th>Timestamp</th>
+                <th>File Name</th>
+                <th>Transcript</th>
+                <th>Sentiment</th>
+            </tr>
+        </thead>
+        <tbody id="entriesTableBody">
+            <!-- Entries will be populated here -->
+        </tbody>
+    </table>
+
+    <button onclick="window.location.href='/'">Back to Home</button>
 
     <script>
-        fetch('/api/mood-trends')
-            .then(response => response.json())
-            .then(data => {
-                const ctx = document.getElementById('moodChart').getContext('2d');
-                new Chart(ctx, {
-                    type: 'pie',
-                    data: {
-                        labels: Object.keys(data),
-                        datasets: [{
-                            data: Object.values(data),
-                            backgroundColor: ['#4CAF50', '#F44336', '#FFEB3B']
-                        }]
-                    },
-                    options: {
-                        responsive: true
-                    }
+// Function to load mood trends and render the chart
+function loadMoodTrends() {
+            fetch('/api/mood-trends')
+                .then(response => response.json())
+                .then(data => {
+                    const ctx = document.getElementById('moodChart').getContext('2d');
+                    new Chart(ctx, {
+                        type: 'pie',
+                        data: {
+                            labels: Object.keys(data),
+                            datasets: [{
+                                data: Object.values(data),
+                                backgroundColor: ['#4CAF50', '#F44336', '#FFEB3B']
+                            }]
+                        },
+                        options: {
+                            responsive: true
+                        }
+                    });
+                })
+                .catch(error => {
+                    console.error('Error fetching mood trends:', error);
+                    alert('Failed to load mood trends.');
                 });
-            });
+        }
+
+        // **New Function: Load Recent Entries and Populate the Table**
+        function loadRecentEntries() {
+            fetch('/api/recent-entries')
+                .then(response => response.json())
+                .then(entries => {
+                    const tableBody = document.getElementById('entriesTableBody');
+                    tableBody.innerHTML = ''; // Clear existing entries
+
+                    if (entries.length === 0) {
+                        // If no entries found, display a message
+                        const row = document.createElement('tr');
+                        const cell = document.createElement('td');
+                        cell.colSpan = 4;
+                        cell.textContent = 'No recent entries found.';
+                        row.appendChild(cell);
+                        tableBody.appendChild(row);
+                        return;
+                    }
+
+                    // Iterate over each entry and create a table row
+                    entries.forEach(entry => {
+                        const row = document.createElement('tr');
+
+                        const timestampCell = document.createElement('td');
+                        timestampCell.textContent = entry.timestamp;
+                        row.appendChild(timestampCell);
+
+                        const fileNameCell = document.createElement('td');
+                        fileNameCell.textContent = entry.file_name;
+                        row.appendChild(fileNameCell);
+
+                        const transcriptCell = document.createElement('td');
+                        transcriptCell.textContent = entry.transcript;
+                        row.appendChild(transcriptCell);
+
+                        const sentimentCell = document.createElement('td');
+                        sentimentCell.textContent = entry.sentiment;
+                        row.appendChild(sentimentCell);
+
+                        tableBody.appendChild(row);
+                    });
+                })
+                .catch(error => {
+                    console.error('Error fetching recent entries:', error);
+                    alert('Failed to load recent entries.');
+                });}
+
+                window.onload = function() {
+            loadMoodTrends();
+            loadRecentEntries(); // Load recent entries after loading mood trends
+        };
+
+        // fetch('/api/mood-trends')
+        //     .then(response => response.json())
+        //     .then(data => {
+        //         const ctx = document.getElementById('moodChart').getContext('2d');
+        //         new Chart(ctx, {
+        //             type: 'pie',
+        //             data: {
+        //                 labels: Object.keys(data),
+        //                 datasets: [{
+        //                     data: Object.values(data),
+        //                     backgroundColor: ['#4CAF50', '#F44336', '#FFEB3B']
+        //                 }]
+        //             },
+        //             options: {
+        //                 responsive: true
+        //             }
+        //         });
+        //     });
     </script>
 </body>
 </html>
