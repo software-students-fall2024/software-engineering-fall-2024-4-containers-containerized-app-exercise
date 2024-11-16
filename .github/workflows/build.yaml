@@ -11,15 +11,28 @@ jobs:
       
     steps:
       - uses: actions/checkout@v4
+
       - name: Install Python, pipenv and Pipfile packages
         uses: kojoru/prepare-pipenv@v2
         with:
           python-version: ${{ matrix.python-version }}
-      - name: Turn on 'editable' mode
+
+      - name: ML-Client - Turn on 'editable' mode
         working-directory: ./machine-learning-client 
         run: |
           pipenv install 
-      - name: Test with pytest
+
+      - name: ML-Client - Test with pytest
         working-directory: ./machine-learning-client 
+        run: |
+          pipenv run python -m pytest
+
+      - name: Web-App - Turn on 'editable' mode
+        working-directory: ./web-app
+        run: |
+          pipenv install --dev
+          
+      - name: Web-App - Test with pytest
+        working-directory: ./web-app
         run: |
           pipenv run python -m pytest
