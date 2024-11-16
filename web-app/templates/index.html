@@ -1,11 +1,16 @@
-
-
 {% block body %}
-    <h2>Counter</h2>
-    {% if swears %}
-    <p>Swears: {{swears}}</p>
-    {% endif %}
-    </ul>
+    <h2>Your Swear Jar</h2>
+    <div id="swearJar">
+        <h3>Swear Counts:</h3>
+        <ul id="swearList">
+            <!-- fill with swear words from database-->
+        </ul>
+        <p>Total Swears: 
+            <span id="totalSwears">
+                0
+            </span>
+        </p>
+    </div>
 
     <button id="requestMicButton">Request Microphone Access</button>
     <button id="stop">Stop</button>
@@ -15,6 +20,34 @@
         const stopButton = document.getElementById('stop');
         let mediaRecorder;
         let chunks = [];
+
+        // Update swear jar
+        async function updateSwearJar(){
+            try{
+                fetch('/api/swears').then(res => res.json()).then(console.log).catch(console.error);
+
+                const response = await fetch('/api/swears');
+                const data = await response.json();
+
+                const swearList = document.getElementById('swearList');
+                const totalSwears = document.getElementById('totalSwears');
+                swearList.innerHTML = "";
+                let total = 0;
+
+                for(const[word, count] of Object.entries(data)){
+                    const li = document.createElement('li');
+                    li.textContent = `${word}: ${count}`;
+                    swearList.appendChild(li);
+                    total += count;
+                }
+                totalSwears.textContent = total;
+            }catch(err){
+                console.error('Error fetching swear counts:', err);
+            }
+        }
+
+        // Call updateSwearJar on page load
+        window.onload = updateSwearJar;
 
         // Event listener for requesting microphone access
         requestMicButton.addEventListener('click', async () => {
