@@ -1,0 +1,10 @@
+#result {
+    border: 1px solid black;
+    padding: 10px;
+    margin-top: 10px;
+    background-color: #f9f9f9;
+    min-height: 50px;
+    cursor: text;
+    border-radius: 4px;
+    transition: background-color 0.3s ease;
+}
