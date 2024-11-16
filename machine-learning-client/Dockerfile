@@ -8,4 +8,6 @@ RUN pipenv install --system --deploy --dev
 
 COPY . .
 
-CMD ["python3", "app.py"]
+EXPOSE 5050
+
+CMD ["flask", "run"]
