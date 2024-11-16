@@ -12,6 +12,9 @@ pydub = "*"
 pymongo = "*"
 bson = "*"
 exceptiongroup = "*"
+tomli = "*"
+typing-extensions = "*"
+dill = "*"
 
 [dev-packages]
 pytest = "*"
