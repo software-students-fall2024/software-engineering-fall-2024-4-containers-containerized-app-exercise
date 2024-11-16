@@ -1,6 +1,6 @@
-import pymongo
 import os
 import time
+import pymongo
 
 def main():
     mongo_uri = os.getenv("MONGO_URI")
@@ -13,7 +13,7 @@ def main():
     try:
         while True:
             print("ML client is connected and running...")
-            time.sleep(10)
+            time.sleep(10) 
     except KeyboardInterrupt:
         print("ML client is shutting down...")
     finally:
