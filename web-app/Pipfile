@@ -9,12 +9,11 @@ black = "*"
 flask = "*"
 requests = "*"
 pydub = "*"
-pymongo = "*"
-bson = "*"
 exceptiongroup = "*"
 tomli = "*"
 typing-extensions = "*"
 dill = "*"
+pymongo = "*"
 
 [dev-packages]
 pytest = "*"
