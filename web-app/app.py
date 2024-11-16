@@ -1,6 +1,7 @@
 import os
 from flask import Flask, render_template, make_response, request, redirect, url_for
 from pymongo import MongoClient
+import os
 
 def create_app():
 
@@ -26,10 +27,25 @@ def create_app():
     
     @app.route("/upload_video", methods=["POST"])
     def upload_video():
-        
+        try: 
+            data = request.json
+            image_data = data.get("image")
+
+            if not image_data:
+                return jsonify({"error": "No image data received"}), 400
+            image_data = image_data.split(",")[1]
+            image_binary = base64.b64decode(image_data)
+
+            collection.insert_one({"image": image_binary})
+            return jsonify({"message": "Snapshot saved successfully!"}), 200
+        except Exception as e:
+            print(f"Error: {e}")
+            return jsonify({"error": str(e)}), 500
+
+    
         # TO DO
 
-        return
+    return app
     
     def get_data():
 
