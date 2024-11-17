@@ -11,3 +11,7 @@ Build a containerized app that uses machine learning. See [instructions](./instr
 * Hanna Han [Profile](https://github.com/HannaHan2)
 * Sewon Kim [Profile](https://github.com/SewonKim0)
 * Rhan Chen [Profile](https://github.com/xc528)
+
+## Description
+
+This project is a web-based application that converts user speech into text. Users can speak into their device's microphone, and the application processes the audio to display the corresponding text on the web interface.
