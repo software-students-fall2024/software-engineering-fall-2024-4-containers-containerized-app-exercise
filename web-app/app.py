@@ -10,7 +10,7 @@ def create_app():
 
     if MONGO_URI is None:
         raise ValueError("Error with URI")
-    
+
     try:
         client = MongoClient(MONGO_URI)
         db = client.get_database("ASL-DB")
@@ -23,7 +23,7 @@ def create_app():
     def home():
         # returns rendered html
         return render_template("index.html")
-    
+
     @app.route("/upload_video", methods=["POST"])
     def upload_video():
         
