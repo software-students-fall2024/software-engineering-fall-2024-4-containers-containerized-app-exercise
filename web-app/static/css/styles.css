@@ -13,74 +13,95 @@ Comment this out for now, if needed use it.
 }
 */
 
-
-
-
-
-/* new style for now test. Need to make it look very good later and for mobile too */
-
 body {
-    font-family: Arial, sans-serif;
+    font-family: 'Poppins', sans-serif;
     margin: 0;
     padding: 0;
-    background-color: #f4f4f4;
+    background: linear-gradient(135deg, #89f7fe, #66a6ff);
     color: #333;
     text-align: center;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start; /* change it */
+    align-items: center;
+    padding-top: 50px; 
 }
-
 
 h1 {
-    background-color: #0078D7;
+    font-size: 2.5rem;
     color: white;
-    padding: 20px 0;
-    margin: 0;
+    margin-bottom: 20px;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
 }
-
 
 button {
-    font-size: 16px;
-    padding: 10px 20px;
+    font-size: 1rem;
+    padding: 15px 30px;
     margin: 20px 0;
-    background-color: #0078D7;
+    background: linear-gradient(90deg, #0078D7, #005BB5);
     color: white;
     border: none;
-    border-radius: 5px;
+    border-radius: 25px;
+    box-shadow: 0px 5px 10px rgba(0, 0, 0, 0.2);
     cursor: pointer;
-    transition: background-color 0.3s;
+    transition: all 0.3s ease-in-out;
+    position: relative;
+    overflow: hidden;
 }
-
 
 button:hover {
-    background-color: #005bb5;
+    background: linear-gradient(90deg, #005BB5, #003E7E);
+    transform: translateY(-3px);
+    box-shadow: 0px 8px 15px rgba(0, 0, 0, 0.3);
 }
-
 
 button:active {
-    background-color: #003e7e;
+    transform: translateY(1px);
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
 }
-
 
 #status {
-    font-size: 14px;
+    font-size: 1rem;
     margin: 10px 0;
-    color: #666;
+    color: #555;
+    font-style: italic;
 }
-
 
 #result {
     margin: 20px auto;
     padding: 15px;
-    width: 80%;
+    width: 90%;
+    max-width: 700px;
     height: 200px;
-    border: 1px solid #ccc;
-    border-radius: 5px;
-    background-color: white;
+    border: 2px solid rgba(255, 255, 255, 0.8);
+    border-radius: 10px;
+    background: rgba(255, 255, 255, 0.9);
     overflow-y: auto;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    box-shadow: 0px 5px 15px rgba(0, 0, 0, 0.2);
+    font-size: 1rem;
+    color: #333;
+    outline: none;
+    transition: border-color 0.3s ease-in-out;
 }
 
-
 #result:focus {
-    outline: none;
-    border-color: #0078D7;
+    border-color: #66a6ff;
+}
+
+/* For the mobile screen, but need meta tag in html later*/
+
+@media screen and (max-width: 768px) {
+    h1 {
+        font-size: 2rem;
+    }
+
+    button {
+        font-size: 0.9rem;
+        padding: 12px 25px;
+    }
+
+    #result {
+        height: 150px;
+    }
 }
