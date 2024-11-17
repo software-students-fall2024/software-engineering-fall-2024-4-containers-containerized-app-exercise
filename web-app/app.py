@@ -3,6 +3,7 @@ Web application for sound classification.
 
 This Flask app provides a web interface for recording audio and displaying classification results.
 """
+
 import os
 from flask import Flask, render_template, request, redirect, url_for
 from pymongo import MongoClient
