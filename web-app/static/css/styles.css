@@ -1,0 +1,107 @@
+/* Background styling to mimic a journal cover */
+body {
+    background-image: url('../images/background.avif');
+    margin: 0;
+    /* font-family: 'Georgia', serif; */
+}
+
+.content {
+    /* background-image: url('../images/background.avif'); */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height:100vh;
+}
+
+/* nav {
+    width: 80vw;
+    border: 2px solid black;
+    border-radius: 20px;
+    padding: 1em;
+    margin-top: 5%;
+    justify-content: flex-start;
+}
+
+nav a {
+    text-decoration: none;
+    color: black;
+} */
+
+/* Main journal cover container */
+.journal-cover {
+    width: 50%;
+    height: 100vh;
+    /* background: #d1bfa7; */
+    background-image: url('../images/journal2.jpg'); /* Replace with your texture image path */
+    background-size: cover; /* Ensures the image covers the full area */
+    background-position: center; /* Centers the background image */
+    background-repeat: no-repeat; /* Prevents the background from repeating */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 30px;
+    border-radius: 8px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4);
+    border: 1px solid #8b7765;
+}
+
+.cover-title {
+    text-align: center;
+}
+
+/* Title styling for a handwritten effect */
+h1 {
+    font-size: 3em;
+    font-family: 'Great Vibes', cursive; /* Replace with a handwriting font of your choice */
+    color: #2c5f2d; /* Green color to match the plant theme */
+    margin: 0;
+    padding: 0;
+}
+
+h1 {
+    font-size: 2.8em;
+    font-family: 'Great Vibes', cursive; /* Or another elegant, handwritten font */
+    color: #4b382a; /* Dark brown color */
+    margin: 0;
+}
+
+/* Subtitle styling */
+.cover-title p {
+    font-size: 1.2em;
+    color: #6d5642;
+    margin-top: 8px;
+    font-style: italic;
+}
+
+/* Button hover effect */
+.button:hover {
+    background-color: #388e3c;
+    transform: translateY(-2px); /* Subtle lift effect */
+}
+
+.journal-cover::before {
+    content: '';
+    position: absolute;
+    left: -10px;
+    top: 0;
+    height: 100%;
+    width: 15px;
+    background: #8b7765; /* Darker brown for the spine */
+    box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.5);
+    border-top-left-radius: 8px;
+    border-bottom-left-radius: 8px;
+}
+
+.journal-cover::after {
+    content: '';
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    top: 0;
+    left: 0;
+    border: 2px solid rgba(107, 84, 64, 0.6); /* Slightly faded border for rustic feel */
+    border-radius: 8px;
+    box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.3);
+}

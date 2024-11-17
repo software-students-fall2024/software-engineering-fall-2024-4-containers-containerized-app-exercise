@@ -3,8 +3,9 @@ This module sets up the Flask application for the Plant Identifier project.
 """
 
 import os
+from bson import ObjectId
 from dotenv import load_dotenv
-from flask import Flask, request, render_template, redirect, make_response
+from flask import Flask, request, render_template, redirect, make_response, url_for
 import pymongo
 
 # from werkzeug.utils import secure_filename
@@ -28,9 +29,14 @@ def create_app():
     @app.route("/upload", methods=["GET", "POST"])
     def upload():
         if request.method == "POST":
-            photo_data = request.form["photo"]
-            print(photo_data)
-            db.plants.insert_one({"photo": photo_data})
+            plant_photo = request.form["photo"]
+            plant_name = "placeholder"
+            plant_data = {
+                "photo":plant_photo,
+                "name":plant_name
+            }
+            new_entry = db.plants.insert_one(plant_data)
+            new_entry_id = new_entry.inserted_id
             # file = request.files.get("plant_image")
             # if file:
             #     filename = secure_filename(file.filename)
@@ -43,8 +49,17 @@ def create_app():
             #     return redirect(url_for("results", filename=filename))
             # return make_response("No file uploaded", 400)
 
-            return redirect("/")
-        return render_template("upload.html")
+            return redirect(url_for("new_entry", new_entry_id=new_entry_id))
+        return render_template('upload.html')
+
+    @app.route("/new_entry", methods=["GET", "POST"])
+    def new_entry():
+        new_entry_id = request.args.get('new_entry_id')
+        entry = ObjectId(new_entry_id)
+        document = db.plants.find_one({"_id":entry})
+        photo = document["photo"]
+        name = document["name"]
+        return render_template('new-entry.html', photo=photo, name=name)
 
     @app.route("/results/<filename>")
     def results(filename):

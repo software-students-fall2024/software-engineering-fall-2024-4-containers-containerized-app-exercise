@@ -1,0 +1,22 @@
+<body>
+    <h1>Identification History</h1>
+    
+    {% if photo %}
+        <img src="{{ photo }}" alt="Plant photo" class="plant-photo">
+    {% else %}
+        <p>No photo found.</p>
+    {% endif %}
+
+    {% if name %}
+        <p>Plant: {{ name }}</p>
+    {% else %}
+        <p>No name found.</p>
+    {% endif %}
+
+    <form action="{{ url_for('new_entry') }}" method="POST">
+        <label for="instructions">Add details or care instructions:</label>
+        <input type="text" name="instructions" id="instructions">
+        <button type="submit">Save New Entry</button>
+    </form>
+    <!-- <a href="{{ url_for('home') }}">Return to Home</a> -->
+</body>

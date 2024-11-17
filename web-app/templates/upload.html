@@ -13,9 +13,9 @@
 
     <button onclick="capturePhoto()">Capture Photo</button>
     <form action="{{ url_for('upload') }}" method="POST" enctype="multipart/form-data">
-        <label for="plant_image">Choose an existing image of a plant:</label>
-        <input type="file" name="plant_image" id="plant_image">
-        <br><br>
+        <!-- <label for="plant_image">Choose an existing image of a plant:</label> -->
+        <!-- <input type="file" name="plant_image" id="plant_image"> -->
+        <!-- <br><br> -->
         <input type="hidden" id="photoData" name="photo">
         <button type="submit">Upload Photo</button>
         <!-- <button type="submit">Upload Image</button> -->
@@ -23,9 +23,6 @@
 
     <br>
     <a href="{{ url_for('home') }}">Return to Home</a>
-
-
-
 
     <script>
         // Start the camera

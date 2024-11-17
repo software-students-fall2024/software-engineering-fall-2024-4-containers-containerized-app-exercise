@@ -1,19 +1,35 @@
-<!DOCTYPE html>
+{% extends "layout.html" %}
+
+{% block title %} Home {% endblock %}
+
+{% block content %}
+<section>
+    <div class="content">
+        <div class="journal-cover">
+            <h1>PlantifyAI</h1>
+            <p>Your Personal Plant Journal</p>
+            <a href="{{ url_for('upload') }}">New Entry</a>
+            <a href="{{ url_for('history') }}">View Journal</a>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+<!-- <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Plant Identifier</title>
+    <title>Plant Journal</title>
 </head>
 <body>
-    <h1>Welcome to the Plant Identifier</h1>
-    <p>This app allows you to upload images of plants to identify them and view past identifications.</p>
+    <h1>Plant Journal.</h1>
 
     <nav>
         <ul>
-            <li><a href="{{ url_for('upload') }}">Upload an Image</a></li>
+            <li><a href="{{ url_for('upload') }}">New Entry</a></li>
             <li><a href="{{ url_for('history') }}">View Past Identifications</a></li>
         </ul>
     </nav>
 </body>
-</html>
+</html> -->

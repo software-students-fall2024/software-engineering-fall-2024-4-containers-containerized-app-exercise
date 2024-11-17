@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}PlantifyAI{% endblock %}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+</head>
+<body>
+    <!-- <header> -->
+        <!-- <nav>
+            <ul>
+                <a href="/upload">New Entry</a>
+                <a href="/history">History</a>
+            </ul>
+        </nav> -->
+    <!-- </header> -->
+    <main>
+        {% block content %}
+
+        {% endblock %}
+    </main>
+    <footer>
+        <p>&copy; 2024 PlantifyAI. All rights reserved.</p>
+    </footer>
+</body>
+</html>
