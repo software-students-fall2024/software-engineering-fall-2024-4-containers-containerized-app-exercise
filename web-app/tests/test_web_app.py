@@ -1,11 +1,8 @@
 """
 Tests for the web app routes and functionality.
 """
-import base64
 import pytest
 import bcrypt
-import numpy as np
-import cv2
 from app import app, users_collection, emotion_data_collection
 
 # Fixture for Flask test client
@@ -246,4 +243,3 @@ def test_capture_no_user_session(client):
     response = client.post("/capture", json={"image": "dummy_base64_data"})
     assert response.status_code == 401  # Expect Unauthorized
     assert response.get_json()["error"] == "Please log in to access this feature."
-
