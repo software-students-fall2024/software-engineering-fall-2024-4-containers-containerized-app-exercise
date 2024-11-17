@@ -6,6 +6,7 @@ name = "pypi"
 [packages]
 pylint = "*"
 black = "*"
+bcrypt = "*"
 flask = "*"
 pymongo = "*"
 opencv-python = "*"

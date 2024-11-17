@@ -143,6 +143,28 @@ def dashboard():
     )
     return render_template("dashboard.html", last_emotion=last_emotion)
 
+
+@app.route("/detect_emotion")
+def detect_emotion_page():
+    """Render the page to trigger emotion detection."""
+    if "user_id" not in session:
+        flash("Please log in to access this feature.", "error")
+        return redirect(url_for("login"))
+    return render_template("detect_emotion.html")
+
+@app.route("/emotion_history")
+def emotion_history():
+    """Render the page to display all recent emotions."""
+    if "user_id" not in session:
+        flash("Please log in to access this feature.", "error")
+        return redirect(url_for("login"))
+
+    user_emotions = list(emotion_data_collection.find(
+        {"user_id": session["user_id"]}
+    ).sort("timestamp", -1))
+
+    return render_template("emotion_history.html", user_emotions=user_emotions)
+
 @app.route("/logout")
 def logout():
     session.pop("user_id", None)
