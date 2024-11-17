@@ -28,7 +28,12 @@ The app aims to promote emotional awareness and provide quick, personalized guid
 
 ## How to Open **
 
-1. Create a new virtual environment following the commands:
+1. Ensure Connection to Mongo 
+
+Download the MongoDB for VSC extension and add the database url: mongodb+srv://nsb8225:thefixers2.1@cluster0.oqt4t.mongodb.net/ when prompted to connect to the database.
+
+
+2. Create a new virtual environment following the commands:
 
 ```
 python3 -m venv .venv
@@ -36,7 +41,8 @@ python3 -m venv .venv
 ```
 
 **Mac** 
-``source .venv/bin/activate
+```
+source .venv/bin/activate`
 ```
 
 **Windows**
@@ -44,7 +50,7 @@ python3 -m venv .venv
 .venv\Scripts\activate
 ```
 
-2. Install Some dependencies
+2. Install Dependencies if not already installed
 
 ```
 pip install opencv-python-headless
@@ -62,3 +68,5 @@ docker-compose up --build
 ```
 
 3. Open the local host link for web-app and enjoy!
+
+Thank you for the [Emotion Detection Model](https://www.kaggle.com/datasets/abhisheksingh016/machine-model-for-emotion-detection)!

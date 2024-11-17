@@ -156,7 +156,7 @@ def logout():
     session.pop("user_id", None)
     session.pop("username", None)
     flash("Logged out successfully.", "info")
-    return redirect(url_for("index.html"))
+    return redirect(url_for("index"))
 
 
 if __name__ == "__main__":
