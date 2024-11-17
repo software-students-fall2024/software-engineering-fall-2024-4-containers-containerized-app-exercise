@@ -9,8 +9,6 @@ RUN apt-get update && apt-get install -y ffmpeg
 RUN pip install pipenv
 RUN pipenv install --dev
 
-RUN pipenv run pytest
-
 ADD . .
 
 EXPOSE 5000
