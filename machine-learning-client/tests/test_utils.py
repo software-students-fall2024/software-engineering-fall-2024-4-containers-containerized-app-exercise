@@ -1,17 +1,18 @@
+"""
+Unit tests for the utils module.
+"""
+
+import os
 import unittest
 from unittest.mock import patch, MagicMock, mock_open
-import os
-from src.utils import get_audio_files, transcribe_audio, analyze_sentiment, store_data
-import sys
 from pymongo.errors import PyMongoError
-
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '../src')))
 from src.utils import get_audio_files, transcribe_audio, analyze_sentiment, store_data
+
 
 class TestUtils(unittest.TestCase):
     """Unit tests for the utils.py module."""
 
-    @patch("utils.glob.glob")
+    @patch("src.utils.glob.glob")
     def test_get_audio_files(self, mock_glob):
         """
         Test that get_audio_files retrieves the correct list of audio files.
@@ -21,9 +22,9 @@ class TestUtils(unittest.TestCase):
         self.assertEqual(audio_files, ["audio1.wav", "audio2.wav"])
         mock_glob.assert_called_once_with(os.path.join("./test_audio", "*.wav"))
 
-    @patch("utils.sr.AudioFile")
-    @patch("utils.sr.Recognizer")
-    def test_transcribe_audio_success(self, mock_recognizer, mock_audio_file):
+    @patch("src.utils.sr.AudioFile")
+    @patch("src.utils.sr.Recognizer")
+    def test_transcribe_audio_success(self, mock_recognizer, _):
         """
         Test that transcribe_audio correctly transcribes audio files.
         """
@@ -36,14 +37,14 @@ class TestUtils(unittest.TestCase):
             self.assertEqual(transcription, "Hello world")
             mock_instance.recognize_google.assert_called_once()
 
-    @patch("utils.sr.AudioFile")
-    @patch("utils.sr.Recognizer")
-    def test_transcribe_audio_failure(self, mock_recognizer, mock_audio_file):
+    @patch("src.utils.sr.AudioFile")
+    @patch("src.utils.sr.Recognizer")
+    def test_transcribe_audio_failure(self, mock_recognizer, _):
         """
         Test that transcribe_audio handles errors gracefully.
         """
         mock_instance = MagicMock()
-        mock_instance.recognize_google.side_effect = sr.UnknownValueError()
+        mock_instance.recognize_google.side_effect = Exception("Transcription failed")
         mock_recognizer.return_value = mock_instance
 
         with patch("builtins.open", mock_open()):
@@ -75,9 +76,9 @@ class TestUtils(unittest.TestCase):
         self.assertEqual(result["mood"], "Neutral")
         self.assertEqual(result["polarity"], 0)
 
-    @patch("utils.logging.info")
-    @patch("utils.logging.error")
-    @patch("utils.pymongo.collection.Collection.insert_one")
+    @patch("src.utils.logging.info")
+    @patch("src.utils.logging.error")
+    @patch("src.utils.pymongo.collection.Collection.insert_one")
     def test_store_data_success(self, mock_insert_one, mock_logging_error, mock_logging_info):
         """
         Test that store_data successfully stores data in MongoDB.
@@ -89,8 +90,8 @@ class TestUtils(unittest.TestCase):
         mock_logging_info.assert_called_once_with("Data stored successfully.")
         mock_logging_error.assert_not_called()
 
-    @patch("utils.logging.error")
-    @patch("utils.pymongo.collection.Collection.insert_one")
+    @patch("src.utils.logging.error")
+    @patch("src.utils.pymongo.collection.Collection.insert_one")
     def test_store_data_failure(self, mock_insert_one, mock_logging_error):
         """
         Test that store_data handles MongoDB errors gracefully.
