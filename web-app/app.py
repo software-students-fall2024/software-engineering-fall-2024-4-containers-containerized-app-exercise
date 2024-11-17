@@ -44,8 +44,6 @@ def api_detect():
     # Your object detection logic here, for now return 'objects'
     return jsonify({"status": "success", "message": "Object detection results here", "objects": []})
 
-from flask import Response
-
 @app.route('/video_feed')
 def video_feed():
     """Stream the video feed."""
