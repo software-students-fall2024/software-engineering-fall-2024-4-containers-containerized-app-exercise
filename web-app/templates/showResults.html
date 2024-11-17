@@ -171,7 +171,7 @@ function loadMoodTrends() {
                         // If no entries found, display a message
                         const row = document.createElement('tr');
                         const cell = document.createElement('td');
-                        cell.colSpan = 3;
+                        cell.colSpan = 4; // Adjust colspan to account for the Delete column
                         cell.textContent = 'No recent entries found.';
                         row.appendChild(cell);
                         tableBody.appendChild(row);
