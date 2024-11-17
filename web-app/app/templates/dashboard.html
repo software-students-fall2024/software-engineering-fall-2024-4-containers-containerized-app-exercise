@@ -1,0 +1,88 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                Upload image
+            </div>
+            <div class="card-body">
+                <form method="post" enctype="multipart/form-data">
+                    <div class="mb-3">
+                        <label for="image" class="form-label">Select image</label>
+                        <input type="file" class="form-control" id="image" name="image" accept="image/*">
+                    </div>
+                    <button type="submit" class="btn btn-primary">Start Detection</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                Detection result
+            </div>
+            <div class="card-body">
+                {% if result %}
+                <div class="result-container">
+                    <img src="{{ result.image_url }}" class="img-fluid mb-3">
+                    <h5>Detected emotions:</h5>
+                    <div class="emotion-results">
+                        {% for emotion, score in result.emotion.items() %}
+                            <div class="emotion-item">
+                                <span class="emotion-label">{{ emotion }}:</span>
+                                <div class="progress">
+                                    <div class="progress-bar" role="progressbar" 
+                                         style="width: {{ score * 100 }}%">
+                                        {{ "%.2f"|format(score) }}
+                                    </div>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+                {% else %}
+                <p class="text-center">There are no test results</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row mt-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                Detection History
+            </div>
+            <div class="card-body">
+                {% if history %}
+                    <div class="row">
+                    {% for item in history %}
+                        <div class="col-md-4 mb-3">
+                            <div class="card">
+                                <img src="{{ item.image_url }}" class="card-img-top">
+                                <div class="card-body">
+                                    <p class="card-text">
+                                        {% for emotion, score in item.emotion.items() %}
+                                            {{ emotion }}: {{ "%.2f"|format(score) }}<br>
+                                        {% endfor %}
+                                    </p>
+                                    <small class="text-muted">
+                                        {{ item.timestamp.strftime('%Y-%m-%d %H:%M:%S') }}
+                                    </small>
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                    </div>
+                {% else %}
+                    <p>No detection history available.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

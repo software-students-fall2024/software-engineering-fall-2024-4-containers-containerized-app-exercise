@@ -1,0 +1,26 @@
+# 使用 Python 3.11 基础镜像
+FROM python:3.11-slim
+
+# 设置工作目录
+WORKDIR /app
+
+# 安装 Python 依赖
+RUN pip install --no-cache-dir \
+    flask==3.0.0 \
+    flask-cors==5.0.0 \
+    pymongo==4.6.1 \
+    requests==2.31.0 \
+    python-dotenv==1.0.0 \
+    Werkzeug==3.0.1 \
+    flask-session==0.5.0
+
+# 复制应用程序代码
+COPY . .
+
+EXPOSE 5000
+
+ENV FLASK_APP=run.py
+ENV FLASK_ENV=development
+ENV PYTHONUNBUFFERED=1
+
+CMD ["python", "run.py"]
