@@ -1,5 +1,5 @@
-name: CI / CD for ML
-on: [pull_request]
+name: CI / CD for Web-app
+on: [pull_request, push]
 
 jobs: 
   build:
@@ -17,12 +17,12 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
 
-      - name: ML-Client - Turn on 'editable' mode
-        working-directory: ./machine-learning-client 
+      - name: Web-App - Turn on 'editable' mode
+        working-directory: ./web-app
         run: |
-          pipenv install 
-
-      - name: ML-Client - Test with pytest
-        working-directory: ./machine-learning-client 
+          pipenv install --dev
+          
+      - name: Web-App - Test with pytest
+        working-directory: ./web-app
         run: |
           pipenv run python -m pytest
