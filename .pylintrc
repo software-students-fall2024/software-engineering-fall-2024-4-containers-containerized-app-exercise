@@ -4,3 +4,12 @@ ignored-modules=cv2
 [MASTER]
 ignore=tests  # Ensure "machine_learning_client" is not excluded
 ignore-patterns=test_.*
+
+[MESSAGES CONTROL]
+# Add the message IDs or symbolic names of messages you want to ignore
+disable=
+    missing-final-newline,  # Ignore missing final newline
+    import-error,          # Ignore import errors (e.g., pytest not found in CI)
+    redefined-outer-name,  # Ignore redefined names in test fixtures
+    unused-argument,       # Ignore unused arguments in test functions
+    unused-import          # Ignore unused imports

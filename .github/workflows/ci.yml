@@ -18,7 +18,7 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
-          python-version: '3.8'
+          python-version: '3.11.9'  # Ensure the correct Python version is installed
 
       - name: Install pipenv
         run: |
@@ -27,11 +27,12 @@ jobs:
 
       - name: Install dependencies with pipenv
         run: |
+          pipenv --python $(which python3)  # Ensure pipenv uses the correct Python version
           pipenv install --deploy --ignore-pipfile
 
       - name: Check for required files
         run: |
-          if [ ! -f "face_model.h5" ]; then
+          if [ ! -f "machine_learning_client/face_model.h5" ]; then
             echo "Model file not found!"; exit 1;
           fi
 
@@ -41,8 +42,8 @@ jobs:
 
       - name: Format with Black
         run: |
-          pipenv run black --check ml_client.py
+          pipenv run black --check machine_learning_client/ml_client.py
 
       - name: Run tests with pytest and coverage
         run: |
-           pipenv run pytest
+          pipenv run pytest --cov=machine_learning_client machine_learning_client/test_ml_client.py

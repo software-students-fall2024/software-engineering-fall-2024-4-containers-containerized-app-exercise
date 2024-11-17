@@ -3,8 +3,8 @@ Tests for the web app code.
 """
 import pytest
 from flask import session, url_for
-from app import app, users_collection, emotion_data_collection
 import bcrypt
+from app import app, users_collection, emotion_data_collection
 
 
 # Fixture for the test client
