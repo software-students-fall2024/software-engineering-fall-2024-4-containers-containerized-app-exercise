@@ -8,10 +8,10 @@ import logging
 from datetime import datetime
 from flask import Flask, request, jsonify
 from pymongo import MongoClient
+from pymongo.errors import PyMongoError
 from dotenv import load_dotenv
 from utils import transcribe_audio, analyze_sentiment, store_data
-from pymongo.errors import PyMongoError
-from werkzeug.exceptions import BadRequest
+
 load_dotenv()
 
 app = Flask(__name__)
@@ -85,7 +85,6 @@ def process_audio():
     except RuntimeError as runtime_error:
         logger.error("Runtime error: %s", runtime_error)
         return jsonify({"error": "Runtime error", "details": str(runtime_error)}), 500
-
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5001)
