@@ -56,6 +56,13 @@
             margin-bottom: 10px;
         }
 
+        #loading-message {
+            display: none;
+            font-size: 1.5rem;
+            margin-top: 20px;
+            color: #ffd700;
+        }
+
         @media (max-width: 768px) {
             h1 {
                 font-size: 2rem;
@@ -81,14 +88,20 @@
     <button id="capture">Capture Gesture</button>
     <form id="game-form" action="/result" method="POST" enctype="multipart/form-data">
         <input type="file" id="image-input" name="image" style="display: none;">
-        <button type="submit">Play!</button>
+        <button type="submit" id="play-button">Play!</button>
     </form>
+
+    <!-- Loading Message -->
+    <div id="loading-message">Processing your move... Please wait.</div>
 
     <script>
         const video = document.getElementById('video');
         const canvas = document.getElementById('canvas');
         const captureButton = document.getElementById('capture');
         const imageInput = document.getElementById('image-input');
+        const playButton = document.getElementById('play-button');
+        const gameForm = document.getElementById('game-form');
+        const loadingMessage = document.getElementById('loading-message');
 
         // Access the camera
         navigator.mediaDevices.getUserMedia({ video: true })
@@ -113,6 +126,18 @@
 
                 alert("Gesture captured! Now click 'Play!' to submit.");
             }, "image/jpeg");
+        });
+
+        // Show loading message on form submission
+        gameForm.addEventListener('submit', (e) => {
+            e.preventDefault(); // Prevent immediate navigation
+            loadingMessage.style.display = 'block'; // Show the loading message
+            playButton.disabled = true; // Disable the button to prevent duplicate submissions
+
+            // Submit the form after a short delay to allow the user to see the loading state
+            setTimeout(() => {
+                gameForm.submit();
+            }, 500);
         });
     </script>
 </body>
