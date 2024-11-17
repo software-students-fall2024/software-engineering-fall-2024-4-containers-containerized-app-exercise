@@ -18,11 +18,14 @@ app.secret_key = os.getenv("SECRET_KEY", "default_secret_key")
 
 # MongoDB configuration
 MONGO_URI = os.getenv("MONGO_URI")
-MONGO_DBNAME = os.getenv("MONGO_DBNAME")
+MONGO_DBNAME = os.getenv("MONGO_DBNAME", "default_db_name")  
 client = MongoClient(MONGO_URI)
 db = client[MONGO_DBNAME]
 emotion_data_collection = db["emotion_data"]
 users_collection = db["users"]
+
+# Debug print to check if MONGO_DBNAME is loaded
+print(f"MONGO_DBNAME: {MONGO_DBNAME}")
 
 # Machine Learning Client URL
 ML_CLIENT_URL = os.getenv("ML_CLIENT_URL", "http://machine_learning_client:5000")
