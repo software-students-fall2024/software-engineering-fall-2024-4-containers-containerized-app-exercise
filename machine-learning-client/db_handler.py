@@ -30,3 +30,22 @@ class DatabaseHandler:
         }
 
         return collection.insert_one(document)
+
+    def get_detection_result(self, image_id):
+        """
+        Get emotion detection results from database by image_id
+
+        Args:
+            image_id: Unique identifier for the image
+
+        Returns:
+            dict: Detection results or None if not found
+        """
+        collection = self.db.detection_results
+        result = collection.find_one({"image_id": image_id})
+        
+        if result:
+            # Convert ObjectId to string for JSON serialization
+            result['_id'] = str(result['_id'])
+            return result
+        return None
