@@ -38,7 +38,7 @@ jobs:
 
       - name: Lint machine_learning_client with pylint
         run: |
-          pipenv run pylint --rcfile=.pylintrc machine_learning_client/ml_client.py
+          pipenv run pylint machine_learning_client/ml_client.py
 
       - name: Lint web-app with pylint
         run: |
@@ -46,7 +46,7 @@ jobs:
 
       - name: Format with Black
         run: |
-          pipenv run black --check machine_learning_client/ml_client.py
+          pipenv run black .
 
       - name: Run tests with pytest and coverage
         run: |

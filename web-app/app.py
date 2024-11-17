@@ -167,6 +167,7 @@ def dashboard():
         "dashboard.html", last_emotion=last_emotion, username=username
     )
 
+
 @app.route("/logout")
 def logout():
     """
@@ -174,7 +175,6 @@ def logout():
     """
     session.clear()  # Clears all session data
     return redirect(url_for("index"))
-
 
 
 if __name__ == "__main__":
