@@ -5,8 +5,9 @@ It uses environment variables for configuration.
 
 import os  # Standard library imports
 import requests
+import subprocess
 
-# from datetime import datetime
+from datetime import datetime
 from flask import Flask, render_template, jsonify, request
 from pymongo import MongoClient
 from dotenv import load_dotenv
@@ -47,6 +48,28 @@ def index():
     return render_template("index.html", entries=entries)
 
 
+def convert_to_pcm_wav(input_file, output_file):
+    """
+    Convert an audio file to PCM WAV format using ffmpeg.
+
+    Args:
+        input_file (str): Path to the input audio file.
+        output_file (str): Path to save the converted WAV file.
+
+    Raises:
+        RuntimeError: If ffmpeg fails to convert the file.
+    """
+    try:
+        subprocess.run(
+            ["ffmpeg", "-i", input_file, "-ar", "16000", "-ac", "1", output_file],
+            check=True,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+        )
+    except subprocess.CalledProcessError as e:
+        raise RuntimeError(f"ffmpeg conversion failed: {e.stderr.decode()}")
+
+
 @app.route("/upload", methods=["POST"])
 def upload_audio():
     """
@@ -59,15 +82,43 @@ def upload_audio():
     # Save the uploaded file locally
     audio_file = request.files["audio"]
     file_path = os.path.join(app.config["UPLOAD_FOLDER"], audio_file.filename)
+    converted_file_path = os.path.join(
+        app.config["UPLOAD_FOLDER"], "converted_" + audio_file.filename
+    )
 
     try:
         audio_file.save(file_path)
     except IOError as io_error:
         return jsonify({"error": "Failed to save file", "details": str(io_error)}), 500
 
-    # Forward the file to the machine learning client
     try:
-        with open(file_path, "rb") as file_obj:
+        # Convert the uploaded file to PCM WAV format
+        convert_to_pcm_wav(file_path, converted_file_path)
+    except RuntimeError as conversion_error:
+        return (
+            jsonify(
+                {
+                    "error": "Failed to convert file to PCM WAV",
+                    "details": str(conversion_error),
+                }
+            ),
+            500,
+        )
+
+    # Validate the format
+    if not file_path.endswith((".wav", ".flac", ".aiff")):
+        return (
+            jsonify(
+                {
+                    "error": "Unsupported file format. Please upload a WAV, FLAC, or AIFF file."
+                }
+            ),
+            400,
+        )
+
+    # Forward the **converted** file to the machine learning client
+    try:
+        with open(converted_file_path, "rb") as file_obj:
             response = requests.post(
                 ML_CLIENT_URL, files={"audio": file_obj}, timeout=60
             )
@@ -100,6 +151,12 @@ def upload_audio():
         )
 
 
+@app.route("/show_results")
+def show_results():
+    """Render the results page."""
+    return render_template("showResults.html")
+
+
 @app.route("/api/mood-trends")
 def mood_trends():
     """Provide mood trend data for visualization."""
@@ -109,6 +166,29 @@ def mood_trends():
         "Neutral": collection.count_documents({"sentiment.mood": "Neutral"}),
     }
     return jsonify(mood_counts)
+
+
+@app.route("/api/recent-entries")
+def recent_entries():
+    """Provide recent entries data."""
+    try:
+        entries = collection.find().sort("timestamp", -1).limit(100)
+        entries_list = [
+            {
+                "file_name": entry.get("file_name", ""),
+                "transcript": entry.get("transcript", ""),
+                "sentiment": entry.get("sentiment", ""),
+                "timestamp": (
+                    entry.get("timestamp", "").strftime("%Y-%m-%d %H:%M:%S")
+                    if isinstance(entry.get("timestamp"), datetime)
+                    else entry.get("timestamp", "")
+                ),
+            }
+            for entry in entries
+        ]
+        return jsonify(entries_list), 200
+    except Exception as e:
+        return jsonify({"error": "Failed to fetch recent entries"}), 500
 
 
 if __name__ == "__main__":
