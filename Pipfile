@@ -11,12 +11,14 @@ pymongo = "*"
 bcrypt = "*"
 python-dotenv = "*"
 requests = "*"
+black = "*"
 pylint = "*"
 
 [dev-packages]
 pytest = "*"
 pytest-flask = "*"
 pytest-cov = "*"
+black = "*"
 
 [requires]
 python_version = "3.11"
