@@ -26,3 +26,39 @@ Our Emotion Recognition and Wellness Advisor app uses cutting-edge emotion detec
 
 The app aims to promote emotional awareness and provide quick, personalized guidance for mental well-being. Whether you’re looking to uplift your mood or enhance your mindfulness practice, this app supports you on your wellness journey.
 
+## How to Open **
+
+1. Create a new virtual environment following the commands:
+
+```
+python3 -m venv .venv
+
+```
+
+**Mac** 
+``source .venv/bin/activate
+```
+
+**Windows**
+```
+.venv\Scripts\activate
+```
+
+2. Install Some dependencies
+
+```
+pip install opencv-python-headless
+pip install requests
+pip install pymongo
+```
+
+2. Docker Compose
+
+To compose docker run the follwoig command
+
+```
+docker-compose up --build
+
+```
+
+3. Open the local host link for web-app and enjoy!

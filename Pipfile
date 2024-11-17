@@ -4,12 +4,13 @@ verify_ssl = true
 name = "pypi"
 
 [packages]
-requests = "*"
 opencv-python = "*"
 numpy = "*"
 flask = "*"
 pymongo = "*"
 bcrypt = "*"
+python-dotenv = "*"
+requests = "*"
 
 [dev-packages]
 pytest = "*"

@@ -10,7 +10,9 @@ bcrypt = "*"
 flask = "*"
 pymongo = "*"
 opencv-python = "*"
+python-dotenv = "*"
 requests = "*"
+numpy = "*"
 
 [dev-packages]
 

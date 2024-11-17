@@ -5,6 +5,8 @@ import cv2
 import requests
 import os
 import bcrypt
+import base64
+import numpy as np
 from dotenv import load_dotenv
 # pylint: disable=all
 
@@ -24,7 +26,9 @@ emotion_data_collection = db["emotion_data"]
 users_collection = db["users"]
 
 # ML Client URL (from environment variables)
-ML_CLIENT_URL = os.getenv("ML_CLIENT_URL", "http://machine_learning_client:5000/detect_emotion")
+#ML_CLIENT_URL = os.getenv("ML_CLIENT_URL", "http://machine_learning_client:5000/detect_emotion")
+ML_CLIENT_URL = "http://machine_learning_client:5000/detect_emotion"
+
 
 # Camera initialization
 camera = cv2.VideoCapture(0)
@@ -92,32 +96,44 @@ def video_feed():
 
 @app.route("/capture", methods=["POST"])
 def capture():
-    """Capture the current frame and detect emotion using ml_client."""
+    """Process an image captured from the host's camera via the browser."""
     if "user_id" not in session:
         return {"error": "Please log in to access this feature."}, 401
 
-    success, frame = camera.read()
-    if not success:
-        return {"error": "Could not capture image from camera."}, 500
-
-    _, buffer = cv2.imencode(".jpg", frame)
-    image_data = buffer.tobytes()
-
     try:
+        # Receive Base64-encoded image from the request
+        data = request.json.get("image")
+        if not data:
+            return {"error": "No image provided."}, 400
+
+        # Decode Base64 image
+        image_data = base64.b64decode(data.split(",")[1])  # Remove the Base64 header
+        nparr = np.frombuffer(image_data, np.uint8)
+        frame = cv2.imdecode(nparr, cv2.IMREAD_COLOR)
+
+        # Send frame to the ML client
+        _, buffer = cv2.imencode(".jpg", frame)
         response = requests.post(
-            ML_CLIENT_URL, files={"image": ("frame.jpg", image_data, "image/jpeg")}
+            ML_CLIENT_URL,
+            files={"image": ("frame.jpg", buffer.tobytes(), "image/jpeg")}
         )
         response.raise_for_status()
+
+        # Get the detected emotion
         emotion_text = response.json().get("emotion", "Unknown")
     except requests.RequestException as e:
-        return {"error": f"Unable to detect emotion: {str(e)}"}, 500
+        return {"error": f"Error connecting to ML client: {str(e)}"}, 500
+    except Exception as e:
+        return {"error": f"Error processing the image: {str(e)}"}, 500
 
-    timestamp = datetime.now(datetime.timezone.utc).isoformat()
+    # Save the detected emotion to MongoDB
+    timestamp = datetime.utcnow().strftime("%m/%d/%Y %I:%M:%S %p")
+
     emotion_data_collection.insert_one(
         {
             "user_id": session["user_id"],
             "emotion": emotion_text,
-            "timestamp": timestamp,
+            "timestamp": datetime.utcnow().strftime("%m/%d/%Y %I:%M:%S %p")
         }
     )
 
@@ -135,34 +151,12 @@ def dashboard():
     return render_template("dashboard.html", last_emotion=last_emotion, username=username)
 
 
-
-@app.route("/detect_emotion")
-def detect_emotion_page():
-    """Render the page to trigger emotion detection."""
-    if "user_id" not in session:
-        flash("Please log in to access this feature.", "error")
-        return redirect(url_for("login"))
-    return render_template("detect_emotion.html")
-
-@app.route("/emotion_history")
-def emotion_history():
-    """Render the page to display all recent emotions."""
-    if "user_id" not in session:
-        flash("Please log in to access this feature.", "error")
-        return redirect(url_for("login"))
-
-    user_emotions = list(emotion_data_collection.find(
-        {"user_id": session["user_id"]}
-    ).sort("timestamp", -1))
-
-    return render_template("emotion_history.html", user_emotions=user_emotions)
-
-@app.route("/logout")
+@app.route("/index")
 def logout():
     session.pop("user_id", None)
     session.pop("username", None)
     flash("Logged out successfully.", "info")
-    return redirect(url_for("index"))
+    return redirect(url_for("index.html"))
 
 
 if __name__ == "__main__":
