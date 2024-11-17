@@ -6,6 +6,7 @@ This module handles all database interactions for the emotion detection system.
 from datetime import datetime
 from pymongo import MongoClient
 import requests
+import os
 
 
 class Database:
@@ -13,10 +14,10 @@ class Database:
 
     def __init__(self):
         """Initialize database connection."""
-        username = "admin"
-        password = "password"
-        host = "192.168.80.130"
-        port = 27017
+        username = os.environ.get('MONGODB_USERNAME', 'admin')
+        password = os.environ.get('MONGODB_PASSWORD', 'password')
+        host = os.environ.get('MONGODB_HOST', 'localhost')
+        port = os.environ.get('MONGODB_PORT', '27017')
         
         # Create connection URL with authentication
         connection_string = f"mongodb://{username}:{password}@{host}:{port}"
