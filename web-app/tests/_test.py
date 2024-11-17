@@ -15,6 +15,7 @@ def client():  # pylint: disable=redefined-outer-name
     with app.test_client() as client:  # pylint: disable=redefined-outer-name
         yield client
 
+
 def test_root1(client):  # pylint: disable=redefined-outer-name
     """Test the / route on GET req"""
     response = client.get("/")
@@ -22,12 +23,14 @@ def test_root1(client):  # pylint: disable=redefined-outer-name
     assert "Start Recording" in html_text
     assert response.status_code == 200
 
+
 def test_root2(client):  # pylint: disable=redefined-outer-name
     """Test the / route on GET req"""
     response = client.get("/")
     html_text = response.data.decode("utf-8")
     assert "Waiting for permission to access the microphone..." in html_text
     assert response.status_code == 200
+
 
 def test_404(client):  # pylint: disable=redefined-outer-name
     """Test a non-existent route, expecting 404 error"""
