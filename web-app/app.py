@@ -6,7 +6,7 @@ It uses environment variables for configuration.
 import os  # Standard library imports
 import requests
 import subprocess
-
+import uuid
 from datetime import datetime
 from flask import Flask, render_template, jsonify, request
 from pymongo import MongoClient
@@ -80,13 +80,16 @@ def upload_audio():
     if "audio" not in request.files:
         return jsonify({"error": "No audio file provided"}), 400
 
-    # Save the uploaded file locally
     audio_file = request.files["audio"]
-    unique_file_name = f"{uuid4()}_{audio_file.filename}"  # Unique name
-    file_path = os.path.join(app.config["UPLOAD_FOLDER"], unique_file_name)
+
+    # Generate unique filenames
+    file_extension = os.path.splitext(audio_file.filename)[1]
+    unique_filename = f"{uuid.uuid4().hex}{file_extension}"
+    file_path = os.path.join(app.config["UPLOAD_FOLDER"], unique_filename)
     converted_file_path = os.path.join(
-        app.config["UPLOAD_FOLDER"], f"converted_{unique_file_name}"
+        app.config["UPLOAD_FOLDER"], f"converted_{unique_filename}"
     )
+
     try:
         audio_file.save(file_path)
     except IOError as io_error:
@@ -125,7 +128,7 @@ def upload_audio():
             )
 
         if response.status_code == 200:
-            
+
             return (
                 jsonify(
                     {

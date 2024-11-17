@@ -11,7 +11,6 @@ from pymongo import MongoClient
 from dotenv import load_dotenv
 from utils import transcribe_audio, analyze_sentiment, store_data
 
-
 load_dotenv()
 
 app = Flask(__name__)
