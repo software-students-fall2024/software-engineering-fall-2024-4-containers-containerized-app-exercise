@@ -16,4 +16,3 @@ MONGODB_URI = os.getenv("MONGODB_URI")
 client = MongoClient(MONGODB_URI)
 
 db = client['Its_over_again_database']
-
