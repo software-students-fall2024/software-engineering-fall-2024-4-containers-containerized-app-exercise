@@ -3,8 +3,9 @@ This module contains unit tests for the application.
 """
 
 import io
-import pytest
 from pathlib import Path
+import pytest
+
 
 from app import create_app  # pylint: disable=import-error
 
@@ -40,20 +41,31 @@ def test_404(client):  # pylint: disable=redefined-outer-name
     assert response.status_code == 404
 
 
-def test_record_success(client, monkeypatch):
+def test_record_success(client, monkeypatch):  # pylint: disable=redefined-outer-name
+    """
+    Test the success of the /record route, which processes an audio file,
+    sends it to the ML client for transcription, and stores the result in MongoDB.
+    """
     wav_file_path = Path(__file__).parent / "wav_example.wav"
     with open(wav_file_path, "rb") as f:
         audio_content = io.BytesIO(f.read())
     audio_content.name = "test_audio.wav"
 
-    def mock_ml_post(*args, **kwargs):
+    def mock_ml_post(*args, **kwargs):  # pylint: disable=unused-argument
         class MockResponse:
+            """Mock the response to include a .json() method"""
+
             def json(self):
+                """.json method"""
                 return {"status": "success", "id": "64a1b2c3d4e5f6a7b8c9d0e1"}
 
         return MockResponse()
 
-    def mock_find_one(query, fields=None):
+    def mock_find_one(query, fields=None):  # pylint: disable=unused-argument
+        """
+        Mock the MongoDB 'find_one' method.
+        Returns a mock result containing the _id from the query.
+        """
         return {"_id": query["_id"]}
 
     monkeypatch.setattr("requests.post", mock_ml_post)
