@@ -13,7 +13,7 @@ from flask import Flask, render_template, jsonify, request
 from pymongo import MongoClient
 from pymongo.errors import PyMongoError
 from dotenv import load_dotenv
-
+from bson.objectid import ObjectId
 load_dotenv()
 MONGO_URI = os.getenv("MONGO_URI", "mongodb://localhost:27017")
 ML_CLIENT_URL = os.getenv(
@@ -169,6 +169,7 @@ def recent_entries():
         entries = collection.find().sort("timestamp", -1).limit(100)
         entries_list = [
             {
+                "_id": entry["_id"],
                 "file_name": entry.get("file_name", ""),
                 "transcript": entry.get("transcript", ""),
                 "sentiment": entry.get("sentiment", ""),
@@ -191,6 +192,29 @@ def recent_entries():
         logging.error("Data processing error: %s", data_error)
         return jsonify({"error": "Data processing error occurred"}), 500
 
+@app.route('/delete-journal/<entry_id>', methods=['DELETE'])
+def delete_journal(entry_id):
+    """
+    Deletes a journal entry by its ID.
 
+    Args:
+        entry_id (str): The ID of the entry to delete.
+
+    Returns:
+        JSON response indicating success or failure.
+    """
+    try:
+        # Attempt to delete the document with the specified ObjectId
+        result = collection.delete_one({"_id": ObjectId(entry_id)})
+
+        if result.deleted_count > 0:
+            return jsonify({"message": "Entry deleted successfully"}), 200
+
+        # Entry not found in the collection
+        return jsonify({"error": "Entry not found"}), 404
+
+    except PyMongoError as mongo_error:
+        # Handle MongoDB-specific errors
+        return jsonify({"error": "Database error occurred", "details": str(mongo_error)}), 500   
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000)
