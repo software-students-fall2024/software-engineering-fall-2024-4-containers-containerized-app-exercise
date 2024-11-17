@@ -6,7 +6,7 @@ import mediapipe as mp
 from flask import Flask, request
 from pymongo import MongoClient
 import gridfs
-import bson
+from bson import ObjectId
 from dotenv import load_dotenv
 import os
 
@@ -219,6 +219,19 @@ def process_image():
     """
     Process the image
     """
+    image_id = request.json.get("image_id")
+    if image_id:
+        # find the image data based on given id
+        image_data = db.images.find_one({"_id": ObjectId(image_id)})["image_data"]
+        [output, label] = process_image(image_data)
+        # update db with the generated label
+        db.images.update_one(
+            {"_id": ObjectId(image_id)}, {"$set": {"output": output, "translation": label}}
+        )
+        return "Image processed successfully", 200
+    return "Invalid request", 400
+    
+    
 
 
 if __name__ == "__main__":
