@@ -72,7 +72,18 @@ def dashboard():
     db = Database()
     result = None
     if request.method == "POST" and "image" in request.files:
-        # Image processing logic will be added here
-        pass
+        image_file = request.files["image"]
+        if image_file:
+            # Save the image to MongoDB
+            image_data = image_file.read()
+            user_id = session["user"]
+            pic_id = db.save_picture(user_id, image_data)
+            
+            if pic_id:
+                # Image processing logic will be added here
+                pass
+            else:
+                flash("Error saving image")
+    
     history = db.get_latest_results()
     return render_template("dashboard.html", result=result, history=history)

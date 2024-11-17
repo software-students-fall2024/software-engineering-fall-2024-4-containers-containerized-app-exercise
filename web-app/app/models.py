@@ -73,3 +73,26 @@ class Database:
     def add_user(self, user_data):
         """Add a new user to the database"""
         return self.db.users.insert_one(user_data)
+
+    def save_picture(self, user_id, image_data):
+        """
+        Save an image to the pictures collection.
+
+        Args:
+            user_id (str): Email of the user
+            image_data (bytes): Binary image data
+
+        Returns:
+            str: ID of the saved picture
+        """
+        try:
+            pic_doc = {
+                "user_id": user_id,
+                "image": image_data,
+                "timestamp": datetime.now()
+            }
+            result = self.db.pictures.insert_one(pic_doc)
+            return str(result.inserted_id)
+        except Exception as e:  # pylint: disable=broad-except
+            print(f"Error saving picture: {e}")
+            return None
