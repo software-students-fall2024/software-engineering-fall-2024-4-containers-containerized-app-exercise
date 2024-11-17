@@ -1,5 +1,6 @@
 ![Lint-free](https://github.com/software-students-fall2024/4-containers-thecoders3/actions/workflows/lint.yml/badge.svg)
-![Python build & test](https://github.com/software-students-fall2024/4-containers-thecoders3/actions/workflows/build.yaml/badge.svg)
+![ML-Client build & test](https://github.com/software-students-fall2024/4-containers-thecoders3/actions/workflows/build.yaml/badge.svg)
+![Web-App build & test](https://github.com/software-students-fall2024/4-containers-thecoders3/actions/workflows/web-app.yaml/badge.svg)
 
 # Containerized App Exercise
 
