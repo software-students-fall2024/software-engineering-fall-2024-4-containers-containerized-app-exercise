@@ -13,7 +13,7 @@
         <p>No name found.</p>
     {% endif %}
 
-    <form action="{{ url_for('new_entry') }}" method="POST">
+    <form action="{{ url_for('new_entry', new_entry_id=new_entry_id) }}" method="POST">
         <label for="instructions">Add details or care instructions:</label>
         <input type="text" name="instructions" id="instructions">
         <button type="submit">Save New Entry</button>

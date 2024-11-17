@@ -56,10 +56,14 @@ def create_app():
     def new_entry():
         new_entry_id = request.args.get('new_entry_id')
         entry = ObjectId(new_entry_id)
+        if request.method == "POST":
+            instructions = request.form["instructions"]
+            db.plants.update_one({"_id":entry}, {'$set': {"instructions": instructions}})
+            return(redirect("/"))
         document = db.plants.find_one({"_id":entry})
         photo = document["photo"]
         name = document["name"]
-        return render_template('new-entry.html', photo=photo, name=name)
+        return render_template('new-entry.html', photo=photo, name=name, new_entry_id=new_entry_id)
 
     @app.route("/results/<filename>")
     def results(filename):
