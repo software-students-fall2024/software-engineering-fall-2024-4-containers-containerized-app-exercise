@@ -1,11 +1,11 @@
-from tkinter import *
+# from tkinter import *
 from PIL import Image, ImageTk
 import cv2
-from tkinter import filedialog
+# from tkinter import filedialog
 import mediapipe as mp
 from flask import Flask, request
 from pymongo import MongoClient
-import gridfs
+# import gridfs
 from bson import ObjectId
 from dotenv import load_dotenv
 import os
@@ -30,7 +30,7 @@ client = MongoClient(os.getenv("MONGO_URI", "mongodb://mongodb:27017/"))
 db = client["ASL_DB"]
 collection = db["ASL_COLLECTION"]
 
-fs = gridfs.GridFS(db)
+# fs = gridfs.GridFS(db)
 
 
 def process_image(inputImage):
@@ -192,17 +192,17 @@ def process_image(inputImage):
     label1.configure(image=finalImage)
     label1.image = finalImage
 
-    save_path = filedialog.asksaveasfilename(
-        defaultextension=".png",
-        filetypes=[
-            ("PNG files", "*.png"),
-            ("JPEG files", "*.jpg"),
-            ("All files", "*.*"),
-        ],
-        title="Save Processed Image",
-    )
-    if save_path:
-        image.save(save_path)
+    # save_path = filedialog.asksaveasfilename(
+    #     defaultextension=".png",
+    #     filetypes=[
+    #         ("PNG files", "*.png"),
+    #         ("JPEG files", "*.jpg"),
+    #         ("All files", "*.*"),
+    #     ],
+    #     title="Save Processed Image",
+    # )
+    # if save_path:
+    #     image.save(save_path)
 
     # # win.after(1, live)
     # crr=Label(win,text='Current Status :',font=('Helvetica',18,'bold'),bd=5,bg='gray',width=15,fg='#232224',relief=GROOVE )
