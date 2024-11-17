@@ -7,11 +7,11 @@ import os  # Standard library imports
 import subprocess
 import uuid
 from datetime import datetime
+import logging
 import requests
 from flask import Flask, render_template, jsonify, request
 from pymongo import MongoClient
 from pymongo.errors import PyMongoError
-import logging
 from dotenv import load_dotenv
 
 
