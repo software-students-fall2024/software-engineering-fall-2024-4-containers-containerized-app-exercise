@@ -11,11 +11,11 @@ Designed for accessibility and ease of use, it offers a seamless, containerized 
 
 ## Team
 
-[Safia](https://github.com/)
+[Safia](https://github.com/safiabillah)
 
-[Mel](https://github.com/)
+[Mel](https://github.com/melanie-y-zhang)
 
-[Chloe](https://github.com/)
+[Chloe](https://github.com/jh7316)
 
 [Fatima Villena](https://github.com/favils)
 
