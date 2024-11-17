@@ -6,6 +6,7 @@
     <title>Voice Journal - Record Your Thoughts</title>
     <style>
         @import url(https://fonts.googleapis.com/css?family=Satisfy|Pathway+Gothic+One);
+        @import url('https://fonts.googleapis.com/css2?family=Indie+Flower&display=swap');
         body {
             font-family: 'Arial', sans-serif;
             margin: 0;
@@ -26,6 +27,7 @@
             text-shadow: 0px 4px 6px rgba(0, 0, 0, 0.2);
         }
         p {
+            font-family: 'Indie Flower', cursive;
             font-size: 1.2rem;
             margin-bottom: 30px;
             color: #666;
@@ -114,7 +116,7 @@
         <input type="file" id="audio-file" name="audio" hidden>
         <button type="submit">Upload</button>
     </form>
-    <button onclick="window.location.href='show_results.html'">View Results</button>
+    <button onclick="window.location.href='/show_results'">View Results</button>
 
     <script>
         let mediaRecorder;
@@ -128,6 +130,9 @@
 
         startButton.addEventListener("click", async () => {
             const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+           
+            const mimeType = MediaRecorder.isTypeSupported('audio/wav') ? 'audio/wav' : 'audio/webm';
+
             mediaRecorder = new MediaRecorder(stream);
             mediaRecorder.ondataavailable = (event) => audioChunks.push(event.data);
             mediaRecorder.onstop = () => {
