@@ -12,7 +12,7 @@ class Database:
 
     def __init__(self):
         """Initialize database connection."""
-        self.client = MongoClient("mongodb://localhost:27017/")
+        self.client = MongoClient("mongodb://192.168.80.130:27017/")
         self.db = self.client.emotion_detection
 
     def get_latest_results(self, limit=10):
