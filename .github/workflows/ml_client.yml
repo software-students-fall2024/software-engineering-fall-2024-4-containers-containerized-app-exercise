@@ -1,4 +1,4 @@
-name: CI / CD
+name: ML Client CI / CD
 
 on:
   push:
@@ -37,14 +37,10 @@ jobs:
       run: |
           venv/bin/pip list
 
-    - name: Start the Tests
-      run: |
-          venv/bin/python -m pytest --cov=machine-learning-client/main --cov-report=html
-
     - name: Run linting
       run: |
           venv/bin/python -m pylint machine-learning-client
 
     - name: Run tests with coverage
       run: |
-          venv/bin/python -m pytest --cov=machine-learning-client/main --cov-report=html
+          venv/bin/python -m pytest machine-learning-client/test_main.py --cov=machine-learning-client/main --cov-report=html

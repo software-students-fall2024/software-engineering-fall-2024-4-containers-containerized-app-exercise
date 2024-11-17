@@ -1,4 +1,4 @@
-name: Web App CI
+name: Web App CI / CD
 
 on:
   push:
@@ -27,7 +27,7 @@ jobs:
           python -m venv venv
           venv/bin/pip install --upgrade pip
           venv/bin/pip install -r web-app/requirements.txt
-          venv/bin/pip install pylint black
+          venv/bin/pip install pylint black pytest pytest-cov
 
       - name: Run Black Formatter
         run: |
@@ -35,4 +35,8 @@ jobs:
 
       - name: Run Pylint
         run: |
-          venv/bin/python -m pylint web-app
+          venv/bin/python -m pylint --ignored-modules=pytest web-app
+
+      # - name: Run tests with coverage
+      #   run: |
+      #     venv/bin/python -m pytest web-app/test_app.py --cov=web-app --cov-report=html
