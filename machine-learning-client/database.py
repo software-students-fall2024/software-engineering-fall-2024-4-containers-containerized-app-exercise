@@ -15,4 +15,4 @@ MONGODB_URI = os.getenv("MONGODB_URI")
 # Establish a MongoDB client
 client = MongoClient(MONGODB_URI)
 
-db = client['Its_over_again_database']
+db = client["Its_over_again_database"]
