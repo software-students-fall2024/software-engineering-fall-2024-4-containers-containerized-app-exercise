@@ -13,8 +13,6 @@ from flask import Flask, render_template, jsonify, request
 from pymongo import MongoClient
 from pymongo.errors import PyMongoError
 from dotenv import load_dotenv
-from uuid import uuid4
-
 
 load_dotenv()
 MONGO_URI = os.getenv("MONGO_URI", "mongodb://localhost:27017")
