@@ -15,12 +15,12 @@ from datetime import datetime
 app = Flask(__name__)
 
 # MongoDB connection
-client = MongoClient(os.environ['MONGODB_URI'])
-db = client['transcription_db']
+client = MongoClient(os.environ["MONGODB_URI"])
+db = client["transcription_db"]
 
 # Collections
 fs = gridfs.GridFS(db)  # For file storage
-metadata = db['metadata']  # For metadata storage
+metadata = db["metadata"]  # For metadata storage
 
 
 @app.route("/")
@@ -66,7 +66,7 @@ def predict():
         temp_path = f"temp_{file_id}.wav"
         try:
             # Write GridFS file to temporary file
-            with open(temp_path, 'wb') as f:
+            with open(temp_path, "wb") as f:
                 f.write(grid_file.read())
 
             # Initialize recognizer and process audio
@@ -82,20 +82,25 @@ def predict():
                     "$set": {
                         "transcription": text,
                         "processed_time": datetime.utcnow(),
-                        "status": "completed"
+                        "status": "completed",
                     }
-                }
+                },
             )
 
             if update_result.modified_count == 0:
                 return jsonify({"error": "Failed to update metadata"}), 500
 
-            return jsonify({
-                "message": "Prediction completed successfully",
-                "file_id": str(file_id),
-                "status": "completed",
-                "transcription": text
-            }), 200
+            return (
+                jsonify(
+                    {
+                        "message": "Prediction completed successfully",
+                        "file_id": str(file_id),
+                        "status": "completed",
+                        "transcription": text,
+                    }
+                ),
+                200,
+            )
 
         except sr.UnknownValueError:
             # Update metadata with error
@@ -105,16 +110,21 @@ def predict():
                     "$set": {
                         "status": "failed",
                         "error": "Speech could not be understood",
-                        "processed_time": datetime.utcnow()
+                        "processed_time": datetime.utcnow(),
                     }
-                }
+                },
             )
-            return jsonify({
-                "message": "Speech recognition failed",
-                "file_id": str(file_id),
-                "status": "failed",
-                "error": "Speech could not be understood"
-            }), 400
+            return (
+                jsonify(
+                    {
+                        "message": "Speech recognition failed",
+                        "file_id": str(file_id),
+                        "status": "failed",
+                        "error": "Speech could not be understood",
+                    }
+                ),
+                400,
+            )
 
         except Exception as e:
             # Update metadata with error
@@ -124,16 +134,21 @@ def predict():
                     "$set": {
                         "status": "failed",
                         "error": str(e),
-                        "processed_time": datetime.utcnow()
+                        "processed_time": datetime.utcnow(),
                     }
-                }
+                },
             )
-            return jsonify({
-                "message": "Processing failed",
-                "file_id": str(file_id),
-                "status": "failed",
-                "error": str(e)
-            }), 500
+            return (
+                jsonify(
+                    {
+                        "message": "Processing failed",
+                        "file_id": str(file_id),
+                        "status": "failed",
+                        "error": str(e),
+                    }
+                ),
+                500,
+            )
 
         finally:
             # Clean up temporary file
@@ -141,12 +156,17 @@ def predict():
                 os.remove(temp_path)
 
     except Exception as e:
-        return jsonify({
-            "message": "Server error",
-            "file_id": str(file_id),
-            "status": "error",
-            "error": str(e)
-        }), 500
+        return (
+            jsonify(
+                {
+                    "message": "Server error",
+                    "file_id": str(file_id),
+                    "status": "error",
+                    "error": str(e),
+                }
+            ),
+            500,
+        )
 
 
 if __name__ == "__main__":
