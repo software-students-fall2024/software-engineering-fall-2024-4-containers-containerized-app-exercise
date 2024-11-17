@@ -4,16 +4,43 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>TODO App</title>
+  <title>Speech-To-Text App</title>
   <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 
 <body>
   <div class="frame">
     <div class="container">
-      <h1>The ML App</h1>
+      <h1>Speech-To-Text App</h1>
       <div class="button-container">
+        <!-- Button to go to the Record Page -->
+        <a href="{{ url_for('record') }}" class="btn">Go to Record</a>
       </div>
+      
+      <!-- Table of Recordings -->
+      <section class="recordings-section">
+        <h2>Recordings</h2>
+        <table class="recordings-table">
+          <thead>
+            <tr>
+              <th>File ID</th>
+              <th>Name</th>
+              <th>Upload Time</th>
+              <th>Transcription</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for recording in recordings %}
+            <tr>
+              <td>{{ recording.file_id }}</td>
+              <td>{{ recording.name }}</td>
+              <td>{{ recording.upload_time }}</td>
+              <td>{{ recording.transcription }}</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </section>
     </div>
   </div>
 </body>
