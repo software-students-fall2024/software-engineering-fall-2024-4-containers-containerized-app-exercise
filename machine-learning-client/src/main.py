@@ -10,7 +10,8 @@ from flask import Flask, request, jsonify
 from pymongo import MongoClient
 from dotenv import load_dotenv
 from utils import transcribe_audio, analyze_sentiment, store_data
-
+from pymongo.errors import PyMongoError
+from werkzeug.exceptions import BadRequest
 load_dotenv()
 
 app = Flask(__name__)
@@ -73,10 +74,17 @@ def process_audio():
         logger.info("Successfully processed and stored data for %s", file_path)
 
         return jsonify({"status": "success", "data": data}), 200
+    except IOError as io_error:
+        logger.error("File handling error: %s", io_error)
+        return jsonify({"error": "File handling failed", "details": str(io_error)}), 500
 
-    except Exception as error:
-        logger.error("Error processing file: %s", error)
-        return jsonify({"error": "Processing failed", "details": str(error)}), 500
+    except PyMongoError as mongo_error:
+        logger.error("Database error: %s", mongo_error)
+        return jsonify({"error": "Database error", "details": str(mongo_error)}), 500
+
+    except RuntimeError as runtime_error:
+        logger.error("Runtime error: %s", runtime_error)
+        return jsonify({"error": "Runtime error", "details": str(runtime_error)}), 500
 
 
 if __name__ == "__main__":
