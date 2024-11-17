@@ -10,7 +10,8 @@ from app import app
 def test_client():
     """Fixture to create a test client for the Flask app."""
     app.config['TESTING'] = True
-    with app.test_client() as test_client:  # Use 'test_client' inside the fixture to avoid confusion
+    # Use 'test_client' inside the fixture to avoid confusion
+    with app.test_client() as test_client:  
         yield test_client  # This will return the test client to the test functions
 
 def test_index_page(test_client):  # Use 'test_client' to avoid redefining 'client'
