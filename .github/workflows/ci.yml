@@ -36,9 +36,14 @@ jobs:
             echo "Model file not found!"; exit 1;
           fi
 
-      - name: Lint with pylint
+      - name: Lint machine_learning_client with pylint
         run: |
-          pipenv run pylint machine_learning_client/ml_client.py
+          pipenv run pylint --rcfile=.pylintrc machine_learning_client/ml_client.py
+
+      - name: Lint web-app with pylint
+        run: |
+          pipenv run pylint --rcfile=.pylintrc web-app/app.py
+          pipenv run pylint --rcfile=.pylintrc web-app/tests/test_web_app.py
 
       - name: Format with Black
         run: |
