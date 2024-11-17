@@ -5,7 +5,6 @@ import numpy as np
 # Import OpenCV for image processing
 import cv2
 
-
 # Mock the MongoDB collection
 @pytest.fixture
 def mock_db():
