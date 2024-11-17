@@ -167,13 +167,14 @@ def dashboard():
         "dashboard.html", last_emotion=last_emotion, username=username
     )
 
-
-@app.route("/index")
+@app.route("/logout")
 def logout():
-    session.pop("user_id", None)
-    session.pop("username", None)
-    flash("Logged out successfully.", "info")
+    """
+    Clear the user's session and redirect them to the index page.
+    """
+    session.clear()  # Clears all session data
     return redirect(url_for("index"))
+
 
 
 if __name__ == "__main__":

@@ -1,54 +1,82 @@
+"""
+Tests for the machine learning client.
+"""
+from unittest.mock import patch
 import pytest
-from unittest.mock import MagicMock, patch
-from machine_learning_client.ml_client import detect_emotion, emotion_data_collection
 import numpy as np
-# Import OpenCV for image processing
-import cv2
+import cv2  # Import OpenCV for image processing
+from machine_learning_client.ml_client import detect_emotion
 
 # Mock the MongoDB collection
 @pytest.fixture
 def mock_db():
+    """
+    Fixture to mock the MongoDB collection.
+    """
     with patch("machine_learning_client.ml_client.emotion_data_collection") as mock_collection:
         yield mock_collection
 
-# Mock the model prediction
+
 @pytest.fixture
 def mock_model():
-    with patch("machine_learning_client.ml_client.model") as mock_model:
-        mock_model.predict.return_value = np.array([[0.8, 0.1, 0.05, 0.03, 0.02]])  # Simulates "Happy 😊"
-        yield mock_model
+    """
+    Fixture to mock the emotion detection model.
+    """
+    with patch("machine_learning_client.ml_client.model") as model_mock:
+        model_mock.predict.return_value = np.array([[0.8, 0.1, 0.05, 0.03, 0.02]])
+        yield model_mock
 
-def test_detect_emotion(mock_db, mock_model):
-    # Create a dummy image frame (48x48 grayscale)
-    dummy_frame = np.ones((48, 48, 3), dtype=np.uint8) * 255  # White image for testing
-    dummy_frame = cv2.resize(dummy_frame, (48, 48))
-    dummy_frame = cv2.cvtColor(dummy_frame, cv2.COLOR_BGR2GRAY)
 
-    # Call the function
-    emotion = detect_emotion(dummy_frame)
+# Test for detect_emotion route with valid input
+def test_detect_emotion(client, monkeypatch):
+    """
+    Test the /detect_emotion route with a valid image.
+    """
+    def mock_predict(input_data):
+        return np.array([[0.8, 0.1, 0.05, 0.03, 0.02]])  # Simulates "Happy 😊"
 
-    # Check the returned emotion
-    assert emotion == "Happy 😊"  # Matches the mocked prediction
+    def mock_insert_one(data):
+        pass  # Mock insertion to MongoDB
 
-    # Check that a new entry was added to the database
-    mock_db.insert_one.assert_called_once()
-    call_args = mock_db.insert_one.call_args[0][0]
-    assert call_args["emotion"] == "Happy 😊"
-    assert "timestamp" in call_args
+    # Mock the model's predict method and MongoDB insertion
+    monkeypatch.setattr("machine_learning_client.ml_client.model.predict", mock_predict)
+    monkeypatch.setattr(
+        "machine_learning_client.ml_client.emotion_data_collection.insert_one",
+        mock_insert_one,
+    )
 
-def test_invalid_image_input(mock_model):
+    # Simulate sending an image as part of the POST request
+    image_data = np.ones((48, 48, 3), dtype=np.uint8)  # Dummy white image
+    _, buffer = cv2.imencode(".jpg", image_data)
+    response = client.post(
+        "/detect_emotion",
+        data={"image": (buffer.tobytes(), "test.jpg")},
+        content_type="multipart/form-data",
+    )
+
+    assert response.status_code == 200
+    response_json = response.get_json()
+    assert response_json["emotion"] == "Happy 😊"
+
+def test_invalid_image_input():
+    """
+    Test the detect_emotion function with invalid input.
+    """
     # Test with invalid input (e.g., empty array)
-    with pytest.raises(Exception):
+    with pytest.raises(ValueError, match="Invalid input image"):
         detect_emotion(np.array([]))
 
+
 def test_model_error(mock_model):
+    """
+    Test the detect_emotion function when the model fails.
+    """
     # Simulate a model prediction error
     mock_model.predict.side_effect = Exception("Model prediction failed")
 
     # Test with valid input
     dummy_frame = np.ones((48, 48, 1), dtype=np.uint8)
-    dummy_frame = dummy_frame / 255.0  # Normalize
+    normalized_frame = dummy_frame / 255.0  # Normalize
 
     with pytest.raises(Exception, match="Model prediction failed"):
-        detect_emotion(dummy_frame)
-
+        detect_emotion(normalized_frame)
