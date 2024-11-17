@@ -71,19 +71,21 @@ def dashboard():
         
     db = Database()
     result = None
+    user_id = session["user"]
+    
     if request.method == "POST" and "image" in request.files:
         image_file = request.files["image"]
         if image_file:
-            # Save the image to MongoDB
+            # Save the image and get detection result
             image_data = image_file.read()
-            user_id = session["user"]
-            pic_id = db.save_picture(user_id, image_data)
+            detection_result_id = db.save_picture(user_id, image_data)
             
-            if pic_id:
-                # Image processing logic will be added here
-                pass
+            if detection_result_id:
+                # Fetch the detection result using the ID
+                result = db.get_detection_result(detection_result_id)
             else:
-                flash("Error saving image")
+                flash("Error processing image")
     
-    history = db.get_latest_results()
+    # Pass user_id to get_latest_results to filter by user
+    history = db.get_latest_results(user_id=user_id)
     return render_template("dashboard.html", result=result, history=history)
