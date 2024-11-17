@@ -2,14 +2,22 @@ from flask import Flask, render_template, request, redirect, url_for
 from characterai import aiocai, pycai, sendCode, authUser
 import asyncio
 import pymongo
+from pymongo import MongoClient
 
 email = ''
 code = ''
 client = ''
+db = None
+
+def init_db():
+    global db
+    mongodb+srv://vernairesl:Iloveu325@cluster0.jy4go.mongodb.net/myapp?retryWrites=true&w=majority&appName=Cluster0
+    db = mongo_client['myapp']
 
 def create_app():
     app = Flask(__name__)
-
+    init_db()
+    
     @app.route('/', methods=['GET', 'POST'])
     def login():
         global email, code
