@@ -47,4 +47,5 @@ jobs:
       - name: Run tests with pytest and coverage
         run: |
           pipenv run pytest --cov=machine_learning_client machine_learning_client/test_ml_client.py
+          pipenv run pytest --cov=app web-app/tests/test_web_app.py
 
