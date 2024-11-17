@@ -4,10 +4,10 @@ It uses environment variables for configuration.
 """
 
 import os  # Standard library imports
-import requests
 import subprocess
 import uuid
 from datetime import datetime
+import requests
 from flask import Flask, render_template, jsonify, request
 from pymongo import MongoClient
 from dotenv import load_dotenv
