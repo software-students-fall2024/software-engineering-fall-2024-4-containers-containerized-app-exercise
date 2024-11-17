@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Login</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}"/>
+  </head>
+  <body>
+    <div class="container">
+      <form method="POST" action="{{ url_for('auth')}}">
+        <h1>Verify Your Email</h1>
+        <p>An authentication link has been sent to {{ address }}.  
+        Please check your email and insert the link to verify your account and begin chatting.
+        </p>
+        <span>
+          <label>Link</label>
+          <input type="text" name="link" required placeholder="Enter your link..."/>
+        </span>
+        <input type="submit" value="Login"/>
+      </form>
+    </div>
+  </body>
+</html>
