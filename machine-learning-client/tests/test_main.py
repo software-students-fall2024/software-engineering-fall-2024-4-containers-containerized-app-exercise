@@ -1,11 +1,10 @@
 """
-Unit tests for the main module.
+Unit tests for main.py.
 """
 
 import os
 import unittest
 from unittest.mock import patch, MagicMock
-from datetime import datetime
 from src.main import setup_logging, main
 
 
@@ -14,9 +13,7 @@ class TestMain(unittest.TestCase):
 
     @patch("src.main.MongoClient")
     def test_mongo_connection_success(self, mock_mongo_client):
-        """
-        Test that the MongoDB connection succeeds without exceptions.
-        """
+        """Test that the MongoDB connection succeeds without exceptions."""
         mock_client = MagicMock()
         mock_mongo_client.return_value = mock_client
 
@@ -32,15 +29,13 @@ class TestMain(unittest.TestCase):
                                     "file_name": "test.wav",
                                     "transcript": "mock transcript",
                                     "sentiment": {"mood": "Positive"},
-                                    "timestamp": unittest.mock.ANY,
+                                    "timestamp": unittest.mock.ANY,  # Match datetime
                                 },
                             )
 
     @patch("src.main.MongoClient")
     def test_mongo_connection_failure(self, mock_mongo_client):
-        """
-        Test that the MongoDB connection failure is handled correctly.
-        """
+        """Test that the MongoDB connection failure is handled correctly."""
         mock_mongo_client.side_effect = Exception("Connection failed")
 
         with patch.dict(os.environ, {"MONGO_URI": "mongodb://mock_uri"}):
@@ -50,9 +45,7 @@ class TestMain(unittest.TestCase):
 
     @patch("src.main.get_audio_files")
     def test_no_audio_files(self, mock_get_audio_files):
-        """
-        Test that the pipeline exits gracefully when no audio files are found.
-        """
+        """Test that the pipeline exits gracefully when no audio files are found."""
         mock_get_audio_files.return_value = []
 
         with patch("src.main.MongoClient"):
@@ -67,9 +60,7 @@ class TestMain(unittest.TestCase):
     def test_pipeline_success(
         self, mock_store_data, mock_analyze_sentiment, mock_transcribe_audio, mock_get_audio_files
     ):
-        """
-        Test that the entire pipeline runs successfully for valid inputs.
-        """
+        """Test that the entire pipeline runs successfully for valid inputs."""
         mock_get_audio_files.return_value = ["test.wav"]
         mock_transcribe_audio.return_value = "mock transcript"
         mock_analyze_sentiment.return_value = {"mood": "Positive"}
@@ -82,9 +73,7 @@ class TestMain(unittest.TestCase):
             mock_store_data.assert_called_once()
 
     def test_setup_logging(self):
-        """
-        Test that logging is configured correctly.
-        """
+        """Test that logging is configured correctly."""
         with patch("logging.basicConfig") as mock_basic_config:
             setup_logging()
             mock_basic_config.assert_called_once_with(
