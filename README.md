@@ -8,7 +8,8 @@ Build a containerized app that uses machine learning. See [instructions](./instr
 
 ## Description
 
-The ASL interpreter app uses machine learning to recognize American Sign Language gestures from a live video feed, providing real-time translations into text output.
+The ASL interpreter app uses machine learning to recognize American Sign Language gestures from images.
+
 Designed for accessibility and ease of use, it offers a seamless, containerized experience that runs across three subsystems: gesture recognition, a web interface, and a database.
 
 ## Team
@@ -23,7 +24,27 @@ Designed for accessibility and ease of use, it offers a seamless, containerized 
 
 ## Instructions to Run
 
-To do
+### Virtual Environment Configuration
+Make sure you have pipenv installed. 
+```bash
+pip install pipenv
+```
+Then install dependencies.
+```bash
+pipenv install
+```
+
+And now you can run python scripts through the shell.
+```bash
+pipenv shell
+```
+
+### Setup
+
+Build the app using docker compose.
+```bash
+docker-compose up --build
+```
 
 ## Task Board
 [Task Board](https://github.com/orgs/software-students-fall2024/projects/119/views/1)
