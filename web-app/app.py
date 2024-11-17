@@ -6,8 +6,9 @@ This Flask app provides a web interface for recording audio and displaying class
 
 from flask import Flask, render_template, request, redirect, url_for
 from pymongo import MongoClient
-import os
 from bson.objectid import ObjectId
+import os
+
 
 app = Flask(__name__)
 
