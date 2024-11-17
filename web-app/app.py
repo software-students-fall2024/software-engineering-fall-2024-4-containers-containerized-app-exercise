@@ -4,7 +4,7 @@ connecting to MongoDB and providing the frontend interface.
 """
 
 import os
-from flask import Flask, render_template, jsonify, request
+from flask import Flask, render_template, jsonify, Response  # Move Response here
 from pymongo import MongoClient
 from dotenv import load_dotenv
 
