@@ -12,8 +12,19 @@
         <ul>
             {% for result in all_results %}
                 <li>
-                    <p>Plant: {{ result['name'] }}</p>
-                    <img src="{{ result['photo'] }}" alt="Plant photo" class="plant-photo">
+                    <div class="entry">
+                        <div class="left-side">
+                            <p class="entry-name">{{ result['name'] }}</p>
+                            <img src="{{ result['photo'] }}" alt="Plant photo" class="entry-photo">
+                        </div>
+                        <div class="right-side">
+                            <p>Notes and Instructions:</p>
+                            <p class="entry-instructions">
+                                {{ result['instructions']}}
+                            </p>
+                        </div>
+                    </div>
+                    
                     <!-- <strong>Filename:</strong> {{ result.filename }}<br>
                     <strong>Filepath:</strong> {{ result.filepath }}<br>
                     <a href="{{ url_for('results', filename=result.filename) }}">View Details</a> -->

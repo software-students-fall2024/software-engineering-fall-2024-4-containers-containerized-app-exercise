@@ -23,8 +23,10 @@ def create_app():
     db = connection[os.getenv("MONGO_DBNAME")]
 
     @app.route("/")
-    def home():
-        return render_template("home.html")
+    def welcome():
+        if request.args.get("user"):
+            return render_template("home.html")
+        return render_template("welcome.html")
     
     @app.route("/login", methods=["GET", "POST"])
     def login():
@@ -34,7 +36,8 @@ def create_app():
 
             session["username"] = username
             
-            return redirect("/")
+            return redirect(url_for("welcome", user=username))
+        
         return render_template("login.html")
     
     @app.route("/signup", methods=["GET", "POST"])
@@ -46,8 +49,13 @@ def create_app():
             db.users.insert_one({"username":username, "password":password})
             session["username"] = username
 
-            return redirect("/")
+            return redirect(url_for("welcome", user=username))
+        
         return render_template("signup.html")
+
+    @app.route("/user")
+    def home():
+        render_template("home.html")
 
     @app.route("/upload", methods=["GET", "POST"])
     def upload():
