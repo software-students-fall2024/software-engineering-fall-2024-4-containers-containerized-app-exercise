@@ -10,6 +10,8 @@ from datetime import datetime
 import requests
 from flask import Flask, render_template, jsonify, request
 from pymongo import MongoClient
+from pymongo.errors import PyMongoError
+import logging
 from dotenv import load_dotenv
 
 
@@ -67,7 +69,7 @@ def convert_to_pcm_wav(input_file, output_file):
             stderr=subprocess.PIPE,
         )
     except subprocess.CalledProcessError as e:
-        raise RuntimeError(f"ffmpeg conversion failed: {e.stderr.decode()}")
+        raise RuntimeError(f"ffmpeg conversion failed: {e.stderr.decode()}") from e
 
 
 @app.route("/upload", methods=["POST"])
@@ -190,8 +192,15 @@ def recent_entries():
             for entry in entries
         ]
         return jsonify(entries_list), 200
-    except Exception as e:
-        return jsonify({"error": "Failed to fetch recent entries"}), 500
+    except PyMongoError as mongo_error:
+        # Log the error
+        logging.error("Database error: %s", mongo_error)
+        return jsonify({"error": "Database error occurred"}), 500
+
+    except (TypeError, KeyError) as data_error:
+        # Log the error
+        logging.error("Data processing error: %s", data_error)
+        return jsonify({"error": "Data processing error occurred"}), 500
 
 
 if __name__ == "__main__":
