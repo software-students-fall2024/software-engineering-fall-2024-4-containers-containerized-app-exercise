@@ -3,43 +3,64 @@ from PIL import Image, ImageTk
 import cv2
 from tkinter import filedialog
 import mediapipe as mp
+from flask import Flask, request
+from pymongo import MongoClient
+import gridfs
+import bson
+from dotenv import load_dotenv
+import os
 
-# Initialize the main window
-win = Tk()
-width = win.winfo_screenwidth()
-height = win.winfo_screenheight()
-win.geometry("%dx%d" % (width, height))
-win.configure(bg="#FFFFF7")
-win.title('Sign Language Converter')
+load_dotenv()
 
-global img, finalImage, finger_tips, thumb_tip, cap, image, rgb, hand, results, w, h, \
+
+
+# # Initialize the main window
+# win = Tk()
+# width = win.winfo_screenwidth()
+# height = win.winfo_screenheight()
+# win.geometry("%dx%d" % (width, height))
+# win.configure(bg="#FFFFF7")
+# win.title('Sign Language Converter')
+
+# Label(win, text='Sign Language Converter', font=('Helvetica', 18, 'italic'), bd=5, bg='#199ef3', fg='white', relief=SOLID, width=200)\
+#     .pack(pady=15, padx=300)
+
+app = Flask(__name__)
+client = MongoClient(os.getenv("MONGO_URI", "mongodb://mongodb:27017/"))
+
+db = client["ASL_DB"]
+collection = db["ASL_COLLECTION"]
+
+fs = gridfs.GridFS(db)
+
+
+
+def process_image(inputImage):
+    global img, finalImage, finger_tips, thumb_tip, cap, image, rgb, hand, results, w, h, \
        status, mpDraw, mpHands, hands, label1, cshow, upCount
-
-Label(win, text='Sign Language Converter', font=('Helvetica', 18, 'italic'), bd=5, bg='#199ef3', fg='white', relief=SOLID, width=200)\
-    .pack(pady=15, padx=300)
-
-# Define Mediapipe hand-related variables
-finger_tips = [8, 12, 16, 20]
-thumb_tip = 4
-w, h = 500, 400
-mpHands = mp.solutions.hands
-hands = mpHands.Hands()
-mpDraw = mp.solutions.drawing_utils
-
-def process_image():
-    global img, finalImage, cshow, label1, upCount, rgb, results
+    
+    # Define Mediapipe hand-related variables
+    finger_tips = [8, 12, 16, 20]
+    thumb_tip = 4
+    w, h = 500, 400
+    mpHands = mp.solutions.hands
+    hands = mpHands.Hands()
+    mpDraw = mp.solutions.drawing_utils
+       
+       
+    # global img, finalImage, cshow, label1, upCount, rgb, results
     cshow=''
     upCount = StringVar()
 
-    # Open file dialog to select image
-    file_path = filedialog.askopenfilename(initialdir="/", title="Select Image",
-                                           filetypes=(("Image files", "*.jpg *.jpeg *.png"), ("all files", "*.*")))
+    # # Open file dialog to select image
+    # file_path = filedialog.askopenfilename(initialdir="/", title="Select Image",
+    #                                        filetypes=(("Image files", "*.jpg *.jpeg *.png"), ("all files", "*.*")))
 
-    if not file_path:
-        return  # If no file is selected, return
+    # if not file_path:
+    #     return  # If no file is selected, return
 
     # Read and process the image
-    img = cv2.imread(file_path)
+    img = inputImage#cv2.imread(file_path)
     img = cv2.resize(img, (w, h))
     rgb = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
     results = hands.process(rgb)
@@ -136,25 +157,35 @@ def process_image():
     if save_path:
         image.save(save_path)
         
-    # win.after(1, live)
-    crr=Label(win,text='Current Status :',font=('Helvetica',18,'bold'),bd=5,bg='gray',width=15,fg='#232224',relief=GROOVE )
-    status = Label(win,textvariable=upCount,font=('Helvetica',18,'bold'),bd=5,bg='gray',width=50,fg='#232224',relief=GROOVE )
+    # # win.after(1, live)
+    # crr=Label(win,text='Current Status :',font=('Helvetica',18,'bold'),bd=5,bg='gray',width=15,fg='#232224',relief=GROOVE )
+    # status = Label(win,textvariable=upCount,font=('Helvetica',18,'bold'),bd=5,bg='gray',width=50,fg='#232224',relief=GROOVE )
 
-    status.place(x=400,y=700)
-    crr.place(x=120,y=700)
+    # status.place(x=400,y=700)
+    # crr.place(x=120,y=700)
     
     return [image, cshow]
     
+@app.route("/processImage", methods=["POST"])
+def process_image():
+    """
+    Process the image
+    """
+    
+    
     
 
+if __name__ == "__main__":
+    app.run(host="0.0.0.0", port=5001, debug=True)
 
-label1 = Label(win, width=w, height=h, bg="#FFFFF7")
-label1.place(x=40, y=200)
+
+# label1 = Label(win, width=w, height=h, bg="#FFFFF7")
+# label1.place(x=40, y=200)
 
 
-Button(win, text='Upload Image', padx=95, bg='#199ef3', fg='white', relief=RAISED, width=1, bd=5,
-       font=('Helvetica', 12, 'bold'), command=process_image).place(x=width - 250, y=400)
-Button(win, text='Exit', padx=95, bg='#199ef3', fg='white', relief=RAISED, width=1, bd=5,
-       font=('Helvetica', 12, 'bold'), command=win.destroy).place(x=width - 250, y=500)
+# Button(win, text='Upload Image', padx=95, bg='#199ef3', fg='white', relief=RAISED, width=1, bd=5,
+#        font=('Helvetica', 12, 'bold'), command=process_image).place(x=width - 250, y=400)
+# Button(win, text='Exit', padx=95, bg='#199ef3', fg='white', relief=RAISED, width=1, bd=5,
+#        font=('Helvetica', 12, 'bold'), command=win.destroy).place(x=width - 250, y=500)
 
-win.mainloop()
+# win.mainloop()
