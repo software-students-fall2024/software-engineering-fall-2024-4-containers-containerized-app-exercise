@@ -2,7 +2,18 @@
 
 # Containerized App Exercise
 
-Build a containerized app that uses machine learning. See [instructions](./instructions.md) for details.
+# Table of Contents
+
+1. [Teammates](#teammates)  
+2. [App Description: Emotion Recognition and Wellness Advisor](#app-description-emotion-recognition-and-wellness-advisor)  
+   - [How It Works](#how-it-works)  
+3. [How to Open](#how-to-open)  
+   - [Ensure Connection to Mongo](#1-ensure-connection-to-mongo)  
+   - [Create a New Virtual Environment](#2-create-a-new-virtual-environment)  
+   - [Install Dependencies](#3-install-dependencies-if-not-already-installed)  
+   - [Docker Compose](#4-docker-compose)  
+   - [Open the Local Host Link](#5-open-the-local-host-link-for-web-app-and-enjoy)
+   
 
 # Teammates 
 
@@ -28,12 +39,12 @@ The app aims to promote emotional awareness and provide quick, personalized guid
 
 ## How to Open **
 
-1. Ensure Connection to Mongo 
+**1. Ensure Connection to Mongo**
 
 Download the MongoDB for VSC extension and add the database url: mongodb+srv://nsb8225:thefixers2.1@cluster0.oqt4t.mongodb.net/ when prompted to connect to the database.
 
 
-2. Create a new virtual environment following the commands:
+**2. Create a new virtual environment following the commands:**
 
 ```
 python3 -m venv .venv
@@ -50,7 +61,7 @@ source .venv/bin/activate`
 .venv\Scripts\activate
 ```
 
-2. Install Dependencies if not already installed
+**3. Install Dependencies if not already installed**
 
 ```
 pip install opencv-python-headless
@@ -58,7 +69,7 @@ pip install requests
 pip install pymongo
 ```
 
-2. Docker Compose
+**4. Docker Compose**
 
 To compose docker run the follwoig command
 
@@ -67,6 +78,6 @@ docker-compose up --build
 
 ```
 
-3. Open the local host link for web-app and enjoy!
+**5. Open the local host link for web-app and enjoy!**
 
 Thank you for the [Emotion Detection Model](https://www.kaggle.com/datasets/abhisheksingh016/machine-model-for-emotion-detection)!

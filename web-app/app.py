@@ -1,4 +1,13 @@
-from flask import Flask, render_template, Response, request, redirect, url_for, session, flash
+from flask import (
+    Flask,
+    render_template,
+    Response,
+    request,
+    redirect,
+    url_for,
+    session,
+    flash,
+)
 from pymongo import MongoClient
 from datetime import datetime
 import cv2
@@ -8,6 +17,7 @@ import bcrypt
 import base64
 import numpy as np
 from dotenv import load_dotenv
+
 # pylint: disable=all
 
 # Load environment variables
@@ -26,7 +36,7 @@ emotion_data_collection = db["emotion_data"]
 users_collection = db["users"]
 
 # ML Client URL (from environment variables)
-#ML_CLIENT_URL = os.getenv("ML_CLIENT_URL", "http://machine_learning_client:5000/detect_emotion")
+# ML_CLIENT_URL = os.getenv("ML_CLIENT_URL", "http://machine_learning_client:5000/detect_emotion")
 ML_CLIENT_URL = "http://machine_learning_client:5000/detect_emotion"
 
 
@@ -83,6 +93,7 @@ def generate_frames():
             frame = buffer.tobytes()
             yield (b"--frame\r\n" b"Content-Type: image/jpeg\r\n\r\n" + frame + b"\r\n")
 
+
 @app.route("/")
 def index():
     """Render welcome page."""
@@ -92,7 +103,10 @@ def index():
 @app.route("/video_feed")
 def video_feed():
     """Video streaming route. Put this in the src attribute of an img tag."""
-    return Response(generate_frames(), mimetype="multipart/x-mixed-replace; boundary=frame")
+    return Response(
+        generate_frames(), mimetype="multipart/x-mixed-replace; boundary=frame"
+    )
+
 
 @app.route("/capture", methods=["POST"])
 def capture():
@@ -115,7 +129,7 @@ def capture():
         _, buffer = cv2.imencode(".jpg", frame)
         response = requests.post(
             ML_CLIENT_URL,
-            files={"image": ("frame.jpg", buffer.tobytes(), "image/jpeg")}
+            files={"image": ("frame.jpg", buffer.tobytes(), "image/jpeg")},
         )
         response.raise_for_status()
 
@@ -133,11 +147,12 @@ def capture():
         {
             "user_id": session["user_id"],
             "emotion": emotion_text,
-            "timestamp": datetime.utcnow().strftime("%m/%d/%Y %I:%M:%S %p")
+            "timestamp": datetime.utcnow().strftime("%m/%d/%Y %I:%M:%S %p"),
         }
     )
 
     return {"emotion": emotion_text, "timestamp": timestamp}
+
 
 @app.route("/dashboard")
 def dashboard():
@@ -148,7 +163,9 @@ def dashboard():
         {"user_id": session["user_id"]}, sort=[("timestamp", -1)]
     )
     username = session.get("username", "User")
-    return render_template("dashboard.html", last_emotion=last_emotion, username=username)
+    return render_template(
+        "dashboard.html", last_emotion=last_emotion, username=username
+    )
 
 
 @app.route("/index")
