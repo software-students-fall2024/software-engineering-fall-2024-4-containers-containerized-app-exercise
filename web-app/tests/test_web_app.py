@@ -88,7 +88,8 @@ def test_signup_post_success(client, monkeypatch):
     monkeypatch.setattr(users_collection, "insert_one", lambda data: None)
 
     response = client.post(
-        "/signup", data={"username": "new_user", "password": "new_pass"}
+        "/signup", 
+        data={"username": "new_user", "password": "new_pass"}
     )
     assert response.status_code == 302
     assert "/login" in response.headers["Location"]
@@ -243,3 +244,4 @@ def test_capture_no_user_session(client):
     response = client.post("/capture", json={"image": "dummy_base64_data"})
     assert response.status_code == 401  # Expect Unauthorized
     assert response.get_json()["error"] == "Please log in to access this feature."
+    
