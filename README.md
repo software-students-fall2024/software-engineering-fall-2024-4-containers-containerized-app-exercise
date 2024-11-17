@@ -1,4 +1,6 @@
 ![Lint-free](https://github.com/nyu-software-engineering/containerized-app-exercise/actions/workflows/lint.yml/badge.svg)
+![Machine Learning Client CI](https://github.com/software-students-spring2024/4-containerized-app-exercise-speedy/actions/workflows/machine_learning_client.yml/badge.svg)
+![Web App CI](https://github.com/software-students-spring2024/4-containerized-app-exercise-speedy/actions/workflows/web-app.yml/badge.svg)
 
 # Containerized App Exercise
 
@@ -11,11 +13,11 @@ Designed for accessibility and ease of use, it offers a seamless, containerized 
 
 ## Team
 
-[Safia](https://github.com/)
+[Safia](https://github.com/safiabillah)
 
-[Mel](https://github.com/)
+[Mel](https://github.com/melanie-y-zhang)
 
-[Chloe](https://github.com/)
+[Chloe](https://github.com/jh7316)
 
 [Fatima Villena](https://github.com/favils)
 
