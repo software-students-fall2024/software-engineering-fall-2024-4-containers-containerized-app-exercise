@@ -1,2 +1,6 @@
 [TYPECHECK]
 ignored-modules=cv2
+
+[MASTER]
+ignore=tests  # Ensure "machine_learning_client" is not excluded
+ignore-patterns=test_.*

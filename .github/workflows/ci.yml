@@ -37,7 +37,7 @@ jobs:
 
       - name: Lint with pylint
         run: |
-          pipenv run pylint ml_client.py
+          pipenv run pylint machine_learning_client/ml_client.py
 
       - name: Format with Black
         run: |
@@ -45,4 +45,4 @@ jobs:
 
       - name: Run tests with pytest and coverage
         run: |
-          pipenv run pytest --cov=ml_client test_ml_client.py
+           pipenv run pytest
