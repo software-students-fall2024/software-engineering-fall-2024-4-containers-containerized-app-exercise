@@ -6,18 +6,20 @@ name = "pypi"
 [packages]
 pylint = "*"
 black = "*"
-pytest = "*"
 flask = "*"
 flask-cors = "*"
 SpeechRecognition = "*"
 pymongo = "*"
 python-dotenv = "*"
+pytest = "*"
 
 [dev-packages]
 pytest = "*"
+black = "*"
+pylint = "*"
 
 [requires]
-python_version = "3.10"
+python_version = "3.9"  # Changed from 3.10 to match Dockerfile
 
 [scripts]
 format = "black ."
