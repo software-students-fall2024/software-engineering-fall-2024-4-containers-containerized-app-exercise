@@ -8,9 +8,18 @@ pylint = "*"
 black = "*"
 pytest = "*"
 flask = "*"
+flask-cors = "*"
+SpeechRecognition = "*"
+pymongo = "*"
+python-dotenv = "*"
 
 [dev-packages]
 pytest = "*"
 
 [requires]
 python_version = "3.10"
+
+[scripts]
+format = "black ."
+lint = "pylint **/*.py"
+test = "pytest"
