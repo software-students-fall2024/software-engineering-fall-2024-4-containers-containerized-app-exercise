@@ -11,7 +11,6 @@ from pymongo import MongoClient
 from dotenv import load_dotenv
 from utils import get_audio_files, transcribe_audio, analyze_sentiment, store_data
 
-
 def setup_logging():
     """
     Sets up logging configuration for the application.
