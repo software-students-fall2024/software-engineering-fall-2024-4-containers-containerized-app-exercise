@@ -1,11 +1,23 @@
-from flask import Flask, render_template, Response, request, redirect, url_for, session, flash
+from flask import (
+    Flask,
+    render_template,
+    Response,
+    request,
+    redirect,
+    url_for,
+    session,
+    flash,
+)
 from pymongo import MongoClient
 from datetime import datetime
 import cv2
 import requests
 import os
 import bcrypt
+import base64
+import numpy as np
 from dotenv import load_dotenv
+
 # pylint: disable=all
 
 # Load environment variables
@@ -24,7 +36,9 @@ emotion_data_collection = db["emotion_data"]
 users_collection = db["users"]
 
 # ML Client URL (from environment variables)
-ML_CLIENT_URL = os.getenv("ML_CLIENT_URL", "http://machine_learning_client:5000/detect_emotion")
+# ML_CLIENT_URL = os.getenv("ML_CLIENT_URL", "http://machine_learning_client:5000/detect_emotion")
+ML_CLIENT_URL = "http://machine_learning_client:5000/detect_emotion"
+
 
 # Camera initialization
 camera = cv2.VideoCapture(0)
@@ -79,6 +93,7 @@ def generate_frames():
             frame = buffer.tobytes()
             yield (b"--frame\r\n" b"Content-Type: image/jpeg\r\n\r\n" + frame + b"\r\n")
 
+
 @app.route("/")
 def index():
     """Render welcome page."""
@@ -88,40 +103,56 @@ def index():
 @app.route("/video_feed")
 def video_feed():
     """Video streaming route. Put this in the src attribute of an img tag."""
-    return Response(generate_frames(), mimetype="multipart/x-mixed-replace; boundary=frame")
+    return Response(
+        generate_frames(), mimetype="multipart/x-mixed-replace; boundary=frame"
+    )
+
 
 @app.route("/capture", methods=["POST"])
 def capture():
-    """Capture the current frame and detect emotion using ml_client."""
+    """Process an image captured from the host's camera via the browser."""
     if "user_id" not in session:
         return {"error": "Please log in to access this feature."}, 401
 
-    success, frame = camera.read()
-    if not success:
-        return {"error": "Could not capture image from camera."}, 500
-
-    _, buffer = cv2.imencode(".jpg", frame)
-    image_data = buffer.tobytes()
-
     try:
+        # Receive Base64-encoded image from the request
+        data = request.json.get("image")
+        if not data:
+            return {"error": "No image provided."}, 400
+
+        # Decode Base64 image
+        image_data = base64.b64decode(data.split(",")[1])  # Remove the Base64 header
+        nparr = np.frombuffer(image_data, np.uint8)
+        frame = cv2.imdecode(nparr, cv2.IMREAD_COLOR)
+
+        # Send frame to the ML client
+        _, buffer = cv2.imencode(".jpg", frame)
         response = requests.post(
-            ML_CLIENT_URL, files={"image": ("frame.jpg", image_data, "image/jpeg")}
+            ML_CLIENT_URL,
+            files={"image": ("frame.jpg", buffer.tobytes(), "image/jpeg")},
         )
         response.raise_for_status()
+
+        # Get the detected emotion
         emotion_text = response.json().get("emotion", "Unknown")
     except requests.RequestException as e:
-        return {"error": f"Unable to detect emotion: {str(e)}"}, 500
+        return {"error": f"Error connecting to ML client: {str(e)}"}, 500
+    except Exception as e:
+        return {"error": f"Error processing the image: {str(e)}"}, 500
 
-    timestamp = datetime.now(datetime.timezone.utc).isoformat()
+    # Save the detected emotion to MongoDB
+    timestamp = datetime.utcnow().strftime("%m/%d/%Y %I:%M:%S %p")
+
     emotion_data_collection.insert_one(
         {
             "user_id": session["user_id"],
             "emotion": emotion_text,
-            "timestamp": timestamp,
+            "timestamp": datetime.utcnow().strftime("%m/%d/%Y %I:%M:%S %p"),
         }
     )
 
     return {"emotion": emotion_text, "timestamp": timestamp}
+
 
 @app.route("/dashboard")
 def dashboard():
@@ -132,14 +163,17 @@ def dashboard():
         {"user_id": session["user_id"]}, sort=[("timestamp", -1)]
     )
     username = session.get("username", "User")
-    return render_template("dashboard.html", last_emotion=last_emotion, username=username)
+    return render_template(
+        "dashboard.html", last_emotion=last_emotion, username=username
+    )
 
 
-@app.route("/logout", methods=["POST"])
+@app.route("/logout")
 def logout():
-    session.pop("user_id", None)
-    session.pop("username", None)
-    flash("Logged out successfully.", "info")
+    """
+    Clear the user's session and redirect them to the index page.
+    """
+    session.clear()  # Clears all session data
     return redirect(url_for("index"))
 
 

@@ -7,6 +7,7 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
 </head>
 <body>
+
     <!-- Navigation Bar -->
     <nav class="navbar">
         <div class="container">
@@ -26,15 +27,80 @@
         <section class="card">
             <div class="card-body">
                 <h3>Live Camera Feed</h3>
-                <p>Use the live feed below to capture your mood.</p>
-                <div class="live-feed">
-                    <img src="/video_feed" alt="Live Camera Feed" class="live-feed-image">
-                </div>
-                <form action="/capture" method="POST" class="capture-form">
-                    <button type="submit" class="btn capture-btn">Capture Mood</button>
-                </form>
+                <!-- Video Stream -->
+                <video id="video" class="video-feed" autoplay></video>
+                <!-- Capture Button -->
+                <button id="capture-btn" class="btn btn-primary mt-2">Capture Emotion</button>
+                <!-- Canvas for processing -->
+                <canvas id="canvas" width="640" height="480" style="display:none;"></canvas>
+                <!-- Display Result -->
+                <p id="result" class="mt-2"></p>
             </div>
         </section>
+        
+        <style>
+            .card-body {
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+            }
+        
+            .video-feed {
+                width: 100%; /* Adjust to fit the card width */
+                max-width: 640px; /* Restrict max size */
+                height: auto; /* Maintain aspect ratio */
+                border-radius: 8px; /* Optional styling */
+                box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Optional shadow */
+            }
+        
+            #capture-btn {
+                margin-top: 10px;
+                padding: 10px 20px;
+                font-size: 16px;
+            }
+        </style>
+        
+        <script>
+            const video = document.getElementById('video');
+            const canvas = document.getElementById('canvas');
+            const captureBtn = document.getElementById('capture-btn');
+            const result = document.getElementById('result');
+        
+            // Access the user's camera
+            navigator.mediaDevices.getUserMedia({ video: true })
+                .then((stream) => {
+                    video.srcObject = stream;
+                })
+                .catch((err) => {
+                    console.error("Error accessing the camera:", err);
+                });
+        
+            // Capture the image and send it to Flask
+            captureBtn.addEventListener('click', async () => {
+                const context = canvas.getContext('2d');
+                context.drawImage(video, 0, 0, canvas.width, canvas.height);
+                const imageData = canvas.toDataURL('image/jpeg');
+        
+                try {
+                    const response = await fetch('/capture', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ image: imageData })
+                    });
+        
+                    const resultData = await response.json();
+                    if (resultData.error) {
+                        result.textContent = `Error: ${resultData.error}`;
+                    } else {
+                        result.textContent = `Detected Emotion: ${resultData.emotion}`;
+                    }
+                } catch (error) {
+                    console.error("Error sending image to Flask:", error);
+                    result.textContent = "Error detecting emotion.";
+                }
+            });
+        </script>
+        
 
         <!-- Last Detected Emotion Section -->
         <section class="card">

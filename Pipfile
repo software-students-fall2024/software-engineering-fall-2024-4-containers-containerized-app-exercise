@@ -4,16 +4,23 @@ verify_ssl = true
 name = "pypi"
 
 [packages]
-requests = "*"
 opencv-python = "*"
 numpy = "*"
 flask = "*"
 pymongo = "*"
+bcrypt = "*"
+python-dotenv = "*"
+requests = "*"
+black = "*"
+pylint = "*"
+tensorflow = "*"
+pytest = "*"
 
 [dev-packages]
-pytest = "*"
 pytest-flask = "*"
+black = "*"
 pytest-cov = "*"
+pytest = "*"
 
 [requires]
 python_version = "3.11"
