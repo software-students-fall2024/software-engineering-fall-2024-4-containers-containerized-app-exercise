@@ -8,7 +8,7 @@ services:
       - MONGO_INITDB_ROOT_USERNAME=${MONGODB_USERNAME}
       - MONGO_INITDB_ROOT_PASSWORD=${MONGODB_PASSWORD}
     volumes:
-      - mongodb-data:/data/db
+      - ./data:/data/db
     ports:
       - "27017:27017"
 
@@ -18,11 +18,10 @@ services:
     depends_on:
       - mongodb
     environment:
-      - MONGODB_URI=${MONGODB_URI}
+      - MONGODB_URI=mongodb://${MONGODB_USERNAME}:${MONGODB_PASSWORD}@mongodb-container:27017
       - MONGODB_USERNAME=${MONGODB_USERNAME}
       - MONGODB_PASSWORD=${MONGODB_PASSWORD}
-    command: >
-      sh -c "while ! nc -z mongodb-container 27017; do sleep 1; done && python3 app.py"
+    command: ["sh", "-c", "python3 app.py"]
     ports:
       - "5050:5050"
 
@@ -33,12 +32,9 @@ services:
       - mongodb
       - machine-learning-client
     environment:
-      - DB_URI=${MONGODB_URI}
+      - DB_URI=mongodb://${MONGODB_USERNAME}:${MONGODB_PASSWORD}@mongodb-container:27017
       - SECRET=${SECRET}
+    command: ["sh", "-c", "python3 app.py"]
     ports:
       - "8080:8080"
-    command: >
-      sh -c "while ! nc -z ml-container 5050; do sleep 1; done && python3 app.py"
 
-volumes:
-  mongodb-data:
