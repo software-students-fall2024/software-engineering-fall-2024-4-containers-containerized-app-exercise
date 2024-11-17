@@ -3,7 +3,6 @@ This application serves as the main entry point for the machine learning client,
 connecting to MongoDB and performing data analysis tasks.
 """
 
-import os
 from io import BytesIO
 from datetime import datetime
 import base64
