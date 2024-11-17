@@ -102,7 +102,6 @@
         <thead>
             <tr>
                 <th>Timestamp</th>
-                <th>File Name</th>
                 <th>Transcript</th>
                 <th>Sentiment</th>
             </tr>
@@ -127,12 +126,31 @@ function loadMoodTrends() {
                             labels: Object.keys(data),
                             datasets: [{
                                 data: Object.values(data),
-                                backgroundColor: ['#4CAF50', '#F44336', '#FFEB3B']
+                                backgroundColor: [
+                                    '#F6A5A5',  // Light Red for Negative
+                                    '#FFF6B5', // Light Yellow for Neutral
+                                    '#A8D5BA', // Light Green for Positive
+
+
+                                ]
                             }]
                         },
                         options: {
-                            responsive: true
+                            responsive: true,
+                             plugins: {
+                                legend: {
+                                    position: 'top',
+                                    labels: {
+                                        color: '#444', // Matches the dreamy theme
+                                        font: {
+                                            family: "'Arial', sans-serif",
+                                            size: 14
+                                        }
+                                    }
+                                }
+                            }
                         }
+
                     });
                 })
                 .catch(error => {
@@ -153,7 +171,7 @@ function loadMoodTrends() {
                         // If no entries found, display a message
                         const row = document.createElement('tr');
                         const cell = document.createElement('td');
-                        cell.colSpan = 4;
+                        cell.colSpan = 3;
                         cell.textContent = 'No recent entries found.';
                         row.appendChild(cell);
                         tableBody.appendChild(row);
@@ -168,9 +186,9 @@ function loadMoodTrends() {
                         timestampCell.textContent = entry.timestamp;
                         row.appendChild(timestampCell);
 
-                        const fileNameCell = document.createElement('td');
-                        fileNameCell.textContent = entry.file_name;
-                        row.appendChild(fileNameCell);
+                        //const fileNameCell = document.createElement('td');
+                        //fileNameCell.textContent = entry.file_name;
+                        //row.appendChild(fileNameCell);
 
                         const transcriptCell = document.createElement('td');
                         transcriptCell.textContent = entry.transcript;
