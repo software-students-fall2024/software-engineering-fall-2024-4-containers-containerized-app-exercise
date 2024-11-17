@@ -177,7 +177,7 @@ function loadMoodTrends() {
                         row.appendChild(transcriptCell);
 
                         const sentimentCell = document.createElement('td');
-                        sentimentCell.textContent = entry.sentiment;
+                        sentimentCell.textContent = entry.sentiment.mood;
                         row.appendChild(sentimentCell);
 
                         tableBody.appendChild(row);
