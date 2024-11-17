@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Sound Analyzer</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+</head>
+<body>
+    <h1>Sound Analyzer</h1>
+    <div class="button-container">
+        <a href="{{ url_for('analyze') }}" class="button">Analyze Sound</a>
+        <a href="{{ url_for('results') }}" class="button">Records</a>
+    </div>
+</body>
+</html>

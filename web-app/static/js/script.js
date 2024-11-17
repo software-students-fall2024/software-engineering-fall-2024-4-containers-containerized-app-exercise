@@ -47,6 +47,27 @@ recordButton.addEventListener('click', () => {
                             console.error('Server error:', data.error);
                         } else {
                             resultDiv.textContent = `Sound classified as: ${data.classification} at ${data.timestamp}`;
+
+                            // Send the result to the web app server to save it
+                            fetch('/save_result', {
+                                method: 'POST',
+                                headers: {
+                                    'Content-Type': 'application/json'
+                                },
+                                body: JSON.stringify({
+                                    classification: data.classification,
+                                    timestamp: data.timestamp
+                                })
+                            })
+                            .then(res => res.json())
+                            .then(saveData => {
+                                if (saveData.status !== 'success') {
+                                    console.error('Error saving result:', saveData.message);
+                                }
+                            })
+                            .catch(error => {
+                                console.error('Error saving result:', error);
+                            });
                         }
                     })
                     .catch(error => {
