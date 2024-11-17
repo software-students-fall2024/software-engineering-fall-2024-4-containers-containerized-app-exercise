@@ -6,11 +6,9 @@ services:
       - MONGO_INITDB_ROOT_USERNAME=${MONGODB_USERNAME}
       - MONGO_INITDB_ROOT_PASSWORD=${MONGODB_PASSWORD}
     volumes:
-      - type: bind
-        source: ./data
-        target: /data/db
+      - ./data:/data/db
     ports:
-      - "27017:27017"  
+      - "27017:27017"
 
   machine-learning-client:
     build: ./machine-learning-client
@@ -18,9 +16,9 @@ services:
     depends_on:
       - mongodb
     environment:
-    - MONGODB_URI=${MONGODB_URI}
-    - MONGODB_USERNAME=${MONGODB_USERNAME}
-    - MONGODB_PASSWORD=${MONGODB_PASSWORD}
+      - MONGODB_URI=${MONGODB_URI}
+      - MONGODB_USERNAME=${MONGODB_USERNAME}
+      - MONGODB_PASSWORD=${MONGODB_PASSWORD}
     command: python3 app.py
     ports:
       - "5050:5050"
@@ -37,4 +35,3 @@ services:
     ports:
       - "8080:8080"
     command: python3 app.py
-
