@@ -14,7 +14,6 @@ from pymongo import MongoClient
 from pymongo.errors import PyMongoError
 from dotenv import load_dotenv
 
-
 load_dotenv()
 MONGO_URI = os.getenv("MONGO_URI", "mongodb://localhost:27017")
 ML_CLIENT_URL = os.getenv(
@@ -118,6 +117,7 @@ def upload_audio():
             )
 
         if response.status_code == 200:
+
             return (
                 jsonify(
                     {
