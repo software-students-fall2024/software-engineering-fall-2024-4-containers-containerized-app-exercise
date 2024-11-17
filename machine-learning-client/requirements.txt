@@ -1,0 +1,9 @@
+Flask
+librosa
+numpy
+sounddevice
+scikit-learn==1.3.2
+pylint
+flask-cors
+soundfile
+pydub

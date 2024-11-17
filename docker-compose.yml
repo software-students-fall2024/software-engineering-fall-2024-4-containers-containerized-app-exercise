@@ -1,0 +1,40 @@
+version: '3.8'
+
+services:
+  mongodb:
+    image: mongo
+    container_name: mongodb
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongodbdata:/data/db
+
+  ml-client:
+    build: ./machine-learning-client
+    container_name: ml-client
+    depends_on:
+      - mongodb
+    ports:
+      - "5001:5001"
+    environment:
+      - FLASK_ENV=development
+    volumes:
+      - ./machine-learning-client:/app
+
+  web-app:
+    build: ./web-app
+    container_name: web-app
+    depends_on:
+      - ml-client
+      - mongodb
+    ports:
+      - "5000:5000"
+    environment:
+      - FLASK_ENV=development
+      - MONGO_HOST=mongodb
+      - MONGO_PORT=27017
+    volumes:
+      - ./web-app:/app
+
+volumes:
+  mongodbdata:
