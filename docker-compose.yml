@@ -1,0 +1,37 @@
+version: '3.8'
+
+services:
+  mongodb:
+    image: mongo
+    container_name: mongodb
+    ports:
+      - "27017:27017"
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: secret
+
+  machine-learning-client:
+    build:
+      context: ./machine-learning-client
+    environment:
+      - MONGO_URI=mongodb://root:voice_mood@mongodb:27017
+      - AUDIO_DIR=/app/audio
+    volumes:
+      - ./audio:/app/audio
+    depends_on:
+      - mongodb
+
+  web-app:
+    build:
+      context: ./web-app
+    environment:
+      - MONGO_URI=mongodb://root:voice_mood@mongodb:27017
+      - ML_CLIENT_URL=http://machine-learning-client:5001/process-audio
+    ports:
+      - "5000:5000"
+    depends_on:
+      - mongodb
+      - machine-learning-client
+    links:
+      - mongodb
+      - machine-learning-client
