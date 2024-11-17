@@ -1,14 +1,18 @@
+# Pipfile
 [[source]]
 url = "https://pypi.org/simple"
 verify_ssl = true
 name = "pypi"
 
 [packages]
-pylint = "*"
-black = "*"
-flask = "*"
+flask = "==3.0.3"
+flask_cors = "==3.0.10"
+pymongo = "==4.10.1"
+python-dotenv = "==1.0.1"
 
 [dev-packages]
+pylint = "*"
+black = "*"
 
 [requires]
 python_version = "3.10"
