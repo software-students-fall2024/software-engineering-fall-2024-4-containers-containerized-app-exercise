@@ -4,13 +4,12 @@ A simple Flask web application for the machine-learning-client service.
 This app provides a basic HTTP server with a single route that returns a greeting message.
 It's primarily used to keep the container running for testing and service purposes.
 """
+
 from flask import Flask, jsonify, request
 from pymongo import MongoClient
 from bson import ObjectId
 import speech_recognition as sr
 import os
-import gridfs
-from datetime import datetime
 
 app = Flask(__name__)
 
