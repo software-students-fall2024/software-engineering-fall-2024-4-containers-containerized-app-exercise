@@ -110,17 +110,6 @@ def upload_audio():
             500,
         )
 
-    # Validate the format
-    if not file_path.endswith((".wav", ".flac", ".aiff")):
-        return (
-            jsonify(
-                {
-                    "error": "Unsupported file format. Please upload a WAV, FLAC, or AIFF file."
-                }
-            ),
-            400,
-        )
-
     # Forward the **converted** file to the machine learning client
     try:
         with open(converted_file_path, "rb") as file_obj:

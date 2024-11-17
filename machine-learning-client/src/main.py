@@ -86,5 +86,6 @@ def process_audio():
         logger.error("Runtime error: %s", runtime_error)
         return jsonify({"error": "Runtime error", "details": str(runtime_error)}), 500
 
+
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5001)
