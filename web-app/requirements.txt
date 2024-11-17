@@ -1,7 +1,6 @@
 Flask
 pymongo
 pytest
-bson
 pytest-cov
 pytest-flask
 pylint
