@@ -12,6 +12,7 @@ pylint = "*"
 black = "*"
 tomli = "*"
 typing-extensions = "*"
+python-dotenv = "*"
 
 [requires]
 python_version = "3.11"

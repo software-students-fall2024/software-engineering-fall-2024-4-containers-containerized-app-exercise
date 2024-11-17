@@ -5,7 +5,13 @@
     <h1 class="display-4">Welcome to the mood detection system</h1>
     <p class="lead">This is a machine learning-based emotion detection system that analyzes the emotional state of people in pictures</p>
     <hr class="my-4">
-    <p>Click the button below to start using the detection function</p>
-    <a class="btn btn-primary btn-lg" href="/dashboard" role="button">Start detection</a>
+    {% if session.user %}
+        <p>Click the button below to start using the detection function</p>
+        <a class="btn btn-primary btn-lg" href="/dashboard" role="button">Start detection</a>
+    {% else %}
+        <p>Please login or register to start using the detection function</p>
+        <a class="btn btn-primary btn-lg" href="/login" role="button">Login</a>
+        <a class="btn btn-secondary btn-lg" href="/register" role="button">Register</a>
+    {% endif %}
 </div>
 {% endblock %}
