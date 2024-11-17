@@ -3,10 +3,12 @@ Web application routes module.
 This module defines all the routes and their handling logic.
 """
 
-from flask import render_template, request, redirect, url_for, flash, session
+from flask import render_template, request, redirect, url_for, flash, session, send_file
 from app import app
 from app.models import Database
 from werkzeug.security import generate_password_hash, check_password_hash
+import io
+from bson.objectid import ObjectId
 
 
 @app.route("/")
@@ -78,14 +80,25 @@ def dashboard():
         if image_file:
             # Save the image and get detection result
             image_data = image_file.read()
-            detection_result_id = db.save_picture(user_id, image_data)
-            
-            if detection_result_id:
-                # Fetch the detection result using the ID
-                result = db.get_detection_result(detection_result_id)
-            else:
-                flash("Error processing image")
+            result = db.save_picture(user_id, image_data)
     
-    # Pass user_id to get_latest_results to filter by user
-    history = db.get_latest_results(user_id=user_id)
+    # 获取用户的历史记录
+    history = db.get_latest_results(user_id)
+    
     return render_template("dashboard.html", result=result, history=history)
+
+
+@app.route('/images/<image_id>')
+def get_image(image_id):
+    """Get image from database"""
+    try:
+        db = Database()
+        image_data = db.get_image(image_id)
+        if image_data:
+            return send_file(
+                io.BytesIO(image_data),
+                mimetype='image/jpeg'
+            )
+    except Exception as e:
+        print(f"Error getting image: {e}")
+    return 'Image not found', 404

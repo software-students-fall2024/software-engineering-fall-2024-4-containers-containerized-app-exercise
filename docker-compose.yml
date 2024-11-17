@@ -6,7 +6,9 @@ services:
       - MONGO_INITDB_ROOT_USERNAME=admin
       - MONGO_INITDB_ROOT_PASSWORD=password
     ports:
-      - 27017:27017
+      - "27017:27017"
+    volumes:
+      - mongodb_data:/data/db
     networks:
       - mongo-network
 
@@ -20,7 +22,7 @@ services:
       - ME_CONFIG_BASICAUTH_PASSWORD=pass
       - ME_CONFIG_MONGODB_URL=mongodb://admin:password@mongodb:27017/
     ports:
-      - 8080:8081
+      - "8081:8081"
     depends_on:
       - mongodb
     networks:
@@ -30,25 +32,39 @@ services:
     build:
       context: ./web-app
     environment:
+      - FLASK_APP=run.py
+      - FLASK_ENV=development
       - MONGODB_HOST=mongodb
       - MONGODB_PORT=27017
       - MONGODB_USERNAME=admin
       - MONGODB_PASSWORD=password
       - MONGODB_DATABASE=emotion_detection
+      - ML_CLIENT_URL=http://ml-client:5001
+    ports:
+      - "5000:5000"
+    volumes:
+      - ./web-app:/app
     networks:
       - mongo-network
     depends_on:
       - mongodb
+      - ml-client
 
   ml-client:
     build: 
       context: ./machine-learning-client
     environment:
+      - FLASK_APP=api.py
+      - FLASK_ENV=development
       - MONGODB_HOST=mongodb
       - MONGODB_PORT=27017
       - MONGODB_USERNAME=admin
       - MONGODB_PASSWORD=password
       - MONGODB_DATABASE=emotion_detection
+    ports:
+      - "5001:5001"
+    volumes:
+      - ./machine-learning-client:/app
     networks:
       - mongo-network
     depends_on:
@@ -57,6 +73,9 @@ services:
 networks:
   mongo-network:
     driver: bridge
+
+volumes:
+  mongodb_data:
 
 
   

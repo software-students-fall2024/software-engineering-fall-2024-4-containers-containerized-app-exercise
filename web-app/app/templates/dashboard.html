@@ -28,11 +28,19 @@
                 {% if result %}
                 <div class="result-container">
                     <img src="{{ result.image_url }}" class="img-fluid mb-3">
-                    <h5>Detected emotions: {{ result.emotion }}</h5>
-                    <div class="progress">
-                        <div class="progress-bar" role="progressbar" style="width: {{ result.confidence }}%">
-                            Confidence: {{ result.confidence }}%
-                        </div>
+                    <h5>Detected emotions:</h5>
+                    <div class="emotion-results">
+                        {% for emotion, score in result.emotion.items() %}
+                            <div class="emotion-item">
+                                <span class="emotion-label">{{ emotion }}:</span>
+                                <div class="progress">
+                                    <div class="progress-bar" role="progressbar" 
+                                         style="width: {{ score * 100 }}%">
+                                        {{ "%.2f"|format(score) }}
+                                    </div>
+                                </div>
+                            </div>
+                        {% endfor %}
                     </div>
                 </div>
                 {% else %}
@@ -47,29 +55,32 @@
     <div class="col-12">
         <div class="card">
             <div class="card-header">
-                History
+                Detection History
             </div>
             <div class="card-body">
-                <table class="table">
-                    <thead>
-                        <tr>
-                            <th>time</th>
-                            <th>photo</th>
-                            <th>Detection result</th>
-                            <th>confidence</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for record in history %}
-                        <tr>
-                            <td>{{ record.timestamp }}</td>
-                            <td><img src="{{ record.image_url }}" height="50"></td>
-                            <td>{{ record.emotion }}</td>
-                            <td>{{ record.confidence }}%</td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
+                {% if history %}
+                    <div class="row">
+                    {% for item in history %}
+                        <div class="col-md-4 mb-3">
+                            <div class="card">
+                                <img src="{{ item.image_url }}" class="card-img-top">
+                                <div class="card-body">
+                                    <p class="card-text">
+                                        {% for emotion, score in item.emotion.items() %}
+                                            {{ emotion }}: {{ "%.2f"|format(score) }}<br>
+                                        {% endfor %}
+                                    </p>
+                                    <small class="text-muted">
+                                        {{ item.timestamp.strftime('%Y-%m-%d %H:%M:%S') }}
+                                    </small>
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                    </div>
+                {% else %}
+                    <p>No detection history available.</p>
+                {% endif %}
             </div>
         </div>
     </div>

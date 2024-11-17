@@ -7,6 +7,7 @@ from datetime import datetime
 from pymongo import MongoClient
 import requests
 import os
+from bson.objectid import ObjectId
 
 
 class Database:
@@ -20,30 +21,46 @@ class Database:
         port = os.environ.get('MONGODB_PORT', '27017')
         
         # Create connection URL with authentication
-        connection_string = f"mongodb://{username}:{password}@{host}:{port}"
-        
+        connection_string = f"mongodb://{username}:{password}@{host}:{port}/?authSource=admin"        
         # Connect to MongoDB with authentication
         self.client = MongoClient(connection_string)
         self.db = self.client.emotion_detection
 
-    def get_latest_results(self, user_id, limit=10):
+    def get_latest_results(self, user_id, limit=5):
         """
-        Retrieve the latest emotion detection results for a specific user.
+        Get latest detection results for a user
 
         Args:
-            user_id (str): Email of the user
+            user_id (str): User's email
             limit (int): Maximum number of results to return
 
         Returns:
-            list: List of detection results for the user
+            list: List of detection results
         """
         try:
-            results = list(self.db.detection_results.find(
+            # 获取用户最近的图片记录
+            pictures = self.db.pictures.find(
                 {"user_id": user_id}
-            ).sort("timestamp", -1).limit(limit))
+            ).sort("timestamp", -1).limit(limit)
+
+            results = []
+            for pic in pictures:
+                # 获取对应的情绪检测结果
+                detection = self.db.detection_results.find_one({
+                    "user_id": user_id,
+                    "picture_id": str(pic["_id"])
+                })
+                
+                if detection:
+                    results.append({
+                        'image_url': f'/images/{str(pic["_id"])}',
+                        'emotion': detection['emotions'],
+                        'timestamp': pic['timestamp']
+                    })
+                    
             return results
-        except Exception as e:  # pylint: disable=broad-except
-            print(f"Error getting results: {e}")
+        except Exception as e:
+            print(f"Error getting latest results: {e}")
             return []
 
     def find_user(self, query):
@@ -82,9 +99,10 @@ class Database:
             image_data (bytes): Binary image data
 
         Returns:
-            detection_result_id (str): mood result id of detection
+            dict: Detection results or None if failed
         """
         try:
+            # 保存图片到数据库
             pic_doc = {
                 "user_id": user_id,
                 "image": image_data,
@@ -92,12 +110,35 @@ class Database:
             }
             result = self.db.pictures.insert_one(pic_doc)
             pic_id = str(result.inserted_id)
-        
-            # Get emotion detection result
-            detection_result_id = self.get_emotion_detection(pic_id)
-            return detection_result_id
+
+            # 调用 ML Client 的检测接口
+            files = {'image': ('image.jpg', image_data, 'image/jpeg')}
+            data = {'user_id': user_id}
+            response = requests.post(
+                'http://ml-client:5001/detect',
+                files=files,
+                data=data
+            )
+
+            if response.status_code == 200:
+                detection_result = response.json()
+                if detection_result['status'] == 'success':
+                    # 保存检测结果到数据库
+                    detection_doc = {
+                        "user_id": user_id,
+                        "picture_id": pic_id,
+                        "emotions": detection_result['emotions'],
+                        "timestamp": datetime.now()
+                    }
+                    self.db.detection_results.insert_one(detection_doc)
+                    
+                    return {
+                        'image_url': f'/images/{pic_id}',
+                        'emotion': detection_result['emotions']
+                    }
+            return None
             
-        except Exception as e:  # pylint: disable=broad-except
+        except Exception as e:
             print(f"Error saving picture: {e}")
             return None
 
@@ -116,4 +157,23 @@ class Database:
             return result
         except Exception as e:  # pylint: disable=broad-except
             print(f"Error getting detection result: {e}")
+            return None
+
+    def get_image(self, image_id):
+        """
+        Get image data from database by ID
+
+        Args:
+            image_id (str): ID of the image
+
+        Returns:
+            bytes: Image data or None if not found
+        """
+        try:
+            result = self.db.pictures.find_one({'_id': ObjectId(image_id)})
+            if result and 'image' in result:
+                return result['image']
+            return None
+        except Exception as e:
+            print(f"Error getting image: {e}")
             return None
