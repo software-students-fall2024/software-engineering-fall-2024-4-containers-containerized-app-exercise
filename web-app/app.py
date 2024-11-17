@@ -54,8 +54,8 @@ def save_result():
 @app.route("/results")
 def results():
     """Retrieve and display stored classification results."""
-    results = list(collection.find())
-    return render_template("results.html", results=results)
+    classification_results = list(collection.find())
+    return render_template("results.html", results=classification_results)
 
 
 @app.route("/delete_result/<result_id>", methods=["POST"])
