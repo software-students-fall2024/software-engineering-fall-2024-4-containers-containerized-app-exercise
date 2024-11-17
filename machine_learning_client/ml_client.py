@@ -46,8 +46,15 @@ def detect_emotion(frame):
         str: The detected emotion label.
     """
     # Preprocess the image as required by the model
-    resized_frame = cv2.resize(frame, (48, 48))  # Resize to match model input size
-    grayscale = cv2.cvtColor(resized_frame, cv2.COLOR_BGR2GRAY)
+    # Resize the frame to match the model input size
+    resized_frame = cv2.resize(frame, (48, 48))
+
+    # Ensure the input has the correct number of channels for cv2.cvtColor
+    if len(resized_frame.shape) == 2:  # Grayscale input
+        grayscale = resized_frame
+    else:  # Convert BGR to Grayscale if not already
+        grayscale = cv2.cvtColor(resized_frame, cv2.COLOR_BGR2GRAY)
+
     input_data = np.expand_dims(grayscale, axis=[0, -1]) / 255.0  # Normalize
 
     # Get the model's prediction
