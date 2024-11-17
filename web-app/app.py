@@ -9,16 +9,8 @@ from pymongo import MongoClient
 import requests
 
 connstr = getenv("DB_URI")
-key = getenv("SECRET")
-
-if connstr is None:
-    raise ValueError("Database URI could not be loaded: check .env file")
-
-if key is None:
-    raise ValueError("Flask secret could not be loaded: check .env file")
 
 app = Flask(__name__)
-app.secret_key = key
 
 client = MongoClient(connstr)
 db = client["audio_db"]
