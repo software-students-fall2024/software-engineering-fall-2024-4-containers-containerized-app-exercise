@@ -5,7 +5,7 @@ This module sets up the Flask application for the Plant Identifier project.
 import os
 from bson import ObjectId
 from dotenv import load_dotenv
-from flask import Flask, request, render_template, redirect, make_response, url_for
+from flask import Flask, request, render_template, redirect, make_response, session, url_for
 import pymongo
 
 # from werkzeug.utils import secure_filename
@@ -25,6 +25,29 @@ def create_app():
     @app.route("/")
     def home():
         return render_template("home.html")
+    
+    @app.route("/login", methods=["GET", "POST"])
+    def login():
+        if request.method == "POST":
+            username = request.form["username"]
+            password = request.form["password"]
+
+            session["username"] = username
+            
+            return redirect("/")
+        return render_template("login.html")
+    
+    @app.route("/signup", methods=["GET", "POST"])
+    def signup():
+        if request.method == "POST":
+            username = request.form["username"]
+            password = request.form["password"]
+
+            db.users.insert_one({"username":username, "password":password})
+            session["username"] = username
+
+            return redirect("/")
+        return render_template("signup.html")
 
     @app.route("/upload", methods=["GET", "POST"])
     def upload():
@@ -33,7 +56,8 @@ def create_app():
             plant_name = "placeholder"
             plant_data = {
                 "photo":plant_photo,
-                "name":plant_name
+                "name":plant_name,
+                "user":session["username"]
             }
             new_entry = db.plants.insert_one(plant_data)
             new_entry_id = new_entry.inserted_id
@@ -74,9 +98,7 @@ def create_app():
 
     @app.route("/history")
     def history():
-        all_results = list(db.plants.find())
-        print(all_results)
-        # return render_template("home.html")
+        all_results = list(db.plants.find({"user":session["username"]}))
         return render_template("history.html", all_results=all_results)
 
     return app
