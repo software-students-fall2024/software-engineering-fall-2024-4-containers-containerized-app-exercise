@@ -15,10 +15,10 @@ black = "*"
 pylint = "*"
 
 [dev-packages]
-pytest = "*"
 pytest-flask = "*"
-pytest-cov = "*"
 black = "*"
+pytest = "*"
+pytest-cov = "*"
 
 [requires]
 python_version = "3.11"

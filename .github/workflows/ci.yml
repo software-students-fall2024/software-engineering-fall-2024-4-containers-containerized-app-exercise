@@ -28,7 +28,7 @@ jobs:
       - name: Install dependencies with pipenv
         run: |
           pipenv --python $(which python3)  # Ensure pipenv uses the correct Python version
-          pipenv install --deploy --ignore-pipfile
+          pipenv install --dev --deploy --ignore-pipfile
 
       - name: Check for required files
         run: |
@@ -47,3 +47,4 @@ jobs:
       - name: Run tests with pytest and coverage
         run: |
           pipenv run pytest --cov=machine_learning_client machine_learning_client/test_ml_client.py
+
