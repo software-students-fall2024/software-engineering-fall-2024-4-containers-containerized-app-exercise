@@ -1,3 +1,7 @@
+"""
+This module establishes a connection to MongoDB using pymongo.
+"""
+
 import os
 from dotenv import load_dotenv
 from pymongo import MongoClient
@@ -12,3 +16,4 @@ MONGODB_URI = os.getenv("MONGODB_URI")
 client = MongoClient(MONGODB_URI)
 
 db = client['Its_over_again_database']
+
