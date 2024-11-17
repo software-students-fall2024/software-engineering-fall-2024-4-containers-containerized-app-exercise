@@ -26,6 +26,20 @@ services:
     networks:
       - mongo-network
 
+  web-app:
+    build:
+      context: ./web-app
+    environment:
+      - MONGODB_HOST=mongodb
+      - MONGODB_PORT=27017
+      - MONGODB_USERNAME=admin
+      - MONGODB_PASSWORD=password
+      - MONGODB_DATABASE=emotion_detection
+    networks:
+      - mongo-network
+    depends_on:
+      - mongodb
+
   ml-client:
     build: 
       context: ./machine-learning-client
