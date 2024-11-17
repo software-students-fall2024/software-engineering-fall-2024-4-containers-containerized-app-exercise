@@ -5,7 +5,7 @@ A Flask web application for a Rock-Paper-Scissors game with AI and ML integratio
 import os
 import time
 import random
-import logging  # Fixed import order
+import logging
 from flask import Flask, render_template, request, jsonify
 import requests
 from requests.exceptions import RequestException
@@ -34,10 +34,12 @@ def retry_request(url, files, retries=5, delay=2, timeout=10):
             response = requests.post(url, files=files, timeout=timeout)
             response.raise_for_status()
             return response
-        except RequestException:
+        except RequestException as error:
+            logging.warning("Retry attempt %d failed: %s", attempt + 1, str(error))
             if attempt < retries - 1:
                 time.sleep(delay)
             else:
+                logging.error("All retry attempts failed.")
                 return None
     return None
 
@@ -82,14 +84,24 @@ def result():
         response = retry_request(f"{ml_client_url}/predict", files={"image": file})
         if not response:
             app.logger.error("ML client did not respond")
-            return jsonify({"error": "ML client did not respond"}), 500
+            return render_template(
+                "result.html",
+                user="Unknown",
+                ai=random.choice(["Rock", "Paper", "Scissors"]),
+                result="No valid prediction. Please try again.",
+            )
         user_gesture = response.json().get("gesture", "Unknown")
+        if user_gesture == "Unknown":
+            app.logger.warning("Prediction returned 'Unknown'.")
+            return render_template(
+                "result.html",
+                user="Unknown",
+                ai=random.choice(["Rock", "Paper", "Scissors"]),
+                result="Gesture not recognized. Please try again.",
+            )
     except RequestException as error:
         app.logger.error("Error communicating with ML client: %s", str(error))
-        return (
-            jsonify({"error": f"Error communicating with ML client: {str(error)}"}),
-            500,
-        )
+        return jsonify({"error": "Error communicating with ML client"}), 500
 
     ai_gesture = random.choice(["Rock", "Paper", "Scissors"])
     game_result = determine_winner(user_gesture, ai_gesture)
