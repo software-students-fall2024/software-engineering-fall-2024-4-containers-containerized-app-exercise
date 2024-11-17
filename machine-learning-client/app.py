@@ -10,6 +10,7 @@ from pymongo import MongoClient
 from bson import ObjectId
 import speech_recognition as sr
 import os
+import gridfs
 
 app = Flask(__name__)
 
