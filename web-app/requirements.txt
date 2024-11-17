@@ -1,2 +1,5 @@
-Flask>=2.0
-pylint
+Flask==2.2.5
+Werkzeug==2.2.3
+pymongo==4.10.1
+flask_cors==3.0.10
+python-dotenv==1.0.0
