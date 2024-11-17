@@ -10,6 +10,8 @@ import tensorflow as tf
 from pymongo import MongoClient
 import os
 
+# pylint: disable=all
+
 # Initialize the Flask app
 app = Flask(__name__)
 
