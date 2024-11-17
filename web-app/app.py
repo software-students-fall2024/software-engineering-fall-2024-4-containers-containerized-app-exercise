@@ -36,7 +36,7 @@ def index():
     metadata = list(
         metadata_collection.find(
             {}, 
-            {"file_id": 1, "name": 1, "upload_time": 1, "transcription": 1, "_id": 0}
+            {"file_id": 1, "name": 1, "upload_time": 1, "transcription": 1, "_id": 0},
         )
     )
 
