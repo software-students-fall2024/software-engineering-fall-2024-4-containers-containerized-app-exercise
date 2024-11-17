@@ -13,6 +13,7 @@ python-dotenv = "*"
 requests = "*"
 black = "*"
 pylint = "*"
+tensorflow = "*"
 
 [dev-packages]
 pytest-flask = "*"
