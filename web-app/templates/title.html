@@ -4,19 +4,25 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Rock Paper Scissors</title>
-    <link rel="stylesheet" href="title-styles.css">
+    <link rel="stylesheet" href="../static/css/title-style.css">
 </head>
 <body>
     <div>
         <video autoplay muted loop class="background">
-            <source src="../images/icons.mp4" type="video/mp4">
-            <img src="../images/icons bg.jpg">
+            <source src="../static/images/icons.mp4" type="video/mp4">
+            <img src="../static/images/icons bg.jpg" alt="Background Image">          
         </video>
     </div>
     <h1>Rock Paper Scissors</h1>
     <div class="buttons">
-        <button>New Round</button>
-        <button>Statistics</button>
+        <button onclick="navigateTo('{{ url_for('index') }}')">New Round</button>
+        <button onclick="navigateTo('{{ url_for('statistics') }}')">Statistics</button>
     </div>
+
+    <script>
+        function navigateTo(page) {
+            window.location.href = page;
+        }
+    </script>
 </body>
 </html>
