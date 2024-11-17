@@ -12,7 +12,16 @@ class Database:
 
     def __init__(self):
         """Initialize database connection."""
-        self.client = MongoClient("mongodb://192.168.80.130:27017/")
+        username = "admin"
+        password = "password"
+        host = "192.168.80.130"
+        port = 27017
+        
+        # Create connection URL with authentication
+        connection_string = f"mongodb://{username}:{password}@{host}:{port}"
+        
+        # Connect to MongoDB with authentication
+        self.client = MongoClient(connection_string)
         self.db = self.client.emotion_detection
 
     def get_latest_results(self, limit=10):
@@ -56,3 +65,11 @@ class Database:
         except Exception as e:  # pylint: disable=broad-except
             print(f"Error saving result: {e}")
             return False
+
+    def find_user(self, query):
+        """Find a user in the database"""
+        return self.db.users.find_one(query)
+
+    def add_user(self, user_data):
+        """Add a new user to the database"""
+        return self.db.users.insert_one(user_data)
