@@ -13,7 +13,6 @@ import os
 load_dotenv()
 
 
-
 # # Initialize the main window
 # win = Tk()
 # width = win.winfo_screenwidth()
@@ -34,11 +33,9 @@ collection = db["ASL_COLLECTION"]
 fs = gridfs.GridFS(db)
 
 
-
 def process_image(inputImage):
-    global img, finalImage, finger_tips, thumb_tip, cap, image, rgb, hand, results, w, h, \
-       status, mpDraw, mpHands, hands, label1, cshow, upCount
-    
+    global img, finalImage, finger_tips, thumb_tip, cap, image, rgb, hand, results, w, h, status, mpDraw, mpHands, hands, label1, cshow, upCount
+
     # Define Mediapipe hand-related variables
     finger_tips = [8, 12, 16, 20]
     thumb_tip = 4
@@ -46,10 +43,9 @@ def process_image(inputImage):
     mpHands = mp.solutions.hands
     hands = mpHands.Hands()
     mpDraw = mp.solutions.drawing_utils
-       
-       
+
     # global img, finalImage, cshow, label1, upCount, rgb, results
-    cshow=''
+    cshow = ""
     upCount = StringVar()
 
     # # Open file dialog to select image
@@ -60,7 +56,7 @@ def process_image(inputImage):
     #     return  # If no file is selected, return
 
     # Read and process the image
-    img = inputImage#cv2.imread(file_path)
+    img = inputImage  # cv2.imread(file_path)
     img = cv2.resize(img, (w, h))
     rgb = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
     results = hands.process(rgb)
@@ -82,98 +78,148 @@ def process_image(inputImage):
             x, y = int(lm_list[8].x * w), int(lm_list[8].y * h)
             print(x, y)
             # stop
-            if lm_list[4].y < lm_list[2].y and lm_list[8].y < lm_list[6].y and lm_list[12].y < lm_list[10].y and \
-                    lm_list[16].y < lm_list[14].y and lm_list[20].y < lm_list[18].y and lm_list[17].x < lm_list[0].x < \
-                    lm_list[5].x:
-                cshow = 'STOP ! Dont move.'
-                upCount.set('STOP ! Dont move.')
-                print('STOP ! Dont move.')
+            if (
+                lm_list[4].y < lm_list[2].y
+                and lm_list[8].y < lm_list[6].y
+                and lm_list[12].y < lm_list[10].y
+                and lm_list[16].y < lm_list[14].y
+                and lm_list[20].y < lm_list[18].y
+                and lm_list[17].x < lm_list[0].x < lm_list[5].x
+            ):
+                cshow = "STOP ! Dont move."
+                upCount.set("STOP ! Dont move.")
+                print("STOP ! Dont move.")
             # okay
-            elif lm_list[4].y < lm_list[2].y and lm_list[8].y > lm_list[6].y and lm_list[12].y < lm_list[10].y and \
-                    lm_list[16].y < lm_list[14].y and lm_list[20].y < lm_list[18].y and lm_list[17].x < lm_list[0].x < \
-                    lm_list[5].x:
-                cshow = 'Perfect , You did  a great job.'
-                print('Perfect , You did  a great job.')
-                upCount.set('Perfect , You did  a great job.')
+            elif (
+                lm_list[4].y < lm_list[2].y
+                and lm_list[8].y > lm_list[6].y
+                and lm_list[12].y < lm_list[10].y
+                and lm_list[16].y < lm_list[14].y
+                and lm_list[20].y < lm_list[18].y
+                and lm_list[17].x < lm_list[0].x < lm_list[5].x
+            ):
+                cshow = "Perfect , You did  a great job."
+                print("Perfect , You did  a great job.")
+                upCount.set("Perfect , You did  a great job.")
 
             # spidey
-            elif lm_list[4].y < lm_list[2].y and lm_list[8].y < lm_list[6].y and lm_list[12].y > lm_list[10].y and \
-                    lm_list[16].y > lm_list[14].y and lm_list[20].y < lm_list[18].y and lm_list[17].x < lm_list[0].x < \
-                    lm_list[5].x:
-                cshow = 'Good to see you.'
-                print(' Good to see you. ')
-                upCount.set('Good to see you.')
+            elif (
+                lm_list[4].y < lm_list[2].y
+                and lm_list[8].y < lm_list[6].y
+                and lm_list[12].y > lm_list[10].y
+                and lm_list[16].y > lm_list[14].y
+                and lm_list[20].y < lm_list[18].y
+                and lm_list[17].x < lm_list[0].x < lm_list[5].x
+            ):
+                cshow = "Good to see you."
+                print(" Good to see you. ")
+                upCount.set("Good to see you.")
 
             # Point
-            elif lm_list[8].y < lm_list[6].y and lm_list[12].y > lm_list[10].y and \
-                    lm_list[16].y > lm_list[14].y and lm_list[20].y > lm_list[18].y:
-                upCount.set('You Come here.')
+            elif (
+                lm_list[8].y < lm_list[6].y
+                and lm_list[12].y > lm_list[10].y
+                and lm_list[16].y > lm_list[14].y
+                and lm_list[20].y > lm_list[18].y
+            ):
+                upCount.set("You Come here.")
                 print("You Come here.")
-                cshow = 'You Come here.'
+                cshow = "You Come here."
 
             # Victory
-            elif lm_list[8].y < lm_list[6].y and lm_list[12].y < lm_list[10].y and \
-                    lm_list[16].y > lm_list[14].y and lm_list[20].y > lm_list[18].y:
-                upCount.set('Yes , we won.')
+            elif (
+                lm_list[8].y < lm_list[6].y
+                and lm_list[12].y < lm_list[10].y
+                and lm_list[16].y > lm_list[14].y
+                and lm_list[20].y > lm_list[18].y
+            ):
+                upCount.set("Yes , we won.")
                 print("Yes , we won.")
-                cshow = 'Yes , we won.'
+                cshow = "Yes , we won."
 
             # Left
-            elif lm_list[4].y < lm_list[2].y and lm_list[8].x < lm_list[6].x and lm_list[12].x > lm_list[10].x and \
-                    lm_list[16].x > lm_list[14].x and lm_list[20].x > lm_list[18].x and lm_list[5].x < lm_list[0].x:
-                upCount.set('Move Left')
+            elif (
+                lm_list[4].y < lm_list[2].y
+                and lm_list[8].x < lm_list[6].x
+                and lm_list[12].x > lm_list[10].x
+                and lm_list[16].x > lm_list[14].x
+                and lm_list[20].x > lm_list[18].x
+                and lm_list[5].x < lm_list[0].x
+            ):
+                upCount.set("Move Left")
                 print(" MOVE LEFT")
-                cshow = 'Move Left'
+                cshow = "Move Left"
             # Right
-            elif lm_list[4].y < lm_list[2].y and lm_list[8].x > lm_list[6].x and lm_list[12].x < lm_list[10].x and \
-                    lm_list[16].x < lm_list[14].x and lm_list[20].x < lm_list[18].x:
-                upCount.set('Move Right')
+            elif (
+                lm_list[4].y < lm_list[2].y
+                and lm_list[8].x > lm_list[6].x
+                and lm_list[12].x < lm_list[10].x
+                and lm_list[16].x < lm_list[14].x
+                and lm_list[20].x < lm_list[18].x
+            ):
+                upCount.set("Move Right")
                 print("Move RIGHT")
-                cshow = 'Move Right'
+                cshow = "Move Right"
             if all(finger_fold_status):
                 # like
-                if lm_list[thumb_tip].y < lm_list[thumb_tip - 1].y < lm_list[thumb_tip - 2].y and lm_list[0].x < lm_list[3].y:
+                if (
+                    lm_list[thumb_tip].y
+                    < lm_list[thumb_tip - 1].y
+                    < lm_list[thumb_tip - 2].y
+                    and lm_list[0].x < lm_list[3].y
+                ):
                     print("I like it")
-                    upCount.set('I Like it')
-                    cshow = 'I Like it'
+                    upCount.set("I Like it")
+                    cshow = "I Like it"
                 # Dislike
-                elif lm_list[thumb_tip].y > lm_list[thumb_tip - 1].y > lm_list[thumb_tip - 2].y and lm_list[0].x < lm_list[3].y:
-                    upCount.set('I dont like it.')
+                elif (
+                    lm_list[thumb_tip].y
+                    > lm_list[thumb_tip - 1].y
+                    > lm_list[thumb_tip - 2].y
+                    and lm_list[0].x < lm_list[3].y
+                ):
+                    upCount.set("I dont like it.")
                     print(" I dont like it.")
-                    cshow = 'I dont like it.'
+                    cshow = "I dont like it."
 
             mpDraw.draw_landmarks(rgb, hand, mpHands.HAND_CONNECTIONS)
-        cv2.putText(rgb, f'{cshow}', (10, 50),
-                cv2.FONT_HERSHEY_COMPLEX, .75, (0, 255, 255), 2)
+        cv2.putText(
+            rgb, f"{cshow}", (10, 50), cv2.FONT_HERSHEY_COMPLEX, 0.75, (0, 255, 255), 2
+        )
 
     image = Image.fromarray(rgb)
     finalImage = ImageTk.PhotoImage(image)
     label1.configure(image=finalImage)
     label1.image = finalImage
-    
-    save_path = filedialog.asksaveasfilename(defaultextension=".png",
-                                            filetypes=[("PNG files", "*.png"), ("JPEG files", "*.jpg"), ("All files", "*.*")],
-                                            title="Save Processed Image")
+
+    save_path = filedialog.asksaveasfilename(
+        defaultextension=".png",
+        filetypes=[
+            ("PNG files", "*.png"),
+            ("JPEG files", "*.jpg"),
+            ("All files", "*.*"),
+        ],
+        title="Save Processed Image",
+    )
     if save_path:
         image.save(save_path)
-        
+
     # # win.after(1, live)
     # crr=Label(win,text='Current Status :',font=('Helvetica',18,'bold'),bd=5,bg='gray',width=15,fg='#232224',relief=GROOVE )
     # status = Label(win,textvariable=upCount,font=('Helvetica',18,'bold'),bd=5,bg='gray',width=50,fg='#232224',relief=GROOVE )
 
     # status.place(x=400,y=700)
     # crr.place(x=120,y=700)
-    
+
     return [image, cshow]
-    
+
+
 @app.route("/processImage", methods=["POST"])
 def process_image():
     """
     Process the image
     """
-    
-    
-    
+
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5001, debug=True)
