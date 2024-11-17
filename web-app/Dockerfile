@@ -1,19 +1,20 @@
-# Base image on previously created image
+# Use a lightweight Python image as the base image
 FROM python:3.8-slim-buster
 
-# Set the working directory in image
+# Set the working directory inside the container
 WORKDIR /app
 
-# Copy the current directory contents into the container at /app
-COPY requirements.txt ./
-RUN pip3 install -r requirements.txt
+# Copy only requirements.txt first for dependency installation
+COPY requirements.txt .
 
-# how we add fules from local machine to docker image
-#cop ycurr dir into container at /app
-ADD . .
+# Install dependencies
+RUN pip install --no-cache-dir -r requirements.txt
 
-#default 5000
+# Copy the rest of the application code into the container
+COPY . .
+
+# Expose the default Flask port
 EXPOSE 5000
 
-# Run the application
+# Run the Flask application
 CMD ["python", "-m", "flask", "run", "--host=0.0.0.0"]
