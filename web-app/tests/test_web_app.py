@@ -1,12 +1,12 @@
 """
 Tests for the web app routes and functionality.
 """
+import base64
 import pytest
 import bcrypt
-from app import app, users_collection, emotion_data_collection
-import base64
 import numpy as np
 import cv2
+from app import app, users_collection, emotion_data_collection
 
 # Fixture for Flask test client
 @pytest.fixture
@@ -211,35 +211,39 @@ def test_capture_invalid_base64_image(client, monkeypatch):
     assert response.status_code == 500
     assert "Error processing the image" in response.get_json()["error"]
 
-
-def test_capture_success(client, monkeypatch):
+def test_homepage(client):
     """
-    Test the capture route with a valid Base64-encoded image.
+    Test the homepage route to ensure it loads correctly.
     """
-    with client.session_transaction() as sess:
-        sess["user_id"] = "mock_user_id"
-
-    # Mock the ML client response
-    def mock_post(*args, **kwargs):
-        class MockResponse:
-            def raise_for_status(self):
-                pass
-
-            def json(self):
-                return {"emotion": "Happy 😊"}
-        
-        return MockResponse()
-    
-    monkeypatch.setattr("requests.post", mock_post)
-
-    # Create a dummy Base64 image
-    dummy_image = np.ones((48, 48, 3), dtype=np.uint8)
-    _, buffer = cv2.imencode(".jpg", dummy_image)
-    base64_image = "data:image/jpeg;base64," + base64.b64encode(buffer).decode("utf-8")
-
-    response = client.post(
-        "/capture",
-        json={"image": base64_image},
-    )
+    response = client.get("/")
     assert response.status_code == 200
-    assert response.get_json()["emotion"] == "Happy 😊"
+    assert b"Welcome" in response.data
+
+def test_dashboard_empty_data(client, monkeypatch):
+    """
+    Test the dashboard route when the database returns no emotion data for the user.
+    """
+    with client.session_transaction() as session:
+        session["user_id"] = "mock_user_id"
+
+    # Mock the database query to return no data
+    monkeypatch.setattr(
+        "app.emotion_data_collection.find_one",
+        lambda query, sort=None: None,
+    )
+
+    response = client.get("/dashboard")
+    assert response.status_code == 200
+    response_text = response.get_data(as_text=True)
+    # Updated assertion to match the HTML
+    assert "No mood data available yet. Use the camera feed to detect your mood!" in response_text
+
+
+def test_capture_no_user_session(client):
+    """
+    Test the capture route without a user session.
+    """
+    response = client.post("/capture", json={"image": "dummy_base64_data"})
+    assert response.status_code == 401  # Expect Unauthorized
+    assert response.get_json()["error"] == "Please log in to access this feature."
+

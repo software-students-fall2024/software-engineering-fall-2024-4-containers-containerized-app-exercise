@@ -18,8 +18,8 @@ tensorflow = "*"
 [dev-packages]
 pytest-flask = "*"
 black = "*"
-pytest = "*"
 pytest-cov = "*"
+pytest = "*"
 
 [requires]
 python_version = "3.11"
