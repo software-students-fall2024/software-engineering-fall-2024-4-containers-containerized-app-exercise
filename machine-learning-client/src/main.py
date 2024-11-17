@@ -11,6 +11,7 @@ from pymongo import MongoClient
 from dotenv import load_dotenv
 from utils import transcribe_audio, analyze_sentiment, store_data
 
+
 load_dotenv()
 
 app = Flask(__name__)
@@ -69,7 +70,8 @@ def process_audio():
         }
 
         # Store the data in MongoDB
-        store_data(collection, data)
+        # store_data(collection, data)
+        collection.insert_one(data)
         logger.info("Successfully processed and stored data for %s", file_path)
 
         return jsonify({"status": "success", "data": data}), 200

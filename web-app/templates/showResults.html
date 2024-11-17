@@ -177,7 +177,7 @@ function loadMoodTrends() {
                         row.appendChild(transcriptCell);
 
                         const sentimentCell = document.createElement('td');
-                        sentimentCell.textContent = entry.sentiment;
+                        sentimentCell.textContent = entry.sentiment.mood;
                         row.appendChild(sentimentCell);
 
                         tableBody.appendChild(row);
@@ -192,25 +192,6 @@ function loadMoodTrends() {
             loadMoodTrends();
             loadRecentEntries(); // Load recent entries after loading mood trends
         };
-
-        // fetch('/api/mood-trends')
-        //     .then(response => response.json())
-        //     .then(data => {
-        //         const ctx = document.getElementById('moodChart').getContext('2d');
-        //         new Chart(ctx, {
-        //             type: 'pie',
-        //             data: {
-        //                 labels: Object.keys(data),
-        //                 datasets: [{
-        //                     data: Object.values(data),
-        //                     backgroundColor: ['#4CAF50', '#F44336', '#FFEB3B']
-        //                 }]
-        //             },
-        //             options: {
-        //                 responsive: true
-        //             }
-        //         });
-        //     });
     </script>
 </body>
 </html>

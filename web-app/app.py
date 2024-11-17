@@ -11,6 +11,7 @@ from datetime import datetime
 from flask import Flask, render_template, jsonify, request
 from pymongo import MongoClient
 from dotenv import load_dotenv
+from uuid import uuid4
 
 
 load_dotenv()
@@ -81,11 +82,11 @@ def upload_audio():
 
     # Save the uploaded file locally
     audio_file = request.files["audio"]
-    file_path = os.path.join(app.config["UPLOAD_FOLDER"], audio_file.filename)
+    unique_file_name = f"{uuid4()}_{audio_file.filename}"  # Unique name
+    file_path = os.path.join(app.config["UPLOAD_FOLDER"], unique_file_name)
     converted_file_path = os.path.join(
-        app.config["UPLOAD_FOLDER"], "converted_" + audio_file.filename
+        app.config["UPLOAD_FOLDER"], f"converted_{unique_file_name}"
     )
-
     try:
         audio_file.save(file_path)
     except IOError as io_error:
@@ -120,10 +121,11 @@ def upload_audio():
     try:
         with open(converted_file_path, "rb") as file_obj:
             response = requests.post(
-                ML_CLIENT_URL, files={"audio": file_obj}, timeout=60
+                ML_CLIENT_URL, files={"audio": file_obj}, timeout=10
             )
 
         if response.status_code == 200:
+            
             return (
                 jsonify(
                     {
