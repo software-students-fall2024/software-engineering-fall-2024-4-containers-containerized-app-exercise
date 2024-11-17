@@ -1,7 +1,7 @@
 from io import BytesIO
 import pytest
 from app import app, audio_collection, metadata_collection
-from unittest.mock import patch, MagicMock
+from unittest.mock import patch
 
 
 def test_index(client):
