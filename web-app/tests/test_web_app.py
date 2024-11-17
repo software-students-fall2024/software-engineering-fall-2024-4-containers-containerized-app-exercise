@@ -146,9 +146,7 @@ def test_signup_duplicate_user(client, monkeypatch):
     """
     def mock_find_one(query):
         return {"username": "existing_user"}
-
     monkeypatch.setattr("app.users_collection.find_one", mock_find_one)
-    
     response = client.post("/signup", data={"username": "existing_user", "password": "password123"}, follow_redirects=True)
     assert response.status_code == 200
     assert b"Username already exists" in response.data
@@ -160,13 +158,12 @@ def test_login_invalid_password(client, monkeypatch):
     """
     hashed_password = bcrypt.hashpw(b"correct_password", bcrypt.gensalt())
     test_user = {"username": "test_user", "password": hashed_password}
-
     monkeypatch.setattr("app.users_collection.find_one", lambda query: test_user)
-    
-    response = client.post("/login", data={"username": "test_user", "password": "wrong_password"}, follow_redirects=True)
+    response = client.post("/login", 
+                           data={"username": "test_user", "password": "wrong_password"}, 
+                           follow_redirects=True)
     assert response.status_code == 200
     assert b"Invalid username or password" in response.data
-
 
 def test_capture_no_image(client):
     """
