@@ -1,18 +1,21 @@
 import os
+import requests
 from flask import Flask, render_template, make_response, request, redirect, url_for
 from pymongo import MongoClient
+import os
 
 def create_app():
 
     app = Flask(__name__)
 
-    MONGO_URI = os.getenv("MONGO_URI")
+    client = MongoClient(os.getenv("MONGO_URI", "mongodb://mongodb:27017/"))
+    db = client.test
 
-    if MONGO_URI is None:
+    if client is None:
         raise ValueError("Error with URI")
 
     try:
-        client = MongoClient(MONGO_URI)
+        client = MongoClient(client)
         db = client.get_database("ASL-DB")
         collection = db["entries"]
         print("Connected")
@@ -23,14 +26,47 @@ def create_app():
     def home():
         # returns rendered html
         return render_template("index.html")
+    
 
     @app.route("/upload_video", methods=["POST"])
     def upload_video():
-        
+        try: 
+            data = request.json
+            image_data = data.get("image")
+
+            if not image_data:
+                return jsonify({"error": "No image data received"}), 400
+            image_data = image_data.split(",")[1]
+            image_binary = base64.b64decode(image_data)
+
+            collection.insert_one({"image": image_binary})
+            return jsonify({"message": "Snapshot saved successfully!"}), 200
+        except Exception as e:
+            print(f"Error: {e}")
+            return jsonify({"error": str(e)}), 500
+
+    
         # TO DO
 
-        return
-    
+    return app
+    @app.route("/display_images")
+    def display_images():
+        images = db.images.find()
+        return render_template("display_images.html", images=images)
+
+    @app.route("/upload_image", methods=["POST"])
+    def upload_image():
+        image_data = request.form["image_data"]
+        if image_data != "test":
+            image_id = db.images.insert_one({"image_data": image_data}).inserted_id
+            # is this URL correct?
+            ml_client_url = "http://machine_learning_client:5001/processImage"
+            response = requests.post(ml_client_url, json={"image_id": str(image_id)})
+            if response.status_code == 200:
+                return redirect(url_for("display_images"))
+            else:
+                return "Error processing image"
+
     def get_data():
 
         # TO DO
