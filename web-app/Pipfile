@@ -9,10 +9,14 @@ black = "*"
 flask = "*"
 requests = "*"
 pydub = "*"
+exceptiongroup = "*"
+tomli = "*"
+typing-extensions = "*"
+dill = "*"
 pymongo = "*"
-bson = "*"
 
 [dev-packages]
+pytest = "*"
 
 [requires]
 python_version = "3.10"

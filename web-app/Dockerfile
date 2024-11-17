@@ -4,9 +4,10 @@ WORKDIR /app
 
 COPY . /app
 
-RUN pip install pipenv
-RUN pipenv install
 RUN apt-get update && apt-get install -y ffmpeg
+
+RUN pip install pipenv
+RUN pipenv install --dev
 
 ADD . .
 
