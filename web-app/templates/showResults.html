@@ -210,6 +210,7 @@ function loadMoodTrends() {
                                         if (response.ok) {
                                             alert('Entry deleted successfully!');
                                             loadRecentEntries(); // Reload entries after deletion
+                                            loadMoodTrends();
                                         } else {
                                             alert('Failed to delete entry.');
                                         }
