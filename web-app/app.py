@@ -167,7 +167,8 @@ def login():
             return redirect(url_for("index"))
         flash("Invalid username or password.")
         return redirect(url_for("login"))
-
+    # Explicitly return a rendered template for GET requests
+    return render_template("login.html")
 
 # LOGOUT
 @app.route("/logout")
