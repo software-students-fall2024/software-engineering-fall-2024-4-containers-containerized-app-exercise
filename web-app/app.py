@@ -170,6 +170,7 @@ def login():
     # Explicitly return a rendered template for GET requests
     return render_template("login.html")
 
+
 # LOGOUT
 @app.route("/logout")
 @login_required
