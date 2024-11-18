@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Login</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}"/>
+  </head>
+  <body>
+    <div class="content">
+        <img src="{{ url_for('static', filename='hkai-logo.png') }}" class="logo"/>
+        <h1>Hello Kitty AI</h1>
+        <div class="container">
+            <div class="login-container">
+                <h1>Login</h1>
+                <form method="POST" action="{{ url_for('login')}}">
+                    <input type="text" name="email" required placeholder="Email"/>
+                    <input type="submit" value="Login" class="login"/>
+                </form>
+            </div>
+        </div>
+    </div>
+  </body>
+</html>
