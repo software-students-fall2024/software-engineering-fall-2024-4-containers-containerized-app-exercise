@@ -39,7 +39,7 @@ jobs:
       working-directory: ${{ matrix.service }}
       run: |
         if [ "${{ matrix.service }}" == "machine-learning-client" ]; then
-          [ -f src/app.py ] && pipenv run pylint src/app.py || echo "src/app.py not found"
+          [ -f app.py ] && pipenv run pylint app.py || echo "app.py not found"
           [ -f test_app.py ] && pipenv run pylint test_app.py || echo "test_app.py not found"
         elif [ "${{ matrix.service }}" == "web-app" ]; then
           [ -f app.py ] && pipenv run pylint app.py || echo "app.py not found"
