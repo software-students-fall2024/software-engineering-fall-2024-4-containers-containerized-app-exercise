@@ -106,6 +106,25 @@ def test_encode_image():
 # send POST request to /api/detect for image screenshots from webcam
 
 
+def send_image_to_detect(image_bytes):
+    """Send the captured image to the /api/detect route for object detection.
+    Sends the image as a form-data payload and prints the detection result.
+    Handles errors if the request fails."""
+    # Create a form-data payload
+    files = {"file": ("webcam-image.jpg", image_bytes, "image/jpeg")}
+    url = "http://localhost:3001/api/detect"
+
+    try:
+        # Send the image to the ML client for detection
+        response = requests.post(url, files=files, timeout=70)
+        response.raise_for_status()  # Raise an error if the request was unsuccessful
+        result = response.json()
+        print("Detection Result:", result)
+        display_detection_result(result)
+    except requests.RequestException as e:
+        print("Error:", e)
+
+
 def display_detection_result(result):
     """Display the detection results in the console.
     Iterates over the detected objects and prints the label and confidence score."""
