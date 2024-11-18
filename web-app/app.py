@@ -4,19 +4,29 @@ connecting to MongoDB and providing the frontend interface.
 """
 
 import os
-from flask import Flask, render_template, jsonify, Response  # Move Response here
+from flask import Flask, render_template, jsonify, Response
 from pymongo import MongoClient
 from dotenv import load_dotenv
+import cv2
+import atexit
 
 # Load environment variables
 load_dotenv()
 
+# Initialize Flask app
 app = Flask(__name__)
+
+# MongoDB setup
 mongo_uri = os.getenv("MONGO_URI")
 client = MongoClient(mongo_uri)
 db = client["object_detection"]
 collection = db["detected_objects"]
 
+# Initialize video capture
+camera = cv2.VideoCapture(0)  # Replace 0 with the camera index or video file path
+
+# Ensure the camera is released when the application stops
+atexit.register(lambda: camera.release())
 
 # Index route
 @app.route("/")
@@ -37,44 +47,36 @@ def get_data():
 @app.route("/dashboard")
 def dashboard():
     """Dashboard page"""
-    # You can add logic to render a dashboard here
-    return render_template(
-        "dashboard.html"
-    )  # Ensure you have a 'dashboard.html' template
+    return render_template("dashboard.html")
 
 
-# API route for object detection
-@app.route("/api/detect", methods=["POST"])
-def api_detect():
-    """Object detection API endpoint"""
-    # Your object detection logic here, for now return 'objects'
-    return jsonify(
-        {"status": "success", "message": "Object detection results here", "objects": []}
-    )
-
-
+# Video feed route
 @app.route("/video_feed")
 def video_feed():
     """Stream the video feed."""
-    # Logic to stream video from a camera or return a sample video frame
     return Response(
         generate_video(), mimetype="multipart/x-mixed-replace; boundary=frame"
     )
 
 
 def generate_video():
-    """Generate video frames for streaming (replace with your actual video generation logic)."""
+    """Generate video frames for streaming."""
     while True:
-        # This is just a placeholder. Replace it with your actual video capture code.
         frame = get_video_frame()  # Capture or retrieve the video frame
-        yield b"--frame\r\n" b"Content-Type: image/jpeg\r\n\r\n" + frame + b"\r\n\r\n"
+        if frame:
+            yield b"--frame\r\n" b"Content-Type: image/jpeg\r\n\r\n" + frame + b"\r\n\r\n"
 
 
 def get_video_frame():
-    """Get a single video frame (replace this with your actual frame capture logic)."""
-    # For now, this returns an empty byte string. Replace with real image capture.
-    return b""
+    """Capture a single video frame."""
+    success, frame = camera.read()
+    if not success:
+        return b""
+    # Encode frame as JPEG
+    _, jpeg = cv2.imencode('.jpg', frame)
+    return jpeg.tobytes()
 
 
+# Main entry point
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000, debug=True)
