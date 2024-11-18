@@ -9,13 +9,30 @@ import uuid
 from datetime import datetime
 import logging
 import requests
-from flask import Flask, render_template, jsonify, request, redirect, url_for, flash, session
-from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
+from flask import (
+    Flask,
+    render_template,
+    jsonify,
+    request,
+    redirect,
+    url_for,
+    flash,
+    session,
+)
+from flask_login import (
+    LoginManager,
+    UserMixin,
+    login_user,
+    login_required,
+    logout_user,
+    current_user,
+)
 from werkzeug.security import generate_password_hash, check_password_hash
 from pymongo import MongoClient
 from pymongo.errors import PyMongoError
 from dotenv import load_dotenv
 from bson.objectid import ObjectId
+
 
 # User Class
 class User(UserMixin):
@@ -27,6 +44,7 @@ class User(UserMixin):
         username (str): The user's username.
         password (str): The user's hashed password.
     """
+
     def __init__(self, user_id, username, password):
         """
         Initialize the User object.
@@ -40,6 +58,7 @@ class User(UserMixin):
         self.username = username
         self.password = password
 
+
 load_dotenv()
 MONGO_URI = os.getenv("MONGO_URI", "mongodb://localhost:27017")
 ML_CLIENT_URL = os.getenv(
@@ -47,7 +66,7 @@ ML_CLIENT_URL = os.getenv(
 )
 
 app = Flask(__name__)
-app.secret_key = 'your_secret_key'  # Set a secret key for session management
+app.secret_key = "your_secret_key"  # Set a secret key for session management
 
 client = MongoClient(MONGO_URI)
 db = client["voice_mood_journal"]
@@ -62,7 +81,8 @@ app.config["UPLOAD_FOLDER"] = UPLOAD_FOLDER
 # LOGIN MANAGER
 login_manager = LoginManager()
 login_manager.init_app(app)
-login_manager.login_view = 'login'
+login_manager.login_view = "login"
+
 
 @login_manager.user_loader
 def load_user(user_id):
@@ -77,11 +97,15 @@ def load_user(user_id):
     """
     user_data = db.users.find_one({"_id": ObjectId(user_id)})
     if user_data:
-        return User(user_id=str(user_data['_id']), username=user_data['username'], password=user_data['password'])
+        return User(
+            user_id=str(user_data["_id"]),
+            username=user_data["username"],
+            password=user_data["password"],)
     return None
 
+
 # REGISTER
-@app.route('/register', methods=['GET', 'POST'])
+@app.route("/register", methods=["GET", "POST"])
 def register():
     """
     Handle user registration.
@@ -93,27 +117,28 @@ def register():
         Response: Redirects to login page upon successful registration,
                   or renders registration page with error messages.
     """
-    if request.method == 'POST':
-        username = request.form['username']
-        password = request.form['password']
-        repassword = request.form['repassword']
+    if request.method == "POST":
+        username = request.form["username"]
+        password = request.form["password"]
+        repassword = request.form["repassword"]
         if password != repassword:
             flash("Passwords do not match.")
-            return redirect(url_for('register'))
-        
+            return redirect(url_for("register"))
+
         hashed_password = generate_password_hash(password)
         if db.users.find_one({"username": username}):
             flash("Username already exists.")
-            return redirect(url_for('register'))
-        
+            return redirect(url_for("register"))
+
         db.users.insert_one({"username": username, "password": hashed_password})
         flash("Registration successful. Please log in.")
-        return redirect(url_for('login'))
+        return redirect(url_for("login"))
 
-    return render_template('register.html')
+    return render_template("register.html")
+
 
 # LOGIN
-@app.route('/login', methods=['GET', 'POST'])
+@app.route("/login", methods=["GET", "POST"])
 def login():
     """
     Handle user login.
@@ -125,24 +150,29 @@ def login():
         Response: Redirects to index page upon successful login,
                   or renders login page with error messages.
     """
-    if request.method == 'POST':
-        username = request.form['username']
-        password = request.form['password']
+    if request.method == "POST":
+        username = request.form["username"]
+        password = request.form["password"]
         user_data = db.users.find_one({"username": username})
 
-        if user_data and check_password_hash(user_data['password'], password):
-            user = User(user_id=str(user_data['_id']), username=user_data['username'], password=user_data['password'])
+        if user_data and check_password_hash(user_data["password"], password):
+            user = User(
+                user_id=str(user_data["_id"]),
+                username=user_data["username"],
+                password=user_data["password"],
+            )
             login_user(user)
-            flash('Login successful!')
-            return redirect(url_for('index'))
+            flash("Login successful!")
+            return redirect(url_for("index"))
         else:
-            flash('Invalid username or password.')
-            return redirect(url_for('login'))
+            flash("Invalid username or password.")
+            return redirect(url_for("login"))
 
-    return render_template('login.html')
+    return render_template("login.html")
+
 
 # LOGOUT
-@app.route('/logout')
+@app.route("/logout")
 @login_required
 def logout():
     """
@@ -152,11 +182,13 @@ def logout():
         Response: Redirects to the login page with a logout message.
     """
     logout_user()
-    session.pop('_flashes', None) 
-    flash('You have been logged out.')
-    return redirect(url_for('login'))
+    session.pop("_flashes", None)
+    flash("You have been logged out.")
+    return redirect(url_for("login"))
+
 
 @app.route("/")
+@login_required
 def index():
     """Render the homepage with mood summary data."""
     mood_entries = collection.find().sort("timestamp", -1).limit(100)
@@ -171,6 +203,7 @@ def index():
     ]
 
     return render_template("index.html", entries=entries)
+
 
 def convert_to_pcm_wav(input_file, output_file):
     """
@@ -192,6 +225,7 @@ def convert_to_pcm_wav(input_file, output_file):
         )
     except subprocess.CalledProcessError as e:
         raise RuntimeError(f"ffmpeg conversion failed: {e.stderr.decode()}") from e
+
 
 @app.route("/upload", methods=["POST"])
 def upload_audio():
@@ -270,23 +304,34 @@ def upload_audio():
             500,
         )
 
+
 @app.route("/show_results")
+@login_required
 def show_results():
     """Render the results page."""
     return render_template("showResults.html")
+
 
 @app.route("/api/mood-trends")
 def mood_trends():
     """Provide mood trend data for visualization."""
     user_id = current_user.get_id()
     mood_counts = {
-        "Positive": collection.count_documents({"sentiment.mood": "Positive", "user_id": user_id}),
-        "Negative": collection.count_documents({"sentiment.mood": "Negative", "user_id": user_id}),
-        "Neutral": collection.count_documents({"sentiment.mood": "Neutral", "user_id": user_id}),
+        "Positive": collection.count_documents(
+            {"sentiment.mood": "Positive", "user_id": user_id}
+        ),
+        "Negative": collection.count_documents(
+            {"sentiment.mood": "Negative", "user_id": user_id}
+        ),
+        "Neutral": collection.count_documents(
+            {"sentiment.mood": "Neutral", "user_id": user_id}
+        ),
     }
     return jsonify(mood_counts)
 
+
 @app.route("/api/recent-entries")
+@login_required
 def recent_entries():
     """Provide recent entries data for the current user."""
     user_id = current_user.get_id()
@@ -317,6 +362,7 @@ def recent_entries():
         logging.error("Data processing error: %s", data_error)
         return jsonify({"error": "Data processing error occurred"}), 500
 
+
 @app.route("/delete-journal/<entry_id>", methods=["DELETE"])
 def delete_journal(entry_id):
     """
@@ -346,6 +392,6 @@ def delete_journal(entry_id):
             500,
         )
 
+
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000)
-
