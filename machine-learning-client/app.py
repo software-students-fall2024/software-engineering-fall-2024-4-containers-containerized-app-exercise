@@ -27,14 +27,13 @@ load_dotenv()
 app = Flask(__name__)
 client = MongoClient(os.getenv("MONGO_URI", "mongodb://mongodb:27017/"))
 
-db = client["ASL_DB"]
-collection = db["ASL_COLLECTION"]
+db = client.asl_db
 
 # fs = gridfs.GridFS(db)
 
 
 def process_image(inputImage):
-    global img, finalImage, finger_tips, thumb_tip, cap, image, rgb, hand, results, w, h, status, mpDraw, mpHands, hands, label1, cshow, upCount
+    global img, finalImage, finger_tips, thumb_tip, cap, image, rgb, hand, results, w, h, status, mpDraw, mpHands, hands, label1, cshow,
 
     # Define Mediapipe hand-related variables
     finger_tips = [8, 12, 16, 20]
@@ -46,7 +45,6 @@ def process_image(inputImage):
 
     # global img, finalImage, cshow, label1, upCount, rgb, results
     cshow = ""
-    upCount = StringVar()
 
     # # Open file dialog to select image
     # file_path = filedialog.askopenfilename(initialdir="/", title="Select Image",
@@ -87,7 +85,6 @@ def process_image(inputImage):
                 and lm_list[17].x < lm_list[0].x < lm_list[5].x
             ):
                 cshow = "STOP ! Dont move."
-                upCount.set("STOP ! Dont move.")
                 print("STOP ! Dont move.")
             # okay
             elif (
@@ -100,7 +97,6 @@ def process_image(inputImage):
             ):
                 cshow = "Perfect , You did  a great job."
                 print("Perfect , You did  a great job.")
-                upCount.set("Perfect , You did  a great job.")
 
             # spidey
             elif (
@@ -113,7 +109,6 @@ def process_image(inputImage):
             ):
                 cshow = "Good to see you."
                 print(" Good to see you. ")
-                upCount.set("Good to see you.")
 
             # Point
             elif (
@@ -122,7 +117,6 @@ def process_image(inputImage):
                 and lm_list[16].y > lm_list[14].y
                 and lm_list[20].y > lm_list[18].y
             ):
-                upCount.set("You Come here.")
                 print("You Come here.")
                 cshow = "You Come here."
 
@@ -133,7 +127,6 @@ def process_image(inputImage):
                 and lm_list[16].y > lm_list[14].y
                 and lm_list[20].y > lm_list[18].y
             ):
-                upCount.set("Yes , we won.")
                 print("Yes , we won.")
                 cshow = "Yes , we won."
 
@@ -146,7 +139,6 @@ def process_image(inputImage):
                 and lm_list[20].x > lm_list[18].x
                 and lm_list[5].x < lm_list[0].x
             ):
-                upCount.set("Move Left")
                 print(" MOVE LEFT")
                 cshow = "Move Left"
             # Right
@@ -157,7 +149,6 @@ def process_image(inputImage):
                 and lm_list[16].x < lm_list[14].x
                 and lm_list[20].x < lm_list[18].x
             ):
-                upCount.set("Move Right")
                 print("Move RIGHT")
                 cshow = "Move Right"
             if all(finger_fold_status):
@@ -169,7 +160,6 @@ def process_image(inputImage):
                     and lm_list[0].x < lm_list[3].y
                 ):
                     print("I like it")
-                    upCount.set("I Like it")
                     cshow = "I Like it"
                 # Dislike
                 elif (
@@ -178,7 +168,6 @@ def process_image(inputImage):
                     > lm_list[thumb_tip - 2].y
                     and lm_list[0].x < lm_list[3].y
                 ):
-                    upCount.set("I dont like it.")
                     print(" I dont like it.")
                     cshow = "I dont like it."
 
