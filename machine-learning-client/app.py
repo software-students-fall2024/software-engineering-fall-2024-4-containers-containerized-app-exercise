@@ -19,7 +19,7 @@ mongo = MongoClient("mongodb://localhost:27017")
 db = mongo["object_detection"]
 
 # Load YOLOv5 model
-model = torch.hub.load("ultralytics/yolov5", "yolov5s", pretrained=True)
+model = torch.hub.load("ultralytics/yolov5", "yolov5s", pretrained=True).to("cpu")
 
 
 def detect_objects(image):
@@ -65,21 +65,24 @@ def detect():
     }
     return jsonify(response_data), 200
 
+
 # database helper
 def save_to_db(detection_data):
+    """helper for saving to db"""
     result = db.detections.insert_one(detection_data)
     detection_data["_id"] = str(result.inserted_id)
     return detection_data
 
+
 # model helper
-def detect_objects(image):
+def detect_objects_helper(image):
+    """helper for detect objects"""
     results = model(image)
     detections = results.pandas().xyxy[0].to_dict(orient="records")
     return [
         {"label": det["name"], "confidence": float(det["confidence"])}
         for det in detections
     ]
-
 
 
 if __name__ == "__main__":

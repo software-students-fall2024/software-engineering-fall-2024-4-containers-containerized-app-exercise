@@ -1,11 +1,11 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "b8e7a748fa86dc11464f788ef4bbb3d30dccd38b69c2f4a40ab6238df7013c29"
+            "sha256": "96f9f9137fffd6e4d670fb21dbfd47bee1d3fa0242f2627d04aa5ac111aad14a"
         },
         "pipfile-spec": 6,
         "requires": {
-            "python_version": "3.12"
+            "python_version": "3.11"
         },
         "sources": [
             {
@@ -431,6 +431,14 @@
             ],
             "markers": "python_version >= '3.6'",
             "version": "==0.7.0"
+        },
+        "mongomock": {
+            "hashes": [
+                "sha256:32667b79066fabc12d4f17f16a8fd7361b5f4435208b3ba32c226e52212a8c30",
+                "sha256:5ef86bd12fc8806c6e7af32f21266c61b6c4ba96096f85129852d1c4fec1327e"
+            ],
+            "index": "pypi",
+            "version": "==4.3.0"
         },
         "mpmath": {
             "hashes": [
@@ -859,6 +867,12 @@
             "index": "pypi",
             "markers": "python_version >= '3.10'",
             "version": "==1.14.1"
+        },
+        "sentinels": {
+            "hashes": [
+                "sha256:7be0704d7fe1925e397e92d18669ace2f619c92b5d4eb21a89f31e026f9ff4b1"
+            ],
+            "version": "==1.0.0"
         },
         "setuptools": {
             "hashes": [
