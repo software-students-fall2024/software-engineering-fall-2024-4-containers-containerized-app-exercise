@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Real-Time Object Detection</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+    }
+    #labels-list {
+      list-style-type: none;
+      padding: 0;
+    }
+    #labels-list li {
+      font-size: 1.2em;
+      margin: 5px 0;
+    }
+  </style>
+</head>
+<body>
+  <h1>Real-Time Object Detection Dashboard</h1>
+  <div>
+    <h2>Live Video Feed</h2>
+    <img src="{{ url_for('video_feed') }}" width="80%" />
+  </div>
+
+  <div>
+    <h2>Detected Labels and Confidence</h2>
+    <ul id="labels-list"></ul>
+  </div>
+
+  <script>
+    setInterval(() => {
+      fetch('/latest_detection')
+        .then(response => response.json())
+        .then(data => {
+          const list = document.getElementById('labels-list');
+          list.innerHTML = ''; // Clear current list
+          data.labels.forEach(label => {
+            const listItem = document.createElement('li');
+            listItem.textContent = `${label.name}: ${label.confidence.toFixed(2)}`;
+            list.appendChild(listItem);
+          });
+        })
+        .catch(error => console.error("Error fetching detection data:", error));
+    }, 2000); // Update every 2 seconds
+  </script>
+</body>
+</html>
