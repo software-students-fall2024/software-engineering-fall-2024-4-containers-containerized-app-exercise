@@ -16,6 +16,7 @@ load_dotenv()
 
 app = Flask(__name__)
 
+
 # Set up logging
 def setup_logging():
     """
@@ -29,6 +30,8 @@ def setup_logging():
         format="%(asctime)s [%(levelname)s] %(message)s",
         handlers=[logging.StreamHandler()],
     )
+
+
 logger = logging.getLogger(__name__)
 
 UPLOAD_FOLDER = "./processed_uploads"
@@ -95,6 +98,7 @@ def process_audio():
         logger.error("Runtime error: %s", runtime_error)
         return jsonify({"error": "Runtime error", "details": str(runtime_error)}), 500
 
+
 def main():
     """
     Main entry point for the application.
@@ -102,6 +106,7 @@ def main():
     This function prints "Main!" to indicate the program is running.
     """
     print("Main!")
+
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5001)

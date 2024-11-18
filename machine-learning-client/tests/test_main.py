@@ -32,14 +32,18 @@ def test_main_no_audio_files(mock_mongo_client, caplog):
 
 @patch("src.main.get_audio_files", return_value=["file1.wav"])
 @patch("src.main.transcribe_audio", return_value="Hello world")
-@patch("src.main.analyze_sentiment", return_value={
-    "polarity": 0.5, "subjectivity": 0.6, "mood": "Positive"
-})
+@patch(
+    "src.main.analyze_sentiment",
+    return_value={"polarity": 0.5, "subjectivity": 0.6, "mood": "Positive"},
+)
 @patch("src.main.store_data")
 @patch("src.main.MongoClient")
 def test_main_with_audio_files(
-    mock_mongo_client, mock_store_data, mock_analyze_sentiment,
-    mock_transcribe_audio, mock_get_audio_files
+    mock_mongo_client,
+    mock_store_data,
+    mock_analyze_sentiment,
+    mock_transcribe_audio,
+    mock_get_audio_files,
 ):
     """
     Test `main` function when audio files are processed successfully.
@@ -53,6 +57,7 @@ def test_main_with_audio_files(
     mock_transcribe_audio.assert_called_once_with("file1.wav")
     mock_analyze_sentiment.assert_called_once_with("Hello world")
     mock_store_data.assert_called_once()
+
 
 def test_setup_logging(caplog):
     """

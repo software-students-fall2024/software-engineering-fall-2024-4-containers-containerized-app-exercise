@@ -10,6 +10,7 @@ It includes tests for the following functions:
 from unittest.mock import patch, MagicMock
 from src.utils import get_audio_files, transcribe_audio, analyze_sentiment, store_data
 
+
 @patch("src.utils.glob.glob", return_value=["file1.wav", "file2.wav"])
 def test_get_audio_files():
     """
