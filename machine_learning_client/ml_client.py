@@ -3,8 +3,8 @@ This module contains functions for emotion detection
 using a pre-trained machine learning model.
 """
 
-from flask import Flask, request, jsonify
-from datetime import datetime
+from flask import Flask, request, jsonify,flash
+from datetime import datetime, timezone
 import cv2
 import numpy as np
 import tensorflow as tf
@@ -36,6 +36,15 @@ emotion_dict = {
     4: "Neutral 😐",
 }
 
+def save_emotion(emotion):
+    try: 
+        emotion_add = {
+                "emotion": emotion,
+                "timestamp": datetime.now(datetime.timezone.utc)
+        }   
+        emotion_data_collection.insert_one(emotion_add)
+    except Exception as error:
+        flash(f"Error saving emotion to database")
 
 @app.route("/detect_emotion", methods=["POST"])
 def detect_emotion():
@@ -65,15 +74,15 @@ def detect_emotion():
         emotion_text = emotion_dict.get(emotion_label, "Unknown")
 
         # Save emotion data to MongoDB
-        emotion_data_collection.insert_one(
-            {"emotion": emotion_text, "timestamp": datetime.utcnow()}
-        )
+        save_emotion(emotion_text)
 
         return jsonify({"emotion": emotion_text})
 
     except Exception as e:
         # Return the error with a 500 status code
         return jsonify({"error": str(e)}), 500
+
+ 
 
 
 def run_emotion_detection():
