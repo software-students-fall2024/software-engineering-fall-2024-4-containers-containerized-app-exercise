@@ -137,7 +137,7 @@ def send_image_to_detect(image_bytes):
 
     try:
         # Send the image to the ML client for detection
-        response = requests.post(url, files=files)
+        response = requests.post(url, files=files, timeout=70)
         response.raise_for_status()  # Raise an error if the request was unsuccessful
         result = response.json()
         print("Detection Result:", result)
