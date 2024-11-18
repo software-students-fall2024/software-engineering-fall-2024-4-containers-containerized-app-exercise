@@ -1,12 +1,13 @@
 """
-test_tests_ml_client.py
+Unit tests for the ml_client module.
 """
 
 import io
-from unittest.mock import patch, MagicMock
-import pytest
-import numpy as np
 import warnings
+from unittest.mock import patch
+
+import numpy as np
+
 from ..ml_client import encode_face_image
 
 warnings.filterwarnings(
@@ -14,10 +15,9 @@ warnings.filterwarnings(
 )
 
 
-# Helper function to create a fake image file
 def create_fake_image_file():
     """
-    Helper function to create a fake image file
+    Helper function to create a fake image file.
     """
     # Create a simple byte stream that mimics an image file
     return io.BytesIO(b"fake image data")
@@ -25,9 +25,9 @@ def create_fake_image_file():
 
 @patch("face_recognition.load_image_file")
 @patch("face_recognition.face_encodings")
-def test_encode_face_image_success(mock_face_encodings, mock_load_image_file):
+def test_encode_face_image_success(mock_face_encodings, _mock_load_image_file):
     """
-    Test the encode_face_image function for successful encoding
+    Test the encode_face_image function for successful encoding.
     """
     # Mock the face_encodings to return a known value
     mock_face_encodings.return_value = [np.zeros((128,))]
@@ -43,9 +43,9 @@ def test_encode_face_image_success(mock_face_encodings, mock_load_image_file):
 
 @patch("face_recognition.load_image_file")
 @patch("face_recognition.face_encodings")
-def test_encode_face_image_no_face_detected(mock_face_encodings, mock_load_image_file):
+def test_encode_face_image_no_face_detected(mock_face_encodings, _mock_load_image_file):
     """
-    Test the encode_face_image function when no face is detected
+    Test the encode_face_image function when no face is detected.
     """
     # Mock the face_encodings to return an empty list
     mock_face_encodings.return_value = []
@@ -60,9 +60,9 @@ def test_encode_face_image_no_face_detected(mock_face_encodings, mock_load_image
 
 @patch("face_recognition.load_image_file")
 @patch("face_recognition.face_encodings")
-def test_encode_face_image_exception(mock_face_encodings, mock_load_image_file):
+def test_encode_face_image_exception(_mock_face_encodings, mock_load_image_file):
     """
-    Test the encode_face_image function for exception handling
+    Test the encode_face_image function for exception handling.
     """
     # Mock load_image_file to raise an exception
     mock_load_image_file.side_effect = Exception("Test Exception")
