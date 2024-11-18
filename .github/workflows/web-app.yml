@@ -42,7 +42,7 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y libgl1 libglib2.0-0
 
-      - name: Install dependencies with pipenv
+      - name: Install pipenv and dependencies
         run: |
           pip install --upgrade pip
           pip install pipenv
@@ -51,7 +51,8 @@ jobs:
       - name: Run tests
         run: |
           pipenv run pytest --cov=web_app --cov-report=xml --cov-report=term test_app.py
-          pipenv run coverage report -i
+        env:
+          MONGO_URI: mongodb://localhost:27017
 
       - name: Upload coverage results
         uses: actions/upload-artifact@v3
