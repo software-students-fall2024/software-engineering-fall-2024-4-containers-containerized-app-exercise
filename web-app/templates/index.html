@@ -60,7 +60,10 @@
             <canvas id="snapshot" style="display:none;"></canvas>
             <button id="start_recording">Start Recording</button>
             <button id="stop_recording" disabled>Stop Recording</button>
-            <a href="display.html">View History</a>
+            <a href="/history">View History</a>
+         </section>
+         <section id="result_section">
+
          </section>
 
          <script>
@@ -87,6 +90,11 @@
                 stopButton.disabled = false;
                 video.style.display = "block";
                 canvas.style.display = "none";
+                //clear result section
+                const element = document.getElementById('result_section');
+                while (element.firstChild) {
+                    element.removeChild(element.firstChild);
+                }
                 console.log("Recording started.");
             });
 
@@ -106,11 +114,25 @@
                     headers: {
                         'Content-Type': 'application/json',
                     },
-                    body: JSON.stringify({image: imageData}),
+                    body: JSON.stringify({"image": imageData}),
                 })
                     .then((response) => response.json())
                     .then((data) => {
-                        console.log("Snapshot saved: ", data);
+                        //console.log("Snapshot saved: ", data);
+
+                        // Create a new section element to append the image and text
+                        const section = document.getElementById('result_section');
+
+                        // Create and append the image element
+                        const img = document.createElement('img');
+                        img.src = 'data:image/png;base64,'+data.output; // Assuming the image URL is provided in the response data
+                        img.alt = 'Processed Image'; // Add alt text for the image
+                        section.appendChild(img);
+
+                        // Create and append the paragraph element with translation or any other data
+                        const p = document.createElement('p');
+                        p.textContent = data.translation; // Assuming the translation is part of the response data
+                        section.appendChild(p);
                     })
                     .catch((err) => {
                         console.error("Error saving snapshot: ", err);
