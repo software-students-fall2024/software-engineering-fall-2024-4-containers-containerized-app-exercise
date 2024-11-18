@@ -1,16 +1,15 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Home</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
-</head>
-<body>
-    <div class="page-layout">
-        <h2>Welcome, {{ username }}</h2>
-        <form action="{{ url_for('logout') }}" method="post">
-            <button type="submit">Logout</button>
-        </form>
-    </div>
-</body>
-</html>
+{% extends "base.html" %}
+
+{% block title %}Home - Attendify{% endblock %}
+
+{% block content %}
+<div class="page-layout">
+    <h2>Welcome, {{ username }}</h2>
+    <form action="{{ url_for('logout') }}" method="post">
+        <button type="submit">Logout</button>
+    </form>
+</div>
+{% endblock %}
+
+
+
