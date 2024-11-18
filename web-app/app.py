@@ -6,7 +6,7 @@ import os
 import time
 import random
 import logging  # Fixed import order
-from flask import Flask, render_template, request, make_response, jsonify, Request, Response
+from flask import Flask, render_template, request, make_response, jsonify
 import requests
 from requests.exceptions import RequestException
 from pymongo import MongoClient
@@ -22,47 +22,41 @@ client = MongoClient(MONGO_URI)
 db = client["rps_database"]
 collection = db["stats"]
 
-def cookie_validation(req:Request, resp: Response):
+def generate_stats_doc():
     """
-    Checks if current request has cookie for db document.
-    Creates one if not
-
-    Args:
-        req (Request): Request of current route.
-        resp (Response): Response object in need of cookie validation.
+    Creates blank stats-tracking document.
 
     Returns:
-        resp (Reponse): Response object with proper cookies ensured.
+        _id (str): ObjectId for newly created document
     """
-    if 'db_object_id' not in req.cookies:
-        stats = {
-            "Rock":{
-                "wins": 0,
-                "losses": 0,
-                "ties": 0,
-                "total": 0
-            },
-            "Paper":{
-                "wins": 0,
-                "losses": 0,
-                "ties": 0,
-                "total": 0
-            },
-            "Scissors":{
-                "wins": 0,
-                "losses": 0,
-                "ties": 0,
-                "total": 0
-            },
-            "Totals":{
-                "wins":0,
-                "losses":0,
-                "ties":0
-            }
+
+    stats = {
+        "Rock":{
+            "wins": 0,
+            "losses": 0,
+            "ties": 0,
+            "total": 0
+        },
+        "Paper":{
+            "wins": 0,
+            "losses": 0,
+            "ties": 0,
+            "total": 0
+        },
+        "Scissors":{
+            "wins": 0,
+            "losses": 0,
+            "ties": 0,
+            "total": 0
+        },
+        "Totals":{
+            "wins":0,
+            "losses":0,
+            "ties":0
         }
-        _id = collection.insert_one(stats).inserted_id
-        resp.set_cookie(key='db_object_id', value=str(_id))
-    return resp
+    }
+    _id = str(collection.insert_one(stats).inserted_id)
+    return _id
 
 
 def retry_request(url, files, retries=5, delay=2, timeout=10):
@@ -96,22 +90,27 @@ def retry_request(url, files, retries=5, delay=2, timeout=10):
 def home():
     """Render the home page."""
     resp = make_response(render_template("title.html"))
-    return cookie_validation(req=request, resp=resp)
-
+    if 'db_object_id' not in request.cookies:
+        resp.set_cookie('db_object_id', generate_stats_doc())
+    return resp
 
 @app.route("/index")
 def index():
     """Render the index page."""
     resp = make_response(render_template("index.html"))
-    return cookie_validation(req=request, resp=resp)
+    if 'db_object_id' not in request.cookies:
+        resp.set_cookie('db_object_id', generate_stats_doc())
+    return resp
 
 @app.route("/statistics")
 def statistics():
     """Render the statistics page."""
-    resp = make_response(render_template("statistics.html", stats_data=stats))
-    resp = cookie_validation(req=request, resp=resp)
-    _id = request.cookies.get('db_object_id')
-    stats = collection.find_one({"_id": ObjectId(_id)}, {'_id':False})
+    _id  = request.cookies.get('db_object_id', default=None)
+    if not _id:
+        _id = generate_stats_doc()
+    stats = collection.find_one({"_id": ObjectId(_id)}, {'_id':0})
+    resp = make_response(render_template("statistics.html",  stats_data=stats))
+    resp.set_cookie('db_object_id', _id)
     return resp
 
 
