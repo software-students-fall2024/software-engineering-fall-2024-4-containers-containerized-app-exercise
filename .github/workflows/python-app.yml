@@ -39,4 +39,4 @@ jobs:
       if: ${{ hashFiles(format('{0}/**/*.py', matrix.subdir)) != '' }}
       run: |
         cd ${{ matrix.subdir }}
-        pipenv run pytest --cov=.
+        pipenv run pytest
