@@ -22,6 +22,7 @@ db = mongo["object_detection"]
 # Load YOLOv5 model
 model = torch.hub.load("ultralytics/yolov5", "yolov5s", pretrained=True)
 
+
 def detect_objects(image):
     """Detect objects using YOLOv5"""
     results = model(image)
@@ -30,6 +31,7 @@ def detect_objects(image):
         {"label": det["name"], "confidence": float(det["confidence"])}
         for det in detections
     ]
+
 
 @app.route("/api/detect", methods=["POST"])
 def detect():
@@ -59,6 +61,7 @@ def detect():
     detection_data["_id"] = str(result.inserted_id)
 
     return jsonify(detection_data), 200
+
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=3001)
