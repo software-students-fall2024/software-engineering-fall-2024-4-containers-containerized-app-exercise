@@ -23,7 +23,6 @@ def create_app():
     Returns: app: the Falsk application object
     """
     app = Flask(__name__)
-    print("hello world!")
 
     @app.route("/")
     def index():

@@ -7,10 +7,15 @@ jobs:
     timeout-minutes: 5
     strategy:
       matrix:
-        python-version: ["3.11"]
+        python-version: ["3.10"]
       
     steps:
       - uses: actions/checkout@v4
+
+      - name: Install ffmpeg
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y ffmpeg
 
       - name: Install Python, pipenv and Pipfile packages
         uses: kojoru/prepare-pipenv@v2
