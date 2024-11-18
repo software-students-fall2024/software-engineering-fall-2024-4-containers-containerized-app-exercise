@@ -9,6 +9,7 @@ def create_app():
 
     app = Flask(__name__)
     client = MongoClient(os.getenv("MONGO_URI", "mongodb://mongodb:27017/"))
+
     db = client.asl_db
 
     if client is None:
@@ -44,7 +45,7 @@ def create_app():
             result = db.images.insert_one(image_doc)
 
             image_id = str(result.inserted_id)
-            ml_client_url = "http://127.0.0.1:5001/processImage"
+            ml_client_url = "http://ml_client:5001/processImage"
             response = requests.post(ml_client_url, json={"image_id": str(image_id)})
             result =  db.images.find_one({"_id": ObjectId(image_id)})
             
@@ -95,8 +96,7 @@ def create_app():
         
         return
     
-    FLASK_PORT = os.getenv("FLASK_PORT", "5002")
-    app.run(port=FLASK_PORT)
+    app.run(host="0.0.0.0", port=5002, debug=True)
     
 
 if __name__ == "__main__":
