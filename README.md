@@ -1,4 +1,6 @@
 ![Lint-free](https://github.com/nyu-software-engineering/containerized-app-exercise/actions/workflows/lint.yml/badge.svg)
+[![Machine Learning Client CI](https://github.com/software-students-fall2024/4-containers-financiers/actions/workflows/ml-client.yml/badge.svg)](https://github.com/software-students-fall2024/4-containers-financiers/actions/workflows/ml-client.yml)
+
 
 # Containerized App Exercise
 
