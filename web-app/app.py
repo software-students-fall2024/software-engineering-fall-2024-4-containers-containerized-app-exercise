@@ -14,6 +14,7 @@ from pymongo import MongoClient
 from pymongo.errors import PyMongoError
 from dotenv import load_dotenv
 from bson.objectid import ObjectId
+
 load_dotenv()
 MONGO_URI = os.getenv("MONGO_URI", "mongodb://localhost:27017")
 ML_CLIENT_URL = os.getenv(
@@ -192,7 +193,8 @@ def recent_entries():
         logging.error("Data processing error: %s", data_error)
         return jsonify({"error": "Data processing error occurred"}), 500
 
-@app.route('/delete-journal/<entry_id>', methods=['DELETE'])
+
+@app.route("/delete-journal/<entry_id>", methods=["DELETE"])
 def delete_journal(entry_id):
     """
     Deletes a journal entry by its ID.
@@ -215,7 +217,11 @@ def delete_journal(entry_id):
 
     except PyMongoError as mongo_error:
         # Handle MongoDB-specific errors
-        return jsonify({"error": "Database error occurred", "details": str(mongo_error)}), 500
+        return (
+            jsonify({"error": "Database error occurred", "details": str(mongo_error)}),
+            500,
+        )
+
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000)
