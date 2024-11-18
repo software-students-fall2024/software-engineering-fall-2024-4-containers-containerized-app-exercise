@@ -54,10 +54,31 @@ def home():
     """Render the home page."""
     resp = make_response(render_template("title.html"))
     if 'db_object_id' not in request.cookies:
+        collection.delete_many({})
         stats = {
-            "wins":0,
-            "losses": 0,
-            "ties": 0
+            "Rock":{
+                "wins": 0,
+                "losses": 0,
+                "ties": 0,
+                "total": 0
+            },
+            "Paper":{
+                "wins": 0,
+                "losses": 0,
+                "ties": 0,
+                "total": 0
+            },
+            "Scissors":{
+                "wins": 0,
+                "losses": 0,
+                "ties": 0,
+                "total": 0
+            },
+            "Totals":{
+                "wins":0,
+                "losses":0,
+                "ties":0
+            }
         }
         _id = collection.insert_one(stats).inserted_id
         resp.set_cookie(key='db_object_id', value=str(_id))
@@ -113,14 +134,21 @@ def result():
     game_result = determine_winner(user_gesture, ai_gesture)
     app.logger.debug("Game result: %s", game_result)
     _id = request.cookies.get('db_object_id')
-    updated_value = {}
     if game_result == "AI wins!":
-        updated_value = { "$inc": { 'losses':1 } }
+        res = 'losses'
     elif game_result == 'It\'s a tie!':
-        updated_value = { "$inc": { 'ties':1 } }
-    elif game_result == 'You win!':
-        updated_value = { "$inc": { 'wins':1 } }
-    collection.update_one({'_id': ObjectId(_id)}, updated_value)
+        res = 'ties'
+    else:
+        res = 'wins'
+    collection.update_one({'_id': ObjectId(_id)}, 
+                        {
+                            '$inc': {
+                                "Totals" + "." + res: 1,
+                                user_gesture + "." + res: 1,
+                                user_gesture + "." + "total": 1
+                            }
+                        }, 
+                        upsert=False)
     return render_template(
         "result.html", user=user_gesture, ai=ai_gesture, result=game_result
     )

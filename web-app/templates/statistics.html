@@ -76,9 +76,9 @@
             </tr>
             <tr>
                 <td id="total-games">0</td>
-                <td id="wins">{{stats_data['wins']}}</td>
-                <td id="losses">{{stats_data['losses']}}</td>
-                <td id="ties">{{stats_data['ties']}}</td>
+                <td id="wins">{{stats_data['Totals']['wins']}}</td>
+                <td id="losses">{{stats_data['Totals']['losses']}}</td>
+                <td id="ties">{{stats_data['Totals']['ties']}}</td>
             </tr>
         </table>
 
@@ -91,18 +91,27 @@
             </tr>
             <tr>
                 <td>Rock</td>
-                <td id="rock-usage">0</td>
-                <td id="rock-win-rate">0%</td>
+                <td id="rock-usage">{{stats_data['Rock']['total']}}</td>
+                <td id="rock-win-rate">{{
+                    stats_data['Rock']['wins']/stats_data['Rock']['total'] * 100
+                    if stats_data['Rock']['total'] != 0 else 0
+                }}%</td>
             </tr>
             <tr>
                 <td>Paper</td>
-                <td id="paper-usage">0</td>
-                <td id="paper-win-rate">0%</td>
+                <td id="paper-usage">{{stats_data['Paper']['total']}}</td>
+                <td id="paper-win-rate">{{
+                    stats_data['Paper']['wins']/stats_data['Paper']['total'] * 100
+                    if stats_data['Paper']['total'] != 0  else 0
+                }}%</td>
             </tr>
             <tr>
                 <td>Scissors</td>
-                <td id="scissors-usage">0</td>
-                <td id="scissors-win-rate">0%</td>
+                <td id="scissors-usage">{{stats_data['Scissors']['total']}}</td>
+                <td id="scissors-win-rate">{{
+                    stats_data['Scissors']['wins']/stats_data['Scissors']['total'] * 100
+                    if stats_data['Scissors']['total'] != 0 else 0
+                }}%</td>
             </tr>
         </table>
 
@@ -127,7 +136,7 @@
                 labels: ['Wins', 'Losses', 'Ties'],
                 datasets: [{
                     label: 'Game Outcomes',
-                    data: [stats_data['wins'], stats_data['losses'], stats_data['ties']],
+                    data: [stats_data['Totals']['wins'], stats_data['Totals']['losses'], stats_data['Totals']['ties']],
                     backgroundColor: ['#28a745', '#dc3545', '#ffc107'],
                     hoverOffset: 4
                 }]
