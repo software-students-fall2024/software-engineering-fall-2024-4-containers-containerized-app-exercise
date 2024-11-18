@@ -215,6 +215,9 @@ def delete_journal(entry_id):
 
     except PyMongoError as mongo_error:
         # Handle MongoDB-specific errors
-        return jsonify({"error": "Database error occurred", "details": str(mongo_error)}), 500 
+        return jsonify({"error": "Database error occurred", "details": str(mongo_error)}), 500
+    
+    
+    
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000)
