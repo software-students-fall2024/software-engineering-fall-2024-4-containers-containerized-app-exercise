@@ -28,28 +28,22 @@ jobs:
       with:
         python-version: '3.12'
 
-    - name: Cache CUDA
-      uses: actions/cache@v3
-      with:
-        path: /usr/local/cuda
-        key: ${{ runner.os }}-cuda-toolkit-12-2
-        restore-keys: |
-          ${{ runner.os }}-cuda-toolkit-
-
     - name: Install dependencies
       working-directory: ${{ matrix.service }}
       run: |
         python -m pip install --upgrade pip
         python -m pip install pipenv
         pipenv install --dev
-
+        
     - name: Run linting
       working-directory: ${{ matrix.service }}
       run: |
         if [ "${{ matrix.service }}" == "machine-learning-client" ]; then
-          [ -f src/main.py ] && pipenv run pylint src/main.py || echo "src/main.py not found"
+          [ -f src/app.py ] && pipenv run pylint src/app.py || echo "src/app.py not found"
+          [ -f test_app.py ] && pipenv run pylint test_app.py || echo "test_app.py not found"
         elif [ "${{ matrix.service }}" == "web-app" ]; then
           [ -f app.py ] && pipenv run pylint app.py || echo "app.py not found"
+          [ -f test_app.py ] && pipenv run pylint test_app.py || echo "test_app.py not found"
         fi
 
     - name: Format code with Black
