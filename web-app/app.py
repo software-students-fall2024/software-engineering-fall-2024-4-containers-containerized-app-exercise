@@ -15,7 +15,7 @@ def create_app():
     try:
         client = MongoClient(MONGO_URI)
         db = client.get_database("ASL-DB")
-        collection = db["entries"]
+        images_collection = db["entries"]
         print("Connected")
     except Exception as e:
         print(f"Error: {e}")
@@ -36,7 +36,9 @@ def create_app():
             image_data = image_data.split(",")[1]
             image_binary = base64.b64decode(image_data)
 
-            collection.insert_one({"image": image_binary})
+            image_id = str(result.inserted_id)
+
+            result = images_collection.insert_one({"image": image_binary})
             return jsonify({"message": "Snapshot saved successfully!"}), 200
         except Exception as e:
             print(f"Error: {e}")
@@ -45,8 +47,10 @@ def create_app():
     
         # TO DO
 
-    return app
-    
+    @app.route("/display")
+    def display():
+        images = images_collection.find({}, {"_id": 1, "translation":1})
+        history = [{"image_id": str(image["_id"]), "translation": images}]
     def get_data():
 
         # TO DO
