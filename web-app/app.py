@@ -10,11 +10,12 @@ from flask import Flask, render_template, request, jsonify, make_response
 import requests
 from requests.exceptions import RequestException
 from pymongo import MongoClient
-from bson import ObjectId
-
+from pymongo import ReturnDocument
+from pymongo import _Do
 logging.basicConfig(level=logging.DEBUG)
 
 app = Flask(__name__)
+
 
 # MongoDB connection
 MONGO_URI = os.getenv("MONGO_URI", "mongodb://mongodb:27017")
@@ -37,9 +38,9 @@ def generate_stats_doc():
         "Scissors": {"wins": 0, "losses": 0, "ties": 0, "total": 0},
         "Totals": {"wins": 0, "losses": 0, "ties": 0},
     }
-    _id = str(collection.insert_one(stats).inserted_id)
-    return _id
-
+    _id = collection.insert_one(stats).inserted_id
+    collection.update_one({"_id"}, {"$set:": {"object_id": str(_id)} })
+    return str(_id)
 
 def retry_request(url, files, retries=5, delay=2, timeout=10):
     """
@@ -94,7 +95,7 @@ def statistics():
     _id = request.cookies.get("db_object_id", default=None)
     if not _id:
         _id = generate_stats_doc()
-    stats = collection.find_one({"_id": ObjectId(_id)}, {"_id": 0})
+    stats = collection.find_one({"object_id": _id}, {"_id": 0})
     resp = make_response(render_template("statistics.html", stats_data=stats))
     resp.set_cookie("db_object_id", _id)
     return resp
@@ -152,7 +153,7 @@ def result():
     else:
         res = "wins"
     collection.update_one(
-        {"_id": ObjectId(_id)},
+        {"object_id": (_id)},
         {
             "$inc": {
                 "Totals" + "." + res: 1,
