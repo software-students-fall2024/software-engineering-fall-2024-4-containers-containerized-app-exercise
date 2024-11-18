@@ -1,21 +1,19 @@
-# start from the node v16 base image
-FROM node:16
+# in Docker, it is common to base a new image on a previously-created image
+FROM python:3.8-slim-buster
 
-# create an app directory within the image...
-# WORKDIR /app
+# Set the working directory in the image
+WORKDIR /app
 
 # install dependencies into the image - doing this first will speed up subsequent builds, as Docker will cache this step
-COPY package*.json ./
-RUN npm install
+COPY requirements.txt ./
+RUN pip3 install -r requirements.txt
 
-# copy the remaining app source code into the default directory within the image
-COPY . .
+# the ADD command is how you add files from your local machine into a Docker image
+# Copy the current directory contents into the container at /app
+ADD . .
 
-# install dependencies into the image
-RUN npm install
+# expose the port that the Flask app is running on... by default 5000
+EXPOSE 5000
 
-# expose port 3000 to make it available to the docker daemon
-EXPOSE 3000
-
-# define the runtime command that will be executed when a container is made from the image
-CMD [ "node", "server.js" ]
+# Run app.py when the container launches
+CMD [ "python3", "-m" , "flask", "run", "--host=0.0.0.0"]
