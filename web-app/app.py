@@ -34,9 +34,8 @@ def create_app():
     characters = db['characters']
     chats = db['chats']
 
-
     app = Flask(__name__)
-
+    
     @app.route('/', methods=['GET', 'POST'])
     def login():
         global email, code
