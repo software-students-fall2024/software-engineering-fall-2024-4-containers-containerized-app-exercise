@@ -64,6 +64,6 @@ def main(image_path):
     flower_names = load_flower_names()  # Load flower name mapping
     model = load_model()  # Load the pre-trained model
     plant_name = predict_plant(image_path, model, flower_names)
-    print(f"Predicted plant: {plant_name}")
+    return plant_name
 
 main('data/flowers-102/jpg/image_00001.jpg')

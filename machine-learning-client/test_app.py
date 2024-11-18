@@ -4,6 +4,9 @@ Unit tests for the plant prediction functionality in app.py.
 
 import sys
 import pytest
+
+#from ..app import main
+#from machine_learning_client.app import main
 from app import main
 sys.path.insert(0, '../machine-learning-client')  # Ensure the correct path to app.py
 
