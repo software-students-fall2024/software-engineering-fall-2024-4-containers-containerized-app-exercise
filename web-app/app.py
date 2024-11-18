@@ -1,73 +1,93 @@
-import os
-from dotenv import load_dotenv
+"""
+Flask app for Hello Kitty AI application.
+Handles user authentication, connection to MongoDB, and basic routes.
+"""
 
+import os
 from flask import Flask, render_template, request, redirect, url_for
-from characterai import aiocai, pycai, sendCode, authUser
-import asyncio
+from dotenv import load_dotenv
+from characterai import pycai, sendCode, authUser
 import pymongo
 from bson import ObjectId
 import certifi
 
-email = ''
-code = ''
-client = ''
+
+# Global variables
+EMAIL = ""
+CODE = ""
+CLIENT = None
+
 
 def create_app():
-
+    """Creates and configures the Flask application."""
     load_dotenv()
 
     mongo_uri = os.getenv("MONGO_DB_URI")
-
     if mongo_uri is None:
-        raise ValueError("Could not connect to database. Make sure .env is properly configured.")
-    
+        raise ValueError("Could not connect to database. Ensure .env is properly configured.")
+
     mongo_cli = pymongo.MongoClient(mongo_uri, tls=True, tlsCAFile=certifi.where())
 
     try:
-        mongo_cli.admin.command('ping')  
+        mongo_cli.admin.command("ping")
         print("Successfully connected to MongoDB!")
-    except Exception as e:
-        print(f"Failed to connect to MongoDB: {e}")
+    except pymongo.errors.PyMongoError as error:
+        print(f"Failed to connect to MongoDB: {error}")
 
-    db = mongo_cli['hellokittyai_db']
-    users = db['users']
-    characters = db['characters']
-    chats = db['chats']
+    db = mongo_cli["hellokittyai_db"]
+    users = db["users"]
 
     app = Flask(__name__)
-    
-    @app.route('/', methods=['GET', 'POST'])
+
+    @app.route("/", methods=["GET", "POST"])
     def login():
-        global email, code
-        if request.method == 'POST':
-            email = request.form['email']
+        """
+        Handles user login and code sending.
+        Creates a new user if they don't exist.
+        """
+        global EMAIL, CODE
+
+        if request.method == "POST":
+            email = request.form.get("email")
             if not email:
                 return "Email address is required", 400
-            
-            user = users.find_one({"email": email})
+
+            EMAIL = email
+            user = users.find_one({"email": EMAIL})
             if not user:
                 user_id = str(ObjectId())
-                users.insert_one({"user_id": user_id, "email": email, "chat_history": []})
-                print(f"New user created: {email}")
-            code = sendCode(email)
-            return render_template('auth.html', address=email)
-        
-        return render_template('index.html')
+                users.insert_one({"user_id": user_id, "email": EMAIL, "chat_history": []})
+                print(f"New user created: {EMAIL}")
 
-    @app.route('/authenticate', methods=['POST'])
+            CODE = sendCode(EMAIL)
+            return render_template("auth.html", address=EMAIL)
+
+        return render_template("index.html")
+
+    @app.route("/authenticate", methods=["POST"])
     def auth():
-        global client
-        link = request.form['link']
-        print(f"Email: {email}, Link: {link}, Code: {code}")
-        token = authUser(link, email)
-        client = pycai.Client(token)
+        """
+        Authenticates the user using the link provided and saves the client instance.
+        """
+        global CLIENT
+        link = request.form.get("link")
+        if not link:
+            return "Authentication link is required", 400
 
-        return redirect(url_for('home'))
+        print(f"Email: {EMAIL}, Link: {link}, Code: {CODE}")
+        token = authUser(link, EMAIL)
+        CLIENT = pycai.Client(token)
 
-    @app.route('/home', methods=['GET'])
+        return redirect(url_for("home"))
+
+    @app.route("/home", methods=["GET"])
     def home():
-        cli = client.get_me()
-        return render_template('home.html', address=email, info=cli)
+        """Displays the user's home page with their information."""
+        if not CLIENT:
+            return "Client is not authenticated. Please log in.", 403
+
+        cli = CLIENT.get_me()
+        return render_template("home.html", address=EMAIL, info=cli)
 
     return app
 
