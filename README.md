@@ -4,8 +4,6 @@
 
 Build a containerized app that uses machine learning. See [instructions](./instructions.md) for details.
 
-![Python build & test](https://github.com/software-students-fall2024/3-python-package-java_and_the_scripts_/actions/workflows/build.yaml/badge.svg)
-
 ## Overview
 Voice Journal is a hands free, online journal that allows user to create entries by speaking. These entries are transcribed and analyzed to be positive, neutral, or negative in tone in order to provide the user with metrics about their mood over time. 
 
