@@ -28,6 +28,14 @@ jobs:
       with:
         python-version: '3.12'
 
+    - name: Cache CUDA
+      uses: actions/cache@v3
+      with:
+        path: /usr/local/cuda
+        key: ${{ runner.os }}-cuda-toolkit-12-2
+        restore-keys: |
+          ${{ runner.os }}-cuda-toolkit-
+
     - name: Install CUDA (for ML only)
       if: ${{ matrix.service == 'machine-learning-client' }}
       run: |
@@ -40,6 +48,17 @@ jobs:
         sudo cp /var/cuda-repo-ubuntu2204-12-6-local/cuda-*-keyring.gpg /usr/share/keyrings/
         sudo apt-get update
         sudo apt-get -y install cuda-toolkit-12-6
+
+    - name: Install cuDNN
+      if: ${{ matrix.service == 'machine-learning-client' }}
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y --no-install-recommends wget
+        wget https://developer.download.nvidia.com/compute/redist/cudnn/v8.9.5/cudnn-linux-x86_64-8.9.5.29_cuda12-archive.tar.xz
+        tar -xvf cudnn-linux-x86_64-8.9.5.29_cuda12-archive.tar.xz
+        sudo cp cudnn-linux-x86_64-8.9.5.29_cuda12-archive/include/* /usr/local/cuda/include/
+        sudo cp cudnn-linux-x86_64-8.9.5.29_cuda12-archive/lib/* /usr/local/cuda/lib64/
+        sudo chmod a+r /usr/local/cuda/include/cudnn*.h /usr/local/cuda/lib64/libcudnn*
 
     - name: Install dependencies
       working-directory: ${{ matrix.service }}
