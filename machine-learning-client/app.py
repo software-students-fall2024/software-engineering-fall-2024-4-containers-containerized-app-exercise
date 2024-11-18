@@ -27,8 +27,7 @@ load_dotenv()
 app = Flask(__name__)
 client = MongoClient(os.getenv("MONGO_URI", "mongodb://mongodb:27017/"))
 
-db = client["ASL_DB"]
-collection = db["ASL_COLLECTION"]
+db = client.asl_db
 
 # fs = gridfs.GridFS(db)
 

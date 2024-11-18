@@ -10,7 +10,7 @@ def create_app():
     app = Flask(__name__)
 
     client = MongoClient(os.getenv("MONGO_URI", "mongodb://mongodb:27017/"))
-    db = client.test
+    db = client.asl_db
 
     if client is None:
         raise ValueError("Error with URI")
