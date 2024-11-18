@@ -91,6 +91,7 @@ def process_audio():
         return jsonify({"error": "Unauthorized. Please log in."}), 401
 
     audio_file = request.files["audio"]
+    user_id = request.form.get("user_id")
     file_path = os.path.join(UPLOAD_FOLDER, audio_file.filename)
 
     try:
@@ -115,7 +116,11 @@ def process_audio():
 
         # Prepare data for MongoDB
         data = {
+<<<<<<< HEAD
             "user_id": session["user_id"],
+=======
+            "user_id": user_id,
+>>>>>>> 3c58b60c33409521013772100591e26a93233ee7
             "file_name": audio_file.filename,
             "transcript": text,
             "sentiment": sentiment,
