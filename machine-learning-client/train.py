@@ -47,7 +47,9 @@ class FlowerDataset(Dataset):
         self.img_dir = img_dir
         self.labels = labels
         self.transform = transform
-        self.image_files = sorted([f for f in os.listdir(img_dir) if f.endswith(".jpg")])
+        self.image_files = sorted(
+            [f for f in os.listdir(img_dir) if f.endswith(".jpg")]
+        )
 
     def __len__(self):
         return len(self.image_files)

@@ -3,11 +3,13 @@ This module performs flower classification using a pre-trained ResNet50 model.
 It includes functions to load the flower class names, initialize the model, 
 transform images, and predict the flower name based on an input image.
 """
+
 import json
 import torch
 from torchvision import transforms
 from PIL import Image
 import torchvision
+
 
 def load_flower_names():
     """
@@ -104,6 +106,7 @@ def predict_plant(image_path, model, flower_names):
     plant_name = flower_names.get(str(predicted_class_id), "Unknown plant")
     return plant_name
 
+
 def main(image_path):
     """
     Main function to load the model, predict the plant from an image, and print the result.
@@ -115,6 +118,7 @@ def main(image_path):
     model = load_model()  # Load the pre-trained model
     plant_name = predict_plant(image_path, model, flower_names)
     print(f"Predicted plant: {plant_name}")
+
 
 # Example usage
 main("data/flowers-102/jpg/image_00001.jpg")
