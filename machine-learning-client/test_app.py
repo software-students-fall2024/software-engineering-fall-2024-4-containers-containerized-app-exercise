@@ -5,6 +5,7 @@ Unit tests for MongoDB operations in the boyfriend client.
 import pytest
 from app import collection
 
+
 @pytest.fixture
 def clear_test_data():
     """
