@@ -12,20 +12,15 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Install ffmpeg
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y ffmpeg
+
       - name: Install Python, pipenv and Pipfile packages
         uses: kojoru/prepare-pipenv@v2
         with:
           python-version: ${{ matrix.python-version }}
-      
-      - name: Install Homebrew (if not installed)
-        run: |
-          if ! command -v brew &> /dev/null
-          then
-            /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
-          fi
-
-      - name: Install ffmpeg
-        run: brew install ffmpeg
 
       - name: Web-App - Turn on 'editable' mode
         working-directory: ./web-app
