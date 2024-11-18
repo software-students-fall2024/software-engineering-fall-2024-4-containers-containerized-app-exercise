@@ -46,7 +46,7 @@ def test_process_audio_success(
 
 
 @patch("src.main.transcribe_audio", side_effect=RuntimeError("Transcription error"))
-def test_process_audio_transcription_error(mock_transcribe_audio, flask_test_client):
+def test_process_audio_transcription_error(_mock_transcribe_audio, flask_test_client):
     """
     Test handling of transcription errors during audio processing.
     """
