@@ -11,6 +11,7 @@ import pymongo
 from bson import ObjectId
 import certifi
 
+
 def create_app():
     """Creates and configures the Flask application."""
     load_dotenv()
@@ -21,7 +22,9 @@ def create_app():
 
     mongo_uri = os.getenv("MONGO_DB_URI")
     if mongo_uri is None:
-        raise ValueError("Could not connect to database. Ensure .env is properly configured.")
+        raise ValueError(
+            "Could not connect to database. Ensure .env is properly configured."
+        )
 
     mongo_cli = pymongo.MongoClient(mongo_uri, tls=True, tlsCAFile=certifi.where())
 
@@ -52,7 +55,9 @@ def create_app():
             user = users.find_one({"email": email})
             if not user:
                 user_id = str(ObjectId())
-                users.insert_one({"user_id": user_id, "email": email, "chat_history": []})
+                users.insert_one(
+                    {"user_id": user_id, "email": email, "chat_history": []}
+                )
                 print(f"New user created: {email}")
 
             session["code"] = sendCode(email)
@@ -92,6 +97,7 @@ def create_app():
         return render_template("home.html", address=session.get("email"), info=cli)
 
     return app
+
 
 if __name__ == "__main__":
     web_app = create_app()
