@@ -79,74 +79,8 @@ Voice Journal is a hands free, online journal that allows user to create entries
       # Output: Logs "Data stored successfully."
       ```
 
-## How to Use This Project
-### Platform Configuration
-- **Windows** users: Use `python` and `pip` commands instead of `python3` and `pip3` where necessary.
-  ```bash
-  pip install pipenv
-  python your_program_filename.py
-  ```
 
-
-- **macOS/Linux** users: Ensure Python 3 is installed and use `python3`.
-  ```bash
-  pip3 install pipenv
-  python3 your_program_filename.py
-  ```
-
-1. **Install `pipenv`** (if not already installed):
-    ```bash
-    pip3 install pipenv
-    ```
-
-2. **Install Dependencies**
-    ```bash
-    pip3 install -r requirements.txt
-
-    ```
-
-3. **Activate the virtual environment**:
-    ```bash
-    pipenv shell
-    ```
-
-4. **Run the backend functionality**:
-    ```bash
-    python3 main.py
-    ```
-
-5. **Run the Front functionality**:
-    ```bash
-    python3 app.py
-    ```
-
-
-## How to Run Unit Tests
-We've included unit tests for each function in the main.py and utils.py. To run these tests:
-
-1. Install `pytest` in the virtual environment and `coverage`:
-    ```bash
-    pipenv install pytest
-    pipenv install coverage
-    ```
-2. Run the tests from the main project directory:
-    ```bash
-    python3 -m pytest
-    ```
-3. Use the `coverage` tool to ensure the code achieves at least 80% test coverage
-    ```bash
-    pipenv run coverage run -m pytest
-    pipenv run coverage report
-    ```
-4. Verify all tests pass to ensure correct functionality.
-
-    - **main.py tests**: These tests focus on the backend functionality such as `main()` and `setup_logging()`, ensuring the correct interaction with external systems like MongoDB and file handling.
-    
-    - **utils.py tests**: These tests cover the utility functions like `get_audio_files()`, `transcribe_audio()`, `analyze_sentiment()`, and `store_data()`, validating tasks like file handling, API interaction, sentiment analysis, and database operations.
-
-
-## How to Run the Project through Docker and contribute
-
+## How to Run the Project through Docker
 ### Prerequisites
 Make sure you have Python 3.9 or higher installed:
 ```bash
@@ -189,6 +123,19 @@ python3 --version
 ### Optional - Local Setup Without Docker:
 If you prefer running the application locally, set up the virtual environemt using `pipenv`:
 
+###Prerequisites
+- **Windows** users: Use `python` and `pip` commands instead of `python3` and `pip3` where necessary.
+  ```bash
+  pip install pipenv
+  python your_program_filename.py
+  ```
+
+
+- **macOS/Linux** users: Ensure Python 3 is installed and use `python3`.
+  ```bash
+  pip3 install pipenv
+  python3 your_program_filename.py
+
 1. **Set up a virtual environment using `pipenv`**:
     ```bash
     pipenv install --dev
@@ -213,6 +160,29 @@ If you prefer running the application locally, set up the virtual environemt usi
     ```bash
     pipenv run pytest
     ```
+
+## How to Run Unit Tests
+We've included unit tests for each function in the main.py and utils.py. To run these tests:
+
+1. Install `pytest` in the virtual environment and `coverage`:
+    ```bash
+    pipenv install pytest
+    pipenv install coverage
+    ```
+2. Run the tests from the main project directory:
+    ```bash
+    python3 -m pytest
+    ```
+3. Use the `coverage` tool to ensure the code achieves at least 80% test coverage
+    ```bash
+    pipenv run coverage run -m pytest
+    pipenv run coverage report
+    ```
+4. Verify all tests pass to ensure correct functionality.
+
+    - **main.py tests**: These tests focus on the backend functionality such as `main()` and `setup_logging()`, ensuring the correct interaction with external systems like MongoDB and file handling.
+    
+    - **utils.py tests**: These tests cover the utility functions like `get_audio_files()`, `transcribe_audio()`, `analyze_sentiment()`, and `store_data()`, validating tasks like file handling, API interaction, sentiment analysis, and database operations.
 
 ## Notes
 
