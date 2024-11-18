@@ -16,7 +16,7 @@ from web_app.web_app import app
 
 
 @pytest.fixture
-def client():
+def test_client():
     """Fixture to configure the app for testing."""
     app.config["TESTING"] = True
     with app.test_client() as client:
@@ -32,17 +32,17 @@ def generate_image_data():
 
 @patch("web_app.web_app.users_collection")
 @patch("web_app.web_app.requests.post")
-def test_signup_get(mock_requests_post, mock_users_collection, client):
+def test_signup_get(_mock_requests_post, _mock_users_collection, test_client):
     """Test the GET request for the signup page."""
-    response = client.get("/signup")
+    response = test_client.get("/signup")
     assert response.status_code == 200
     assert b"Register with Your Face" in response.data
 
 
 @patch("web_app.web_app.users_collection")
-def test_signup_post_missing_fields(mock_users_collection, client):
+def test_signup_post_missing_fields(_mock_users_collection, test_client):
     """Test the POST request for the signup page with missing fields."""
-    response = client.post(
+    response = test_client.post(
         "/signup", data={"username": "", "email": "", "password": "", "image_data": ""}
     )
     assert response.status_code == 200
@@ -50,12 +50,12 @@ def test_signup_post_missing_fields(mock_users_collection, client):
 
 
 @patch("web_app.web_app.users_collection")
-def test_signup_post_existing_email(mock_users_collection, client):
+def test_signup_post_existing_email(mock_users_collection, test_client):
     """Test the POST request for the signup page with an existing email."""
     # Mock to return an existing user with the email
     mock_users_collection.find_one.return_value = {"email": "test@example.com"}
 
-    response = client.post(
+    response = test_client.post(
         "/signup",
         data={
             "username": "newuser",
@@ -70,12 +70,12 @@ def test_signup_post_existing_email(mock_users_collection, client):
 
 
 @patch("web_app.web_app.users_collection")
-def test_signup_post_existing_username(mock_users_collection, client):
+def test_signup_post_existing_username(mock_users_collection, test_client):
     """Test the POST request for the signup page with an existing username."""
     # Mock to return an existing user with the username
     mock_users_collection.find_one.side_effect = [None, {"username": "testuser"}]
 
-    response = client.post(
+    response = test_client.post(
         "/signup",
         data={
             "username": "testuser",  # existing username
@@ -91,7 +91,7 @@ def test_signup_post_existing_username(mock_users_collection, client):
 
 @patch("web_app.web_app.users_collection")
 @patch("web_app.web_app.requests.post")
-def test_signup_post_valid_data(mock_requests_post, mock_users_collection, client):
+def test_signup_post_valid_data(mock_requests_post, mock_users_collection, test_client):
     """Test the POST request for the signup page with valid data."""
     # Mock users_collection.find_one to return None (no existing user)
     mock_users_collection.find_one.return_value = None
@@ -100,7 +100,7 @@ def test_signup_post_valid_data(mock_requests_post, mock_users_collection, clien
     mock_response.json.return_value = {"encoding": [0.1, 0.2, 0.3]}
     mock_requests_post.return_value = mock_response
 
-    response = client.post(
+    response = test_client.post(
         "/signup",
         data={
             "username": "testuser",
@@ -116,23 +116,23 @@ def test_signup_post_valid_data(mock_requests_post, mock_users_collection, clien
     mock_users_collection.insert_one.assert_called_once()
 
 
-def test_login_get(client):
+def test_login_get(test_client):
     """Test the GET request for the login page."""
-    response = client.get("/login")
+    response = test_client.get("/login")
     assert response.status_code == 200
     assert b"Login" in response.data
 
 
 @patch("web_app.web_app.users_collection")
-def test_login_post_missing_fields(mock_users_collection, client):
+def test_login_post_missing_fields(_mock_users_collection, test_client):
     """Test the POST request for the login page with missing fields."""
-    response = client.post("/login", data={"username": "", "password": ""})
+    response = test_client.post("/login", data={"username": "", "password": ""})
     assert response.status_code == 200
     assert b"Username and Password are required." in response.data
 
 
 @patch("web_app.web_app.users_collection")
-def test_login_post_invalid_credentials(mock_users_collection, client):
+def test_login_post_invalid_credentials(mock_users_collection, test_client):
     """Test the POST request for the login page with invalid credentials."""
     # Mock to return a user with a different password
     hashed_password = generate_password_hash("password123")
@@ -141,7 +141,7 @@ def test_login_post_invalid_credentials(mock_users_collection, client):
         "password": hashed_password,
     }
 
-    response = client.post(
+    response = test_client.post(
         "/login", data={"username": "testuser", "password": "wrongpassword"}
     )
 
@@ -150,7 +150,7 @@ def test_login_post_invalid_credentials(mock_users_collection, client):
 
 
 @patch("web_app.web_app.users_collection")
-def test_login_post_valid_credentials(mock_users_collection, client):
+def test_login_post_valid_credentials(mock_users_collection, test_client):
     """Test the POST request for the login page with valid credentials."""
     hashed_password = generate_password_hash("password123")
     mock_users_collection.find_one.return_value = {
@@ -158,7 +158,7 @@ def test_login_post_valid_credentials(mock_users_collection, client):
         "password": hashed_password,
     }
 
-    response = client.post(
+    response = test_client.post(
         "/login",
         data={"username": "testuser", "password": "password123"},
         follow_redirects=True,
@@ -166,14 +166,14 @@ def test_login_post_valid_credentials(mock_users_collection, client):
 
     assert response.status_code == 200
     assert b"Welcome, testuser" in response.data
-    with client.session_transaction() as sess:
+    with test_client.session_transaction() as sess:
         assert sess["username"] == "testuser"
 
 
 @patch("web_app.web_app.users_collection")
 @patch("web_app.web_app.requests.post")
 def test_login_post_facial_recognition_success(
-    mock_requests_post, mock_users_collection, client
+    mock_requests_post, mock_users_collection, test_client
 ):
     """Test the POST request for the login page with facial recognition success."""
     # Mock users_collection.find to return users
@@ -187,7 +187,7 @@ def test_login_post_facial_recognition_success(
     mock_response.json.return_value = {"result": "verified", "matched_index": "1"}
     mock_requests_post.return_value = mock_response
 
-    response = client.post(
+    response = test_client.post(
         "/login",
         data={
             "username": "user2",
@@ -199,14 +199,14 @@ def test_login_post_facial_recognition_success(
 
     assert response.status_code == 200
     assert b"Welcome, user2" in response.data
-    with client.session_transaction() as sess:
+    with test_client.session_transaction() as sess:
         assert sess["username"] == "user2"
 
 
 @patch("web_app.web_app.users_collection")
 @patch("web_app.web_app.requests.post")
 def test_login_post_facial_recognition_failure(
-    mock_requests_post, mock_users_collection, client
+    mock_requests_post, mock_users_collection, test_client
 ):
     """Test the POST request for the login page with facial recognition failure."""
     # Mock users_collection.find to return users
@@ -220,7 +220,7 @@ def test_login_post_facial_recognition_failure(
     mock_response.json.return_value = {"result": "not_verified"}
     mock_requests_post.return_value = mock_response
 
-    response = client.post(
+    response = test_client.post(
         "/login",
         data={
             "username": "user2",
@@ -231,36 +231,36 @@ def test_login_post_facial_recognition_failure(
 
     assert response.status_code == 200
     assert b"Face not recognized" in response.data
-    with client.session_transaction() as sess:
+    with test_client.session_transaction() as sess:
         assert "username" not in sess
 
 
-def test_logout(client):
+def test_logout(test_client):
     """Test the POST request for logging out."""
     # Log in a user
-    with client.session_transaction() as sess:
+    with test_client.session_transaction() as sess:
         sess["username"] = "testuser"
 
-    response = client.post("/logout", follow_redirects=True)
+    response = test_client.post("/logout", follow_redirects=True)
 
     assert response.status_code == 200
     assert b"Login" in response.data
-    with client.session_transaction() as sess:
+    with test_client.session_transaction() as sess:
         assert "username" not in sess
 
 
-def test_home_not_logged_in(client):
+def test_home_not_logged_in(test_client):
     """Test the GET request for the home page when not logged in."""
-    response = client.get("/", follow_redirects=True)
+    response = test_client.get("/", follow_redirects=True)
     assert response.status_code == 200
     assert b"Login" in response.data
 
 
-def test_home_logged_in(client):
+def test_home_logged_in(test_client):
     """Test the GET request for the home page when logged in."""
-    with client.session_transaction() as sess:
+    with test_client.session_transaction() as sess:
         sess["username"] = "testuser"
 
-    response = client.get("/")
+    response = test_client.get("/")
     assert response.status_code == 200
     assert b"Welcome, testuser" in response.data
