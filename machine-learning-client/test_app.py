@@ -1,14 +1,9 @@
 """
-Unit tests for the plant prediction functionality in app.py.
+This module contains tests for the app's flower classification functionality.
+It includes a test for predicting that a specific image belongs to the "Passion Fruit" class.
 """
 
-import sys
-import pytest
-
-#from ..app import main
-#from machine_learning_client.app import main
-from app import main
-sys.path.insert(0, '../machine-learning-client')  # Ensure the correct path to app.py
+from app import load_model, predict_plant
 
 # Mock the flower name mapping
 mock_flower_names = {
@@ -18,16 +13,19 @@ mock_flower_names = {
     '3': 'Tulip',
     '4': 'Sunflower',
     '5': 'Passion Fruit',  # Assuming Passion Fruit is labeled as class 5
+    # Add all other classes here...
 }
 
-@pytest.fixture
+
 def test_predict_passion_fruit():
-    """Tests that the image 'image_00001.jpg' is predicted as 'Passion Fruit'."""
+    """
+    Test that the image 'image_00001.jpg' is predicted as 'Passion Fruit'.
+    This test ensures that the model correctly identifies the Passion Fruit image.
+    """
     # Test image path
     test_image_path = 'data/flowers-102/jpg/image_00001.jpg'
 
-    # Use the main function for testing
-    predicted_plant = main(test_image_path)  # Ensure main returns a value
-
-    # Assert that the predicted plant name is "Passion Fruit"
+    # Use predict_plant to test
+    model = load_model()
+    predicted_plant = predict_plant(test_image_path, model, mock_flower_names)
     assert predicted_plant == "Passion Fruit", f"Expected Passion Fruit but got {predicted_plant}"

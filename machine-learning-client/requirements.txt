@@ -9,3 +9,4 @@ werkzeug
 scipy
 tqdm
 pytest
+pylint
