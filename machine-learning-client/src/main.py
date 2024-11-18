@@ -10,7 +10,7 @@ from flask import Flask, request, jsonify
 from pymongo import MongoClient
 from pymongo.errors import PyMongoError
 from dotenv import load_dotenv
-from utils import transcribe_audio, analyze_sentiment, store_data
+from .utils import transcribe_audio, analyze_sentiment, store_data
 
 load_dotenv()
 
