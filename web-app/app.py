@@ -74,13 +74,8 @@ def index():
 def statistics():
     """Render the statistics page."""
     _id = request.cookies.get('db_object_id')
-    stats = collection.find_one({"_id": ObjectId(_id)})
-    stats_data = {
-        "wins": json_util.dumps(stats['wins']),
-        "losses": json_util.dumps(stats['losses']),
-        "ties": json_util.dumps(stats['ties'])
-    }
-    return render_template("statistics.html", stats_data=stats_data)
+    stats = collection.find_one({"_id": ObjectId(_id)}, {u'_id':0})
+    return render_template("statistics.html", stats_data=stats)
 
 
 @app.route("/result", methods=["POST"])
