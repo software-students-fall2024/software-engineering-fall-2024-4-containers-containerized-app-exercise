@@ -13,7 +13,7 @@
    - [Install Dependencies](#3-install-dependencies-if-not-already-installed)  
    - [Docker Compose](#4-docker-compose)  
    - [Open the Local Host Link](#5-open-the-local-host-link-for-web-app-and-enjoy)
-   
+
 
 # Teammates 
 
@@ -53,7 +53,7 @@ python3 -m venv .venv
 
 **Mac** 
 ```
-source .venv/bin/activate`
+source .venv/bin/activate
 ```
 
 **Windows**
@@ -71,7 +71,7 @@ pip install pymongo
 
 **4. Docker Compose**
 
-To compose docker run the follwoig command
+Make sure that the Docker Sektop is downloaded and you are logged into your account before running the following comand:
 
 ```
 docker-compose up --build

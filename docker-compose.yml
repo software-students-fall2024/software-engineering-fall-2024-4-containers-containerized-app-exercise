@@ -9,11 +9,7 @@ services:
     environment:
       - MONGO_URI=${MONGO_URI}
       - MONGO_DBNAME=${MONGO_DBNAME}
-      # - .env
-      # - MONGO_URI=${MONGO_URI}
-      # - ML_CLIENT_URL=http://machine_learning_client:5002
-      # #- ML_CLIENT_URL=http://machine_learning_client:5000/detect_emotion
-      # - FLASK_DEBUG=1
+      - ML_CLIENT_URL=http://machine_learning_client:5000/detect_emotion
     depends_on:
       - mongo
       - machine_learning_client

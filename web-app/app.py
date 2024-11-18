@@ -16,6 +16,7 @@ import os
 import bcrypt
 import base64
 import numpy as np
+import time
 from dotenv import load_dotenv
 
 # pylint: disable=all
@@ -55,7 +56,6 @@ def login():
             session["user_id"] = str(user["_id"])
             session["username"] = username
             session.permanent = False
-            flash("Login successful!", "success")
             return redirect(url_for("dashboard"))
         else:
             flash("Invalid username or password.", "error")

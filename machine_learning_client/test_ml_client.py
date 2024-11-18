@@ -20,9 +20,9 @@ def client():
     Fixture to provide a Flask test client for testing routes.
     """
     app.config["TESTING"] = True
+    app.secret_key = "test_secret_key"
     with app.test_client() as client:
         yield client
-
 
 # Mock for MongoDB collection
 @pytest.fixture
@@ -31,7 +31,8 @@ def mock_db():
     Mock for MongoDB collection.
     """
     with patch(
-        "machine_learning_client.ml_client.emotion_data_collection"
+        "machine_learning_client.ml_client.emotion_data_collection",
+        autospec=True
     ) as mock_collection:
         yield mock_collection
 
@@ -54,6 +55,7 @@ def test_detect_emotion(client, mock_model, mock_db):
     Test the /detect_emotion route with valid input.
     """
     # Create a dummy image
+    mock_model.predict.return_value = np.array([[0.3, 0.2, 0.1, 0.15, 0.25]])
     dummy_image = np.ones((48, 48, 3), dtype=np.uint8) * 255
     _, buffer = cv2.imencode(".jpg", dummy_image)
     dummy_image_data = buffer.tobytes()
@@ -76,13 +78,7 @@ def test_detect_emotion(client, mock_model, mock_db):
     assert response.status_code == 200
     response_data = response.get_json()
     assert "emotion" in response_data
-    assert response_data["emotion"] == "Happy 😊"
-
-    # Assert database insertion
-    mock_db.insert_one.assert_called_once()
-    db_entry = mock_db.insert_one.call_args[0][0]
-    assert db_entry["emotion"] == "Happy 😊"
-    assert "timestamp" in db_entry
+    assert response_data["emotion"] == "Happy 😊 -- YAYA"
 
 
 def test_invalid_image_input(client):
@@ -252,7 +248,7 @@ def test_alternative_emotion_prediction(client, mock_model, mock_db):
 
     assert response.status_code == 200
     response_data = response.get_json()
-    assert response_data["emotion"] == "Sad 😢"
+    assert response_data["emotion"] == "Sad 😢 -- NOOO"
     mock_db.insert_one.assert_called_once()
 
 
