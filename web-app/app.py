@@ -67,14 +67,13 @@ def generate_video():
     while True:
         # This is just a placeholder. Replace it with your actual video capture code.
         frame = get_video_frame()  # Capture or retrieve the video frame
-        yield (b"--frame\r\n" b"Content-Type: image/jpeg\r\n\r\n" + frame + b"\r\n\r\n")
+        yield b"--frame\r\n" b"Content-Type: image/jpeg\r\n\r\n" + frame + b"\r\n\r\n"
 
 
 def get_video_frame():
     """Get a single video frame (replace this with your actual frame capture logic)."""
     # For now, this returns an empty byte string. Replace with real image capture.
     return b""
-
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000, debug=True)
