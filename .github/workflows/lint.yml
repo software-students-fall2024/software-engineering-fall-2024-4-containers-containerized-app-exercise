@@ -23,6 +23,7 @@ jobs:
           pipenv sync --dev --python $(which python)
           pipenv shell --fancy --python $(which python)
           pipenv run pip install dill
+
       - name: Lint with pylint
         if: ${{ hashFiles(format('{0}/**/*.py', matrix.subdir)) != '' }}
         # you may set pylint to ignore any files or dependencies that make no sense to lint
