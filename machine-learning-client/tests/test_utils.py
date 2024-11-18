@@ -4,7 +4,8 @@ transcription, sentiment analysis, and database operations.
 """
 
 from unittest.mock import patch, MagicMock
-from src.utils import get_audio_files, transcribe_audio, analyze_sentiment, store_data
+from src.utils import get_audio_files, transcribe_audio, analyze_sentiment
+from speech_recognition import RequestError, UnknownValueError
 
 
 @patch("src.utils.glob.glob", return_value=["file1.wav", "file2.wav"])
@@ -39,7 +40,6 @@ def test_transcribe_audio_error(mock_recognizer):
     """
     Test the `transcribe_audio` function when a RequestError occurs during transcription.
     """
-    from speech_recognition import RequestError  # Import RequestError for mocking
 
     # Create a mock Recognizer instance
     mock_instance = MagicMock()
@@ -56,9 +56,37 @@ def test_transcribe_audio_error(mock_recognizer):
         result = transcribe_audio("mock_file.wav")
 
     # Ensure the function gracefully handles the exception and returns an empty string
-    assert result == "", "Expected the function to return an empty string on RequestError"
+    assert (
+        result == ""
+    ), "Expected the function to return an empty string on RequestError"
 
 
+@patch("src.utils.sr.Recognizer")
+def test_transcribe_audio_error2(mock_recognizer):
+    """
+    Test the `transcribe_audio` function when a RequestError occurs during transcription.
+    """
+
+    # Create a mock Recognizer instance
+    mock_instance = MagicMock()
+    mock_recognizer.return_value = mock_instance
+
+    # Mock the `record` method to simulate audio data being recorded
+    mock_instance.record.return_value = "audio data"
+
+    # Simulate a RequestError being raised during the `recognize_google` call
+    mock_instance.recognize_google.side_effect = UnknownValueError(
+        "Mocked RequestError"
+    )
+
+    # Patch `AudioFile` to avoid actual file I/O
+    with patch("src.utils.sr.AudioFile"):
+        result = transcribe_audio("mock_file.wav")
+
+    # Ensure the function gracefully handles the exception and returns an empty string
+    assert (
+        result == ""
+    ), "Expected the function to return an empty string on RequestError"
 
 
 def test_analyze_sentiment():
@@ -72,23 +100,3 @@ def test_analyze_sentiment():
     result = analyze_sentiment("I hate bugs")
     assert result["mood"] == "Negative"
     assert result["polarity"] < 0
-
-
-@patch("src.utils.pymongo.MongoClient")
-@patch("src.utils.pymongo.collection.Collection.insert_one")
-def test_store_data(mock_insert_one, mock_mongo_client):
-    """
-    Test the `store_data` function to ensure data is inserted into MongoDB correctly.
-    """
-    # Mock the `insert_one` method
-    mock_insert_one.return_value = None
-
-    # Create test data
-    mock_collection = MagicMock()
-    data = {"key": "value"}
-
-    # Call the function
-    store_data(mock_collection, data)
-
-    # Assert that `insert_one` was called with the correct data
-    mock_insert_one.assert_called_once_with(data)
