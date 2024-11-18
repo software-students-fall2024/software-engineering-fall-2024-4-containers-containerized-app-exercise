@@ -11,7 +11,7 @@ from unittest.mock import patch, MagicMock
 from src.utils import get_audio_files, transcribe_audio, analyze_sentiment, store_data
 
 @patch("src.utils.glob.glob", return_value=["file1.wav", "file2.wav"])
-def test_get_audio_files(mock_glob):
+def test_get_audio_files():
     """
     Test the `get_audio_files` function to ensure it returns the correct audio files.
     """
@@ -46,7 +46,7 @@ def test_transcribe_audio_error(mock_recognizer):
 
     with patch("src.utils.sr.AudioFile"):
         result = transcribe_audio("mock_file.wav")
-    
+
     # Assert that the function handles the exception gracefully
     assert result == ""
 

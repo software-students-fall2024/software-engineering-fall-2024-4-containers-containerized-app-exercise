@@ -20,7 +20,7 @@ def mock_env_vars(monkeypatch):
 
 @patch("src.main.MongoClient")
 @patch("src.main.get_audio_files", return_value=[])
-def test_main_no_audio_files(mock_get_audio_files, mock_mongo_client, caplog):
+def test_main_no_audio_files(mock_mongo_client, caplog):
     """
     Test `main` function when no audio files are found in the directory.
     """
@@ -62,4 +62,3 @@ def test_setup_logging(caplog):
     with caplog.at_level(logging.INFO):
         logging.getLogger().info("Test log message")
     assert "Test log message" in caplog.text
-    
