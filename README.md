@@ -14,27 +14,32 @@ Designed for accessibility and ease of use, it offers a seamless, containerized 
 
 ## Team
 
-[Safia](https://github.com/safiabillah)
+[Safia Billah](https://github.com/safiabillah)
 
-[Mel](https://github.com/melanie-y-zhang)
+[Melanie Zhang](https://github.com/melanie-y-zhang)
 
-[Chloe](https://github.com/jh7316)
+[Chloe Han](https://github.com/jh7316)
 
 [Fatima Villena](https://github.com/favils)
 
 ## Instructions to Run
 
 ### Virtual Environment Configuration
-Make sure you have pipenv installed. 
+
+Make sure you have pipenv installed.
+
 ```bash
 pip install pipenv
 ```
+
 Then install dependencies.
+
 ```bash
 pipenv install
 ```
 
 And now you can run python scripts through the shell.
+
 ```bash
 pipenv shell
 ```
@@ -42,9 +47,11 @@ pipenv shell
 ### Setup
 
 Build the app using docker compose.
+
 ```bash
 docker-compose up --build
 ```
 
 ## Task Board
+
 [Task Board](https://github.com/orgs/software-students-fall2024/projects/119/views/1)
