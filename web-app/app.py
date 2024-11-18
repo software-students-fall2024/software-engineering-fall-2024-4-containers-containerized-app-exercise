@@ -11,12 +11,12 @@ import pymongo
 from bson import ObjectId
 import certifi
 
-
-# Global variables
-EMAIL = ""
-CODE = ""
-CLIENT = None
-
+class AppState:
+    """A class to manage the application state."""
+    def __init__(self):
+        self.email = ""
+        self.code = ""
+        self.client = None
 
 def create_app():
     """Creates and configures the Flask application."""
@@ -38,6 +38,7 @@ def create_app():
     users = db["users"]
 
     app = Flask(__name__)
+    state = AppState()  # Create an instance of AppState to manage shared state
 
     @app.route("/", methods=["GET", "POST"])
     def login():
@@ -45,22 +46,20 @@ def create_app():
         Handles user login and code sending.
         Creates a new user if they don't exist.
         """
-        global EMAIL, CODE
-
         if request.method == "POST":
             email = request.form.get("email")
             if not email:
                 return "Email address is required", 400
 
-            EMAIL = email
-            user = users.find_one({"email": EMAIL})
+            state.email = email
+            user = users.find_one({"email": state.email})
             if not user:
                 user_id = str(ObjectId())
-                users.insert_one({"user_id": user_id, "email": EMAIL, "chat_history": []})
-                print(f"New user created: {EMAIL}")
+                users.insert_one({"user_id": user_id, "email": state.email, "chat_history": []})
+                print(f"New user created: {state.email}")
 
-            CODE = sendCode(EMAIL)
-            return render_template("auth.html", address=EMAIL)
+            state.code = sendCode(state.email)
+            return render_template("auth.html", address=state.email)
 
         return render_template("index.html")
 
@@ -69,25 +68,24 @@ def create_app():
         """
         Authenticates the user using the link provided and saves the client instance.
         """
-        global CLIENT
         link = request.form.get("link")
         if not link:
             return "Authentication link is required", 400
 
-        print(f"Email: {EMAIL}, Link: {link}, Code: {CODE}")
-        token = authUser(link, EMAIL)
-        CLIENT = pycai.Client(token)
+        print(f"Email: {state.email}, Link: {link}, Code: {state.code}")
+        token = authUser(link, state.email)
+        state.client = pycai.Client(token)
 
         return redirect(url_for("home"))
 
     @app.route("/home", methods=["GET"])
     def home():
         """Displays the user's home page with their information."""
-        if not CLIENT:
+        if not state.client:
             return "Client is not authenticated. Please log in.", 403
 
-        cli = CLIENT.get_me()
-        return render_template("home.html", address=EMAIL, info=cli)
+        cli = state.client.get_me()
+        return render_template("home.html", address=state.email, info=cli)
 
     return app
 
