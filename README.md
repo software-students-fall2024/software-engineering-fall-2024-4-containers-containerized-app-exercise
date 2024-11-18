@@ -48,11 +48,6 @@ python3 --version
     ```bash
     docker-compose down
     ```
-
-7. **Exit the virtual environment**:
-    ```bash
-    exit
-    ```
 ## How to Run Unit Tests
 We've included unit tests for each function in the main.py and utils.py. To run these tests:
 
