@@ -9,6 +9,9 @@ from pymongo import MongoClient
 from bson import ObjectId
 from dotenv import load_dotenv
 import os
+import numpy as np
+import base64
+import io
 
 load_dotenv()
 
@@ -31,9 +34,16 @@ db = client.asl_db
 
 # fs = gridfs.GridFS(db)
 
+def base64ToNumpy(base64Img):
+    image_data = base64.b64decode(base64Img)
+    image = Image.open(io.BytesIO(image_data))
+    return cv2.cvtColor(np.array(image), cv2.COLOR_BGR2RGB)
+    #return image
+    
+
 
 def process_image(inputImage):
-    global img, finalImage, finger_tips, thumb_tip, cap, image, rgb, hand, results, w, h, status, mpDraw, mpHands, hands, label1, cshow,
+    global img, finalImage, finger_tips, thumb_tip, cap, image, rgb, hand, results, w, h, status, mpDraw, mpHands, hands, label1, cshow
 
     # Define Mediapipe hand-related variables
     finger_tips = [8, 12, 16, 20]
@@ -54,7 +64,7 @@ def process_image(inputImage):
     #     return  # If no file is selected, return
 
     # Read and process the image
-    img = inputImage  # cv2.imread(file_path)
+    img = base64ToNumpy(inputImage)  # cv2.imread(file_path)
     img = cv2.resize(img, (w, h))
     rgb = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
     results = hands.process(rgb)
@@ -85,7 +95,6 @@ def process_image(inputImage):
                 and lm_list[17].x < lm_list[0].x < lm_list[5].x
             ):
                 cshow = "STOP ! Dont move."
-                print("STOP ! Dont move.")
             # okay
             elif (
                 lm_list[4].y < lm_list[2].y
@@ -96,7 +105,6 @@ def process_image(inputImage):
                 and lm_list[17].x < lm_list[0].x < lm_list[5].x
             ):
                 cshow = "Perfect , You did  a great job."
-                print("Perfect , You did  a great job.")
 
             # spidey
             elif (
@@ -108,7 +116,6 @@ def process_image(inputImage):
                 and lm_list[17].x < lm_list[0].x < lm_list[5].x
             ):
                 cshow = "Good to see you."
-                print(" Good to see you. ")
 
             # Point
             elif (
@@ -117,7 +124,6 @@ def process_image(inputImage):
                 and lm_list[16].y > lm_list[14].y
                 and lm_list[20].y > lm_list[18].y
             ):
-                print("You Come here.")
                 cshow = "You Come here."
 
             # Victory
@@ -139,7 +145,6 @@ def process_image(inputImage):
                 and lm_list[20].x > lm_list[18].x
                 and lm_list[5].x < lm_list[0].x
             ):
-                print(" MOVE LEFT")
                 cshow = "Move Left"
             # Right
             elif (
@@ -149,7 +154,6 @@ def process_image(inputImage):
                 and lm_list[16].x < lm_list[14].x
                 and lm_list[20].x < lm_list[18].x
             ):
-                print("Move RIGHT")
                 cshow = "Move Right"
             if all(finger_fold_status):
                 # like
@@ -159,7 +163,6 @@ def process_image(inputImage):
                     < lm_list[thumb_tip - 2].y
                     and lm_list[0].x < lm_list[3].y
                 ):
-                    print("I like it")
                     cshow = "I Like it"
                 # Dislike
                 elif (
@@ -168,7 +171,6 @@ def process_image(inputImage):
                     > lm_list[thumb_tip - 2].y
                     and lm_list[0].x < lm_list[3].y
                 ):
-                    print(" I dont like it.")
                     cshow = "I dont like it."
 
             mpDraw.draw_landmarks(rgb, hand, mpHands.HAND_CONNECTIONS)
@@ -177,9 +179,9 @@ def process_image(inputImage):
         )
 
     image = Image.fromarray(rgb)
-    finalImage = ImageTk.PhotoImage(image)
-    label1.configure(image=finalImage)
-    label1.image = finalImage
+    # finalImage = ImageTk.PhotoImage(image)
+    # label1.configure(image=finalImage)
+    # label1.image = finalImage
 
     # save_path = filedialog.asksaveasfilename(
     #     defaultextension=".png",
@@ -204,7 +206,7 @@ def process_image(inputImage):
 
 
 @app.route("/processImage", methods=["POST"])
-def process_image():
+def process_image_route():
     """
     Process the image
     """
