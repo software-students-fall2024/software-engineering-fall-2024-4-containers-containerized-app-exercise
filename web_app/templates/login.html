@@ -1,8 +1,11 @@
-{% extends "base.html" %}
-
-{% block title %}Home - Attendify{% endblock %}
-
-{% block content %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Login</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body>
     <div class="page-layout">
         <h2>Login</h2>
         {% if error %}
@@ -66,4 +69,5 @@
             window.location.href = "{{ url_for('signup') }}";
         });
     </script>
-{% endblock %}
+</body>
+</html>
