@@ -8,6 +8,8 @@ from io import BytesIO
 from datetime import datetime
 import base64
 import torch
+import numpy as np
+import cv2
 from PIL import Image
 from flask import Flask, request, jsonify
 from pymongo import MongoClient

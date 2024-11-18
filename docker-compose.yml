@@ -6,6 +6,7 @@ services:
       - "27017:27017"
     networks:
       - app-network
+
   ml-client:
     build: ./machine-learning-client
     container_name: ml-client
@@ -13,6 +14,7 @@ services:
       - mongodb
     networks:
       - app-network
+
   web-app:
     build: ./web-app
     container_name: web-app
@@ -23,6 +25,7 @@ services:
       - ml-client
     networks:
       - app-network
+
 networks:
   app-network:
     driver: bridge
