@@ -9,7 +9,10 @@ import numpy as np
 import warnings
 from ..ml_client import encode_face_image
 
-warnings.filterwarnings("ignore", category=DeprecationWarning, module="face_recognition_models")
+warnings.filterwarnings(
+    "ignore", category=DeprecationWarning, module="face_recognition_models"
+)
+
 
 # Helper function to create a fake image file
 def create_fake_image_file():
@@ -19,8 +22,9 @@ def create_fake_image_file():
     # Create a simple byte stream that mimics an image file
     return io.BytesIO(b"fake image data")
 
-@patch('face_recognition.load_image_file')
-@patch('face_recognition.face_encodings')
+
+@patch("face_recognition.load_image_file")
+@patch("face_recognition.face_encodings")
 def test_encode_face_image_success(mock_face_encodings, mock_load_image_file):
     """
     Test the encode_face_image function for successful encoding
@@ -36,8 +40,9 @@ def test_encode_face_image_success(mock_face_encodings, mock_load_image_file):
     assert isinstance(encoding, np.ndarray)
     assert np.array_equal(encoding, np.zeros((128,)))
 
-@patch('face_recognition.load_image_file')
-@patch('face_recognition.face_encodings')
+
+@patch("face_recognition.load_image_file")
+@patch("face_recognition.face_encodings")
 def test_encode_face_image_no_face_detected(mock_face_encodings, mock_load_image_file):
     """
     Test the encode_face_image function when no face is detected
@@ -52,8 +57,9 @@ def test_encode_face_image_no_face_detected(mock_face_encodings, mock_load_image
     assert encoding is None
     assert error == "No face detected in the image."
 
-@patch('face_recognition.load_image_file')
-@patch('face_recognition.face_encodings')
+
+@patch("face_recognition.load_image_file")
+@patch("face_recognition.face_encodings")
 def test_encode_face_image_exception(mock_face_encodings, mock_load_image_file):
     """
     Test the encode_face_image function for exception handling
