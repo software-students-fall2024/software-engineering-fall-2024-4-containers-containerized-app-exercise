@@ -22,6 +22,7 @@ client = MongoClient(MONGO_URI)
 db = client["rps_database"]
 collection = db["stats"]
 
+
 def generate_stats_doc():
     """
     Creates blank stats-tracking document.
@@ -31,29 +32,10 @@ def generate_stats_doc():
     """
 
     stats = {
-        "Rock":{
-            "wins": 0,
-            "losses": 0,
-            "ties": 0,
-            "total": 0
-        },
-        "Paper":{
-            "wins": 0,
-            "losses": 0,
-            "ties": 0,
-            "total": 0
-        },
-        "Scissors":{
-            "wins": 0,
-            "losses": 0,
-            "ties": 0,
-            "total": 0
-        },
-        "Totals":{
-            "wins":0,
-            "losses":0,
-            "ties":0
-        }
+        "Rock": {"wins": 0, "losses": 0, "ties": 0, "total": 0},
+        "Paper": {"wins": 0, "losses": 0, "ties": 0, "total": 0},
+        "Scissors": {"wins": 0, "losses": 0, "ties": 0, "total": 0},
+        "Totals": {"wins": 0, "losses": 0, "ties": 0},
     }
     _id = str(collection.insert_one(stats).inserted_id)
     return _id
@@ -90,27 +72,29 @@ def retry_request(url, files, retries=5, delay=2, timeout=10):
 def home():
     """Render the home page."""
     resp = make_response(render_template("title.html"))
-    if 'db_object_id' not in request.cookies:
-        resp.set_cookie('db_object_id', generate_stats_doc())
+    if "db_object_id" not in request.cookies:
+        resp.set_cookie("db_object_id", generate_stats_doc())
     return resp
+
 
 @app.route("/index")
 def index():
     """Render the index page."""
     resp = make_response(render_template("index.html"))
-    if 'db_object_id' not in request.cookies:
-        resp.set_cookie('db_object_id', generate_stats_doc())
+    if "db_object_id" not in request.cookies:
+        resp.set_cookie("db_object_id", generate_stats_doc())
     return resp
+
 
 @app.route("/statistics")
 def statistics():
     """Render the statistics page."""
-    _id  = request.cookies.get('db_object_id', default=None)
+    _id = request.cookies.get("db_object_id", default=None)
     if not _id:
         _id = generate_stats_doc()
-    stats = collection.find_one({"_id": ObjectId(_id)}, {'_id':0})
-    resp = make_response(render_template("statistics.html",  stats_data=stats))
-    resp.set_cookie('db_object_id', _id)
+    stats = collection.find_one({"_id": ObjectId(_id)}, {"_id": 0})
+    resp = make_response(render_template("statistics.html", stats_data=stats))
+    resp.set_cookie("db_object_id", _id)
     return resp
 
 
@@ -148,22 +132,24 @@ def result():
     ai_gesture = random.choice(["Rock", "Paper", "Scissors"])
     game_result = determine_winner(user_gesture, ai_gesture)
     app.logger.debug("Game result: %s", game_result)
-    _id = request.cookies.get('db_object_id')
+    _id = request.cookies.get("db_object_id")
     if game_result == "AI wins!":
-        res = 'losses'
-    elif game_result == 'It\'s a tie!':
-        res = 'ties'
+        res = "losses"
+    elif game_result == "It's a tie!":
+        res = "ties"
     else:
-        res = 'wins'
-    collection.update_one({'_id': ObjectId(_id)},
-                        {
-                            '$inc': {
-                                "Totals" + "." + res: 1,
-                                user_gesture + "." + res: 1,
-                                user_gesture + "." + "total": 1
-                            }
-                        },
-                        upsert=False)
+        res = "wins"
+    collection.update_one(
+        {"_id": ObjectId(_id)},
+        {
+            "$inc": {
+                "Totals" + "." + res: 1,
+                user_gesture + "." + res: 1,
+                user_gesture + "." + "total": 1,
+            }
+        },
+        upsert=False,
+    )
     return render_template(
         "result.html", user=user_gesture, ai=ai_gesture, result=game_result
     )
