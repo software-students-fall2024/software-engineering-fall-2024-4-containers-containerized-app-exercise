@@ -2,10 +2,11 @@
 This is the machine learning client code.
 """
 
+import json
 from flask import Flask, request, jsonify
 import face_recognition
 import numpy as np
-import json
+from PIL import UnidentifiedImageError
 
 app = Flask(__name__)
 
@@ -20,9 +21,12 @@ def encode_face_image(image_file):
         if not encodings:
             return None, "No face detected in the image."
         return encodings[0], None
+    except UnidentifiedImageError:
+        return None, "Invalid image file."
+    except RuntimeError as e:
+        return None, f"Face recognition error: {e}"
     except Exception as e:
-        print(f"Error in encode_face_image: {e}")
-        return None, "Error during face encoding."
+        return None, f"Unexpected error: {e}"
 
 
 def recognize_face_encodings(stored_encodings, image_file):
@@ -43,9 +47,12 @@ def recognize_face_encodings(stored_encodings, image_file):
             return "verified", matched_index, None
         else:
             return "not_recognized", None, None
+    except UnidentifiedImageError:
+        return "error", None, "Invalid image file."
+    except RuntimeError as e:
+        return "error", None, f"Face recognition error: {e}"
     except Exception as e:
-        print(f"Error in recognize_face_encodings: {e}")
-        return "error", None, "Error during face recognition."
+        return "error", None, f"Unexpected error: {e}"
 
 
 @app.route("/encode_face", methods=["POST"])
