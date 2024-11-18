@@ -113,7 +113,7 @@
 <body>
     <h1>Voice Journal</h1>
     
-    <div id="greeting">Hi <span id="username">{}</span></div>
+    <div id="greeting">Hi, <span id="username">{{ username }}</span></div>
     
     <h2>Mood Tracker</h2>
     <div class="chart-container">
@@ -222,8 +222,10 @@ function loadMoodTrends() {
                         deleteButton.textContent = 'Delete';
                         deleteButton.style.backgroundColor = '#F6A5A5';
                         deleteButton.style.color = '#FFF';
-                        deleteButton.style.border = 'none';
+                        deleteButton.style.border = '20px';
                         deleteButton.style.cursor = 'pointer';
+                        deleteButton.style.width = "90%";
+                        deleteButton.style.height = "50px";
 
                         deleteButton.addEventListener('click', () => {
                             if (confirm('Are you sure you want to delete this entry?')) {
