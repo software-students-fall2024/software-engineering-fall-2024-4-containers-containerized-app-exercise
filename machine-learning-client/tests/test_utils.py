@@ -64,7 +64,7 @@ def test_transcribe_audio_error(mock_recognizer):
 @patch("src.utils.sr.Recognizer")
 def test_transcribe_audio_error2(mock_recognizer):
     """
-    Test the `transcribe_audio` function when a RequestError occurs during transcription.
+    Test the `transcribe_audio` function when a Unknownerror occurs during transcription.
     """
 
     # Create a mock Recognizer instance
@@ -74,9 +74,9 @@ def test_transcribe_audio_error2(mock_recognizer):
     # Mock the `record` method to simulate audio data being recorded
     mock_instance.record.return_value = "audio data"
 
-    # Simulate a RequestError being raised during the `recognize_google` call
+    # Simulate a UnknownError being raised during the `recognize_google` call
     mock_instance.recognize_google.side_effect = UnknownValueError(
-        "Mocked RequestError"
+        "Mocked Unknown error"
     )
 
     # Patch `AudioFile` to avoid actual file I/O
@@ -86,7 +86,7 @@ def test_transcribe_audio_error2(mock_recognizer):
     # Ensure the function gracefully handles the exception and returns an empty string
     assert (
         result == ""
-    ), "Expected the function to return an empty string on RequestError"
+    ), "Expected the function to return an empty string on UnknownError"
 
 
 def test_analyze_sentiment():
