@@ -10,18 +10,28 @@ from flask import Flask, request, jsonify
 from pymongo import MongoClient
 from pymongo.errors import PyMongoError
 from dotenv import load_dotenv
-from utils import transcribe_audio, analyze_sentiment, store_data
+from .utils import transcribe_audio, analyze_sentiment, store_data
 
 load_dotenv()
 
 app = Flask(__name__)
 
+
 # Set up logging
-logging.basicConfig(
-    level=logging.DEBUG,
-    format="%(asctime)s [%(levelname)s] %(message)s",
-    handlers=[logging.StreamHandler()],
-)
+def setup_logging():
+    """
+    Set up the logging configuration for the application.
+
+    This function sets the logging level to DEBUG, defines the log format,
+    and sets the log handler to stream to the console.
+    """
+    logging.basicConfig(
+        level=logging.DEBUG,
+        format="%(asctime)s [%(levelname)s] %(message)s",
+        handlers=[logging.StreamHandler()],
+    )
+
+
 logger = logging.getLogger(__name__)
 
 UPLOAD_FOLDER = "./processed_uploads"
@@ -51,8 +61,8 @@ def process_audio():
         # Connect to MongoDB
         mongo_uri = os.getenv("MONGO_URI", "mongodb://root:secret@localhost:27017")
         client = MongoClient(mongo_uri)
-        db = client["voice_mood_journal"]
-        collection = db["entries"]
+        database = client["voice_mood_journal"]
+        collection = database["entries"]
 
         # Perform transcription
         text = transcribe_audio(file_path)
@@ -87,6 +97,15 @@ def process_audio():
     except RuntimeError as runtime_error:
         logger.error("Runtime error: %s", runtime_error)
         return jsonify({"error": "Runtime error", "details": str(runtime_error)}), 500
+
+
+def main():
+    """
+    Main entry point for the application.
+
+    This function prints "Main!" to indicate the program is running.
+    """
+    print("Main!")
 
 
 if __name__ == "__main__":
