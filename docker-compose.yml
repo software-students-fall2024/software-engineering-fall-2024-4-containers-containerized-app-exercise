@@ -25,6 +25,7 @@ services:
       - "5001:5001"
     environment:
       - DB_HOST: mongodb://database/scoobygang
+      - FLASK_ENV=development
     depends_on:
       - db
 
