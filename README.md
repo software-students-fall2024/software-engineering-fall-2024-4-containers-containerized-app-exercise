@@ -123,7 +123,7 @@ python3 --version
 ### Optional - Local Setup Without Docker:
 If you prefer running the application locally, set up the virtual environemt using `pipenv`:
 
-### Prerequisites
+#### Prerequisites
 - **Windows** users: Use `python` and `pip` commands instead of `python3` and `pip3` where necessary.
   ```bash
   pip install pipenv
