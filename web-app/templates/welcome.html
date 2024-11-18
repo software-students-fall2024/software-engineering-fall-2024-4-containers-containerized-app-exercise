@@ -8,8 +8,13 @@
         <div>
             <h1>PlantifyAI</h1>
             <p>Your Personal Plant Journal</p>
+            { % if user %}
+            <a href="{{ url_for('upload') }}">New Entry</a>
+            <a href="{{ url_for('history') }}">View Journal</a>
+            { % else % }
             <a href="{{ url_for('login') }}">Log In</a>
             <a href="{{ url_for('signup') }}">Sign Up</a>
+            { % endif % }
         </div>
     </div>
 </section>

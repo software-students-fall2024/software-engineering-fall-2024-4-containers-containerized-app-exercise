@@ -6,15 +6,12 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
 </head>
 <body>
-    <!-- <header> -->
-        <!-- <nav>
-            <ul>
-                <a href="/upload">New Entry</a>
-                <a href="/history">History</a>
-            </ul>
-        </nav> -->
-    <!-- </header> -->
     <main>
+        <div class="nav">
+            <h1>PlantifyAI</h1>
+            <!-- <p> <a href="{{ url_for('home', user=request.args.get('user')) }}">Home</a></p> -->
+            <p> <a href="{{ url_for('home') }}">Log Out</a></p>
+        </div>
         {% block content %}
 
         {% endblock %}

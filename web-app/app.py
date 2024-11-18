@@ -23,10 +23,18 @@ def create_app():
     db = connection[os.getenv("MONGO_DBNAME")]
 
     @app.route("/")
-    def welcome():
+    def home():
         if request.args.get("user"):
-            return render_template("home.html")
-        return render_template("welcome.html")
+            user_entries = list(db.plants.find())
+            if len(user_entries) > 3:
+                new_entries = [
+                    user_entries[-1],
+                    user_entries[-2],
+                    user_entries[-3]
+                ]
+                user_entries = new_entries
+            return render_template("home.html", user=request.args.get("user"), user_entries=user_entries)
+        return render_template("home.html")
     
     @app.route("/login", methods=["GET", "POST"])
     def login():
@@ -36,7 +44,7 @@ def create_app():
 
             session["username"] = username
             
-            return redirect(url_for("welcome", user=username))
+            return redirect(url_for("home", user=username))
         
         return render_template("login.html")
     
@@ -49,13 +57,9 @@ def create_app():
             db.users.insert_one({"username":username, "password":password})
             session["username"] = username
 
-            return redirect(url_for("welcome", user=username))
+            return redirect(url_for("home", user=username))
         
         return render_template("signup.html")
-
-    @app.route("/user")
-    def home():
-        render_template("home.html")
 
     @app.route("/upload", methods=["GET", "POST"])
     def upload():
@@ -69,18 +73,6 @@ def create_app():
             }
             new_entry = db.plants.insert_one(plant_data)
             new_entry_id = new_entry.inserted_id
-            # file = request.files.get("plant_image")
-            # if file:
-            #     filename = secure_filename(file.filename)
-            #     filepath = os.path.join("uploads", filename)
-            #     file.save(filepath)
-
-            #     db.identifications.insert_one(
-            #         {"filename": filename, "filepath": filepath}
-            #     )
-            #     return redirect(url_for("results", filename=filename))
-            # return make_response("No file uploaded", 400)
-
             return redirect(url_for("new_entry", new_entry_id=new_entry_id))
         return render_template('upload.html')
 
@@ -91,7 +83,7 @@ def create_app():
         if request.method == "POST":
             instructions = request.form["instructions"]
             db.plants.update_one({"_id":entry}, {'$set': {"instructions": instructions}})
-            return(redirect("/"))
+            return(redirect(url_for("home", user=session["username"])))
         document = db.plants.find_one({"_id":entry})
         photo = document["photo"]
         name = document["name"]
