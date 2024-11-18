@@ -5,20 +5,14 @@ on:
     branches:
       - main
     paths:
-      - 'web_app.py'
-      - 'test_app.py'
-      - 'Pipfile'
-      - 'Pipfile.lock'
-      - '.github/workflows/web-app-client.yml'
+      - 'web_app/**'
+      - '.github/workflows/web-app.yml'
   pull_request:
     branches:
       - main
     paths:
-      - 'web_app.py'
-      - 'test_app.py'
-      - 'Pipfile'
-      - 'Pipfile.lock'
-      - '.github/workflows/web-app-client.yml'
+      - 'web_app/**'
+      - '.github/workflows/web-app.yml'
 
 jobs:
   test-web-app:
