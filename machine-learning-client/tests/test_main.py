@@ -1,9 +1,9 @@
 """
 Unit tests for main.py functions, including Flask endpoints and MongoDB operations.
 """
-import io
-from unittest.mock import patch
 import pytest
+from unittest.mock import patch, MagicMock
+from io import BytesIO
 from src.main import app
 
 
