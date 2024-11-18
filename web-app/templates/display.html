@@ -59,11 +59,13 @@
 <body>
     <h1>ASL Translation History</h1>
     <ul>
+        {% for image in images %}
             <li>
-                <strong>Image ID:</strong> {{ entry.image_id }}<br>
-                <strong>Translation:</strong> {{ entry.translation }}
+                <img src="{{ 'data:image/png;base64,' + image['output'] }}" alt="Image" width="300">
+                <p>Translation: {{ image['translation'] }}</p>
             </li>
+        {% endfor %}
     </ul>
-    <a href="index.html">Back to Home</a>
+    <a href="/">Back to Home</a>
 </body>
 </html>

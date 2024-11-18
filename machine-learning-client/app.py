@@ -4,7 +4,7 @@ import cv2
 
 # from tkinter import filedialog
 import mediapipe as mp
-from flask import Flask, request
+from flask import Flask, request, jsonify
 from pymongo import MongoClient
 
 # import gridfs
@@ -42,6 +42,14 @@ def base64ToNumpy(base64Img):
     image = Image.open(io.BytesIO(image_data))
     return cv2.cvtColor(np.array(image), cv2.COLOR_BGR2RGB)
     # return image
+    
+def numpyTobase64(image):
+    buffer = io.BytesIO()
+    image.save(buffer, format="PNG")
+    buffer.seek(0)
+
+    # Encode the byte stream to Base64
+    return base64.b64encode(buffer.read()).decode("utf-8")
 
 
 def process_image(inputImage):
@@ -181,6 +189,11 @@ def process_image(inputImage):
         )
 
     image = Image.fromarray(rgb)
+
+    # Encode the byte stream to Base64
+    image_base64 = numpyTobase64(image)
+
+
     # finalImage = ImageTk.PhotoImage(image)
     # label1.configure(image=finalImage)
     # label1.image = finalImage
@@ -204,7 +217,7 @@ def process_image(inputImage):
     # status.place(x=400,y=700)
     # crr.place(x=120,y=700)
 
-    return [image, cshow]
+    return [image_base64, cshow]
 
 
 @app.route("/processImage", methods=["POST"])
@@ -215,15 +228,16 @@ def process_image_route():
     image_id = request.json.get("image_id")
     if image_id:
         # find the image data based on given id
-        image_data = db.images.find_one({"_id": ObjectId(image_id)})["image_data"]
+        image_data = db.images.find_one({"_id": ObjectId(image_id)})["image"]
         [output, label] = process_image(image_data)
         # update db with the generated label
         db.images.update_one(
             {"_id": ObjectId(image_id)},
             {"$set": {"output": output, "translation": label}},
         )
-        return "Image processed successfully", 200
-    return "Invalid request", 400
+        
+        return jsonify({"output": output, "translation": label}), 200
+    return jsonify({"error": "Invalid request, image_id is required"}), 400
 
 
 if __name__ == "__main__":
