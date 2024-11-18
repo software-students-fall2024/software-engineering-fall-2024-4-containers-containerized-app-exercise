@@ -40,6 +40,7 @@ def process_audio():
         return jsonify({"error": "No audio file provided"}), 400
 
     audio_file = request.files["audio"]
+    user_id = request.form.get("user_id")
     file_path = os.path.join(UPLOAD_FOLDER, audio_file.filename)
 
     try:
@@ -63,6 +64,7 @@ def process_audio():
 
         # Prepare data for MongoDB
         data = {
+            "user_id": user_id,
             "file_name": audio_file.filename,
             "transcript": text,
             "sentiment": sentiment,

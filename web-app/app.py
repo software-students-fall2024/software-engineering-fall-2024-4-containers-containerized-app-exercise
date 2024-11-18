@@ -10,6 +10,7 @@ from datetime import datetime
 import logging
 import requests
 from flask import Flask, render_template, jsonify, request
+from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
 from pymongo import MongoClient
 from pymongo.errors import PyMongoError
 from dotenv import load_dotenv
@@ -110,11 +111,15 @@ def upload_audio():
             500,
         )
 
+    user_id = current_user.get_id()
     # Forward the **converted** file to the machine learning client
     try:
         with open(converted_file_path, "rb") as file_obj:
             response = requests.post(
-                ML_CLIENT_URL, files={"audio": file_obj}, timeout=10
+                ML_CLIENT_URL,
+                files={"audio": file_obj},
+                data={"user_id": user_id},  # Pass the user_id to the ML client
+                timeout=10,
             )
 
         if response.status_code == 200:
