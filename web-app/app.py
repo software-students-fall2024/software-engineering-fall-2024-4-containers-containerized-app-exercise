@@ -169,7 +169,7 @@ def recent_entries():
         entries = collection.find().sort("timestamp", -1).limit(100)
         entries_list = [
             {
-                "_id": entry["_id"],
+                "_id": str(entry["_id"]),
                 "file_name": entry.get("file_name", ""),
                 "transcript": entry.get("transcript", ""),
                 "sentiment": entry.get("sentiment", ""),
@@ -215,6 +215,6 @@ def delete_journal(entry_id):
 
     except PyMongoError as mongo_error:
         # Handle MongoDB-specific errors
-        return jsonify({"error": "Database error occurred", "details": str(mongo_error)}), 500   
+        return jsonify({"error": "Database error occurred", "details": str(mongo_error)}), 500 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000)

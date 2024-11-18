@@ -104,7 +104,7 @@
                 <th>Timestamp</th>
                 <th>Transcript</th>
                 <th>Sentiment</th>
-                <th>Delete Entries</th>
+                <th>Delete</th>
             </tr>
         </thead>
         <tbody id="entriesTableBody">
@@ -167,34 +167,33 @@ function loadMoodTrends() {
                 .then(entries => {
                     const tableBody = document.getElementById('entriesTableBody');
                     tableBody.innerHTML = ''; // Clear existing entries
-        
+
                     if (entries.length === 0) {
                         // If no entries found, display a message
                         const row = document.createElement('tr');
                         const cell = document.createElement('td');
-                        cell.colSpan = 4; // Adjust colspan to match the number of columns
+                        cell.colSpan = 4;
                         cell.textContent = 'No recent entries found.';
                         row.appendChild(cell);
                         tableBody.appendChild(row);
                         return;
                     }
-        
+
                     // Iterate over each entry and create a table row
                     entries.forEach(entry => {
                         const row = document.createElement('tr');
-        
+
                         const timestampCell = document.createElement('td');
                         timestampCell.textContent = entry.timestamp;
                         row.appendChild(timestampCell);
-        
+
                         const transcriptCell = document.createElement('td');
                         transcriptCell.textContent = entry.transcript;
                         row.appendChild(transcriptCell);
-        
+
                         const sentimentCell = document.createElement('td');
                         sentimentCell.textContent = entry.sentiment.mood;
                         row.appendChild(sentimentCell);
-        
                         // Add a delete button
                         const deleteCell = document.createElement('td');
                         const deleteButton = document.createElement('button');
@@ -203,7 +202,7 @@ function loadMoodTrends() {
                         deleteButton.style.color = '#FFF';
                         deleteButton.style.border = 'none';
                         deleteButton.style.cursor = 'pointer';
-        
+
                         deleteButton.addEventListener('click', () => {
                             if (confirm('Are you sure you want to delete this entry?')) {
                                 fetch(`/delete-journal/${entry._id}`, { method: 'DELETE' })
@@ -221,19 +220,21 @@ function loadMoodTrends() {
                                     });
                             }
                         });
-        
+
                         deleteCell.appendChild(deleteButton);
                         row.appendChild(deleteCell);
-        
                         tableBody.appendChild(row);
                     });
                 })
                 .catch(error => {
                     console.error('Error fetching recent entries:', error);
                     alert('Failed to load recent entries.');
-                });
-        }
-        
+                });}
+
+                window.onload = function() {
+            loadMoodTrends();
+            loadRecentEntries(); // Load recent entries after loading mood trends
+        };
     </script>
 </body>
 </html>
