@@ -1,66 +1,43 @@
-name: CI Pipeline
+name: Machine Learning Client CI
 
 on:
   push:
     branches:
       - main
+    paths:
+      - 'machine-learning-client/**'
+      - '.github/workflows/ml-client.yml'
+
   pull_request:
-    branches:
-      - main
+    paths:
+      - 'machine-learning-client/**'
+      - '.github/workflows/ml-client.yml'
 
 jobs:
-  build-and-test:
+  test-and-build:
     runs-on: ubuntu-latest
-
-    strategy:
-      matrix:
-        service: [machine-learning-client, web-app]
+    defaults:
+      run:
+        working-directory: ./machine-learning-client
 
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-    - name: Debug directory structure
-      run: ls -R
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          
+      - name: Install dependencies
+        run: |
+          pip install pipenv
+          pipenv install --dev
 
-    - name: Set up Python
-      uses: actions/setup-python@v4
-      with:
-        python-version: '3.12'
+      - name: Run tests
+        run: |
+          pipenv run coverage run -m pytest
+          pipenv run coverage report -i
 
-    - name: Install CUDA (for ML only)
-      if: ${{ matrix.service == 'machine-learning-client' }}
-      run: |
-        sudo apt-get update
-        sudo apt-get install -y --no-install-recommends wget gnupg
-        wget https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2204/x86_64/cuda-ubuntu2204.pin
-        sudo mv cuda-ubuntu2204.pin /etc/apt/preferences.d/cuda-repository-pin-600
-        wget https://developer.download.nvidia.com/compute/cuda/12.6.2/local_installers/cuda-repo-ubuntu2204-12-6-local_12.6.2-560.35.03-1_amd64.deb
-        sudo dpkg -i cuda-repo-ubuntu2204-12-6-local_12.6.2-560.35.03-1_amd64.deb
-        sudo cp /var/cuda-repo-ubuntu2204-12-6-local/cuda-*-keyring.gpg /usr/share/keyrings/
-        sudo apt-get update
-        sudo apt-get -y install cuda-toolkit-12-6
-
-    - name: Install dependencies
-      working-directory: ${{ matrix.service }}
-      run: |
-        python -m pip install --upgrade pip
-        python -m pip install pipenv
-        pipenv install --dev
-
-    - name: Run linting
-      working-directory: ${{ matrix.service }}
-      run: |
-        if [ "${{ matrix.service }}" == "machine-learning-client" ]; then
-          [ -f src/main.py ] && pipenv run pylint src/main.py || echo "src/main.py not found"
-        elif [ "${{ matrix.service }}" == "web-app" ]; then
-          [ -f app.py ] && pipenv run pylint app.py || echo "app.py not found"
-        fi
-
-    - name: Format code with Black
-      working-directory: ${{ matrix.service }}
-      run: pipenv run black --check .
-
-    - name: Run tests
-      working-directory: ${{ matrix.service }}
-      run: pipenv run pytest
+      - name: Build Docker image
+        run: |
+          docker build -t ml-client .
