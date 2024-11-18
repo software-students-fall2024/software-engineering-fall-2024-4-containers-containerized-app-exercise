@@ -4,7 +4,7 @@ Tests for the machine learning client.
 
 import pytest
 import numpy as np
-import cv2
+import cv2 
 from flask import Flask
 from werkzeug.datastructures import FileStorage
 from unittest.mock import patch, MagicMock
@@ -20,9 +20,9 @@ def client():
     Fixture to provide a Flask test client for testing routes.
     """
     app.config["TESTING"] = True
-    app.secret_key = "test_secret_key"
     with app.test_client() as client:
         yield client
+
 
 # Mock for MongoDB collection
 @pytest.fixture
@@ -31,8 +31,7 @@ def mock_db():
     Mock for MongoDB collection.
     """
     with patch(
-        "machine_learning_client.ml_client.emotion_data_collection",
-        autospec=True
+        "machine_learning_client.ml_client.emotion_data_collection"
     ) as mock_collection:
         yield mock_collection
 
@@ -51,43 +50,37 @@ def mock_model():
 
 
 def test_detect_emotion(client, mock_model, mock_db):
-    """
-    Test the /detect_emotion route with valid input.
-    """
+    mock_model.predict.return_value = np.array([[0.8, 0.1, 0.05, 0.03, 0.02]])  # Predicts "Happy 😊"
+
     # Create a dummy image
-    mock_model.predict.return_value = np.array([[0.3, 0.2, 0.1, 0.15, 0.25]])
     dummy_image = np.ones((48, 48, 3), dtype=np.uint8) * 255
     _, buffer = cv2.imencode(".jpg", dummy_image)
     dummy_image_data = buffer.tobytes()
 
-    # Simulate a file upload using FileStorage
     file_storage = FileStorage(
         stream=BytesIO(dummy_image_data),
         filename="test_image.jpg",
         content_type="image/jpeg",
     )
 
-    # Send POST request with the image
     response = client.post(
         "/detect_emotion",
         data={"image": file_storage},
         content_type="multipart/form-data",
     )
 
-    # Assert successful response
     assert response.status_code == 200
     response_data = response.get_json()
-    assert "emotion" in response_data
-    assert response_data["emotion"] == "Happy 😊 -- YAYA"
+    assert response_data["emotion"] == "Happy 😊"
+
 
 
 def test_invalid_image_input(client):
-    """
-    Test the /detect_emotion route with invalid input.
-    """
-    # Send POST request without an image
+    # Send an invalid image
     response = client.post(
-        "/detect_emotion", data={}, content_type="multipart/form-data"
+        "/detect_emotion",
+        data={"image": "not_a_valid_image"},
+        content_type="multipart/form-data",
     )
     assert response.status_code == 400
     response_data = response.get_json()
@@ -95,11 +88,8 @@ def test_invalid_image_input(client):
     assert response_data["error"] == "No image file provided"
 
 
-def test_model_error(client, mock_model):
-    """
-    Test the /detect_emotion route when the model fails.
-    """
-    # Simulate a model prediction error
+
+def test_model_prediction_error(client, mock_model):
     mock_model.predict.side_effect = Exception("Model prediction failed")
 
     # Create a dummy image
@@ -107,25 +97,23 @@ def test_model_error(client, mock_model):
     _, buffer = cv2.imencode(".jpg", dummy_image)
     dummy_image_data = buffer.tobytes()
 
-    # Simulate a file upload using FileStorage
     file_storage = FileStorage(
         stream=BytesIO(dummy_image_data),
         filename="test_image.jpg",
         content_type="image/jpeg",
     )
 
-    # Send POST request with the image
     response = client.post(
         "/detect_emotion",
         data={"image": file_storage},
         content_type="multipart/form-data",
     )
 
-    # Assert server error
     assert response.status_code == 500
     response_data = response.get_json()
     assert "error" in response_data
     assert "Model prediction failed" in response_data["error"]
+
 
 
 def test_detect_emotion_invalid_method(client):
@@ -137,9 +125,6 @@ def test_detect_emotion_invalid_method(client):
 
 
 def test_database_insertion_error(client, mock_model, mock_db):
-    """
-    Test the /detect_emotion route when database insertion fails.
-    """
     mock_db.insert_one.side_effect = Exception("Database insertion failed")
 
     # Create a dummy image
@@ -248,7 +233,7 @@ def test_alternative_emotion_prediction(client, mock_model, mock_db):
 
     assert response.status_code == 200
     response_data = response.get_json()
-    assert response_data["emotion"] == "Sad 😢 -- NOOO"
+    assert response_data["emotion"] == "Sad 😢"
     mock_db.insert_one.assert_called_once()
 
 

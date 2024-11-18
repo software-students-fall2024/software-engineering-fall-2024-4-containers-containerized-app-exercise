@@ -3,7 +3,7 @@ This module contains functions for emotion detection
 using a pre-trained machine learning model.
 """
 
-from flask import Flask, request, jsonify, flash
+from flask import Flask, request, jsonify,flash
 from datetime import datetime, timezone
 import cv2
 import numpy as np
@@ -15,7 +15,8 @@ import os
 
 # Initialize the Flask app
 app = Flask(__name__)
-app.secret_key = os.getenv("SECRET_KEY", "default_secret_key")
+app.secret_key = os.getenv("SECRET_KEY", "test_secret_key")
+
 # Connect to MongoDB
 client = MongoClient("mongodb://mongo:27017/")  # Use Docker service name for MongoDB
 db = client["emotion_db"]
@@ -25,37 +26,26 @@ emotion_data_collection = db["emotion_data"]
 current_dir = os.path.dirname(__file__)
 model_path = os.path.join(current_dir, "face_model.h5")  # pylint: disable=no-member
 
-try:
-    model = tf.keras.models.load_model(model_path)  # pylint: disable=no-member
-    print(f"Model loaded successfully from {model_path}")  # pylint: disable=no-member
-except Exception as e:
-    print(f"Error loading model: {str(e)}")  # pylint: disable=no-member
-    raise  # pylint: disable=no-member
-
-# model = tf.keras.models.load_model(model_path)  # pylint: disable=no-member
+model = tf.keras.models.load_model(model_path)  # pylint: disable=no-member
 
 # Define a dictionary to map model output to emotion text
 emotion_dict = {
-    0: "Happy 😊 -- YAYA",
-    1: "Sad 😢 -- NOOO",
-    2: "Angry 😡 -- OH NO",
-    3: "Surprised 😮 -- AH",
-    4: "Neutral 😐 - mmm",
-    5: "Disgusted 🥴 - EW",
-    6: "Fear 😨 -- CALM DOWN",
+    0: "Happy 😊",
+    1: "Sad 😢",
+    2: "Angry 😡",
+    3: "Surprised 😮",
+    4: "Neutral 😐",
 }
 
-
 def save_emotion(emotion):
-    try:
+    try: 
         emotion_add = {
-            "emotion": emotion,
-            "timestamp": datetime.now(datetime.timezone.utc),
-        }
+                "emotion": emotion,
+                "timestamp": datetime.now(datetime.timezone.utc)
+        }   
         emotion_data_collection.insert_one(emotion_add)
     except Exception as error:
-        raise Exception(f"Failed to save emotion to database: {error}")
-
+        flash(f"Error saving emotion to database")
 
 @app.route("/detect_emotion", methods=["POST"])
 def detect_emotion():
@@ -86,15 +76,16 @@ def detect_emotion():
 
         # Save emotion data to MongoDB
         try:
-            save_emotion(emotion_text)
+            emotion_data_collection.insert_one({"emotion": emotion_text, "timestamp": datetime.utcnow()})
         except Exception as db_error:
-            return jsonify({"error": str(db_error)}), 500
+            return jsonify({"error": f"Database insertion failed: {str(db_error)}"}), 500
 
         return jsonify({"emotion": emotion_text})
 
     except Exception as e:
-        # Return the error with a 500 status code
-        return jsonify({"error": str(e)}), 500
+        return jsonify({"error": f"Error: {str(e)}"}), 500
+
+ 
 
 
 def run_emotion_detection():
