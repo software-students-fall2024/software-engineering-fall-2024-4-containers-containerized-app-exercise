@@ -12,6 +12,8 @@ python-dotenv = "*"
 pytest = "*"
 black = "*"
 pylint = "*"
+coverage = "*"
+numpy = "*"
 
 [dev-packages]
 
