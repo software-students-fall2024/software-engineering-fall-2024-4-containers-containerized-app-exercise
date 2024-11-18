@@ -140,7 +140,7 @@ We've included unit tests for each function in the main.py and utils.py. To run 
 
 ## Notes
 
-This project is meant to be run on Google Chrome, and will not work as intended on other browsers such as Safari. For accurate transcription, please wait 10 seconds between recordings.
+This project is meant to be run on Google Chrome (other modern browsers should work as well). It will not work as intended on a browser such as Safari. Additionally, for aaccurate transcription, please wait 10 seconds between uploading the recordings.
 
 ## Continuous Integration
 
