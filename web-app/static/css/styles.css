@@ -223,28 +223,6 @@ button, a, input {
         width: 100%; /* Ensures the feed scales for mobile devices */
     }
 }
-/* General button styling */
-.btn {
-    padding: 12px 20px;
-    background: linear-gradient(135deg, #FFCCF9, #CCF5FF); /* Gradient button */
-    color: #333;
-    font-weight: bold;
-    border: none;
-    border-radius: 25px;
-    cursor: pointer;
-    font-size: 1em;
-    transition: all 0.3s ease;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
-    display: block; /* Ensures button spans across block-level containers */
-    margin: 20px auto; /* Center the button */
-}
-
-/* Button hover effect */
-.btn:hover {
-    background: linear-gradient(135deg, #CCF5FF, #FFCCF9); /* Reverse gradient */
-    transform: translateY(-2px);
-    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
-}
 
 /* Footer styling for Logout Button */
 .footer {
@@ -282,29 +260,6 @@ button, a, input {
     box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
 }
 
-/* General body styling */
-body {
-    font-family: 'Arial', sans-serif;
-    margin: 0;
-    padding: 0;
-    background: linear-gradient(135deg, #FFFACD, #FFCCF9, #CCF5FF);
-    color: #333;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    height: 100vh;
-}
-
-/* Container styling */
-.container {
-    text-align: center;
-    max-width: 600px;
-    padding: 20px;
-    background: rgba(255, 255, 255, 0.9);
-    border-radius: 15px;
-    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
-}
-
 /* Welcome Header Styling */
 .welcome-header h1 {
     font-size: 2.5em;
@@ -320,29 +275,6 @@ body {
     font-size: 1.2em;
     color: #666;
     margin-bottom: 20px;
-}
-
-/* Buttons */
-.btn {
-    display: inline-block;
-    padding: 10px 20px;
-    margin: 5px;
-    font-size: 1em;
-    font-weight: bold;
-    color: #333;
-    text-decoration: none;
-    background: linear-gradient(135deg, #FFCCF9, #CCF5FF);
-    border: none;
-    border-radius: 25px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-    transition: all 0.3s ease;
-    cursor: pointer;
-}
-
-.btn:hover {
-    background: linear-gradient(135deg, #CCF5FF, #FFCCF9);
-    transform: translateY(-2px);
-    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
 }
 
 .btn-secondary {

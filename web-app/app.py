@@ -168,7 +168,7 @@ def dashboard():
     )
 
 
-@app.route("/logout")
+@app.route("/logout", methods=["GET", "POST"])
 def logout():
     """
     Clear the user's session and redirect them to the index page.
