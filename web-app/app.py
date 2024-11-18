@@ -46,7 +46,7 @@ def create_app():
     def login():
         if request.method == "POST":
             username = request.form["username"]
-            password = request.form["password"]
+            # password = request.form["password"]
 
             session["username"] = username
 
