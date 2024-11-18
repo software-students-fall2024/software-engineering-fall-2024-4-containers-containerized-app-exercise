@@ -111,19 +111,19 @@ def capture_image_from_webcam():
     Initializes the webcam, captures a frame, and converts it to JPEG format.
     Returns the image bytes if successful, or None if the capture fails."""
     # Initialize webcam
-    cap = cv2.VideoCapture(0)
+    cap = cv2.VideoCapture(0) # pylint: disable=no-member
     # Read a frame from the webcam
     ret, frame = cap.read()
     # Release the webcam
     cap.release()
-    cv2.destroyAllWindows()
+    cv2.destroyAllWindows() # pylint: disable=no-member
 
     if not ret:
         print("Failed to capture image")
         return None
 
     # Convert to JPEG format for the API
-    _, buffer = cv2.imencode('.jpg', frame)
+    _, buffer = cv2.imencode('.jpg', frame) # pylint: disable=no-member
     image_bytes = buffer.tobytes()
     return image_bytes
 
