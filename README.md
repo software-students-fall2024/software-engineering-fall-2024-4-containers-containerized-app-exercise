@@ -35,4 +35,6 @@ Key Features:
 - ***Wenli Shi:*** ([WenliShi2332](https://github.com/WenliShi2332))
 - ***Alex Hsu:*** ([hsualexotake](https://github.com/hsualexotake))
 - ***Reese Burns:*** ([reeseburns](https://github.com/reeseburns))
-- ***Finn Eskeland:*** ([a](https://github.com/aa))
+- ***Finn Eskeland:*** ([finn1003](https://github.com/finn1003))
+
+
