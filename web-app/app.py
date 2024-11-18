@@ -165,10 +165,9 @@ def login():
             login_user(user)
             flash("Login successful!")
             return redirect(url_for("index"))
-        else:
-            flash("Invalid username or password.")
-            return redirect(url_for("login"))
-
+        flash("Invalid username or password.")
+        return redirect(url_for("login"))
+    # Explicitly return a rendered template for GET requests
     return render_template("login.html")
 
 
