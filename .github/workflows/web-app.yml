@@ -1,0 +1,60 @@
+name: Web App CI
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'web_app.py'
+      - 'test_app.py'
+      - 'Pipfile'
+      - 'Pipfile.lock'
+      - '.github/workflows/web-app-client.yml'
+  pull_request:
+    branches:
+      - main
+    paths:
+      - 'web_app.py'
+      - 'test_app.py'
+      - 'Pipfile'
+      - 'Pipfile.lock'
+      - '.github/workflows/web-app-client.yml'
+
+jobs:
+  test-web-app:
+    runs-on: ubuntu-latest
+
+    env:
+      LANG: en_US.UTF-8
+      MONGO_URI: mongodb://localhost:27017
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install system dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libgl1 libglib2.0-0
+
+      - name: Install dependencies with pipenv
+        run: |
+          pip install --upgrade pip
+          pip install pipenv
+          pipenv install --dev
+
+      - name: Run tests
+        run: |
+          pipenv run pytest --cov=web_app.py test_app.py
+          pipenv run coverage report -i
+
+      - name: Upload coverage results
+        uses: actions/upload-artifact@v3
+        with:
+          name: coverage-report
+          path: coverage.xml
