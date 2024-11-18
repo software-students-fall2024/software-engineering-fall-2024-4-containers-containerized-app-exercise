@@ -1,3 +1,7 @@
+"""
+Unit tests for utility functions in utils.py, including file handling,
+transcription, sentiment analysis, and database operations.
+"""
 from unittest.mock import patch, MagicMock
 from src.utils import get_audio_files, transcribe_audio, analyze_sentiment, store_data
 
