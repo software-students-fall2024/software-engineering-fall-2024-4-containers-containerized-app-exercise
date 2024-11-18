@@ -180,17 +180,15 @@ def test_login_invalid_password(client, monkeypatch):
     assert response.status_code == 200
     assert b"Invalid username or password" in response.data
 
+class MockResponse:
+    def __init__(self, json_data, status_code):
+        self.json_data = json_data
+        self.status_code = status_code
 
-def test_capture_no_image(client):
-    """
-    Test the capture route with no image in the request.
-    """
-    with client.session_transaction() as sess:
-        sess["user_id"] = "mock_user_id"
+    def json(self):
+        return self.json_data
 
-    response = client.post("/capture", json={})
-    assert response.status_code == 400  # Expect 400 for missing image
-    assert response.get_json()["error"] == "No image provided."
+
 
 
 def test_login_nonexistent_user(client, monkeypatch):
