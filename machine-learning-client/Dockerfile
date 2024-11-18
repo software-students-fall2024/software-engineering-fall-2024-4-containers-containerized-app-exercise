@@ -1,26 +1,28 @@
-# Use an official Python runtime as a base image
-FROM python:3.12-slim
+# Use an official Python runtime as the base image
+FROM python:3.9-slim
 
-# Set the working directory in the container
+# Set the working directory inside the container
 WORKDIR /app
 
-# Upgrade pip to the latest version
+# Copy the current directory contents into the container at /app
+COPY . /app
+
+# Install system dependencies (e.g., for PyTorch and Flask)
+RUN apt-get update && apt-get install -y \
+    libatlas-base-dev \
+    python3-dev \
+    && rm -rf /var/lib/apt/lists/*
+
+# Install dependencies from requirements.txt
 RUN pip install --upgrade pip
+RUN pip install -r requirements.txt
 
-# Install pipenv to manage dependencies
-RUN pip install pipenv
+# Expose the port that Flask will run on
+EXPOSE 3000
 
-# Copy Pipfile and Pipfile.lock to the container
-COPY Pipfile Pipfile.lock ./
+# Set environment variables for Flask
+ENV FLASK_APP=app.py
+ENV FLASK_ENV=development
 
-# Install Python dependencies using pipenv
-RUN pipenv install --deploy --ignore-pipfile
-
-# Copy the rest of the application code to the working directory
-COPY . .
-
-# Expose port 5000 if needed for your app (optional)
-EXPOSE 5000
-
-# Run the application
-CMD ["pipenv", "run", "python", "app.py"]
+# Command to run the Flask app
+CMD ["flask", "run", "--host=0.0.0.0", "--port=3000"]

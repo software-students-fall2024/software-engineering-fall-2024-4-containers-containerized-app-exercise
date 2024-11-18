@@ -1,0 +1,13 @@
+Flask
+Flask-Cors
+torch
+torchvision
+pillow
+pymongo
+python-dotenv
+werkzeug
+scipy
+tqdm
+pytest
+pylint
+black
