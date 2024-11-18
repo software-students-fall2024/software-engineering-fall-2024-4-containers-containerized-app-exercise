@@ -11,13 +11,16 @@
         {% if error %}
             <p style="color: red;">{{ error }}</p>
         {% endif %}
-        <form action="{{ url_for('login') }}" method="POST">
+        <form id="loginForm" action="{{ url_for('login') }}" method="POST">
+            <!-- Username Field -->
             <label for="username">Username:</label>
             <input type="text" name="username" id="username" required>
 
+            <!-- Password Field -->
             <label for="password">Password:</label>
             <input type="password" name="password" id="password" required>
 
+            <!-- Facial Recognition Section -->
             <div id="faceLogin">
                 <video id="video" autoplay></video>
                 <canvas id="canvas" style="display: none;"></canvas>
@@ -42,29 +45,39 @@
                 });
         });
 
-        // Capture the image and submit the form
-        function captureAndSubmit() {
+        // Capture image and submit form
+        function captureAndSubmitLogin() {
             const video = document.getElementById('video');
             const canvas = document.getElementById('canvas');
+            const username = document.getElementById('username').value.trim();
+            const password = document.getElementById('password').value.trim();
+
+            if (!username || !password) {
+                alert("Please enter both your username and password.");
+                return;
+            }
+
+            // Capture image from video
             canvas.width = video.videoWidth;
             canvas.height = video.videoHeight;
             const context = canvas.getContext('2d');
             context.drawImage(video, 0, 0, canvas.width, canvas.height);
 
+            // Convert image to base64
             const imageData = canvas.toDataURL('image/jpeg', 0.5);
             document.getElementById('image_data').value = imageData;
 
             if (imageData) {
-                document.querySelector("form").submit();
+                document.getElementById('loginForm').submit();
             } else {
                 alert("Failed to capture image. Please try again.");
             }
         }
 
-        // Capture and submit the image when the button is clicked
-        document.getElementById('loginButton').addEventListener('click', captureAndSubmit);
+        // Event listener for login button
+        document.getElementById('loginButton').addEventListener('click', captureAndSubmitLogin);
 
-        // Redirect to the signup page when the signup button is clicked
+        // Redirect to signup page
         document.getElementById('signupButton').addEventListener('click', () => {
             window.location.href = "{{ url_for('signup') }}";
         });

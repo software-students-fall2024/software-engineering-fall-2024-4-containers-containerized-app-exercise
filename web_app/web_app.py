@@ -56,11 +56,12 @@ def recognize_face(stored_encodings, image_bytes):
 
 
 @app.route("/")
-def welcome(): 
+def welcome():
     """
     Welcome page
     """
     return render_template("welcome.html")
+
 
 @app.route("/home")
 def home():
@@ -86,37 +87,33 @@ def signup():
 
         if not username or not email or not password:
             error = "Username, Email, and Password are required."
-        elif not image_data:
-            error = "Image capture failed."
-        else:
-            existing_user = users_collection.find_one({"email": email})
-            if existing_user:
-                error = "Email is already registered."
-            else:
-                existing_username = users_collection.find_one({"username": username})
-                if existing_username:
-                    error = "Username is already taken."
-
-        if error:
             return render_template("signup.html", error=error)
 
-        # Hash the password
-        hashed_password = generate_password_hash(password)
+        if users_collection.find_one({"email": email}):
+            error = "Email is already registered."
+            return render_template("signup.html", error=error)
+
+        if users_collection.find_one({"username": username}):
+            error = "Username is already taken."
+            return render_template("signup.html", error=error)
+
+        if not image_data:
+            error = "Image data is required."
+            return render_template("signup.html", error=error)
 
         image_bytes = decode_base64_image(image_data)
         response = encode_face(image_bytes)
         if "error" in response:
-            return render_template("verify_result.html", result=response["error"])
+            return render_template("signup.html", error=response["error"])
 
-        encoding_list = response["encoding"]
-
-        # Insert the new user into the database
+        encoding = response["encoding"]
+        hashed_password = generate_password_hash(password)
         users_collection.insert_one(
             {
                 "username": username,
                 "email": email,
                 "password": hashed_password,
-                "encoding": encoding_list,
+                "encoding": encoding,
             }
         )
 
@@ -131,65 +128,44 @@ def login():
     Login page
     """
     if request.method == "POST":
-        if "username" in request.form and "password" in request.form:
-            # Handle username/password login
-            username = request.form.get("username", "").strip()
-            password = request.form.get("password")
-            error = None
+        username = request.form.get("username", "").strip()
+        password = request.form.get("password")
+        image_data = request.form.get("image_data")
+        error = None
 
-            if not username or not password:
-                error = "Username and Password are required."
-                return render_template("login.html", error=error)
-
-            user = users_collection.find_one({"username": username})
-            if user and check_password_hash(user["password"], password):
-                session["username"] = username
-                return redirect(url_for("home"))
-            else:
-                error = "Invalid username or password."
-                return render_template("login.html", error=error)
-
-        elif "image_data" in request.form:
-            # Handle facial recognition login
-            image_data = request.form.get("image_data")
-            if not image_data:
-                return render_template(
-                    "verify_result.html", result="Image capture failed"
-                )
-
-            image_bytes = decode_base64_image(image_data)
-            users = list(users_collection.find())
-            stored_encodings = [user["encoding"] for user in users]
-
-            response = recognize_face(stored_encodings, image_bytes)
-            print("recognize_face response:", response)  # Debug print
-            if "error" in response:
-                return render_template("verify_result.html", result=response["error"])
-
-            if response["result"] == "verified":
-                matched_index = response.get("matched_index")
-                print("matched_index:", matched_index)  # Debug print
-                if matched_index is not None:
-                    matched_index = int(matched_index)
-                    if 0 <= matched_index < len(users):
-                        matched_user = users[matched_index]
-                        print("matched_user:", matched_user)  # Debug print
-                        print("matched_user keys:", matched_user.keys())  # Debug print
-                        session["username"] = matched_user["username"]
-                        return redirect(url_for("home"))
-                else:
-                    return render_template(
-                        "verify_result.html",
-                        result="Face recognized but user not found",
-                    )
-            else:
-                return render_template(
-                    "verify_result.html", result="Face not recognized"
-                )
-        else:
-            # Invalid form submission
-            error = "Invalid login attempt."
+        if not username or not password or not image_data:
+            error = "Username, password, and facial recognition are required."
             return render_template("login.html", error=error)
+
+        user = users_collection.find_one({"username": username})
+
+        if not user:
+            error = "User not found."
+            return render_template("login.html", error=error)
+
+        # Check password
+        if not check_password_hash(user["password"], password):
+            error = "Invalid password."
+            return render_template("login.html", error=error)
+
+        # Check facial recognition
+        image_bytes = decode_base64_image(image_data)
+        stored_encoding = user.get("encoding")
+
+        if not stored_encoding:
+            return render_template(
+                "login.html", error="No facial data found for this user."
+            )
+
+        response = recognize_face([stored_encoding], image_bytes)
+        if "error" in response:
+            return render_template("login.html", error=response["error"])
+
+        if response["result"] == "verified":
+            session["username"] = username
+            return redirect(url_for("home"))
+        else:
+            return render_template("login.html", error="Face not recognized.")
 
     return render_template("login.html")
 
