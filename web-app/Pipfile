@@ -8,6 +8,9 @@ pylint = "*"
 black = "*"
 flask = "*"
 jinja2 = "*"
+moviepy = "*"
+ffmpeg-python = "*"
+opencv-python = "*"
 
 [dev-packages]
 
