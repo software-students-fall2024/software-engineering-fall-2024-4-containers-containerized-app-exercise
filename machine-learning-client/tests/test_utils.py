@@ -37,24 +37,27 @@ def test_transcribe_audio(mock_recognizer):
 @patch("src.utils.sr.Recognizer")
 def test_transcribe_audio_error(mock_recognizer):
     """
-    Test the `transcribe_audio` function when an error occurs during transcription.
+    Test the `transcribe_audio` function when a RequestError occurs during transcription.
     """
-    # Mocking the Recognizer instance
+    from speech_recognition import RequestError  # Import RequestError for mocking
+
+    # Create a mock Recognizer instance
     mock_instance = MagicMock()
     mock_recognizer.return_value = mock_instance
 
-    # Simulate the record function to return mock audio data
+    # Mock the `record` method to simulate audio data being recorded
     mock_instance.record.return_value = "audio data"
 
-    # Simulate recognize_google raising a request error
-    mock_instance.recognize_google.side_effect = RequestError("Mocked transcription error")
+    # Simulate a RequestError being raised during the `recognize_google` call
+    mock_instance.recognize_google.side_effect = RequestError("Mocked RequestError")
 
-    # Patch AudioFile to bypass file I/O
+    # Patch `AudioFile` to avoid actual file I/O
     with patch("src.utils.sr.AudioFile"):
         result = transcribe_audio("mock_file.wav")
 
-    # Ensure the function handles the RuntimeError gracefully and returns an empty string
-    assert result == ""
+    # Ensure the function gracefully handles the exception and returns an empty string
+    assert result == "", "Expected the function to return an empty string on RequestError"
+
 
 
 

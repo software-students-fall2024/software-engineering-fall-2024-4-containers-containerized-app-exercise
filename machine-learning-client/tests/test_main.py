@@ -58,5 +58,3 @@ def test_process_audio_transcription_error(_mock_transcribe_audio, client):
 
     assert response.status_code == 500
     assert "Transcription error" in response.json["details"]
-
-
