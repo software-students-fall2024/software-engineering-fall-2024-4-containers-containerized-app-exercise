@@ -5,6 +5,7 @@ Unit tests for the web_app module.
 import base64
 import logging
 from unittest.mock import patch, MagicMock
+
 import pytest
 from werkzeug.security import generate_password_hash
 
@@ -15,7 +16,7 @@ logging.getLogger("werkzeug").setLevel(logging.ERROR)
 from web_app.web_app import app
 
 
-@pytest.fixture(name='test_client')
+@pytest.fixture(name="test_client")
 def _test_client():
     """Fixture to configure the app for testing."""
     app.config["TESTING"] = True
@@ -25,8 +26,8 @@ def _test_client():
 
 def generate_image_data():
     """Helper function to generate fake base64 image data."""
-    return "data:image/jpeg;base64," + base64.b64encode(b"test_image_data").decode(
-        "utf-8"
+    return (
+        "data:image/jpeg;base64," + base64.b64encode(b"test_image_data").decode("utf-8")
     )
 
 
@@ -91,7 +92,9 @@ def test_signup_post_existing_username(mock_users_collection, test_client):
 
 @patch("web_app.web_app.users_collection")
 @patch("web_app.web_app.requests.post")
-def test_signup_post_valid_data(mock_requests_post, mock_users_collection, test_client):
+def test_signup_post_valid_data(
+    mock_requests_post, mock_users_collection, test_client
+):
     """Test the POST request for the signup page with valid data."""
     # Mock users_collection.find_one to return None (no existing user)
     mock_users_collection.find_one.return_value = None
