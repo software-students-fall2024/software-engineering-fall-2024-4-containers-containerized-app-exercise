@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Emotion History</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css">
+</head>
+<body>
+    <div class="container mt-5">
+        <h1 class="text-center">Emotion Tracker</h1>
+        <table class="table table-striped mt-4">
+            <thead>
+                <tr>
+                    <th>Timestamp</th>
+                    <th>Emotion</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for emotion in user_emotions %}
+                <tr>
+                    <td>{{ emotion['timestamp'] }}</td>
+                    <td>{{ emotion['emotion'] }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</body>
+</html>

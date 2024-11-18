@@ -1,0 +1,56 @@
+name: CI
+
+on:
+  pull_request:
+    branches: [main]
+
+  push:
+    branches: [main]
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11.9'  # Ensure the correct Python version is installed
+
+      - name: Install pipenv
+        run: |
+          python -m pip install --upgrade pip
+          pip install pipenv
+
+      - name: Install dependencies with pipenv
+        run: |
+          pipenv --python $(which python3)  # Ensure pipenv uses the correct Python version
+          pipenv install --dev --deploy --ignore-pipfile
+
+      - name: Check for required files
+        run: |
+          if [ ! -f "machine_learning_client/face_model.h5" ]; then
+            echo "Model file not found!"; exit 1;
+          fi
+
+      - name: Lint machine_learning_client with pylint
+        run: |
+          pipenv run pylint machine_learning_client/ml_client.py
+
+      - name: Lint web-app with pylint
+        run: |
+          pipenv run pylint --rcfile=./.pylintrc web-app/app.py
+          pipenv run pylint --rcfile=./.pylintrc web-app/tests/test_web_app.py
+          
+      - name: Format with Black
+        run: |
+          pipenv run black .
+
+      - name: Run tests with pytest and coverage
+        run: |
+          pipenv run pytest --cov=machine_learning_client machine_learning_client/test_ml_client.py
+          pipenv run pytest --cov=app web-app/tests/test_web_app.py
+
