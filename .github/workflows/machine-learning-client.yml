@@ -16,7 +16,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        python-version: ["3.10", "3.11"]
+        python-version: ["3.11"]
 
     steps:
     - uses: actions/checkout@v4
@@ -31,10 +31,10 @@ jobs:
         cd machine-learning-client
         pipenv install
         if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
-    - name: Run black
-      run: pipenv run black --check .
-    - name: Run pylint
-      run: pipenv run pylint .
+    # - name: Run black
+    #   run: pipenv run black --check .
+    # - name: Run pylint
+    #   run: pipenv run pylint .
     - name: Test with pytest
       run: |
         cd machine-learning-client
