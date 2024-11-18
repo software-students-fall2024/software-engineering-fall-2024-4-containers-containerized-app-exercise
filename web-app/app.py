@@ -6,14 +6,21 @@ import os
 import time
 import random
 import logging  # Fixed import order
-from flask import Flask, render_template, request, jsonify
+from flask import Flask, render_template, request, make_response, jsonify, json
 import requests
 from requests.exceptions import RequestException
+from pymongo import MongoClient
+from bson import json_util, ObjectId
 
 logging.basicConfig(level=logging.DEBUG)
 
 app = Flask(__name__)
 
+# MongoDB connection
+MONGO_URI = os.getenv("MONGO_URI", "mongodb://mongodb:27017")
+client = MongoClient(MONGO_URI)
+db = client["rps_database"]
+collection = db["stats"]
 
 def retry_request(url, files, retries=5, delay=2, timeout=10):
     """
@@ -45,7 +52,16 @@ def retry_request(url, files, retries=5, delay=2, timeout=10):
 @app.route("/")
 def home():
     """Render the home page."""
-    return render_template("title.html")
+    resp = make_response(render_template("title.html"))
+    if 'db_object_id' not in request.cookies:
+        stats = {
+            "wins":0,
+            "losses": 0,
+            "ties": 0
+        }
+        _id = collection.insert_one(stats).inserted_id
+        resp.set_cookie(key='db_object_id', value=str(_id))
+    return resp
 
 
 @app.route("/index")
@@ -57,7 +73,14 @@ def index():
 @app.route("/statistics")
 def statistics():
     """Render the statistics page."""
-    return render_template("statistics.html")
+    _id = request.cookies.get('db_object_id')
+    stats = collection.find_one({"_id": ObjectId(_id)})
+    stats_data = {
+        "wins": json_util.dumps(stats['wins']),
+        "losses": json_util.dumps(stats['losses']),
+        "ties": json_util.dumps(stats['ties'])
+    }
+    return render_template("statistics.html", stats_data=stats_data)
 
 
 @app.route("/result", methods=["POST"])
@@ -94,6 +117,15 @@ def result():
     ai_gesture = random.choice(["Rock", "Paper", "Scissors"])
     game_result = determine_winner(user_gesture, ai_gesture)
     app.logger.debug("Game result: %s", game_result)
+    _id = request.cookies.get('db_object_id')
+    updated_value = {}
+    if game_result == "AI wins!":
+        updated_value = { "$inc": { 'losses':1 } }
+    elif game_result == 'It\'s a tie!':
+        updated_value = { "$inc": { 'ties':1 } }
+    elif game_result == 'You win!':
+        updated_value = { "$inc": { 'wins':1 } }
+    collection.update_one({'_id': ObjectId(_id)}, updated_value)
     return render_template(
         "result.html", user=user_gesture, ai=ai_gesture, result=game_result
     )
