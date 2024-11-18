@@ -1,8 +1,11 @@
-import pytest
+"""
+Unit tests for the plant prediction functionality in app.py.
+"""
+
 import sys
-
-
-from app import main, load_flower_names, load_model, predict_plant
+import pytest
+from app import main
+sys.path.insert(0, '../machine-learning-client')  # Ensure the correct path to app.py
 
 # Mock the flower name mapping
 mock_flower_names = {
@@ -12,20 +15,16 @@ mock_flower_names = {
     '3': 'Tulip',
     '4': 'Sunflower',
     '5': 'Passion Fruit',  # Assuming Passion Fruit is labeled as class 5
-    # Add all other classes here...
 }
 
-# Mocking the main prediction logic for testing
 @pytest.fixture
-
-# Test that the image 'image_00001.jpg' is predicted as 'Passion Fruit'
-def test_predict_passion_fruit(setup):
-
+def test_predict_passion_fruit():
+    """Tests that the image 'image_00001.jpg' is predicted as 'Passion Fruit'."""
     # Test image path
     test_image_path = 'data/flowers-102/jpg/image_00001.jpg'
 
-    # Use the predict_plant function directly for testing
-    predicted_plant = main(test_image_path)
+    # Use the main function for testing
+    predicted_plant = main(test_image_path)  # Ensure main returns a value
 
     # Assert that the predicted plant name is "Passion Fruit"
     assert predicted_plant == "Passion Fruit", f"Expected Passion Fruit but got {predicted_plant}"
