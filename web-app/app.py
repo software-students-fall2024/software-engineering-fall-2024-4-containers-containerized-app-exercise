@@ -1,8 +1,9 @@
 import os
+import base64
 import requests
-from flask import Flask, render_template, make_response, request, redirect, url_for
+from flask import Flask, render_template, make_response, request, redirect, url_for, jsonify
 from pymongo import MongoClient
-import os
+from bson import ObjectId
 
 def create_app():
 
@@ -17,8 +18,8 @@ def create_app():
     try:
         client = MongoClient(client)
         db = client.get_database("ASL-DB")
-        collection = db["entries"]
-        print("Connected")
+        images_collection = db["images"]
+        print("Connected to MongoDB")
     except Exception as e:
         print(f"Error: {e}")
 
@@ -28,7 +29,7 @@ def create_app():
         return render_template("index.html")
     
 
-    @app.route("/upload_video", methods=["POST"])
+    @app.route("/upload_snapshot", methods=["POST"])
     def upload_video():
         try: 
             data = request.json
@@ -39,7 +40,11 @@ def create_app():
             image_data = image_data.split(",")[1]
             image_binary = base64.b64decode(image_data)
 
-            collection.insert_one({"image": image_binary})
+            image_doc = {"image": image_binary, "translation": None}
+            result = images_collection.insert_one(image_doc)
+
+            image_id = str(result.inserted_id)
+
             return jsonify({"message": "Snapshot saved successfully!"}), 200
         except Exception as e:
             print(f"Error: {e}")
@@ -48,11 +53,19 @@ def create_app():
     
         # TO DO
 
-    return app
-    @app.route("/display_images")
-    def display_images():
-        images = db.images.find()
-        return render_template("display_images.html", images=images)
+
+    @app.route("/history")
+    def view_history():
+        try: 
+            images = images_collection.find({}, {"_id": 1, "translation":1})
+            history = [{"image_id": str(image["_id"]), "translation": images}]
+            return render_template("display.html")
+        except Exception as e:
+            return jsonify({"error": str(e)}), 500
+    # @app.route("/display_images")
+    # def display_images():
+    #     images = db.images.find()
+    #     return render_template("display_images.html", images=images)
 
     @app.route("/upload_image", methods=["POST"])
     def upload_image():
@@ -66,6 +79,7 @@ def create_app():
                 return redirect(url_for("display_images"))
             else:
                 return "Error processing image"
+
 
     def get_data():
 
