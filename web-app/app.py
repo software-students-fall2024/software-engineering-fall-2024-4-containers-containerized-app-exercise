@@ -1,18 +1,20 @@
-import os
-from flask import Flask, render_template, jsonify, request, redirect, url_for
-from characterai import aiocai, pycai, sendCode, authUser
-from pymongo import MongoClient, errors
+"""
+Web application for managing the boyfriend AI client.
+"""
 
+import os
+from flask import Flask
+from pymongo import MongoClient
+from dotenv import load_dotenv
+
+load_dotenv()
 
 MONGO_URI = os.getenv("MONGO_URI")
 client = MongoClient(MONGO_URI)
-db = client['boyfriend_db']
-collection = db['focus_data']    
-email = ''
-
+db = client["boyfriend_db"]
+collection = db["focus_data"]
 
 app = Flask(__name__)
-
 
 if __name__ == "__main__":
     app.run(debug=True)
