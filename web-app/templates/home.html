@@ -1,19 +1,51 @@
-<!DOCTYPE html>
+{% extends "layout.html" %}
+
+{% block title %} {{ user }} {% endblock %}
+
+{% block content %}
+
+{% if user %}
+<section>
+    <h1 class="welcome">Welcome, {{ user }}</h1>
+    <div class="recent-container">
+        <p class="latest">Recent Activity:</p>
+        <div class="recent-entries">
+            {% for entry in user_entries %}
+                <div class="recent-entry">
+                    <p>{{ entry['name']}}</p>
+                    <img src="{{ entry['photo'] }}" alt="Plant photo">
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+    <a href="{{ url_for('history') }}" class="link">View Full Journal</a>
+    <a href="{{ url_for('upload') }}" class="link">New Entry</a>
+</section>
+{% else %}
+<section>
+    <div class="intro-message">
+        <h1>Welcome to PlatifyAI!</h1>
+        <h2><a href="{{ url_for('login') }}">Log in</a> or <a href="{{ url_for('signup') }}">Sign up</a> to get started!</h2>
+    </div>
+</section>
+{% endif %}
+{% endblock %}
+
+<!-- <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Plant Identifier</title>
+    <title>Plant Journal</title>
 </head>
 <body>
-    <h1>Welcome to the Plant Identifier</h1>
-    <p>This app allows you to upload images of plants to identify them and view past identifications.</p>
+    <h1>Plant Journal.</h1>
 
     <nav>
         <ul>
-            <li><a href="{{ url_for('upload') }}">Upload an Image</a></li>
+            <li><a href="{{ url_for('upload') }}">New Entry</a></li>
             <li><a href="{{ url_for('history') }}">View Past Identifications</a></li>
         </ul>
     </nav>
 </body>
-</html>
+</html> -->
