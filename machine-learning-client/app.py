@@ -1,10 +1,12 @@
 # from tkinter import *
-from PIL import Image, ImageTk
+from PIL import Image
 import cv2
+
 # from tkinter import filedialog
 import mediapipe as mp
 from flask import Flask, request
 from pymongo import MongoClient
+
 # import gridfs
 from bson import ObjectId
 from dotenv import load_dotenv
@@ -34,12 +36,12 @@ db = client.asl_db
 
 # fs = gridfs.GridFS(db)
 
+
 def base64ToNumpy(base64Img):
     image_data = base64.b64decode(base64Img)
     image = Image.open(io.BytesIO(image_data))
     return cv2.cvtColor(np.array(image), cv2.COLOR_BGR2RGB)
-    #return image
-    
+    # return image
 
 
 def process_image(inputImage):
@@ -217,12 +219,11 @@ def process_image_route():
         [output, label] = process_image(image_data)
         # update db with the generated label
         db.images.update_one(
-            {"_id": ObjectId(image_id)}, {"$set": {"output": output, "translation": label}}
+            {"_id": ObjectId(image_id)},
+            {"$set": {"output": output, "translation": label}},
         )
         return "Image processed successfully", 200
     return "Invalid request", 400
-    
-    
 
 
 if __name__ == "__main__":
