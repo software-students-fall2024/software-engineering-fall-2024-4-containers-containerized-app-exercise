@@ -1,4 +1,5 @@
 # Pipfile
+
 [[source]]
 url = "https://pypi.org/simple"
 verify_ssl = true
@@ -11,8 +12,11 @@ pymongo = "==4.10.1"
 python-dotenv = "==1.0.1"
 
 [dev-packages]
-pylint = "*"
-black = "*"
+pylint = "*"  # Linter for code quality
+black = "*"   # Code formatter
+pytest = "*"  # Test framework
+pytest-flask = "*"  # Flask-specific pytest extension
+flask = "*"
 
 [requires]
 python_version = "3.10"
