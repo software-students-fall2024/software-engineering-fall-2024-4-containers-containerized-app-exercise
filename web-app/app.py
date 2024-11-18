@@ -4,24 +4,23 @@ Handles user authentication, connection to MongoDB, and basic routes.
 """
 
 import os
-from flask import Flask, render_template, request, redirect, url_for
+from flask import Flask, render_template, request, redirect, url_for, session
 from dotenv import load_dotenv
 from characterai import pycai, sendCode, authUser
 import pymongo
 from bson import ObjectId
 import certifi
 
-class AppState:
-    """A class to manage the application state."""
-    def __init__(self):
-        self.email = ""
-        self.code = ""
-        self.client = None
-
 def create_app():
     """Creates and configures the Flask application."""
-    load_dotenv()
+    load_dotenv()  # Load environment variables from .env file
 
+    # Fetch the secret key from the environment or generate a default one (not recommended for production)
+    secret_key = os.getenv("SECRET_KEY")
+    if not secret_key:
+        raise ValueError("SECRET_KEY not found. Add it to your .env file.")
+
+    # MongoDB connection setup
     mongo_uri = os.getenv("MONGO_DB_URI")
     if mongo_uri is None:
         raise ValueError("Could not connect to database. Ensure .env is properly configured.")
@@ -37,8 +36,9 @@ def create_app():
     db = mongo_cli["hellokittyai_db"]
     users = db["users"]
 
+    # Flask app configuration
     app = Flask(__name__)
-    state = AppState()  # Create an instance of AppState to manage shared state
+    app.secret_key = secret_key  # Set the app's secret key
 
     @app.route("/", methods=["GET", "POST"])
     def login():
@@ -51,15 +51,15 @@ def create_app():
             if not email:
                 return "Email address is required", 400
 
-            state.email = email
-            user = users.find_one({"email": state.email})
+            session["email"] = email  # Save user email in the session
+            user = users.find_one({"email": email})
             if not user:
                 user_id = str(ObjectId())
-                users.insert_one({"user_id": user_id, "email": state.email, "chat_history": []})
-                print(f"New user created: {state.email}")
+                users.insert_one({"user_id": user_id, "email": email, "chat_history": []})
+                print(f"New user created: {email}")
 
-            state.code = sendCode(state.email)
-            return render_template("auth.html", address=state.email)
+            session["code"] = sendCode(email)  # Save the code in the session
+            return render_template("auth.html", address=email)
 
         return render_template("index.html")
 
@@ -72,20 +72,27 @@ def create_app():
         if not link:
             return "Authentication link is required", 400
 
-        print(f"Email: {state.email}, Link: {link}, Code: {state.code}")
-        token = authUser(link, state.email)
-        state.client = pycai.Client(token)
+        email = session.get("email")
+        code = session.get("code")
+        if not email or not code:
+            return "Session expired. Please log in again.", 403
+
+        print(f"Email: {email}, Link: {link}, Code: {code}")
+        token = authUser(link, email)
+        session["client"] = token  # Store the token in the session
 
         return redirect(url_for("home"))
 
     @app.route("/home", methods=["GET"])
     def home():
         """Displays the user's home page with their information."""
-        if not state.client:
+        token = session.get("client")
+        if not token:
             return "Client is not authenticated. Please log in.", 403
 
-        cli = state.client.get_me()
-        return render_template("home.html", address=state.email, info=cli)
+        client = pycai.Client(token)
+        cli = client.get_me()
+        return render_template("home.html", address=session.get("email"), info=cli)
 
     return app
 
