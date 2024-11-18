@@ -1,47 +1,51 @@
 # This workflow will install Python dependencies, run tests and lint with a single version of Python
 # For more information see: https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-python
 
-name: Build and Test
+
+name: CI Pipeline
 
 on:
   push:
-    branches: [ "main" ]
+    branches:
+      - main
   pull_request:
-    branches: [ "main" ]
+    branches:
+      - main
 
 jobs:
   build-and-test:
     runs-on: ubuntu-latest
+
     strategy:
-      fail-fast: false
       matrix:
-        python-version: ["3.11"]
-        subdir: [web-app, machine-learning-client]
-
+        service: [machine-learning-client, web-app]
+    
     steps:
-    - uses: actions/checkout@v4
 
-    - name: Set up Python ${{ matrix.python-version }}
-      uses: actions/setup-python@v3
+    - name: Set up Python
+      uses: actions/setup-python@v4
       with:
-        python-version: ${{ matrix.python-version }}
+        python-version: '3.12'
 
-    - name: Install CUDA
-      run: |
-        sudo apt-get update
-        sudo apt-get install -y cuda-toolkit-12-2
+    - name: Install pipenv
+      run: pip install pipenv
 
     - name: Install dependencies
-      if: ${{ hashFiles(format('{0}/**/*.py', matrix.subdir)) != '' }}
+      working-directory: ./${{ matrix.service }}
       run: |
-        cd ${{ matrix.subdir }}
-        python -m pip install --upgrade pip
-        python -m pip install pipenv
-        pipenv sync --dev --python $(which python)
-        pipenv install tomli
-
-    - name: Test with pytest
-      if: ${{ hashFiles(format('{0}/**/*.py', matrix.subdir)) != '' }}
+        pipenv install --dev
+    - name: Run linting
+      working-directory: ./${{ matrix.service }}
       run: |
-        cd ${{ matrix.subdir }}
+        if [ "${{ matrix.service }}" == "machine-learning-client" ]; then
+          pipenv run pylint src/main.py
+        elif [ "${{ matrix.service }}" == "web-app" ]; then
+          pipenv run pylint app.py
+        fi
+    - name: Format code with Black
+      working-directory: ./${{ matrix.service }}
+      run: pipenv run black --check .
+    - name: Run tests
+      working-directory: ./${{ matrix.service }}
+      run: |
         pipenv run pytest
