@@ -6,11 +6,11 @@ import os
 import time
 import random
 import logging  # Fixed import order
-from flask import Flask, render_template, request, make_response, jsonify, json
+from flask import Flask, render_template, request, make_response, jsonify, Request, Response
 import requests
 from requests.exceptions import RequestException
 from pymongo import MongoClient
-from bson import json_util, ObjectId
+from bson import ObjectId
 
 logging.basicConfig(level=logging.DEBUG)
 
@@ -21,6 +21,49 @@ MONGO_URI = os.getenv("MONGO_URI", "mongodb://mongodb:27017")
 client = MongoClient(MONGO_URI)
 db = client["rps_database"]
 collection = db["stats"]
+
+def cookie_validation(req:Request, resp: Response):
+    """
+    Checks if current request has cookie for db document.
+    Creates one if not
+
+    Args:
+        req (Request): Request of current route.
+        resp (Response): Response object in need of cookie validation.
+
+    Returns:
+        resp (Reponse): Response object with proper cookies ensured.
+    """
+    if 'db_object_id' not in req.cookies:
+        stats = {
+            "Rock":{
+                "wins": 0,
+                "losses": 0,
+                "ties": 0,
+                "total": 0
+            },
+            "Paper":{
+                "wins": 0,
+                "losses": 0,
+                "ties": 0,
+                "total": 0
+            },
+            "Scissors":{
+                "wins": 0,
+                "losses": 0,
+                "ties": 0,
+                "total": 0
+            },
+            "Totals":{
+                "wins":0,
+                "losses":0,
+                "ties":0
+            }
+        }
+        _id = collection.insert_one(stats).inserted_id
+        resp.set_cookie(key='db_object_id', value=str(_id))
+    return resp
+
 
 def retry_request(url, files, retries=5, delay=2, timeout=10):
     """
@@ -53,50 +96,23 @@ def retry_request(url, files, retries=5, delay=2, timeout=10):
 def home():
     """Render the home page."""
     resp = make_response(render_template("title.html"))
-    if 'db_object_id' not in request.cookies:
-        collection.delete_many({})
-        stats = {
-            "Rock":{
-                "wins": 0,
-                "losses": 0,
-                "ties": 0,
-                "total": 0
-            },
-            "Paper":{
-                "wins": 0,
-                "losses": 0,
-                "ties": 0,
-                "total": 0
-            },
-            "Scissors":{
-                "wins": 0,
-                "losses": 0,
-                "ties": 0,
-                "total": 0
-            },
-            "Totals":{
-                "wins":0,
-                "losses":0,
-                "ties":0
-            }
-        }
-        _id = collection.insert_one(stats).inserted_id
-        resp.set_cookie(key='db_object_id', value=str(_id))
-    return resp
+    return cookie_validation(req=request, resp=resp)
 
 
 @app.route("/index")
 def index():
     """Render the index page."""
-    return render_template("index.html")
-
+    resp = make_response(render_template("index.html"))
+    return cookie_validation(req=request, resp=resp)
 
 @app.route("/statistics")
 def statistics():
     """Render the statistics page."""
+    resp = make_response(render_template("statistics.html", stats_data=stats))
+    resp = cookie_validation(req=request, resp=resp)
     _id = request.cookies.get('db_object_id')
-    stats = collection.find_one({"_id": ObjectId(_id)}, {u'_id':0})
-    return render_template("statistics.html", stats_data=stats)
+    stats = collection.find_one({"_id": ObjectId(_id)}, {'_id':False})
+    return resp
 
 
 @app.route("/result", methods=["POST"])
@@ -140,14 +156,14 @@ def result():
         res = 'ties'
     else:
         res = 'wins'
-    collection.update_one({'_id': ObjectId(_id)}, 
+    collection.update_one({'_id': ObjectId(_id)},
                         {
                             '$inc': {
                                 "Totals" + "." + res: 1,
                                 user_gesture + "." + res: 1,
                                 user_gesture + "." + "total": 1
                             }
-                        }, 
+                        },
                         upsert=False)
     return render_template(
         "result.html", user=user_gesture, ai=ai_gesture, result=game_result
