@@ -7,7 +7,6 @@ It includes tests for the following functions:
 - store_data
 """
 
-import pytest
 from unittest.mock import patch, MagicMock
 from src.utils import get_audio_files, transcribe_audio, analyze_sentiment, store_data
 
