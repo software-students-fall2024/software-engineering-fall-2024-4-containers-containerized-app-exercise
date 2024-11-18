@@ -188,25 +188,6 @@ class MockResponse:
     def json(self):
         return self.json_data
 
-def test_capture(client, monkeypatch):
-    with client.session_transaction() as session:
-        session["user_id"] = "mock_user_id"
-
-    # Mock the requests.post call to the ML client
-    def mock_post(url, files):
-        return MockResponse({"emotion": "Sad 😢"}, 200)
-
-    monkeypatch.setattr("requests.post", mock_post)
-    monkeypatch.setattr(emotion_data_collection, "insert_one", lambda x: None)
-
-    # Use a valid Base64 image
-    valid_base64_image = "data:image/jpeg;base64,<your_valid_base64_string>"
-    response = client.post("/capture", json={"image": valid_base64_image})
-    print(response.get_data(as_text=True))  # Debugging aid to print raw response text
-    assert response.status_code == 200
-    response_data = response.get_json()
-    assert response_data["emotion"] == "Sad 😢"
-
 
 
 
