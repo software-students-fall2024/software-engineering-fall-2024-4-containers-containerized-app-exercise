@@ -81,7 +81,7 @@ Voice Journal is a hands free, online journal that allows user to create entries
 
 
 ## How to Run the Project through Docker
-### Prerequisites
+#### Prerequisites
 Make sure you have Python 3.9 or higher installed:
 ```bash
 python3 --version
