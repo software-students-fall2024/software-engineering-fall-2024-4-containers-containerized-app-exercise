@@ -48,19 +48,19 @@ def save_emotion(emotion):
         flash(f"Error saving emotion to database")
 
 @app.route("/detect_emotion", methods=["POST"])
-def detect_emotion():
+def detect_emotion(frame=None):
     """
     Detect emotion from an image sent via POST request and save it to MongoDB.
     """
     try:
-        # Check if an image is provided in the request
-        if "image" not in request.files:
-            return jsonify({"error": "No image file provided"}), 400
-
-        # Read the image file from the request
-        file = request.files["image"]
-        npimg = np.frombuffer(file.read(), np.uint8)
-        frame = cv2.imdecode(npimg, cv2.IMREAD_COLOR)
+        if frame is None:
+            # Check if an image is provided in the request
+            if "image" not in request.files:
+                return jsonify({"error": "No image file provided"}), 400
+            # Read the image file from the request
+            file = request.files["image"]
+            npimg = np.frombuffer(file.read(), np.uint8)
+            frame = cv2.imdecode(npimg, cv2.IMREAD_COLOR)
 
         # Preprocess the image
         resized_frame = cv2.resize(frame, (48, 48))  # Resize to model's input size
@@ -138,4 +138,5 @@ def run_emotion_detection():
 
 
 if __name__ == "__main__":
+    
     app.run(host="0.0.0.0", port=5000, debug=True)
