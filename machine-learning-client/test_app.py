@@ -106,28 +106,6 @@ def test_encode_image():
 # send POST request to /api/detect for image screenshots from webcam
 
 
-# capture an image from a webcam feed
-def capture_image_from_webcam():
-    """Capture an image from the webcam and return it as bytes.
-    Initializes the webcam, captures a frame, and converts it to JPEG format.
-    Returns the image bytes if successful, or None if the capture fails."""
-    # Initialize webcam
-    cap = cv2.VideoCapture(0)  # pylint: disable=no-member
-    # Read a frame from the webcam
-    ret, frame = cap.read()
-    # Release the webcam
-    cap.release()
-    cv2.destroyAllWindows()  # pylint: disable=no-member
-
-    if not ret:
-        print("Failed to capture image")
-        return None
-
-    # Convert to JPEG format for the API
-    _, buffer = cv2.imencode(".jpg", frame)  # pylint: disable=no-member
-    image_bytes = buffer.tobytes()
-    return image_bytes
-
 
 def send_image_to_detect(image_bytes):
     """Send the captured image to the /api/detect route for object detection.
