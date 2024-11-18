@@ -1,5 +1,5 @@
 """
-This module contains tests for the ML client. Run with 'python -m pytest test_app.py' 
+This module contains tests for the ML client. Run with 'pipenv run pytest' 
 or to see with coverage run with 'python -m pytest --cov=app test_app.py'
 """
 
@@ -8,7 +8,6 @@ from io import BytesIO
 import base64
 import pytest
 from PIL import Image
-import cv2
 import requests
 from app import app, detect_objects
 
@@ -104,8 +103,6 @@ def test_encode_image():
 
 
 # send POST request to /api/detect for image screenshots from webcam
-
-
 def send_image_to_detect(image_bytes):
     """Send the captured image to the /api/detect route for object detection.
     Sends the image as a form-data payload and prints the detection result.
@@ -132,9 +129,3 @@ def display_detection_result(result):
     print("Detected Objects:")
     for obj in result["detected_objects"]:
         print(f" - {obj['label']}: {obj['confidence']:.2f}")
-
-
-# Capture and process an image when script runs
-image_bytes_original = capture_image_from_webcam()
-if image_bytes_original:
-    send_image_to_detect(image_bytes_original)
