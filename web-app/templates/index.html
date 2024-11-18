@@ -199,6 +199,11 @@
 
         uploadForm.addEventListener("submit", (event) => {
             event.preventDefault();
+            // Check if there are any audio chunks
+            if (audioChunks.length === 0) {
+                alert("No audio file recorded. Please record audio before uploading.");
+                return; // Exit the function if no audio is recorded
+            }
             const formData = new FormData(uploadForm);
             fetch('/upload', { method: 'POST', body: formData })
                 .then(response => response.json())
