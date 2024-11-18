@@ -4,8 +4,8 @@ transcription, sentiment analysis, and database operations.
 """
 
 from unittest.mock import patch, MagicMock
-from src.utils import get_audio_files, transcribe_audio, analyze_sentiment
 from speech_recognition import RequestError, UnknownValueError
+from src.utils import get_audio_files, transcribe_audio, analyze_sentiment
 
 
 @patch("src.utils.glob.glob", return_value=["file1.wav", "file2.wav"])
