@@ -1,24 +1,16 @@
-"""
-This module contains unit tests for the functions in the `utils.py` module.
-It includes tests for the following functions:
-- get_audio_files
-- transcribe_audio
-- analyze_sentiment
-- store_data
-"""
-
 from unittest.mock import patch, MagicMock
 from src.utils import get_audio_files, transcribe_audio, analyze_sentiment, store_data
 
 
 @patch("src.utils.glob.glob", return_value=["file1.wav", "file2.wav"])
-def test_get_audio_files():
+def test_get_audio_files(mock_glob):
     """
     Test the `get_audio_files` function to ensure it returns the correct audio files.
     """
     audio_files = get_audio_files("./mock_directory")
     assert len(audio_files) == 2
     assert "file1.wav" in audio_files
+    mock_glob.assert_called_once_with("./mock_directory/*.wav")
 
 
 @patch("src.utils.sr.Recognizer")
@@ -34,6 +26,7 @@ def test_transcribe_audio(mock_recognizer):
     with patch("src.utils.sr.AudioFile"):
         text = transcribe_audio("mock_file.wav")
         assert text == "Transcription success"
+        mock_instance.recognize_google.assert_called_once()
 
 
 @patch("src.utils.sr.Recognizer")
@@ -43,12 +36,13 @@ def test_transcribe_audio_error(mock_recognizer):
     """
     mock_instance = MagicMock()
     mock_recognizer.return_value = mock_instance
+    mock_instance.record.return_value = "audio data"
     mock_instance.recognize_google.side_effect = Exception("Mocked error")
 
     with patch("src.utils.sr.AudioFile"):
         result = transcribe_audio("mock_file.wav")
 
-    # Assert that the function handles the exception gracefully
+    # Ensure the function handles the exception gracefully and returns an empty string
     assert result == ""
 
 
@@ -65,8 +59,9 @@ def test_analyze_sentiment():
     assert result["polarity"] < 0
 
 
+@patch("src.utils.pymongo.MongoClient")
 @patch("src.utils.pymongo.collection.Collection.insert_one")
-def test_store_data(mock_insert_one):
+def test_store_data(mock_insert_one, mock_mongo_client):
     """
     Test the `store_data` function to ensure data is inserted into MongoDB correctly.
     """

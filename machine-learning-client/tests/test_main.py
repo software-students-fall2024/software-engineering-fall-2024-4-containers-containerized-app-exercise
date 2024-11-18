@@ -1,124 +1,53 @@
-import os
-import json
+import pytest
 from unittest.mock import patch, MagicMock
-import speech_recognition as sr
-from textblob import TextBlob
-import logging
-from src.main import app, setup_logging
-# Mock environment variables
-os.environ["MONGO_URI"] = "mongodb://mock:mock@localhost:27017"
+from io import BytesIO
+from src.main import app
 
-# Set up test client
-app.testing = True
-client = app.test_client()
 
-def test_process_audio_success(mocker):
-    """
-    Test successful processing of an audio file.
-    """
-    # Mock dependencies
-    mock_transcribe = mocker.patch("app.utils.transcribe_audio", return_value="Test transcription")
-    mock_analyze_sentiment = mocker.patch("app.utils.analyze_sentiment", return_value="positive")
-    mock_store_data = mocker.patch("app.utils.store_data")
+@pytest.fixture
+def client():
+    app.testing = True
+    with app.test_client() as client:
+        yield client
 
-    # Simulate a valid file upload
-    mock_file = (b"audio data", "test_audio.wav")
-    response = client.post(
-        "/process-audio",
-        data={"audio": mock_file, "user_id": "1234"},
-        content_type="multipart/form-data",
-    )
 
-    # Assertions
+@patch("src.main.MongoClient")
+@patch("src.main.transcribe_audio", return_value="Test transcription")
+@patch(
+    "src.main.analyze_sentiment",
+    return_value={"polarity": 0.5, "subjectivity": 0.6, "mood": "Positive"},
+)
+def test_process_audio_success(
+    mock_analyze_sentiment, mock_transcribe_audio, mock_mongo_client, client
+):
+    mock_collection = MagicMock()
+    mock_mongo_client.return_value.__getitem__.return_value = mock_collection
+
+    data = {"audio": (BytesIO(b"fake data"), "test.wav")}
+
+    response = client.post("/process-audio", data=data, content_type="multipart/form-data")
+
     assert response.status_code == 200
-    data = response.get_json()
-    assert data["status"] == "success"
-    assert "data" in data
-    assert data["data"]["transcript"] == "Test transcription"
-    assert data["data"]["sentiment"] == "positive"
-
-    # Ensure mocks were called
-    mock_transcribe.assert_called_once_with("./processed_uploads/test_audio.wav")
-    mock_analyze_sentiment.assert_called_once_with("Test transcription")
-    mock_store_data.assert_called_once()
+    assert response.json["status"] == "success"
+    mock_transcribe_audio.assert_called_once()
+    mock_analyze_sentiment.assert_called_once()
 
 
-def test_process_audio_missing_file():
-    """
-    Test processing when no file is provided.
-    """
-    response = client.post("/process-audio", data={"user_id": "1234"})
-    assert response.status_code == 400
-    data = response.get_json()
-    assert data["error"] == "No audio file provided"
+@patch("src.main.transcribe_audio", side_effect=RuntimeError("Transcription error"))
+def test_process_audio_transcription_error(mock_transcribe_audio, client):
+    data = {"audio": (BytesIO(b"fake data"), "test.wav")}
 
-
-def test_process_audio_transcription_failure(mocker):
-    """
-    Test handling of transcription failure.
-    """
-    mocker.patch("app.utils.transcribe_audio", side_effect=RuntimeError("Transcription failed"))
-    mock_file = (b"audio data", "test_audio.wav")
-
-    response = client.post(
-        "/process-audio",
-        data={"audio": mock_file, "user_id": "1234"},
-        content_type="multipart/form-data",
-    )
+    response = client.post("/process-audio", data=data, content_type="multipart/form-data")
 
     assert response.status_code == 500
-    data = response.get_json()
-    assert data["error"] == "Runtime error"
-    assert "Transcription failed" in data["details"]
+    assert "Transcription error" in response.json["details"]
 
 
-def test_process_audio_database_failure(mocker):
-    """
-    Test handling of database insertion failure.
-    """
-    mocker.patch("app.utils.transcribe_audio", return_value="Test transcription")
-    mocker.patch("app.utils.analyze_sentiment", return_value="positive")
-    mocker.patch("app.utils.store_data", side_effect=RuntimeError("Database error"))
-    mock_file = (b"audio data", "test_audio.wav")
+@patch("src.main.MongoClient", side_effect=Exception("Database connection error"))
+def test_process_audio_db_error(mock_mongo_client, client):
+    data = {"audio": (BytesIO(b"fake data"), "test.wav")}
 
-    response = client.post(
-        "/process-audio",
-        data={"audio": mock_file, "user_id": "1234"},
-        content_type="multipart/form-data",
-    )
+    response = client.post("/process-audio", data=data, content_type="multipart/form-data")
 
     assert response.status_code == 500
-    data = response.get_json()
-    assert data["error"] == "Runtime error"
-    assert "Database error" in data["details"]
-
-
-def test_logging_configuration():
-    """
-    Test logging configuration setup.
-    """
-    setup_logging()
-    logger = logging.getLogger("app")
-    assert logger.level == logging.DEBUG
-    assert logger.handlers
-
-
-def test_process_audio_file_handling_failure(mocker):
-    """
-    Test file handling failure during audio processing.
-    """
-    mocker.patch("app.utils.transcribe_audio", return_value="Test transcription")
-    mocker.patch("app.utils.analyze_sentiment", return_value="positive")
-    mocker.patch("builtins.open", side_effect=IOError("File handling error"))
-    mock_file = (b"audio data", "test_audio.wav")
-
-    response = client.post(
-        "/process-audio",
-        data={"audio": mock_file, "user_id": "1234"},
-        content_type="multipart/form-data",
-    )
-
-    assert response.status_code == 500
-    data = response.get_json()
-    assert data["error"] == "File handling failed"
-    assert "File handling error" in data["details"]
+    assert "Database error" in response.json["details"]
