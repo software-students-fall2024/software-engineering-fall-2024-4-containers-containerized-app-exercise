@@ -2,62 +2,72 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login with Facial Recognition</title>
+    <title>Login</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
 </head>
 <body>
     <div class="page-layout">
-        <h2>Login with Facial Recognition</h2>
-        <video id="video" autoplay></video>
-        <canvas id="canvas" style="display: none;"></canvas>
-
+        <h2>Login</h2>
+        {% if error %}
+            <p style="color: red;">{{ error }}</p>
+        {% endif %}
         <form action="{{ url_for('login') }}" method="POST">
-            <input type="hidden" name="image_data" id="image_data">
-            <button type="button" id="loginButton">Login with Camera</button>
+            <label for="username">Username:</label>
+            <input type="text" name="username" id="username" required>
+
+            <label for="password">Password:</label>
+            <input type="password" name="password" id="password" required>
+
+            <div id="faceLogin">
+                <video id="video" autoplay></video>
+                <canvas id="canvas" style="display: none;"></canvas>
+                <input type="hidden" name="image_data" id="image_data">
+            </div>
+
+            <button type="button" id="loginButton">Login</button>
         </form>
+        <button type="button" id="signupButton">Sign Up</button>
     </div>
 
     <script>
-        // Access the user's webcam
-        const video = document.getElementById('video');
-        navigator.mediaDevices.getUserMedia({ video: true })
-            .then(stream => {
-                video.srcObject = stream;
-            })
-            .catch(err => {
-                console.error("Error accessing the webcam: ", err);
-            });
+        // Initialize webcam when the page loads
+        window.addEventListener('load', () => {
+            const video = document.getElementById('video');
+            navigator.mediaDevices.getUserMedia({ video: true })
+                .then(stream => {
+                    video.srcObject = stream;
+                })
+                .catch(err => {
+                    console.error("Error accessing the webcam: ", err);
+                });
+        });
 
-        // Function to capture the image and submit the form
+        // Capture the image and submit the form
         function captureAndSubmit() {
+            const video = document.getElementById('video');
             const canvas = document.getElementById('canvas');
             canvas.width = video.videoWidth;
             canvas.height = video.videoHeight;
             const context = canvas.getContext('2d');
             context.drawImage(video, 0, 0, canvas.width, canvas.height);
 
-            // Compress the image by reducing its quality
-            const imageData = canvas.toDataURL('image/jpeg', 0.5);  // Reduce quality to 50%
+            const imageData = canvas.toDataURL('image/jpeg', 0.5);
             document.getElementById('image_data').value = imageData;
 
-            // Check if image data is properly set
             if (imageData) {
-                console.log("Captured image data:", imageData);
-                alert("Image captured successfully! Proceeding to login.");
-                document.querySelector("form").submit();  // Submit the form
+                document.querySelector("form").submit();
             } else {
                 alert("Failed to capture image. Please try again.");
             }
         }
 
-        // Automatically capture and submit the image after a delay
-        // video.addEventListener('canplay', () => {
-        //     setTimeout(captureAndSubmit, 3000);  // Delay of 3 seconds to allow the video to load
-        // });
-
         // Capture and submit the image when the button is clicked
         document.getElementById('loginButton').addEventListener('click', captureAndSubmit);
+
+        // Redirect to the signup page when the signup button is clicked
+        document.getElementById('signupButton').addEventListener('click', () => {
+            window.location.href = "{{ url_for('signup') }}";
+        });
     </script>
 </body>
 </html>
