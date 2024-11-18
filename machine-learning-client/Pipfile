@@ -18,6 +18,7 @@ torch = "*"
 pandas = "*"
 dnspython = "*"
 scipy = "*"
+opencv-python = "*"
 
 [dev-packages]
 
