@@ -100,7 +100,8 @@ def load_user(user_id):
         return User(
             user_id=str(user_data["_id"]),
             username=user_data["username"],
-            password=user_data["password"],)
+            password=user_data["password"],
+        )
     return None
 
 
@@ -164,10 +165,9 @@ def login():
             login_user(user)
             flash("Login successful!")
             return redirect(url_for("index"))
-        else:
-            flash("Invalid username or password.")
-            return redirect(url_for("login"))
-
+        flash("Invalid username or password.")
+        return redirect(url_for("login"))
+    # Explicitly return a rendered template for GET requests
     return render_template("login.html")
 
 
@@ -202,7 +202,9 @@ def index():
         for entry in mood_entries
     ]
 
-    return render_template("index.html", entries=entries)
+    return render_template(
+        "index.html", username=current_user.username, entries=entries
+    )
 
 
 def convert_to_pcm_wav(input_file, output_file):
@@ -309,7 +311,7 @@ def upload_audio():
 @login_required
 def show_results():
     """Render the results page."""
-    return render_template("showResults.html")
+    return render_template("showResults.html", username=current_user.username)
 
 
 @app.route("/api/mood-trends")
