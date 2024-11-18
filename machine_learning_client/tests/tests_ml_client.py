@@ -1,34 +1,75 @@
-import pytest
-import ml_client
+"""
+Unit tests for the ml_client module.
+"""
+
+import io
+import warnings
+from unittest.mock import patch
+
 import numpy as np
 
+from ..ml_client import encode_face_image
 
-def test_encode_face():
-    encoding, error = ml_client.encode_face(
-        "test_image.jpg"
-    )  # Use a valid image path for testing
-    if error:
-        assert encoding is None
-    else:
-        assert encoding is not None
-        assert isinstance(encoding, np.ndarray)
+warnings.filterwarnings(
+    "ignore", category=DeprecationWarning, module="face_recognition_models"
+)
 
 
-def test_recognize_face():
-    stored_encodings = [np.zeros((128,))]  # Example stored encoding
-    result, error = ml_client.recognize_face(stored_encodings)
-    assert result in ["verified", "not verified"]
+def create_fake_image_file():
+    """
+    Helper function to create a fake image file.
+    """
+    # Create a simple byte stream that mimics an image file
+    return io.BytesIO(b"fake image data")
+
+
+@patch("face_recognition.load_image_file")
+@patch("face_recognition.face_encodings")
+def test_encode_face_image_success(mock_face_encodings, _mock_load_image_file):
+    """
+    Test the encode_face_image function for successful encoding.
+    """
+    # Mock the face_encodings to return a known value
+    mock_face_encodings.return_value = [np.zeros((128,))]
+
+    # Create a fake image file
+    fake_image_file = create_fake_image_file()
+
+    encoding, error = encode_face_image(fake_image_file)
     assert error is None
+    assert isinstance(encoding, np.ndarray)
+    assert np.array_equal(encoding, np.zeros((128,)))
 
 
-def test_save_metadata():
-    encoding = np.zeros((128,)).tolist()  # Example encoding
-    metadata = {
-        "source": "test",
-        "timestamp": "2024-11-13T15:00:00",
-        "notes": "Test metadata",
-    }
-    ml_client.save_metadata(encoding, metadata)
-    # Check that the data was inserted into the database
-    user = ml_client.users_collection.find_one({"metadata.notes": "Test metadata"})
-    assert user is not None
+@patch("face_recognition.load_image_file")
+@patch("face_recognition.face_encodings")
+def test_encode_face_image_no_face_detected(mock_face_encodings, _mock_load_image_file):
+    """
+    Test the encode_face_image function when no face is detected.
+    """
+    # Mock the face_encodings to return an empty list
+    mock_face_encodings.return_value = []
+
+    # Create a fake image file
+    fake_image_file = create_fake_image_file()
+
+    encoding, error = encode_face_image(fake_image_file)
+    assert encoding is None
+    assert error == "No face detected in the image."
+
+
+@patch("face_recognition.load_image_file")
+@patch("face_recognition.face_encodings")
+def test_encode_face_image_exception(_mock_face_encodings, mock_load_image_file):
+    """
+    Test the encode_face_image function for exception handling.
+    """
+    # Mock load_image_file to raise an exception
+    mock_load_image_file.side_effect = Exception("Test Exception")
+
+    # Create a fake image file
+    fake_image_file = create_fake_image_file()
+
+    encoding, error = encode_face_image(fake_image_file)
+    assert encoding is None
+    assert error == "Error during face encoding."
