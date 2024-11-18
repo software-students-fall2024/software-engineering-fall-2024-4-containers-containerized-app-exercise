@@ -26,6 +26,11 @@ jobs:
       with:
         python-version: ${{ matrix.python-version }}
 
+    - name: Install CUDA
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y cuda-toolkit-12-2
+
     - name: Install dependencies
       if: ${{ hashFiles(format('{0}/**/*.py', matrix.subdir)) != '' }}
       run: |
