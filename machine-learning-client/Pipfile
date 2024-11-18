@@ -19,6 +19,7 @@ pandas = "*"
 dnspython = "*"
 scipy = "*"
 opencv-python = "*"
+requests = "*"
 
 [dev-packages]
 
