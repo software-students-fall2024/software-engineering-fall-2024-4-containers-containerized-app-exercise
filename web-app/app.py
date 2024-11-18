@@ -164,11 +164,8 @@ def login():
             login_user(user)
             flash("Login successful!")
             return redirect(url_for("index"))
-        else:
-            flash("Invalid username or password.")
-            return redirect(url_for("login"))
-
-    return render_template("login.html")
+        flash("Invalid username or password.")
+        return redirect(url_for("login"))
 
 
 # LOGOUT
