@@ -1,0 +1,31 @@
+services:
+  mongodb:
+    image: mongo
+    container_name: mongodb
+    ports:
+      - "27017:27017"
+    networks:
+      - app-network
+
+  ml-client:
+    build: ./machine-learning-client
+    container_name: ml-client
+    depends_on:
+      - mongodb
+    networks:
+      - app-network
+
+  web-app:
+    build: ./web-app
+    container_name: web-app
+    ports:
+      - "5000:5000"
+    depends_on:
+      - mongodb
+      - ml-client
+    networks:
+      - app-network
+
+networks:
+  app-network:
+    driver: bridge
