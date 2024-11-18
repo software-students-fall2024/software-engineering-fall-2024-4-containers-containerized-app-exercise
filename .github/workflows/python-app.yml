@@ -36,30 +36,6 @@ jobs:
         restore-keys: |
           ${{ runner.os }}-cuda-toolkit-
 
-    - name: Install CUDA (for ML only)
-      if: ${{ matrix.service == 'machine-learning-client' }}
-      run: |
-        sudo apt-get update
-        sudo apt-get install -y --no-install-recommends wget gnupg
-        wget https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2204/x86_64/cuda-ubuntu2204.pin
-        sudo mv cuda-ubuntu2204.pin /etc/apt/preferences.d/cuda-repository-pin-600
-        wget https://developer.download.nvidia.com/compute/cuda/12.6.2/local_installers/cuda-repo-ubuntu2204-12-6-local_12.6.2-560.35.03-1_amd64.deb
-        sudo dpkg -i cuda-repo-ubuntu2204-12-6-local_12.6.2-560.35.03-1_amd64.deb
-        sudo cp /var/cuda-repo-ubuntu2204-12-6-local/cuda-*-keyring.gpg /usr/share/keyrings/
-        sudo apt-get update
-        sudo apt-get -y install cuda-toolkit-12-6
-
-    - name: Install cuDNN
-      if: ${{ matrix.service == 'machine-learning-client' }}
-      run: |
-        sudo apt-get update
-        sudo apt-get install -y --no-install-recommends wget
-        wget https://developer.download.nvidia.com/compute/redist/cudnn/v8.9.5/cudnn-linux-x86_64-8.9.5.29_cuda12-archive.tar.xz
-        tar -xvf cudnn-linux-x86_64-8.9.5.29_cuda12-archive.tar.xz
-        sudo cp cudnn-linux-x86_64-8.9.5.29_cuda12-archive/include/* /usr/local/cuda/include/
-        sudo cp cudnn-linux-x86_64-8.9.5.29_cuda12-archive/lib/* /usr/local/cuda/lib64/
-        sudo chmod a+r /usr/local/cuda/include/cudnn*.h /usr/local/cuda/lib64/libcudnn*
-
     - name: Install dependencies
       working-directory: ${{ matrix.service }}
       run: |
