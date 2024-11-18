@@ -1,24 +1,41 @@
 """
-web app
+Web app for uploading audio files and storing them in MongoDB.
 """
 
 import os
+from flask import Flask, render_template, request, redirect, url_for
 import pymongo
-from flask import Flask
+import gridfs
 
 app = Flask(__name__)
 
+# mongodb
 mongo_uri = os.getenv("MONGO_URI")
 client = pymongo.MongoClient(mongo_uri)
 db = client["sensor_data"]
+fs = gridfs.GridFS(db)  
 
-
-@app.route("/")
+@app.route("/", methods=["GET", "POST"])
 def index():
     """
-    Route to check the connection to MongoDB.
+    Route to display the upload form and handle audio uploads.
     """
-    return f"Connected to MongoDB: {db.name}"
+    if request.method == "POST":
+        file = request.files.get("audio")
+        if file and file.filename:
+            fs.put(file, filename=file.filename)
+            return "File uploaded and saved to MongoDB successfully!"
+    
+    return render_template("index.html")
+
+
+@app.route("/files")
+def list_files():
+    """
+    Route to list all stored audio files.
+    """
+    files = fs.list()
+    return render_template("files.html", files=files)
 
 
 if __name__ == "__main__":
