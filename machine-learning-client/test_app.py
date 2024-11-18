@@ -29,5 +29,5 @@ def test_predict_passion_fruit():
     model = load_model()
     predicted_plant = predict_plant(test_image_path, model, mock_flower_names)
     assert (
-        predicted_plant == "Passion Fruit"
-    ), f"Expected Passion Fruit but got {predicted_plant}"
+        predicted_plant == "Passion Fruit"), f"Expected Passion Fruit but got {predicted_plant}"
+    
