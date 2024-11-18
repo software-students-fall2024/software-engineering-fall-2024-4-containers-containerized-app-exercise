@@ -5,13 +5,8 @@ A Flask web application for a Rock-Paper-Scissors game with AI and ML integratio
 import os
 import time
 import random
-<<<<<<< HEAD
 import logging  # Fixed import order
 from flask import Flask, render_template, request, jsonify, make_response
-=======
-import logging
-from flask import Flask, render_template, request, jsonify
->>>>>>> a1d69f762ec00dda2f9165eac1c7fe5402402f22
 import requests
 from requests.exceptions import RequestException
 from pymongo import MongoClient
