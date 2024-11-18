@@ -3,7 +3,6 @@ This module contains tests for the ML client. Run with 'python -m pytest test_ap
 or to see with coverage run with 'python -m pytest --cov=app test_app.py'
 """
 
-
 from unittest.mock import patch, MagicMock
 from io import BytesIO
 import base64
@@ -103,7 +102,9 @@ def test_encode_image():
     assert isinstance(encoded_image, str)
     assert len(encoded_image) > 0
 
+
 # send POST request to /api/detect for image screenshots from webcam
+
 
 # capture an image from a webcam feed
 def capture_image_from_webcam():
@@ -111,29 +112,30 @@ def capture_image_from_webcam():
     Initializes the webcam, captures a frame, and converts it to JPEG format.
     Returns the image bytes if successful, or None if the capture fails."""
     # Initialize webcam
-    cap = cv2.VideoCapture(0) # pylint: disable=no-member
+    cap = cv2.VideoCapture(0)  # pylint: disable=no-member
     # Read a frame from the webcam
     ret, frame = cap.read()
     # Release the webcam
     cap.release()
-    cv2.destroyAllWindows() # pylint: disable=no-member
+    cv2.destroyAllWindows()  # pylint: disable=no-member
 
     if not ret:
         print("Failed to capture image")
         return None
 
     # Convert to JPEG format for the API
-    _, buffer = cv2.imencode('.jpg', frame) # pylint: disable=no-member
+    _, buffer = cv2.imencode(".jpg", frame)  # pylint: disable=no-member
     image_bytes = buffer.tobytes()
     return image_bytes
+
 
 def send_image_to_detect(image_bytes):
     """Send the captured image to the /api/detect route for object detection.
     Sends the image as a form-data payload and prints the detection result.
     Handles errors if the request fails."""
     # Create a form-data payload
-    files = {'file': ('webcam-image.jpg', image_bytes, 'image/jpeg')}
-    url = 'http://localhost:3001/api/detect'
+    files = {"file": ("webcam-image.jpg", image_bytes, "image/jpeg")}
+    url = "http://localhost:3001/api/detect"
 
     try:
         # Send the image to the ML client for detection
@@ -145,13 +147,15 @@ def send_image_to_detect(image_bytes):
     except requests.RequestException as e:
         print("Error:", e)
 
+
 def display_detection_result(result):
     """Display the detection results in the console.
     Iterates over the detected objects and prints the label and confidence score."""
     print(f"Timestamp: {result['timestamp']}")
     print("Detected Objects:")
-    for obj in result['detected_objects']:
+    for obj in result["detected_objects"]:
         print(f" - {obj['label']}: {obj['confidence']:.2f}")
+
 
 # Capture and process an image when script runs
 image_bytes_original = capture_image_from_webcam()
