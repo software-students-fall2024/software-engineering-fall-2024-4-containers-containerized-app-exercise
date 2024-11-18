@@ -15,7 +15,6 @@ from flask_cors import CORS
 app = Flask(__name__)
 CORS(app)
 
-# Connect directly to MongoDB running on localhost:27017 (inside the container)
 mongo = MongoClient("mongodb://localhost:27017")
 db = mongo["object_detection"]
 
@@ -57,10 +56,30 @@ def detect():
         "detected_objects": detected_objects,
         "image": encoded_image,
     }
+    saved_data = save_to_db(detection_data)
+
+    # only return relevant fields to the client
+    response_data = {
+        "timestamp": saved_data["timestamp"],
+        "detected_objects": saved_data["detected_objects"],
+    }
+    return jsonify(response_data), 200
+
+# database helper
+def save_to_db(detection_data):
     result = db.detections.insert_one(detection_data)
     detection_data["_id"] = str(result.inserted_id)
+    return detection_data
 
-    return jsonify(detection_data), 200
+# model helper
+def detect_objects(image):
+    results = model(image)
+    detections = results.pandas().xyxy[0].to_dict(orient="records")
+    return [
+        {"label": det["name"], "confidence": float(det["confidence"])}
+        for det in detections
+    ]
+
 
 
 if __name__ == "__main__":
