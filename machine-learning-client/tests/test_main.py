@@ -1,7 +1,11 @@
-import os
-import pytest
+"""
+This module contains unit tests for the main functionalities in the application,
+including the main function, logging setup, and handling audio files.
+"""
+
 import logging
 from unittest.mock import patch, MagicMock
+import pytest
 from src.main import main, setup_logging
 
 
@@ -16,7 +20,7 @@ def mock_env_vars(monkeypatch):
 
 @patch("src.main.MongoClient")
 @patch("src.main.get_audio_files", return_value=[])
-def test_main_no_audio_files(mock_get_audio_files, mock_mongo_client, mock_env_vars, caplog):
+def test_main_no_audio_files(mock_get_audio_files, mock_mongo_client, caplog):
     """
     Test `main` function when no audio files are found in the directory.
     """
@@ -28,10 +32,15 @@ def test_main_no_audio_files(mock_get_audio_files, mock_mongo_client, mock_env_v
 
 @patch("src.main.get_audio_files", return_value=["file1.wav"])
 @patch("src.main.transcribe_audio", return_value="Hello world")
-@patch("src.main.analyze_sentiment", return_value={"polarity": 0.5, "subjectivity": 0.6, "mood": "Positive"})
+@patch("src.main.analyze_sentiment", return_value={
+    "polarity": 0.5, "subjectivity": 0.6, "mood": "Positive"
+})
 @patch("src.main.store_data")
 @patch("src.main.MongoClient")
-def test_main_with_audio_files(mock_mongo_client, mock_store_data, mock_analyze_sentiment, mock_transcribe_audio, mock_get_audio_files, mock_env_vars):
+def test_main_with_audio_files(
+    mock_mongo_client, mock_store_data, mock_analyze_sentiment,
+    mock_transcribe_audio, mock_get_audio_files
+):
     """
     Test `main` function when audio files are processed successfully.
     """
@@ -45,7 +54,6 @@ def test_main_with_audio_files(mock_mongo_client, mock_store_data, mock_analyze_
     mock_analyze_sentiment.assert_called_once_with("Hello world")
     mock_store_data.assert_called_once()
 
-
 def test_setup_logging(caplog):
     """
     Test `setup_logging` function to ensure logs are properly set up.
@@ -54,3 +62,4 @@ def test_setup_logging(caplog):
     with caplog.at_level(logging.INFO):
         logging.getLogger().info("Test log message")
     assert "Test log message" in caplog.text
+    
