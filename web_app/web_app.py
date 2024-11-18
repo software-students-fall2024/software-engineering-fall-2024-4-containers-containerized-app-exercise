@@ -56,6 +56,13 @@ def recognize_face(stored_encodings, image_bytes):
 
 
 @app.route("/")
+def welcome(): 
+    """
+    Welcome page
+    """
+    return render_template("welcome.html")
+
+@app.route("/home")
 def home():
     """
     Home page

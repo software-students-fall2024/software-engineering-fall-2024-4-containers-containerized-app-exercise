@@ -1,14 +1,10 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Verification Result</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
-</head>
-<body>
+{% extends "base.html" %}
+
+{% block title %}Home - Attendify{% endblock %}
+
+{% block content %}
     <div class="page-layout">
         <h2>{{ result }}</h2>
         <a href="{{ url_for('login') }}">Back to Login</a>
     </div>
-</body>
-</html>
+{% endblock %}
