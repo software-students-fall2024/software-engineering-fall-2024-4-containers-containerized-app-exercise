@@ -73,7 +73,6 @@ def process_audio():
 
         # Store the data in MongoDB
         store_data(collection, data)
-        collection.nsert_one(data)
         logger.info("Successfully processed and stored data for %s", file_path)
 
         return jsonify({"status": "success", "data": data}), 200
