@@ -6,3 +6,6 @@ pillow
 pymongo
 python-dotenv
 werkzeug
+scipy
+tqdm
+pytest
