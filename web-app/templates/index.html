@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>ASL Translator</title>
+        <style>
+            body {
+            font-family: Arial, sans-serif;
+            background-color: #f9f9f9;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        h1 {
+            margin-top: 20px;
+            color: #333;
+        }
+        section {
+            margin-top: 20px;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            width: 80%;
+            max-width: 600px;
+        }
+        video {
+            width: 100%;
+            height: auto;
+            border-radius: 8px;
+            border: 2px solid #ccc;
+            margin-top: 10px;
+        }
+        button, a {
+            margin: 10px;
+            padding: 10px 20px;
+            font-size: 16px;
+            border: none;
+            border-radius: 5px;
+            background-color: #007bff;
+            color: #fff;
+            text-decoration: none;
+            cursor: pointer;
+        }
+        button:hover, a:hover {
+            background-color: #0056b3;
+        }
+        </style>
+    </head>
+    <body>
+        <h1>ASL Translator</h1>
+        <!-- start/stop recording here   -->
+         <section id="video_section">
+            <h2>Live Camera Feed</h2>
+            <video id="camera-feed" autoplay playsinline></video>
+            <canvas id="snapshot" style="display:none;"></canvas>
+            <button id="start_recording">Start Recording</button>
+            <button id="stop_recording" disabled>Stop Recording</button>
+            <a href="display.html">View History</a>
+         </section>
+
+         <script>
+            const startButton = document.getElementById('start_recording');
+            const stopButton = document.getElementById('stop_recording');
+            const video = document.getElementById('camera-feed');
+            const canvas = document.getElementById('snapshot');
+            const ctx = canvas.getContext('2d');
+
+            let stream;
+            async function startCamera() {
+            try {
+                stream = await navigator.mediaDevices.getUserMedia({ video: true });
+                video.srcObject = stream;
+            } catch (err) {
+                console.error("Error accessing camera:", err);
+            }
+        }
+
+            startCamera();
+
+            startButton.addEventListener('click', () => {
+                startButton.disabled = true;
+                stopButton.disabled = false;
+                video.style.display = "block";
+                canvas.style.display = "none";
+                console.log("Recording started.");
+            });
+
+            stopButton.addEventListener('click', () => {
+                startButton.disabled = false;
+                stopButton.disabled = true;
+
+                canvas.width = video.videoWidth;
+                canvas.height = video.videoHeight;
+                ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+                
+                const imageData = canvas.toDataURL('image/png');
+                video.style.display = "none";
+                canvas.style.display = "block";
+                fetch('/upload_snapshot', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({image: imageData}),
+                })
+                    .then((response) => response.json())
+                    .then((data) => {
+                        console.log("Snapshot saved: ", data);
+                    })
+                    .catch((err) => {
+                        console.error("Error saving snapshot: ", err);
+                    });
+                console.log("Recording stopped.");
+            });
+            
+         </script>
+    </body>
+</html>
