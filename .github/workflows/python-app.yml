@@ -8,12 +8,23 @@ on:
       - 'machine-learning-client/**'
       - '.github/workflows/ml-client.yml'
 
+  pull_request:
+    paths:
+      - 'machine-learning-client/**'
+      - '.github/workflows/ml-client.yml'
+
 jobs:
   test-and-build:
     runs-on: ubuntu-latest
     defaults:
       run:
         working-directory: ./machine-learning-client
+
+    services:
+      mongo:
+        image: mongo:latest
+        ports:
+          - 27017:27017
 
     steps:
       - uses: actions/checkout@v4
