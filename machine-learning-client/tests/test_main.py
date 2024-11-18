@@ -1,14 +1,17 @@
 """
 Unit tests for main.py functions, including Flask endpoints and MongoDB operations.
 """
-import pytest
 from unittest.mock import patch, MagicMock
 from io import BytesIO
+import pytest
 from src.main import app
 
 
 @pytest.fixture
 def client():
+    """
+    Test function.
+    """
     app.testing = True
     with app.test_client() as client:
         yield client
@@ -23,6 +26,9 @@ def client():
 def test_process_audio_success(
     mock_analyze_sentiment, mock_transcribe_audio, mock_mongo_client, client
 ):
+    """
+    Test function.
+    """
     mock_collection = MagicMock()
     mock_mongo_client.return_value.__getitem__.return_value = mock_collection
 
@@ -38,6 +44,9 @@ def test_process_audio_success(
 
 @patch("src.main.transcribe_audio", side_effect=RuntimeError("Transcription error"))
 def test_process_audio_transcription_error(mock_transcribe_audio, client):
+    """
+    Test function.
+    """
     data = {"audio": (BytesIO(b"fake data"), "test.wav")}
 
     response = client.post("/process-audio", data=data, content_type="multipart/form-data")
@@ -48,6 +57,9 @@ def test_process_audio_transcription_error(mock_transcribe_audio, client):
 
 @patch("src.main.MongoClient", side_effect=Exception("Database connection error"))
 def test_process_audio_db_error(mock_mongo_client, client):
+    """
+    Test function.
+    """
     data = {"audio": (BytesIO(b"fake data"), "test.wav")}
 
     response = client.post("/process-audio", data=data, content_type="multipart/form-data")
