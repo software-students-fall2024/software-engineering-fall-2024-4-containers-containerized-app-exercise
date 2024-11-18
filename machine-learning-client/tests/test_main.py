@@ -8,8 +8,8 @@ import pytest
 from src.main import app
 
 
-@pytest.fixture
-def client():
+@pytest.fixture(name="flask_test_client")
+def client_fixture():
     """
     Flask test client fixture for testing Flask endpoints.
     """
@@ -25,7 +25,7 @@ def client():
     return_value={"polarity": 0.5, "subjectivity": 0.6, "mood": "Positive"},
 )
 def test_process_audio_success(
-    mock_analyze_sentiment, mock_transcribe_audio, mock_mongo_client, client
+    mock_analyze_sentiment, mock_transcribe_audio, mock_mongo_client, flask_test_client
 ):
     """
     Test successful audio processing via `/process-audio`.
@@ -35,7 +35,7 @@ def test_process_audio_success(
 
     data = {"audio": (BytesIO(b"fake data"), "test.wav")}
 
-    response = client.post(
+    response = flask_test_client.post(
         "/process-audio", data=data, content_type="multipart/form-data"
     )
 
@@ -46,13 +46,13 @@ def test_process_audio_success(
 
 
 @patch("src.main.transcribe_audio", side_effect=RuntimeError("Transcription error"))
-def test_process_audio_transcription_error(_mock_transcribe_audio, client):
+def test_process_audio_transcription_error(mock_transcribe_audio, flask_test_client):
     """
     Test handling of transcription errors during audio processing.
     """
     data = {"audio": (BytesIO(b"fake data"), "test.wav")}
 
-    response = client.post(
+    response = flask_test_client.post(
         "/process-audio", data=data, content_type="multipart/form-data"
     )
 
