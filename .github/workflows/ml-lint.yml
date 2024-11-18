@@ -16,7 +16,8 @@ jobs:
           cd machine-learning-client
           python -m pip install --upgrade pip
           python -m pip install -r requirements.txt
-          
+          python -m pip install pylint black  # Install pylint and black
+
       - name: Lint with pylint
         if: ${{ hashFiles('machine-learning-client/**/*.py') != '' }}
         run: |
@@ -26,4 +27,5 @@ jobs:
         if: ${{ hashFiles('machine-learning-client/**/*.py') != '' }}
         run: |
           cd machine-learning-client
-          black --diff --check **/*.py
+          black --diff --check .
+
