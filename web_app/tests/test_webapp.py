@@ -15,8 +15,8 @@ logging.getLogger("werkzeug").setLevel(logging.ERROR)
 from web_app.web_app import app
 
 
-@pytest.fixture
-def test_client():
+@pytest.fixture(name='test_client')
+def _test_client():
     """Fixture to configure the app for testing."""
     app.config["TESTING"] = True
     with app.test_client() as client:
