@@ -9,6 +9,7 @@ Build a containerized app that uses machine learning. See [instructions](./instr
 2. [Configuration](#configuration-steps)
 3. [Setup Steps](#setup-steps)
 4. [Team Members](#team-members)
+5. [Task Board](https://github.com/orgs/software-students-fall2024/projects/120)
 
 ## DESCRIPTION
 
@@ -17,15 +18,15 @@ Our containerized web application is designed to play an interactive game of Roc
 ***Key Features:***
 **1. Image Recognition with Machine Learning:**
 
-	- Uses a pre-trained machine learning model to recognize hand gestures (rock, paper, scissors) via the user's webcam or uploaded image
-	- Model processes images in real-time to identify the user's choice 
- 	- Compares predicted user choice with computer's randomly generated choice to determine the winner of current round
+- Uses a pre-trained machine learning model to recognize hand gestures (rock, paper, scissors) via the user's webcam or uploaded image
+- Model processes images in real-time to identify the user's choice 
+- Compares predicted user choice with computer's randomly generated choice to determine the winner of current round
  
 **3. Web-Based User Interface:**
 
-	- Provides an intuitive and responsive web interface that guides users through the game
- 	- Users can easily play the game directly from their web browser without needing to install any additional software
-  	- Real-time feedback is provided, with visual cues showing the user's move, computer's move, and outcome of each round
+- Provides an intuitive and responsive web interface that guides users through the game
+- Users can easily play the game directly from their web browser without needing to install any additional software
+- Real-time feedback is provided, with visual cues showing the user's move, computer's move, and outcome of each round
 
 ## CONFIGURATION STEPS
 
@@ -39,5 +40,3 @@ Our containerized web application is designed to play an interactive game of Roc
 - ***Alex Hsu:*** ([hsualexotake](https://github.com/hsualexotake))
 - ***Reese Burns:*** ([reeseburns](https://github.com/reeseburns))
 - ***Finn Eskeland:*** ([finn1003](https://github.com/finn1003))
-
-
