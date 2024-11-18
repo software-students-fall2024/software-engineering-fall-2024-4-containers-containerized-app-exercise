@@ -18,6 +18,12 @@ jobs:
   test-web-app:
     runs-on: ubuntu-latest
 
+    services:
+      mongodb:
+        image: mongo:6.0
+        ports:
+          - 27017:27017
+
     env:
       LANG: en_US.UTF-8
       MONGO_URI: mongodb://localhost:27017
@@ -44,7 +50,7 @@ jobs:
 
       - name: Run tests
         run: |
-          pipenv run pytest --cov=web_app test_app.py
+          pipenv run pytest --cov=web_app --cov-report=xml --cov-report=term test_app.py
           pipenv run coverage report -i
 
       - name: Upload coverage results
