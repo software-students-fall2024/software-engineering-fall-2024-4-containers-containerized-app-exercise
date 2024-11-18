@@ -13,7 +13,8 @@ app = Flask(__name__)
 mongo_uri = os.getenv("MONGO_URI")
 client = pymongo.MongoClient(mongo_uri)
 db = client["sensor_data"]
-fs = gridfs.GridFS(db)  
+fs = gridfs.GridFS(db)
+
 
 @app.route("/", methods=["GET", "POST"])
 def index():
@@ -25,7 +26,7 @@ def index():
         if file and file.filename:
             fs.put(file, filename=file.filename)
             return "File uploaded and saved to MongoDB successfully!"
-    
+
     return render_template("index.html")
 
 
