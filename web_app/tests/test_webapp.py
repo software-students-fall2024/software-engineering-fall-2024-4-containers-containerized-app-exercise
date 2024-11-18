@@ -32,8 +32,7 @@ def generate_image_data():
 
 
 @patch("web_app.web_app.users_collection")
-@patch("web_app.web_app.requests.post")
-def test_signup_get(_mock_requests_post, _mock_users_collection, test_client):
+def test_signup_get(_mock_users_collection, test_client):
     """Test the GET request for the signup page."""
     response = test_client.get("/signup")
     assert response.status_code == 200
@@ -44,7 +43,8 @@ def test_signup_get(_mock_requests_post, _mock_users_collection, test_client):
 def test_signup_post_missing_fields(_mock_users_collection, test_client):
     """Test the POST request for the signup page with missing fields."""
     response = test_client.post(
-        "/signup", data={"username": "", "email": "", "password": "", "image_data": ""}
+        "/signup",
+        data={"username": "", "email": "", "password": "", "image_data": ""},
     )
     assert response.status_code == 200
     assert b"Username, Email, and Password are required." in response.data
@@ -127,41 +127,204 @@ def test_login_get(test_client):
 @patch("web_app.web_app.users_collection")
 def test_login_post_missing_fields(_mock_users_collection, test_client):
     """Test the POST request for the login page with missing fields."""
-    response = test_client.post("/login", data={"username": "", "password": ""})
+    # Missing all fields
+    response = test_client.post(
+        "/login", data={"username": "", "password": "", "image_data": ""}
+    )
     assert response.status_code == 200
-    assert b"Username and Password are required." in response.data
+    assert b"Username, password, and facial recognition are required." in response.data
+
+    # Missing image_data
+    response = test_client.post(
+        "/login",
+        data={"username": "testuser", "password": "password123", "image_data": ""},
+    )
+    assert response.status_code == 200
+    assert b"Username, password, and facial recognition are required." in response.data
+
+    # Missing password
+    response = test_client.post(
+        "/login",
+        data={
+            "username": "testuser",
+            "password": "",
+            "image_data": generate_image_data(),
+        },
+    )
+    assert response.status_code == 200
+    assert b"Username, password, and facial recognition are required." in response.data
+
+    # Missing username
+    response = test_client.post(
+        "/login",
+        data={
+            "username": "",
+            "password": "password123",
+            "image_data": generate_image_data(),
+        },
+    )
+    assert response.status_code == 200
+    assert b"Username, password, and facial recognition are required." in response.data
 
 
 @patch("web_app.web_app.users_collection")
-def test_login_post_invalid_credentials(mock_users_collection, test_client):
-    """Test the POST request for the login page with invalid credentials."""
-    # Mock to return a user with a different password
-    hashed_password = generate_password_hash("password123")
-    mock_users_collection.find_one.return_value = {
-        "username": "testuser",
-        "password": hashed_password,
-    }
+def test_login_post_user_not_found(mock_users_collection, test_client):
+    """Test login with a username that does not exist."""
+    # Mock to return None (user not found)
+    mock_users_collection.find_one.return_value = None
 
     response = test_client.post(
-        "/login", data={"username": "testuser", "password": "wrongpassword"}
+        "/login",
+        data={
+            "username": "nonexistentuser",
+            "password": "password123",
+            "image_data": generate_image_data(),
+        },
     )
 
     assert response.status_code == 200
-    assert b"Invalid username or password." in response.data
+    assert b"User not found." in response.data
 
 
 @patch("web_app.web_app.users_collection")
-def test_login_post_valid_credentials(mock_users_collection, test_client):
-    """Test the POST request for the login page with valid credentials."""
-    hashed_password = generate_password_hash("password123")
+def test_login_post_invalid_password(mock_users_collection, test_client):
+    """Test login with an invalid password."""
+    # Mock to return a user with a specific password hash
+    hashed_password = generate_password_hash("correctpassword")
     mock_users_collection.find_one.return_value = {
         "username": "testuser",
         "password": hashed_password,
+        "encoding": [0.1, 0.2, 0.3],
     }
 
     response = test_client.post(
         "/login",
-        data={"username": "testuser", "password": "password123"},
+        data={
+            "username": "testuser",
+            "password": "wrongpassword",
+            "image_data": generate_image_data(),
+        },
+    )
+
+    assert response.status_code == 200
+    assert b"Invalid password." in response.data
+
+
+@patch("web_app.web_app.users_collection")
+def test_login_post_no_facial_data(mock_users_collection, test_client):
+    """Test login when user has no facial data stored."""
+    # Mock to return a user without 'encoding' field
+    hashed_password = generate_password_hash("password123")
+    mock_users_collection.find_one.return_value = {
+        "username": "testuser",
+        "password": hashed_password,
+        # No 'encoding' field
+    }
+
+    response = test_client.post(
+        "/login",
+        data={
+            "username": "testuser",
+            "password": "password123",
+            "image_data": generate_image_data(),
+        },
+    )
+
+    assert response.status_code == 200
+    assert b"No facial data found for this user." in response.data
+
+
+@patch("web_app.web_app.users_collection")
+@patch("web_app.web_app.requests.post")
+def test_login_post_face_not_recognized(
+    mock_requests_post, mock_users_collection, test_client
+):
+    """Test login when face is not recognized."""
+    # Mock to return a user with encoding
+    hashed_password = generate_password_hash("password123")
+    mock_users_collection.find_one.return_value = {
+        "username": "testuser",
+        "password": hashed_password,
+        "encoding": [0.1, 0.2, 0.3],
+    }
+
+    # Mock the ML service response for recognize_face
+    mock_response = MagicMock()
+    mock_response.json.return_value = {"result": "not_recognized"}
+    mock_requests_post.return_value = mock_response
+
+    response = test_client.post(
+        "/login",
+        data={
+            "username": "testuser",
+            "password": "password123",
+            "image_data": generate_image_data(),
+        },
+    )
+
+    assert response.status_code == 200
+    assert b"Face not recognized." in response.data
+
+
+@patch("web_app.web_app.users_collection")
+@patch("web_app.web_app.requests.post")
+def test_login_post_face_recognition_error(
+    mock_requests_post, mock_users_collection, test_client
+):
+    """Test login when face recognition service returns an error."""
+    # Mock to return a user with encoding
+    hashed_password = generate_password_hash("password123")
+    mock_users_collection.find_one.return_value = {
+        "username": "testuser",
+        "password": hashed_password,
+        "encoding": [0.1, 0.2, 0.3],
+    }
+
+    # Mock the ML service response for recognize_face with an error
+    mock_response = MagicMock()
+    mock_response.json.return_value = {"error": "Error during face recognition."}
+    mock_requests_post.return_value = mock_response
+
+    response = test_client.post(
+        "/login",
+        data={
+            "username": "testuser",
+            "password": "password123",
+            "image_data": generate_image_data(),
+        },
+    )
+
+    assert response.status_code == 200
+    assert b"Error during face recognition." in response.data
+
+
+@patch("web_app.web_app.users_collection")
+@patch("web_app.web_app.requests.post")
+def test_login_post_valid_credentials_and_face(
+    mock_requests_post, mock_users_collection, test_client
+):
+    """Test login with valid credentials and recognized face."""
+    # Mock to return a user with encoding
+    hashed_password = generate_password_hash("password123")
+    user_encoding = [0.1, 0.2, 0.3]
+    mock_users_collection.find_one.return_value = {
+        "username": "testuser",
+        "password": hashed_password,
+        "encoding": user_encoding,
+    }
+
+    # Mock the ML service response for recognize_face
+    mock_response = MagicMock()
+    mock_response.json.return_value = {"result": "verified"}
+    mock_requests_post.return_value = mock_response
+
+    response = test_client.post(
+        "/login",
+        data={
+            "username": "testuser",
+            "password": "password123",
+            "image_data": generate_image_data(),
+        },
         follow_redirects=True,
     )
 
@@ -169,71 +332,6 @@ def test_login_post_valid_credentials(mock_users_collection, test_client):
     assert b"Welcome, testuser" in response.data
     with test_client.session_transaction() as sess:
         assert sess["username"] == "testuser"
-
-
-@patch("web_app.web_app.users_collection")
-@patch("web_app.web_app.requests.post")
-def test_login_post_facial_recognition_success(
-    mock_requests_post, mock_users_collection, test_client
-):
-    """Test the POST request for the login page with facial recognition success."""
-    # Mock users_collection.find to return users
-    users = [
-        {"username": "user1", "encoding": [0.1, 0.2, 0.3]},
-        {"username": "user2", "encoding": [0.4, 0.5, 0.6]},
-    ]
-    mock_users_collection.find.return_value = users
-    # Mock the ML service response for recognize_face
-    mock_response = MagicMock()
-    mock_response.json.return_value = {"result": "verified", "matched_index": "1"}
-    mock_requests_post.return_value = mock_response
-
-    response = test_client.post(
-        "/login",
-        data={
-            "username": "user2",
-            "password": "password123",
-            "image_data": generate_image_data(),
-        },
-        follow_redirects=True,
-    )
-
-    assert response.status_code == 200
-    assert b"Welcome, user2" in response.data
-    with test_client.session_transaction() as sess:
-        assert sess["username"] == "user2"
-
-
-@patch("web_app.web_app.users_collection")
-@patch("web_app.web_app.requests.post")
-def test_login_post_facial_recognition_failure(
-    mock_requests_post, mock_users_collection, test_client
-):
-    """Test the POST request for the login page with facial recognition failure."""
-    # Mock users_collection.find to return users
-    users = [
-        {"username": "user1", "encoding": [0.1, 0.2, 0.3]},
-        {"username": "user2", "encoding": [0.4, 0.5, 0.6]},
-    ]
-    mock_users_collection.find.return_value = users
-    # Mock the ML service response for recognize_face
-    mock_response = MagicMock()
-    mock_response.json.return_value = {"result": "not_verified"}
-    mock_requests_post.return_value = mock_response
-
-    response = test_client.post(
-        "/login",
-        data={
-            "username": "user2",
-            "password": "password123",
-            "image_data": generate_image_data(),
-        },
-    )
-
-    assert response.status_code == 200
-    assert b"Face not recognized" in response.data
-    with test_client.session_transaction() as sess:
-        assert "username" not in sess
 
 
 def test_logout(test_client):
@@ -252,7 +350,7 @@ def test_logout(test_client):
 
 def test_home_not_logged_in(test_client):
     """Test the GET request for the home page when not logged in."""
-    response = test_client.get("/", follow_redirects=True)
+    response = test_client.get("/home", follow_redirects=True)
     assert response.status_code == 200
     assert b"Login" in response.data
 
@@ -262,6 +360,6 @@ def test_home_logged_in(test_client):
     with test_client.session_transaction() as sess:
         sess["username"] = "testuser"
 
-    response = test_client.get("/")
+    response = test_client.get("/home")
     assert response.status_code == 200
     assert b"Welcome, testuser" in response.data
