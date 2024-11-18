@@ -67,7 +67,7 @@ def generate_video():
     while True:
         # This is just a placeholder. Replace it with your actual video capture code.
         frame = get_video_frame()  # Capture or retrieve the video frame
-        yield (b"--frame\r\n" b"Content-Type: image/jpeg\r\n\r\n" + frame + b"\r\n\r\n")
+        yield b"--frame\r\n" b"Content-Type: image/jpeg\r\n\r\n" + frame + b"\r\n\r\n"
 
 
 def get_video_frame():
