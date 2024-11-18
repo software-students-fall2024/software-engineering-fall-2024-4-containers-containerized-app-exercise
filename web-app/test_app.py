@@ -1,6 +1,7 @@
 """
 This module contains test cases for the Flask application using pytest.
 """
+
 # pylint: disable=redefined-outer-name
 import pytest
 from app import app  # Import the main application module
@@ -28,7 +29,7 @@ def test_home_route(client):
 
 def test_tutorial_route(client):
     """
-    Test the tutorial route to ensure it returns a status code of 200 
+    Test the tutorial route to ensure it returns a status code of 200
     and includes a title in the response.
     """
     response = client.get("/tutorial")
