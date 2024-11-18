@@ -39,16 +39,23 @@ def test_transcribe_audio_error(mock_recognizer):
     """
     Test the `transcribe_audio` function when an error occurs during transcription.
     """
+    # Mocking the Recognizer instance
     mock_instance = MagicMock()
     mock_recognizer.return_value = mock_instance
-    mock_instance.record.return_value = "audio data"
-    mock_instance.recognize_google.side_effect = Exception("Mocked error")
 
+    # Simulate the record function to return mock audio data
+    mock_instance.record.return_value = "audio data"
+
+    # Simulate recognize_google raising a request error
+    mock_instance.recognize_google.side_effect = RequestError("Mocked transcription error")
+
+    # Patch AudioFile to bypass file I/O
     with patch("src.utils.sr.AudioFile"):
         result = transcribe_audio("mock_file.wav")
 
-    # Ensure the function handles the exception gracefully and returns an empty string
+    # Ensure the function handles the RuntimeError gracefully and returns an empty string
     assert result == ""
+
 
 
 def test_analyze_sentiment():
