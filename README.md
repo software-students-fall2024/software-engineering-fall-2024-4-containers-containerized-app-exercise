@@ -124,22 +124,28 @@ Voice Journal is a hands free, online journal that allows user to create entries
 ## How to Run Unit Tests
 We've included unit tests for each function in the main.py and utils.py. To run these tests:
 
-1. Install `pytest` in the virtual environment:
+1. Install `pytest` in the virtual environment and `coverage`:
     ```bash
     pipenv install pytest
+    pipenv install coverage
     ```
 2. Run the tests from the main project directory:
     ```bash
     python3 -m pytest
     ```
-3. Verify all tests pass to ensure correct functionality.
+3. Use the `coverage` tool to ensure the code achieves at least 80% test coverage
+    ```bash
+    pipenv run coverage run -m pytest
+    pipenv run coverage report
+    ```
+4. Verify all tests pass to ensure correct functionality.
 
     - **main.py tests**: These tests focus on the backend functionality such as `main()` and `setup_logging()`, ensuring the correct interaction with external systems like MongoDB and file handling.
     
     - **utils.py tests**: These tests cover the utility functions like `get_audio_files()`, `transcribe_audio()`, `analyze_sentiment()`, and `store_data()`, validating tasks like file handling, API interaction, sentiment analysis, and database operations.
 
 
-## How to Contribute to Project
+## How to Run the Project through Docker and contribute
 
 ### Prerequisites
 Make sure you have Python 3.9 or higher installed:
@@ -167,17 +173,33 @@ python3 --version
     docker-compose up
     ```
 
-5. **Set up a virtual environment using `pipenv`**:
+5. **Access the application**
+    The application can be used locally at http://localhost:5000.
+
+6. **Shut down the Docker containers**
+    ```bash
+    docker-compose down
+    ```
+
+7. **Exit the virtual environment**:
+    ```bash
+    exit
+    ```
+
+### Optional - Local Setup Without Docker:
+If you prefer running the application locally, set up the virtual environemt using `pipenv`:
+
+1. **Set up a virtual environment using `pipenv`**:
     ```bash
     pipenv install --dev
     ```
 
-6. **Activate the virtual environment**:
+2. **Activate the virtual environment**:
     ```bash
     pipenv shell
     ```
 
-7. **Modify and run the program**:
+3. **Modify and run the program**:
     ```bash
     python3 machine-learning-client/src/file_name
     ```
@@ -187,22 +209,9 @@ python3 --version
     python3 web-app/app.py
     ```
 
-8. **Run tests**:
+4. **Run tests**:
     ```bash
     pipenv run pytest
-    ```
-
-9. **Access the application**
-    The application can be used locally at http://localhost:5000.
-
-10. **Shut down the Docker containers**
-    ```bash
-    docker-compose down
-    ```
-
-11. **Exit the virtual environment**:
-    ```bash
-    exit
     ```
 
 ## Notes
