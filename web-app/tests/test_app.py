@@ -52,7 +52,7 @@ def test_record_success(client, monkeypatch):  # pylint: disable=redefined-outer
     audio_content.name = "test_audio.wav"
 
     def mock_ml_post(*args, **kwargs):  # pylint: disable=unused-argument
-        class MockResponse: # pylint: disable=too-few-public-methods
+        class MockResponse:  # pylint: disable=too-few-public-methods
             """Mock the response to include a .json() method"""
 
             def json(self):
