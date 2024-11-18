@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Voice Mood Journal</title>
+    <title>Voice Journal</title>
     <style>
         @import url(https://fonts.googleapis.com/css?family=Satisfy|Pathway+Gothic+One);
         body {
@@ -81,6 +81,19 @@
             box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.3);
         }
 
+        #greeting {
+            position: absolute;
+            top: 20px;
+            left: 15px;
+            font-family: 'Satisfy', 'cursive';
+            padding: 5px 5px;
+            border: none;
+            font-size: 1.2em;
+            color: #000;
+            padding: 5px 10px;
+            border-radius: 10px;
+        }
+
         #upload-form button {
             width: 90%; /* Match other buttons */
             max-width: 500px; /* Optional: Limit the maximum width */
@@ -98,9 +111,11 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
-    <h1>Voice Mood Journal</h1>
+    <h1>Voice Journal</h1>
     
-    <h2>Mood Trends</h2>
+    <div id="greeting">Hi <span id="username">{}</span></div>
+    
+    <h2>Mood Tracker</h2>
     <div class="chart-container">
         <canvas id="moodChart" width="400" height="200"></canvas>
     </div>

@@ -6,7 +6,8 @@ and stores the results in a MongoDB database.
 import os
 import logging
 from datetime import datetime
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, session, flash, redirect, url_for, render_template
+from flask_session import Session
 from pymongo import MongoClient
 from pymongo.errors import PyMongoError
 from dotenv import load_dotenv
@@ -15,6 +16,9 @@ from utils import transcribe_audio, analyze_sentiment, store_data
 load_dotenv()
 
 app = Flask(__name__)
+app.secret_key = "supersecretkey"  # Required for session encryption
+app.config["SESSION_TYPE"] = "filesystem"  # Use filesystem-based session storage
+Session(app)
 
 # Set up logging
 logging.basicConfig(
@@ -27,8 +31,52 @@ logger = logging.getLogger(__name__)
 UPLOAD_FOLDER = "./processed_uploads"
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 
+from functools import wraps
+
+def login_required(f):
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        if "user_id" not in session:
+            flash("Please log in to access this page.", "error")
+            return redirect(url_for("login"))
+        return f(*args, **kwargs)
+    return decorated_function
+
+
+@app.route("/logout")
+def logout():
+    """
+    Handle user logout.
+    """
+    session.clear()
+    flash("Logged out successfully.", "success")
+    return redirect(url_for("login"))
+
+
+@app.route("/register", methods=["GET", "POST"])
+def register():
+    """
+    Handle user registration.
+    """
+    if request.method == "POST":
+        username = request.form["username"]
+        password = request.form["password"]
+
+        # Check if username is already taken
+        if users_collection.find_one({"username": username}):
+            flash("Username already exists. Please choose another one.", "error")
+            return redirect(url_for("register"))
+
+        # Insert new user into the database
+        new_user = {"username": username, "password": password}
+        users_collection.insert_one(new_user)
+        flash("Registration successful! Please log in.", "success")
+        return redirect(url_for("login"))
+
+    return render_template("register.html")
 
 @app.route("/process-audio", methods=["POST"])
+@login_required
 def process_audio():
     """
     Endpoint to process an uploaded audio file and store results in MongoDB.
@@ -38,6 +86,9 @@ def process_audio():
     """
     if "audio" not in request.files:
         return jsonify({"error": "No audio file provided"}), 400
+
+    if "user_id" not in session:
+        return jsonify({"error": "Unauthorized. Please log in."}), 401
 
     audio_file = request.files["audio"]
     file_path = os.path.join(UPLOAD_FOLDER, audio_file.filename)
@@ -52,6 +103,7 @@ def process_audio():
         client = MongoClient(mongo_uri)
         db = client["voice_mood_journal"]
         collection = db["entries"]
+        users_collection = db["users"]
 
         # Perform transcription
         text = transcribe_audio(file_path)
@@ -63,6 +115,7 @@ def process_audio():
 
         # Prepare data for MongoDB
         data = {
+            "user_id": session["user_id"],
             "file_name": audio_file.filename,
             "transcript": text,
             "sentiment": sentiment,
@@ -71,7 +124,6 @@ def process_audio():
 
         # Store the data in MongoDB
         store_data(collection, data)
-        collection.nsert_one(data)
         logger.info("Successfully processed and stored data for %s", file_path)
 
         return jsonify({"status": "success", "data": data}), 200
