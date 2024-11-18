@@ -30,21 +30,16 @@ python3 --version
     ```bash
     cd 4-containers-java-and-the-scripts-1
     ```
-
-3. **Build the docker containers**
+    
+3. **Start and build the docker containers**
     ```bash
-    docker-compose build
+    docker compose up --force-recreate --build
     ```
-
-4. **Start the docker containers**
-    ```bash
-    docker-compose up
-    ```
-
-5. **Access the application**
+    
+4. **Access the application**
     The application can be used locally at http://localhost:5002.
 
-6. **Shut down the Docker containers**
+5. **Shut down the Docker containers**
     ```bash
     docker-compose down
     ```
