@@ -13,14 +13,12 @@ import certifi
 
 def create_app():
     """Creates and configures the Flask application."""
-    load_dotenv()  # Load environment variables from .env file
+    load_dotenv()
 
-    # Fetch the secret key from the environment or generate a default one (not recommended for production)
     secret_key = os.getenv("SECRET_KEY")
     if not secret_key:
         raise ValueError("SECRET_KEY not found. Add it to your .env file.")
 
-    # MongoDB connection setup
     mongo_uri = os.getenv("MONGO_DB_URI")
     if mongo_uri is None:
         raise ValueError("Could not connect to database. Ensure .env is properly configured.")
@@ -36,9 +34,8 @@ def create_app():
     db = mongo_cli["hellokittyai_db"]
     users = db["users"]
 
-    # Flask app configuration
     app = Flask(__name__)
-    app.secret_key = secret_key  # Set the app's secret key
+    app.secret_key = secret_key 
 
     @app.route("/", methods=["GET", "POST"])
     def login():
@@ -51,14 +48,14 @@ def create_app():
             if not email:
                 return "Email address is required", 400
 
-            session["email"] = email  # Save user email in the session
+            session["email"] = email  
             user = users.find_one({"email": email})
             if not user:
                 user_id = str(ObjectId())
                 users.insert_one({"user_id": user_id, "email": email, "chat_history": []})
                 print(f"New user created: {email}")
 
-            session["code"] = sendCode(email)  # Save the code in the session
+            session["code"] = sendCode(email) 
             return render_template("auth.html", address=email)
 
         return render_template("index.html")
@@ -79,7 +76,7 @@ def create_app():
 
         print(f"Email: {email}, Link: {link}, Code: {code}")
         token = authUser(link, email)
-        session["client"] = token  # Store the token in the session
+        session["client"] = token
 
         return redirect(url_for("home"))
 
@@ -99,3 +96,5 @@ def create_app():
 if __name__ == "__main__":
     web_app = create_app()
     web_app.run(port=8000)
+
+
