@@ -86,9 +86,6 @@ def process_audio():
         logger.info("Successfully processed and stored data for %s", file_path)
 
         return jsonify({"status": "success", "data": data}), 200
-    except IOError as io_error:
-        logger.error("File handling error: %s", io_error)
-        return jsonify({"error": "File handling failed", "details": str(io_error)}), 500
 
     except PyMongoError as mongo_error:
         logger.error("Database error: %s", mongo_error)
