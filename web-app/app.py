@@ -35,7 +35,7 @@ def create_app():
     users = db["users"]
 
     app = Flask(__name__)
-    app.secret_key = secret_key 
+    app.secret_key = secret_key
 
     @app.route("/", methods=["GET", "POST"])
     def login():
@@ -48,14 +48,14 @@ def create_app():
             if not email:
                 return "Email address is required", 400
 
-            session["email"] = email  
+            session["email"] = email
             user = users.find_one({"email": email})
             if not user:
                 user_id = str(ObjectId())
                 users.insert_one({"user_id": user_id, "email": email, "chat_history": []})
                 print(f"New user created: {email}")
 
-            session["code"] = sendCode(email) 
+            session["code"] = sendCode(email)
             return render_template("auth.html", address=email)
 
         return render_template("index.html")
@@ -96,5 +96,3 @@ def create_app():
 if __name__ == "__main__":
     web_app = create_app()
     web_app.run(port=8000)
-
-
