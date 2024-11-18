@@ -200,7 +200,12 @@
             const formData = new FormData(uploadForm);
             fetch('/upload', { method: 'POST', body: formData })
                 .then(response => response.json())
-                .then(data => alert("File uploaded successfully!"))
+                .then(data => {
+                    alert("File uploaded successfully!");
+                    uploadForm.reset(); // Clear the form
+                    audioChunks = []; // Reset audio chunks
+                    player.src = ""; // Clear the audio player source
+                })
                 .catch(error => console.error("Error uploading file:", error));
         });
     </script>
