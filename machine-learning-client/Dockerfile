@@ -1,12 +1,26 @@
-FROM python:3.9
+# Use Python base image
+FROM python:3.9-slim
 
-WORKDIR /app
+# Set the working directory
+WORKDIR /main
 
-COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
+# Install system dependencies including FLAC
+RUN apt-get update && \
+    apt-get install -y gcc libsndfile1 flac && \
+    rm -rf /var/lib/apt/lists/*
 
+# Copy the application code
 COPY . .
 
-ENV AUDIO_DIR=/app/audio
+# Install dependencies
+RUN pip3 install --no-cache-dir -r requirements.txt
 
-CMD ["python", "src/main.py"]
+# Set the Python path to include the `src` directory
+ENV PYTHONPATH=/main/src
+
+# Expose port 5001 for the Flask app
+EXPOSE 5001
+
+# Start the app
+CMD ["gunicorn", "--bind", "0.0.0.0:5001", "--workers", "4", "src.main:app"]
+

@@ -9,15 +9,19 @@ services:
     environment:
       MONGO_INITDB_ROOT_USERNAME: root
       MONGO_INITDB_ROOT_PASSWORD: secret
+    volumes:
+      - mongodb_data:/data/db  # Persist MongoDB data
 
   machine-learning-client:
     build:
       context: ./machine-learning-client
     environment:
-      - MONGO_URI=mongodb://root:voice_mood@mongodb:27017
+      - MONGO_URI=mongodb://root:secret@mongodb:27017
       - AUDIO_DIR=/app/audio
     volumes:
       - ./audio:/app/audio
+    ports:
+      - "5001:5001"
     depends_on:
       - mongodb
 
@@ -25,13 +29,13 @@ services:
     build:
       context: ./web-app
     environment:
-      - MONGO_URI=mongodb://root:voice_mood@mongodb:27017
+      - MONGO_URI=mongodb://root:secret@mongodb:27017
       - ML_CLIENT_URL=http://machine-learning-client:5001/process-audio
     ports:
-      - "5000:5000"
+      - "5002:5000"
     depends_on:
       - mongodb
       - machine-learning-client
-    links:
-      - mongodb
-      - machine-learning-client
+
+volumes:
+  mongodb_data:  # Define the named volume for MongoDB 
