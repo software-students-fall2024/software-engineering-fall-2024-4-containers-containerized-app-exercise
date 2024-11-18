@@ -75,5 +75,6 @@ def get_video_frame():
     # For now, this returns an empty byte string. Replace with real image capture.
     return b""
 
+
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000, debug=True)
