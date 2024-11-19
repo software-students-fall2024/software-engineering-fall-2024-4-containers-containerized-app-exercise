@@ -20,7 +20,6 @@ from bson.objectid import ObjectId
 from dotenv import load_dotenv
 
 
-
 load_dotenv()
 
 
@@ -155,7 +154,6 @@ def create_app():
         thread = Thread(target=background_task, daemon=True)
         thread.start()
         return jsonify({"status": "started"}), 200
-
 
     @app.route("/stop", methods=["POST"])
     def stop_function():
