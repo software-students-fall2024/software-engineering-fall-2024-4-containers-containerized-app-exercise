@@ -22,8 +22,8 @@ To set up this project locally, follow these steps:
 
 1. **Clone the repository** (or download the files):
     ```bash
-    git clone <your-repository-url>
-    cd flower-classification
+    git clone https://github.com/software-students-fall2024/4-containers-fantastic-four.git
+    cd machine-learning-client
     ```
 
 2. **Create a virtual environment** (optional but recommended):
