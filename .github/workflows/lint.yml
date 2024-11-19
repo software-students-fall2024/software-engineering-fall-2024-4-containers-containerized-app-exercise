@@ -18,8 +18,8 @@ jobs:
         if: ${{ hashFiles(format('{0}/**/*.py', matrix.subdir)) != '' }}
         run: |
           cd ${{ matrix.subdir }}
-          python -m pip install --upgrade pip
-          python -m pip install pipenv
+          python3 -m pip install --upgrade pip
+          python3 -m pip install pipenv
           pipenv sync --dev --python $(which python)
           pipenv shell --fancy --python $(which python)
           pipenv install --dev
@@ -28,6 +28,8 @@ jobs:
         # you may set pylint to ignore any files or dependencies that make no sense to lint
         run: |
           cd ${{ matrix.subdir }}
+          echo "Python virtualenv path: $(pipenv --venv)/lib/python3.10/site-packages"
+          export PYTHONPATH=$(pipenv --venv)/lib/python3.10/site-packages
           pipenv run pylint **/*.py
       - name: Format with black
         if: ${{ hashFiles(format('{0}/**/*.py', matrix.subdir)) != '' }}
