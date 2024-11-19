@@ -94,7 +94,7 @@
                 <td id="rock-usage">{{stats_data['Rock']['total']}}</td>
                 <td id="rock-win-rate">{{
                     stats_data['Rock']['wins']/stats_data['Rock']['total'] * 100
-                    if stats_data['Rock']['total'] != 0 else 0
+                    if stats_data['Rock']['total'] != 0 else 0.0
                 }}%</td>
             </tr>
             <tr>
@@ -102,7 +102,7 @@
                 <td id="paper-usage">{{stats_data['Paper']['total']}}</td>
                 <td id="paper-win-rate">{{
                     stats_data['Paper']['wins']/stats_data['Paper']['total'] * 100
-                    if stats_data['Paper']['total'] != 0  else 0
+                    if stats_data['Paper']['total'] != 0  else 0.0
                 }}%</td>
             </tr>
             <tr>
@@ -110,7 +110,7 @@
                 <td id="scissors-usage">{{stats_data['Scissors']['total']}}</td>
                 <td id="scissors-win-rate">{{
                     stats_data['Scissors']['wins']/stats_data['Scissors']['total'] * 100
-                    if stats_data['Scissors']['total'] != 0 else 0
+                    if stats_data['Scissors']['total'] != 0 else 0.0
                 }}%</td>
             </tr>
         </table>
