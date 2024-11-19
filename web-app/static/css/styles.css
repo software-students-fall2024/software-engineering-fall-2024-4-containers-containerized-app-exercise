@@ -24,6 +24,8 @@ h1 {
     top: 30%;
     right: 70%;
     transition: filter 0.3s ease, color 0.3s ease;
+    animation: float 10s ease-in-out infinite;
+    animation-delay: -6s;
 }
 
 .subtitle {
@@ -36,14 +38,14 @@ h1 {
 }
 
 .highlight {
-    font-size: 7rem;
+    font-size: 5rem;
     color: transparent;
     text-shadow: 
         2px 2px 1px #ffffff, 
         2px -1px 1px #ffffff, 
         -1px 1px 1px #ffffff, 
         -1px -1px 1px #ffffff;
-    filter: blur(4px);
+    filter: blur(3px);
     transition: filter 0.7s ease, color 0.7s ease;
 }
 
@@ -88,8 +90,11 @@ h1 {
     0% {
         transform: translate(0, 0);
     }
+    25% {
+        transform: translate(10px, 10px);
+    }
     50% {
-        transform: translate(20px, 20px);
+        transform: translate(-10px, 10px);
     }
     100% {
         transform: translate(0, 0);
@@ -97,20 +102,19 @@ h1 {
 }
 
 section {
-    margin-top: 20px;
+    margin-top: 5px;
     padding: 20px;
     background-color: #fff;
-    border-radius: 8px;
     text-align: center;
-    width: 80%;
-    max-width: 600px;
+    width: 42vw;
+    height: auto;
 }
 
 video {
-    width: 100%;
+    width: 40vw;
     height: auto;
     border-radius: 8px;
-    margin-top: 10px;
+    margin-top: 10vh;
 }
 
 #video_section {
