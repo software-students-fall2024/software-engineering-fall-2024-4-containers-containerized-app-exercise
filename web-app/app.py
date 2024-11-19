@@ -4,8 +4,10 @@ Handles user authentication, connection to MongoDB, and basic routes.
 """
 
 import os
-from flask import Flask, render_template, request, redirect, url_for, session
+from flask import Flask, render_template, request, redirect, url_for, session, jsonify
 from dotenv import load_dotenv
+
+# pylint: disable=import-error
 from characterai import pycai, sendCode, authUser
 import pymongo
 from bson import ObjectId
@@ -81,20 +83,49 @@ def create_app():
 
         print(f"Email: {email}, Link: {link}, Code: {code}")
         token = authUser(link, email)
-        session["client"] = token
+        session["token"] = token
 
         return redirect(url_for("home"))
 
     @app.route("/home", methods=["GET"])
     def home():
         """Displays the user's home page with their information."""
-        token = session.get("client")
+        token = session.get("token")
         if not token:
             return "Client is not authenticated. Please log in.", 403
+        return render_template("home.html", address=session.get("email"))
+
+    @app.route("/chat", methods=["GET", "POST"])
+    def chat_with_character():
+        """Handles chatting with a specific character."""
+        character_id = "7xhfgdiu2oj2NIRnQQRx42Q2cwr0sFIRu7xZeRZYWn0"
+
+        if request.method == "GET":
+            return render_template("chat.html")
+
+        token = session.get("token")
+        if not token:
+            return (
+                jsonify({"error": "Client is not authenticated. Please log in."}),
+                403,
+            )
 
         client = pycai.Client(token)
-        cli = client.get_me()
-        return render_template("home.html", address=session.get("email"), info=cli)
+        me = client.get_me()
+
+        with client.connect() as chat:
+            new, answer = chat.new_chat(character_id, me.id)
+
+            user_message = request.get_json().get("message")
+            response = chat.send_message(character_id, new.chat_id, user_message)
+
+        return jsonify(
+            {
+                "character_name": response.name,
+                "character_message": response.text,
+                "answer": str(answer),
+            }
+        )
 
     return app
 

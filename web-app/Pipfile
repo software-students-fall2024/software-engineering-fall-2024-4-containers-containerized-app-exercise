@@ -8,10 +8,12 @@ pylint = "*"
 black = "*"
 flask = "*"
 pytest-flask = "*"
-characterai = "*"
 certifi = "*"
 python-dotenv = "*"
 pymongo = "*"
+asyncio = "*"
+websockets = "*"
+aiohttp = "*"
 
 [dev-packages]
 pylint = "*"

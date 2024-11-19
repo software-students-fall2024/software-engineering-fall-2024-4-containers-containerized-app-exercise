@@ -1,7 +1,13 @@
-/* Full-page styles */
+@font-face {
+    font-family: "hellokitty";
+    src: url("../fonts/hellokitty.ttf") format("truetype");
+    font-weight: normal;
+    font-style: normal;
+  }
+
 html, body {
-    height: 100%; 
-    margin: 0; 
+    height: 100%;
+    margin: 0;
     padding: 0;
     font-family: 'Poppins', sans-serif;
     background: linear-gradient(to bottom, #fef7ff, #fdcede, #9387be);
@@ -9,7 +15,9 @@ html, body {
     display: flex;
     justify-content: center; 
     align-items: center;
+    overflow: hidden; 
 }
+
 
 .content {
     margin: auto;
@@ -62,6 +70,17 @@ h1 {
     color: white;
 }
 
+.title {
+    font-family: "hellokitty";
+    font-size: 60px;
+    background: linear-gradient(to bottom, #fdcede, #ff99c8, #9387be); /* Gradient colors */
+    background-clip: text;
+    -webkit-background-clip: text; /* Clips the background to the text */
+    -webkit-text-fill-color: transparent; /* Makes the text color transparent */
+    -webkit-text-stroke: 1px white; /* White outline */
+}
+
+
 form {
     display: flex;
     flex-direction: column;
@@ -96,7 +115,7 @@ input::placeholder {
 }
 
 .login:hover {
-    background-color: #fffdec;
+    background-color: white;
     color: #fcaecf;
 }
 

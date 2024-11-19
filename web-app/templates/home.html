@@ -5,10 +5,9 @@
     <title>Home</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}"/>
   </head>
-  <body>
-    <div class="container">
-        <p>hai {{ address }} :3</p>
-        <p>this ur info: {{ info }}</p>
+  <body class="home">
+    <div class="dashboard">
+        <img src="{{ url_for('static', filename='hkai-logo.png') }}" class="logo"/>
     </div>
   </body>
 </html>
