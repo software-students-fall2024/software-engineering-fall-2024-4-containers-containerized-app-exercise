@@ -27,6 +27,7 @@ jobs:
         # you may set pylint to ignore any files or dependencies that make no sense to lint
         run: |
           cd ${{ matrix.subdir }}
+          export PYTHONPATH=$(pipenv --venv)/lib/python3.10/site-packages
           pipenv run pylint **/*.py
       - name: Format with black
         if: ${{ hashFiles(format('{0}/**/*.py', matrix.subdir)) != '' }}
