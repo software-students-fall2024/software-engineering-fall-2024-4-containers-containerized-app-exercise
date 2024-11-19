@@ -1,27 +1,22 @@
 import os
 import cv2
+import threading
+import time
 from flask import Flask, render_template, jsonify, Response
-from pymongo.mongo_client import MongoClient
-from pymongo.server_api import ServerApi
+from pymongo import MongoClient
 from bson.binary import Binary
+from dotenv import load_dotenv
 import atexit
 import datetime
 
-# Flask app setup
-app = Flask(__name__)
+# Load environment variables
+load_dotenv()
 
-# MongoDB Atlas connection
-uri = "mongodb+srv://raa9917:Rr12112002@cluster0.p902n.mongodb.net/?retryWrites=true&w=majority"
-try:
-    client = MongoClient(uri, server_api=ServerApi('1'))
-    client.admin.command('ping')  # Test the connection
-    db = client["object_detection"]
-    collection = db["detected_objects"]
-    print("Connected to MongoDB successfully!")
-except Exception as e:
-    print(f"MongoDB connection failed: {e}")
-    db = None
-    collection = None
+app = Flask(__name__)
+mongo_uri = os.getenv("MONGO_URI", "mongodb+srv://raa9917:Rr12112002@cluster0.p902n.mongodb.net/?retryWrites=true&w=majority")
+client = MongoClient(mongo_uri)
+db = client["object_detection"]
+collection = db["detected_objects"]
 
 # Initialize camera
 camera = cv2.VideoCapture(0)
@@ -30,16 +25,26 @@ atexit.register(lambda: camera.release())
 
 @app.route("/")
 def index():
-    """Home page."""
+    """Index returns index home page HTML."""
     return render_template("index.html")
+
+
+@app.route("/data")
+def get_data():
+    """Fetch data from MongoDB."""
+    data = list(collection.find({}, {"_id": 0}))  # Exclude MongoDB IDs
+    return jsonify(data)
+
+
+@app.route("/dashboard")
+def dashboard():
+    """Dashboard page."""
+    return render_template("dashboard.html")
 
 
 @app.route("/capture_frame", methods=["POST"])
 def capture_frame():
     """Capture a frame and save it to MongoDB."""
-    if collection is None:
-        return jsonify({"error": "Database not connected"}), 500
-
     success, frame = camera.read()
     if not success:
         return jsonify({"error": "Failed to capture frame"}), 500
@@ -62,19 +67,12 @@ def capture_frame():
 @app.route("/latest_detection", methods=["GET"])
 def latest_detection():
     """Fetch the latest detection results from MongoDB."""
-    if collection is None:
-        return jsonify({"error": "Database not connected"}), 500
+    detection = collection.find_one({"status": "processed"}, sort=[("timestamp", -1)])
+    if not detection:
+        return jsonify({"message": "No processed detections available"}), 404
 
-    try:
-        detection = collection.find_one({"status": "processed"}, sort=[("timestamp", -1)])
-        if not detection:
-            return jsonify({"message": "No processed detections available"}), 404
-
-        detections = detection.get("detections", [])
-        return jsonify({"timestamp": detection["timestamp"], "labels": detections})
-    except Exception as e:
-        print(f"Error fetching detection: {e}")
-        return jsonify({"error": "An error occurred while fetching detection data."}), 500
+    detections = detection.get("detections", [])
+    return jsonify({"timestamp": detection["timestamp"], "labels": detections})
 
 
 @app.route("/video_feed")
@@ -99,6 +97,21 @@ def generate_frames():
                 b"Content-Type: image/jpeg\r\n\r\n" + frame + b"\r\n"
             )
 
+
+def capture_frames_periodically():
+    """Background thread to capture frames every 5 seconds."""
+    while True:
+        time.sleep(5)
+        try:
+            with app.test_client() as client:
+                client.post("/capture_frame")
+                print("Frame captured and sent to MongoDB.")
+        except Exception as e:
+            print(f"Error capturing frame: {e}")
+
+
+# Start the background thread when the app starts
+threading.Thread(target=capture_frames_periodically, daemon=True).start()
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000)
