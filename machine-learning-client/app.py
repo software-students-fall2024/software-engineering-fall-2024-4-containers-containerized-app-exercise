@@ -42,7 +42,8 @@ def base64ToNumpy(base64Img):
     image = Image.open(io.BytesIO(image_data))
     return cv2.cvtColor(np.array(image), cv2.COLOR_BGR2RGB)
     # return image
-    
+
+
 def numpyTobase64(image):
     buffer = io.BytesIO()
     image.save(buffer, format="PNG")
@@ -193,7 +194,6 @@ def process_image(inputImage):
     # Encode the byte stream to Base64
     image_base64 = numpyTobase64(image)
 
-
     # finalImage = ImageTk.PhotoImage(image)
     # label1.configure(image=finalImage)
     # label1.image = finalImage
@@ -235,7 +235,7 @@ def process_image_route():
             {"_id": ObjectId(image_id)},
             {"$set": {"output": output, "translation": label}},
         )
-        
+
         return jsonify({"output": output, "translation": label}), 200
     return jsonify({"error": "Invalid request, image_id is required"}), 400
 
