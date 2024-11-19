@@ -25,9 +25,7 @@ face_cascade = cv2.CascadeClassifier(
 
 def detect_face(frame):
     """Detect faces in the given frame."""
-    gray = cv2.cvtColor(
-        frame, cv2.COLOR_BGR2GRAY
-    )  # pylint: disable=no-member
+    gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)  # pylint: disable=no-member
     faces = face_cascade.detectMultiScale(
         gray, scaleFactor=1.1, minNeighbors=5, minSize=(30, 30)
     )  # pylint: disable=no-member
