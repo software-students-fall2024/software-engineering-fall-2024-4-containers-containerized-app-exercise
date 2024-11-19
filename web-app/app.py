@@ -15,8 +15,8 @@ from flask import (
     url_for,
 )
 import pymongo
-
-# from werkzeug.utils import secure_filename
+from flask_cors import CORS
+from werkzeug.utils import secure_filename
 
 load_dotenv()
 
@@ -72,14 +72,34 @@ def create_app():
         if request.method == "POST":
             plant_photo = request.form["photo"]
             plant_name = "placeholder"
-            plant_data = {
-                "photo": plant_photo,
-                "name": plant_name,
-                "user": session["username"],
-            }
-            new_entry = db.plants.insert_one(plant_data)
-            new_entry_id = new_entry.inserted_id
-            return redirect(url_for("new_entry", new_entry_id=new_entry_id))
+            # Save the uploaded image
+            photo = request.files['photo']
+            filename = secure_filename(photo.filename)
+            filepath = os.path.join('uploads', filename)
+            photo.save(filepath)
+            
+            # Send the image to the ML client
+            ml_client_url = 'http://ml-client:3001/predict'
+            files = {'image': open(filepath, 'rb')}
+            try:
+                response = request.post(ml_client_url, files=files)
+                response.raise_for_status()
+                result = response.json()
+                plant_name = result.get('plant_name', 'Unknown')
+            except request.exceptions.RequestException as e:
+                print(f"Error communicating with ML client: {e}")
+                plant_name = 'Error'
+            return redirect(url_for("results"))
+                        
+            # plant_data = {
+            #     "photo": plant_photo,
+            #     "name": plant_name,
+            #     "user": session["username"],
+            # }
+            # new_entry = db.plants.insert_one(plant_data)
+            # new_entry_id = new_entry.inserted_id
+            # return redirect(url_for("new_entry", new_entry_id=new_entry_id))
+            
         return render_template("upload.html")
 
     @app.route("/new_entry", methods=["GET", "POST"])
@@ -101,20 +121,28 @@ def create_app():
 
     @app.route("/results/<filename>")
     def results(filename):
-        result = db.identifications.find_one({"filename": filename})
+        """
+        Fetch and display prediction results from MongoDB.
+        """
+        # Query MongoDB for the result associated with the given filename
+        result = db.predictions.find_one({"photo": filename})
         if result:
             return render_template("results.html", result=result)
         return make_response("Result not found", 404)
 
     @app.route("/history")
     def history():
-        all_results = list(db.plants.find({"user": session["username"]}))
-        return render_template("history.html", all_results=all_results)
+        """
+        Display all prediction results from the database.
+        """
+        all_results = list(db.predictions.find())
+        return render_template("history.html", results=all_results)
 
     return app
 
 
 if __name__ == "__main__":
-    FLASK_PORT = os.getenv("FLASK_PORT", "3000")
-    application = create_app()
-    application.run(port=FLASK_PORT)
+    FLASK_PORT = os.getenv("FLASK_PORT", "5000")
+    app = create_app()
+    CORS(app)
+    app.run(port=FLASK_PORT)

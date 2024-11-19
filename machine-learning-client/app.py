@@ -3,12 +3,28 @@ This module performs flower classification using a pre-trained ResNet50 model.
 It includes functions to load the flower class names, initialize the model, 
 transform images, and predict the flower name based on an input image.
 """
-
+import os
 import json
 import torch
 from torchvision import transforms
 from PIL import Image
 import torchvision
+from flask import Flask, jsonify, request
+from pymongo import MongoClient
+from flask_cors import CORS
+
+# Initialize MongoDB connection
+MONGO_URI = os.getenv("MONGO_URI", "mongodb://localhost:27017/")
+MONGO_DBNAME = os.getenv("MONGO_DBNAME", "plant_identifier")
+client = MongoClient(MONGO_URI)
+db = client[MONGO_DBNAME]
+
+
+def create_app():
+    app = Flask(__name__)
+    return app
+
+app = create_app()
 
 
 def load_flower_names():
@@ -107,18 +123,52 @@ def predict_plant(image_path, model, flower_names):
     return plant_name
 
 
-def main(image_path):
-    """
-    Main function to load the model, predict the plant from an image, and print the result.
+# def main(image_path):
+#     """
+#     Main function to load the model, predict the plant from an image, and print the result.
 
-    Args:
-        image_path (str): Path to the input image.
-    """
-    flower_names = load_flower_names()  # Load flower name mapping
-    model = load_model()  # Load the pre-trained model
-    plant_name = predict_plant(image_path, model, flower_names)
-    print(f"Predicted plant: {plant_name}")
+#     Args:
+#         image_path (str): Path to the input image.
+#     """
+#     flower_names = load_flower_names()  # Load flower name mapping
+#     model = load_model()  # Load the pre-trained model
+#     plant_name = predict_plant(image_path, model, flower_names)
+#     print(f"Predicted plant: {plant_name}")
 
 
 # Example usage
-main("data/flowers-102/jpg/image_00001.jpg")
+# main("data/flowers-102/jpg/image_00001.jpg")
+
+
+# Load the model and flower names once when the app starts
+flower_names = load_flower_names()
+model = load_model()
+
+@app.route('/predict', methods=['POST'])
+def predict():
+    """
+    Endpoint to predict the plant name from an uploaded image.
+    Expects an image file in the 'image' form field.
+    """
+    if 'image' not in request.files:
+        return jsonify({'error': 'No image uploaded'}), 400
+    image_file = request.files['image']
+    # Save the image to a temporary file
+    image_path = '/tmp/' + image_file.filename
+    image_file.save(image_path)
+    # Predict the plant name
+    plant_name = predict_plant(image_path, model, flower_names)
+    # Store metadata and result in the database
+    result = {
+        "photo": image_file.filename,
+        "plant_name": plant_name,
+    }
+    db.predictions.insert_one(result)
+    # Remove the temporary file if necessary
+    os.remove(image_path)
+    return jsonify({'plant_name': plant_name}), 200
+
+if __name__ == "__main__":
+    FLASK_PORT = os.getenv("FLASK_PORT", "3001")
+    CORS(app)
+    app.run(host='0.0.0.0', port=FLASK_PORT)

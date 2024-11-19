@@ -13,3 +13,4 @@ pylint
 black
 numpy
 dill
+flask_cors
