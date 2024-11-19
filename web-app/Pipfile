@@ -9,6 +9,7 @@ black = "*"
 pymongo = "*"
 pytest = "*"
 mongomock = "*"
+tomli = "*"
 
 [dev-packages]
 python-dotenv = "*"
@@ -19,4 +20,4 @@ pytest = "*"
 mongomock = "*"
 
 [requires]
-python_version = "3.12"
+python_version = "3.9"
