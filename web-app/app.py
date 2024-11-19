@@ -112,7 +112,7 @@ def create_app():
         me = client.get_me()
 
         with client.connect() as chat:
-            new= chat.new_chat(character_id, me.id)
+            new, answer = chat.new_chat(character_id, me.id)
 
             user_message = request.get_json().get("message")
             response = chat.send_message(character_id, new.chat_id, user_message)
@@ -121,6 +121,7 @@ def create_app():
             {
                 "character_name": response.name,
                 "character_message": response.text,
+                "answer": str(answer),
             }
         )
 
