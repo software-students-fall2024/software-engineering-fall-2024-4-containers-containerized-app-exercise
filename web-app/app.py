@@ -6,6 +6,7 @@ Handles user authentication, connection to MongoDB, and basic routes.
 import os
 from flask import Flask, render_template, request, redirect, url_for, session, jsonify
 from dotenv import load_dotenv
+# pylint: disable=import-error
 from characterai import pycai, sendCode, authUser
 import pymongo
 from bson import ObjectId
