@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - ItsOver</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <link rel="icon" type="image/x-icon" href="{{ url_for('static', filename='favicon.png') }}">
+  </head>
+  <body>
+    <div class="container center">
+      <!-- Logo Section -->
+      <div class="logo">
+        <img src="{{ url_for('static', filename='itsOverlogo.png') }}" alt="ItsOver Logo">
+      </div>
+
+      <!-- Login Form -->
+      <form method="POST" action="{{ url_for('login') }}" class="login-form">
+        <h1 class="form-title">Welcome Back</h1>
+
+        <!-- Username Field -->
+        <div class="form-group">
+          <label for="username">Username</label>
+          <input type="text" id="username" name="username" required placeholder="Enter your username">
+        </div>
+
+        <!-- Password Field -->
+        <div class="form-group">
+          <label for="password">Password</label>
+          <input type="password" id="password" name="password" required placeholder="Enter your password">
+        </div>
+
+        <!-- Submit Button -->
+        <button type="submit" class="btn-submit">Login</button>
+
+        <!-- Flash Messages -->
+        {% with messages = get_flashed_messages() %}
+          {% if messages %}
+            <div class="flash-messages">
+              <ul>
+                {% for message in messages %}
+                  <li>{{ message }}</li>
+                {% endfor %}
+              </ul>
+            </div>
+          {% endif %}
+        {% endwith %}
+      </form>
+
+      <!-- Sign Up Options -->
+      <div id="options" class="signup-link">
+        <p>Don't have an account? <a href="{{ url_for('signup') }}"> Sign up here</a></p>
+      </div>
+    </div>
+  </body>
+</html>
