@@ -4,7 +4,9 @@ that provides user authentication and session management with MongoDB.
 """
 
 import os
-from flask import Flask, render_template, request, redirect, url_for, flash
+import time
+from threading import Thread, Event
+from flask import Flask, render_template, request, redirect, url_for, flash, jsonify
 from flask_login import (
     LoginManager,
     UserMixin,
@@ -17,7 +19,22 @@ import certifi
 from bson.objectid import ObjectId
 from dotenv import load_dotenv
 
+
+
 load_dotenv()
+
+
+# Define an event to signal the function to stop
+stop_event = Event()
+
+
+def background_task():
+    """
+    A simple background task that runs in a loop until the stop event is set.
+    """
+    while not stop_event.is_set():
+        print("Running background task...")
+        time.sleep(1)  # Simulate work
 
 
 def create_app():
@@ -117,6 +134,36 @@ def create_app():
         return render_template(
             "home_page.html", past=past_sessions, username=current_user.id
         )
+
+    @app.route("/start-session")
+    def session_form():
+        """
+        Route for the home page.
+        Returns:
+            rendered template (str): The rendered HTML template.
+        """
+        return render_template("focus.html")
+
+    @app.route("/start", methods=["POST"])
+    def start_function():
+        """
+        Start the background function.
+        """
+        if stop_event.is_set():  # Reset the stop event if previously set
+            stop_event.clear()
+
+        thread = Thread(target=background_task, daemon=True)
+        thread.start()
+        return jsonify({"status": "started"}), 200
+
+
+    @app.route("/stop", methods=["POST"])
+    def stop_function():
+        """
+        Stop the background function.
+        """
+        stop_event.set()
+        return jsonify({"status": "stopped"}), 200
 
     return app
 
