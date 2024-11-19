@@ -34,9 +34,3 @@ jobs:
         run: |
           cd ${{ matrix.subdir }}
           pipenv run black --diff --check .
-
-      - name: Remove macOS-specific dependencies
-        if: runner.os == 'Linux'
-        run: |
-          cd ${{ matrix.subdir }}
-          pipenv run pip uninstall -y pyobjc-core pyobjc
