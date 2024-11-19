@@ -1,27 +1,26 @@
-const startButton = document.getElementById('start_recording');
-const stopButton = document.getElementById('stop_recording');
+const cameraBtn = document.getElementById('camera-btn');
+const captureBtn = document.getElementById('capture-btn');
 const video = document.getElementById('camera-feed');
 const canvas = document.getElementById('snapshot');
 const ctx = canvas.getContext('2d');
 
 let stream;
 async function startCamera() {
-    try {
-        stream = await navigator.mediaDevices.getUserMedia({ video: true });
-        video.srcObject = stream;
-    } catch (err) {
-        console.error("Error accessing camera:", err);
-    }
+try {
+    stream = await navigator.mediaDevices.getUserMedia({ video: true });
+    video.srcObject = stream;
+} catch (err) {
+    console.error("Error accessing camera:", err);
+}
 }
 
-startCamera();
-
-startButton.addEventListener('click', () => {
-    startButton.disabled = true;
-    stopButton.disabled = false;
+cameraBtn.addEventListener('click', () => {
+    startCamera();
+    cameraBtn.style.display = "none";
+    captureBtn.style.display = "block";
     video.style.display = "block";
     canvas.style.display = "none";
-    // Clear result section
+    //clear result section
     const element = document.getElementById('result_section');
     while (element.firstChild) {
         element.removeChild(element.firstChild);
@@ -29,14 +28,14 @@ startButton.addEventListener('click', () => {
     console.log("Recording started.");
 });
 
-stopButton.addEventListener('click', () => {
-    startButton.disabled = false;
-    stopButton.disabled = true;
+captureBtn.addEventListener('click', () => {
+    cameraBtn.disabled = false;
+    captureBtn.disabled = true;
 
     canvas.width = video.videoWidth;
     canvas.height = video.videoHeight;
     ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-
+    
     const imageData = canvas.toDataURL('image/png');
     video.style.display = "none";
     canvas.style.display = "block";
@@ -45,18 +44,24 @@ stopButton.addEventListener('click', () => {
         headers: {
             'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ "image": imageData }),
+        body: JSON.stringify({"image": imageData}),
     })
         .then((response) => response.json())
         .then((data) => {
+            //console.log("Snapshot saved: ", data);
+
+            // Create a new section element to append the image and text
             const section = document.getElementById('result_section');
+
+            // Create and append the image element
             const img = document.createElement('img');
-            img.src = 'data:image/png;base64,' + data.output;
-            img.alt = 'Processed Image';
+            img.src = 'data:image/png;base64,'+data.output; // Assuming the image URL is provided in the response data
+            img.alt = 'Processed Image'; // Add alt text for the image
             section.appendChild(img);
 
+            // Create and append the paragraph element with translation or any other data
             const p = document.createElement('p');
-            p.textContent = data.translation;
+            p.textContent = data.translation; // Assuming the translation is part of the response data
             section.appendChild(p);
         })
         .catch((err) => {
