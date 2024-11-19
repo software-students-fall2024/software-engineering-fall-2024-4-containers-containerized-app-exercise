@@ -6,8 +6,10 @@ name = "pypi"
 [packages]
 pylint = "*"
 black = "*"
+pytest = "*"
 
 [dev-packages]
+
 
 [requires]
 python_version = "3.10"
