@@ -46,6 +46,7 @@ def create_app():
         """
         Represents a logged-in user.
         """
+
         def __init__(self, user_id):
             self.id = user_id
 
