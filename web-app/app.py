@@ -8,7 +8,7 @@ from bson import ObjectId
 def create_app():
 
     app = Flask(__name__)
-    client = MongoClient(os.getenv("MONGO_URI", "mongodb://mongodb:27017/"))
+    client = MongoClient("mongodb://mongodb:27017/")
 
     db = client.asl_db
 
@@ -41,7 +41,7 @@ def create_app():
             image_data = image_data.split(",")[1]
             image_binary = image_data#base64.b64decode(image_data)
 
-            image_doc = {"image": image_binary, "output": None, "translation": None}
+            image_doc = {"image": image_binary, "output": "", "translation": ""}
             result = db.images.insert_one(image_doc)
 
             image_id = str(result.inserted_id)
@@ -66,8 +66,11 @@ def create_app():
     @app.route("/history")
     def view_history():
         try: 
-            images = db.images.find({}, {"_id": 1, "translation":1, "output":1})
-            return render_template("display.html",images=images)
+            images = db.images.find({}, { "translation":1, "output":1})
+            images_list = []
+            for image in images:
+                images_list.append(image)
+            return render_template("display.html",images=images_list)
         except Exception as e:
             return jsonify({"error": str(e)}), 500
     # @app.route("/display_images")

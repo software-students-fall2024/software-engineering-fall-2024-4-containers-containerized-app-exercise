@@ -30,7 +30,7 @@ load_dotenv()
 #     .pack(pady=15, padx=300)
 
 app = Flask(__name__)
-client = MongoClient(os.getenv("MONGO_URI", "mongodb://mongodb:27017/"))
+client = MongoClient("mongodb://mongodb:27017/")
 
 db = client.asl_db
 
@@ -231,7 +231,7 @@ def process_image_route():
         image_data = db.images.find_one({"_id": ObjectId(image_id)})["image"]
         [output, label] = process_image(image_data)
         # update db with the generated label
-        db.images.update_one(
+        result = db.images.update_one(
             {"_id": ObjectId(image_id)},
             {"$set": {"output": output, "translation": label}},
         )
