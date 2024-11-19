@@ -1,12 +1,14 @@
-"""
-This application serves as the main entry point for the Flask web application,
-connecting to MongoDB and providing the frontend interface.
-"""
-
+import atexit
+import datetime
 import os
-from flask import Flask, render_template, jsonify, Response  # Move Response here
-from pymongo import MongoClient
+import threading
+import time
+
+import cv2
+from bson.binary import Binary
 from dotenv import load_dotenv
+from flask import Flask, Response, jsonify, render_template
+from pymongo import MongoClient
 
 # Load environment variables
 load_dotenv()
@@ -17,64 +19,103 @@ client = MongoClient(mongo_uri)
 db = client["object_detection"]
 collection = db["detected_objects"]
 
+# Initialize camera
+camera = cv2.VideoCapture(0)
+atexit.register(lambda: camera.release())
 
-# Index route
+
 @app.route("/")
 def index():
-    """Index returns index home page html"""
+    """Index returns index home page HTML."""
     return render_template("index.html")
 
 
-# Data route
 @app.route("/data")
 def get_data():
-    """Fetch data from MongoDB"""
+    """Fetch data from MongoDB."""
     data = list(collection.find({}, {"_id": 0}))  # Exclude MongoDB IDs
     return jsonify(data)
 
 
-# Dashboard route
 @app.route("/dashboard")
 def dashboard():
-    """Dashboard page"""
-    # You can add logic to render a dashboard here
-    return render_template(
-        "dashboard.html"
-    )  # Ensure you have a 'dashboard.html' template
+    """Dashboard page."""
+    return render_template("dashboard.html")
 
 
-# API route for object detection
-@app.route("/api/detect", methods=["POST"])
-def api_detect():
-    """Object detection API endpoint"""
-    # Your object detection logic here, for now return 'objects'
-    return jsonify(
-        {"status": "success", "message": "Object detection results here", "objects": []}
+@app.route("/capture_frame", methods=["POST"])
+def capture_frame():
+    """Capture a frame and save it to MongoDB."""
+    success, frame = camera.read()
+    if not success:
+        return jsonify({"error": "Failed to capture frame"}), 500
+
+    # Encode the frame to JPEG format
+    _, buffer = cv2.imencode(".jpg", frame)
+    image_binary = Binary(buffer.tobytes())
+
+    # Save to MongoDB
+    document = {
+        "image": image_binary,
+        "timestamp": datetime.datetime.utcnow(),
+        "status": "pending",  # Waiting for processing
+        "detections": [],
+    }
+    result = collection.insert_one(document)
+    return (
+        jsonify({"message": "Frame captured and saved", "id": str(result.inserted_id)}),
+        200,
     )
+
+
+@app.route("/latest_detection", methods=["GET"])
+def latest_detection():
+    """Fetch the latest detection results from MongoDB."""
+    detection = collection.find_one(
+        {"status": "processed"},
+        sort=[("timestamp", -1)],
+    )
+    if not detection:
+        return jsonify({"message": "No processed detections available"}), 404
+
+    detections = detection.get("detections", [])
+    return jsonify({"timestamp": detection["timestamp"], "labels": detections})
 
 
 @app.route("/video_feed")
 def video_feed():
     """Stream the video feed."""
-    # Logic to stream video from a camera or return a sample video frame
     return Response(
-        generate_video(), mimetype="multipart/x-mixed-replace; boundary=frame"
+        generate_frames(), mimetype="multipart/x-mixed-replace; boundary=frame"
     )
 
 
-def generate_video():
-    """Generate video frames for streaming (replace with your actual video generation logic)."""
+def generate_frames():
+    """Generate video frames for streaming."""
     while True:
-        # This is just a placeholder. Replace it with your actual video capture code.
-        frame = get_video_frame()  # Capture or retrieve the video frame
-        yield b"--frame\r\n" b"Content-Type: image/jpeg\r\n\r\n" + frame + b"\r\n\r\n"
+        success, frame = camera.read()
+        if not success:
+            break
+        else:
+            _, buffer = cv2.imencode(".jpg", frame)
+            frame = buffer.tobytes()
+            yield (b"--frame\r\n" b"Content-Type: image/jpeg\r\n\r\n" + frame + b"\r\n")
 
 
-def get_video_frame():
-    """Get a single video frame (replace this with your actual frame capture logic)."""
-    # For now, this returns an empty byte string. Replace with real image capture.
-    return b""
+def capture_frames_periodically():
+    """Background thread to capture frames every 5 seconds."""
+    while True:
+        time.sleep(5)
+        try:
+            with app.test_client() as client:
+                client.post("/capture_frame")
+                print("Frame captured and sent to MongoDB.")
+        except Exception as e:
+            print(f"Error capturing frame: {e}")
 
+
+# Start the background thread when the app starts
+threading.Thread(target=capture_frames_periodically, daemon=True).start()
 
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=5000, debug=True)
+    app.run(host="0.0.0.0", port=5000)

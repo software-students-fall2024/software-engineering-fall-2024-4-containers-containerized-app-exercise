@@ -1,15 +1,16 @@
 """
-This module contains tests for the ML client. Run with 'pipenv run pytest' 
+This module contains tests for the ML client. Run with 'pipenv run pytest'
 or to see with coverage run with 'python -m pytest --cov=app test_app.py'
 """
 
-from unittest import mock
-from unittest.mock import patch, MagicMock
 from io import BytesIO
-import pytest
-from PIL import Image
+from unittest import mock
+from unittest.mock import MagicMock, patch
+
 import mongomock
-from app import app, detect_objects_helper
+import pytest
+from app import app, detect_objects
+from PIL import Image
 
 app.config["TESTING"] = True
 

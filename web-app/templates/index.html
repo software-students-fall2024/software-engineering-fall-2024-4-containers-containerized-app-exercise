@@ -9,13 +9,19 @@
       font-family: Arial, sans-serif;
       text-align: center;
     }
-    #labels-list {
-      list-style-type: none;
-      padding: 0;
+    table {
+      margin: 20px auto;
+      border-collapse: collapse;
+      width: 80%;
     }
-    #labels-list li {
-      font-size: 1.2em;
-      margin: 5px 0;
+    th, td {
+      border: 1px solid #ddd;
+      padding: 8px;
+      text-align: center;
+    }
+    th {
+      background-color: #f2f2f2;
+      font-weight: bold;
     }
   </style>
 </head>
@@ -28,7 +34,17 @@
 
   <div>
     <h2>Detected Labels and Confidence</h2>
-    <ul id="labels-list"></ul>
+    <table id="results-table">
+      <thead>
+        <tr>
+          <th>Label</th>
+          <th>Confidence</th>
+        </tr>
+      </thead>
+      <tbody>
+        <!-- Results will be dynamically inserted here -->
+      </tbody>
+    </table>
   </div>
 
   <script>
@@ -36,16 +52,33 @@
       fetch('/latest_detection')
         .then(response => response.json())
         .then(data => {
-          const list = document.getElementById('labels-list');
-          list.innerHTML = ''; // Clear current list
-          data.labels.forEach(label => {
-            const listItem = document.createElement('li');
-            listItem.textContent = `${label.name}: ${label.confidence.toFixed(2)}`;
-            list.appendChild(listItem);
-          });
+          const tableBody = document.querySelector('#results-table tbody');
+          tableBody.innerHTML = ''; // Clear the table
+
+          if (data.labels && data.labels.length > 0) {
+            data.labels.forEach(label => {
+              const row = document.createElement('tr');
+              const labelCell = document.createElement('td');
+              const confidenceCell = document.createElement('td');
+
+              labelCell.textContent = label.label;
+              confidenceCell.textContent = `${(label.confidence * 100).toFixed(2)}%`;
+
+              row.appendChild(labelCell);
+              row.appendChild(confidenceCell);
+              tableBody.appendChild(row);
+            });
+          } else {
+            const row = document.createElement('tr');
+            const noDataCell = document.createElement('td');
+            noDataCell.setAttribute('colspan', 2);
+            noDataCell.textContent = 'No detections available.';
+            row.appendChild(noDataCell);
+            tableBody.appendChild(row);
+          }
         })
         .catch(error => console.error("Error fetching detection data:", error));
-    }, 2000); // Update every 2 seconds
+    }, 2000);
   </script>
 </body>
 </html>

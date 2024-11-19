@@ -1,29 +1,31 @@
-"""
-This application serves as the main entry point for the machine learning client,
-connecting to MongoDB and performing data analysis tasks.
-"""
-
-from io import BytesIO
+import time
 from datetime import datetime
-import base64
+from io import BytesIO
+
 import torch
+from flask import Flask, jsonify
 from PIL import Image
-from flask import Flask, request, jsonify
-from pymongo import MongoClient
-from flask_cors import CORS
+from pymongo.mongo_client import MongoClient
+from pymongo.server_api import ServerApi
 
+# MongoDB connection
+uri = (
+    "mongodb+srv://raa9917:Rr12112002@cluster0.p902n.mongodb.net/"
+    "?retryWrites=true&w=majority"
+)
+client = MongoClient(uri, server_api=ServerApi("1"))
+db = client["object_detection"]
+collection = db["detected_objects"]
+
+# Initialize Flask app
 app = Flask(__name__)
-CORS(app)
-
-mongo = MongoClient("mongodb://localhost:27017")
-db = mongo["object_detection"]
 
 # Load YOLOv5 model
 model = torch.hub.load("ultralytics/yolov5", "yolov5s", pretrained=True).to("cpu")
 
 
 def detect_objects(image):
-    """Detect objects using YOLOv5"""
+    """Perform object detection on the provided image."""
     results = model(image)
     detections = results.pandas().xyxy[0].to_dict(orient="records")
     return [
@@ -32,58 +34,52 @@ def detect_objects(image):
     ]
 
 
-@app.route("/api/detect", methods=["POST"])
-def detect():
-    """POST route for image file processing"""
-    if "file" not in request.files:
-        return "No image file provided.", 400
-
-    # Read image
-    image_file = request.files["file"]
-    image = Image.open(image_file.stream)
-
-    # Detect objects
-    detected_objects = detect_objects(image)
-
-    # Encode image to base64 for MongoDB storage
-    buffered = BytesIO()
-    image.save(buffered, format="PNG")
-    encoded_image = base64.b64encode(buffered.getvalue()).decode("utf-8")
-
-    # Save to MongoDB
-    detection_data = {
-        "timestamp": datetime.now(),
-        "detected_objects": detected_objects,
-        "image": encoded_image,
-    }
-    saved_data = save_to_db(detection_data)
-
-    # only return relevant fields to the client
-    response_data = {
-        "timestamp": saved_data["timestamp"],
-        "detected_objects": saved_data["detected_objects"],
-    }
-    return jsonify(response_data), 200
+@app.route("/")
+def index():
+    """Health check endpoint for the ML app."""
+    return jsonify({"status": "running"}), 200
 
 
-# database helper
-def save_to_db(detection_data):
-    """helper for saving to db"""
-    result = db.detections.insert_one(detection_data)
-    detection_data["_id"] = str(result.inserted_id)
-    return detection_data
+def process_pending_images():
+    """Periodically process pending images from MongoDB."""
+    while True:
+        try:
+            # Find a document with status "pending"
+            document = collection.find_one({"status": "pending"})
+            if document:
+                print("Processing a pending frame...")
 
+                # Decode the image
+                image_data = BytesIO(document["image"])
+                image = Image.open(image_data)
 
-# model helper
-def detect_objects_helper(image):
-    """helper for detect objects"""
-    results = model(image)
-    detections = results.pandas().xyxy[0].to_dict(orient="records")
-    return [
-        {"label": det["name"], "confidence": float(det["confidence"])}
-        for det in detections
-    ]
+                # Perform object detection
+                detections = detect_objects(image)
+
+                # Update the document with detections
+                collection.update_one(
+                    {"_id": document["_id"]},
+                    {
+                        "$set": {
+                            "status": "processed",
+                            "detections": detections,
+                            "processed_at": datetime.utcnow(),
+                        }
+                    },
+                )
+                print(
+                    f"Processed frame: {document['_id']} "
+                    f"with detections: {detections}"
+                )
+            else:
+                print("No pending frames. Retrying...")
+        except Exception as e:
+            print(f"Error processing pending frames: {e}")
+
+        time.sleep(5)  # Wait for 5 seconds before checking again
 
 
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=3001)
+    # Start automatic processing
+    print("Starting the automatic frame processing...")
+    process_pending_images()

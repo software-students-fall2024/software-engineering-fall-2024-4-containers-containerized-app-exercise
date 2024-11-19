@@ -1,6 +1,8 @@
 """
-This module contains tests for the Web App. Run with 'python -m pytest test_app.py'
-or to see with coverage run with 'python -m pytest --cov=app test_app.py'
+This module contains tests for the Web App. Run with 'python -m
+pytest test_app.py'
+or to see with coverage run with
+'python -m pytest --cov=app test_app.py'
 """
 
 import pytest
