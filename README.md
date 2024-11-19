@@ -1,6 +1,6 @@
 ![Lint-free](https://github.com/nyu-software-engineering/containerized-app-exercise/actions/workflows/lint.yml/badge.svg)
 
-![Machine Learning Client CI](https://github.com/nyu-software-engineering/containerized-app-exercise/actions/workflows/ml-client.yml/badge.svg)
+[![Machine Learning Client CI](https://github.com/software-students-fall2024/4-containers-fantastic-four/actions/workflows/ml-client.yml/badge.svg?branch=main)](https://github.com/software-students-fall2024/4-containers-fantastic-four/actions/workflows/ml-client.yml)
 
 ![event-logger](https://github.com/nyu-software-engineering/containerized-app-exercise/actions/workflows/event-logger.yml/badge.svg)
 
