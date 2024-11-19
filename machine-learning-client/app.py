@@ -20,7 +20,9 @@ collection = db["detected_objects"]
 app = Flask(__name__)
 
 # Load YOLOv5 model
-model = torch.hub.load("ultralytics/yolov5", "yolov5s", pretrained=True).to("cpu")
+model = torch.hub.load(
+    "ultralytics/yolov5", "yolov5s", pretrained=True
+).to("cpu")
 
 
 def detect_objects(image):
@@ -67,7 +69,8 @@ def process_pending_images():
                     },
                 )
                 print(
-                    f"Processed frame: {document['_id']} with detections: {detections}"
+                    f"Processed frame: {document['_id']} "
+                    f"with detections: {detections}"
                 )
             else:
                 print("No pending frames. Retrying...")
