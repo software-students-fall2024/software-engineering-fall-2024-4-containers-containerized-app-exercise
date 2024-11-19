@@ -30,7 +30,7 @@ load_dotenv()
 #     .pack(pady=15, padx=300)
 
 app = Flask(__name__)
-client = MongoClient(os.getenv("MONGO_URI", "mongodb://mongodb:27017/"))
+client = MongoClient("mongodb://mongodb:27017/")
 
 db = client.asl_db
 
@@ -42,7 +42,8 @@ def base64ToNumpy(base64Img):
     image = Image.open(io.BytesIO(image_data))
     return cv2.cvtColor(np.array(image), cv2.COLOR_BGR2RGB)
     # return image
-    
+
+
 def numpyTobase64(image):
     buffer = io.BytesIO()
     image.save(buffer, format="PNG")
@@ -193,7 +194,6 @@ def process_image(inputImage):
     # Encode the byte stream to Base64
     image_base64 = numpyTobase64(image)
 
-
     # finalImage = ImageTk.PhotoImage(image)
     # label1.configure(image=finalImage)
     # label1.image = finalImage
@@ -231,11 +231,11 @@ def process_image_route():
         image_data = db.images.find_one({"_id": ObjectId(image_id)})["image"]
         [output, label] = process_image(image_data)
         # update db with the generated label
-        db.images.update_one(
+        result = db.images.update_one(
             {"_id": ObjectId(image_id)},
             {"$set": {"output": output, "translation": label}},
         )
-        
+
         return jsonify({"output": output, "translation": label}), 200
     return jsonify({"error": "Invalid request, image_id is required"}), 400
 

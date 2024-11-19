@@ -66,6 +66,7 @@ captureBtn.addEventListener('click', () => {
             // Create and append the paragraph element with translation or any other data
             const p = document.createElement('p');
             p.textContent = data.translation; // Assuming the translation is part of the response data
+            p.classList.add('translation');
             section.appendChild(p);
         })
         .catch((err) => {

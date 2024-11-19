@@ -15,7 +15,7 @@
         <ul class="gallery">
             {% for image in images %}
                 <li>
-                    <img src="{{ 'data:image/png;base64,' + image['output'] }}" alt="Image" class="imgT">
+                    <img src="{{ 'data:image/png;base64,'+(image['output'] if image['output'] else '')}}" alt="Image" class="imgT">
                     <p class="translation">Translation: {{ image['translation'] }}</p>
                 </li>
             {% endfor %}

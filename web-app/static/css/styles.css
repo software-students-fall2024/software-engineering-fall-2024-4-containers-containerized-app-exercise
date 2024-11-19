@@ -207,6 +207,7 @@ ul.gallery {
 
 li {
     background-color: #fff;
+    color: black;
     padding: 10px;
     border-radius: 8px;
     display: flex;
