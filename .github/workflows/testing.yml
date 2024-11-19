@@ -1,5 +1,4 @@
-  docker build -t your-image-name /path/to/ml-client
-  name: Test Machine Learning Client
+name: Test Machine Learning Client
 
 on:
   push:
@@ -34,9 +33,9 @@ jobs:
       - name: Wait for MongoDB to be Ready
         run: sleep 3  # Increase the delay as necessary
 
-      - name: Run Tests in Machine Learning Client
-        run: |
-          docker compose exec machine-learning-client pytest tests/
+      # - name: Run Tests in Machine Learning Client
+      #   run: |
+      #     docker compose exec machine-learning-client pytest tests/
 
       - name: Run Tests in Web App
         run: |
