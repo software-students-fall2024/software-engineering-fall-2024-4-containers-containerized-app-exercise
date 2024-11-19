@@ -13,3 +13,7 @@ pytest = "*"
 
 [dev-packages]
 
+[scripts]
+format = "black ."
+lint = "pylint **/*.py"
+test = "pytest"

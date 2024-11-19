@@ -1,12 +1,15 @@
-FROM python:3.9
+FROM python:3.10
 
 RUN pip install pipenv
 
-COPY Pipfile Pipfile.lock ./
+# Set the working directory inside the container
+WORKDIR /app
+
+COPY Pipfile Pipfile.lock /app/
 
 RUN pipenv install --system --deploy
 
-COPY . .
+COPY . /app
 
 EXPOSE 5050
 
