@@ -1,0 +1,314 @@
+@font-face {
+  font-family: 'Ubuntu';
+  src: url('https://fonts.gstatic.com/s/ubuntu/v20/4iCv6KVjbNBYlgoCxCvjsGyN.woff2') format('woff2');
+}
+
+:root {
+  --forest: #1B5E20; /* Deep Emerald Green */
+  --sand: #F4A261; /* Warm Sunset Orange */
+  --pink: #FF2515; /* Fresh Light Pink */
+  --sky: #4FC3F7; /* Bright Sky Blue */
+  --neutral-gray: #F5F5F5; /* Modern Neutral Gray */
+  --text-dark: #333; /* Dark Gray Text */
+  --text-light: #FFF; /* Light Text */
+  --box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Standard Shadow */
+  --bg: #000;
+}
+
+body {
+  font-family: 'Ubuntu', sans-serif;
+  background-color: var(--bg);
+  margin: 0;
+  padding: 0;
+  color: var(--text-light);
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+/* Layout */
+.container {
+  width: 90%;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+.flex {
+  display: flex;
+}
+
+.flex-center {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.grid {
+  display: grid;
+  gap: 20px;
+}
+
+.grid-2 {
+  grid-template-columns: repeat(2, 1fr);
+}
+
+.grid-3 {
+  grid-template-columns: repeat(3, 1fr);
+}
+
+.grid-4 {
+  grid-template-columns: repeat(4, 1fr);
+}
+
+/* Header */
+.header {
+  background-color: var(--sand);
+  color: var(--text-light);
+  padding: 10px 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  box-shadow: var(--box-shadow);
+}
+
+.header a {
+  color: var(--text-light);
+  text-decoration: none;
+  margin: 0 10px;
+}
+
+.header a:hover {
+  text-decoration: underline;
+}
+
+.header .logo {
+  font-size: 1.5rem;
+  font-weight: bold;
+}
+
+/* Footer */
+.footer {
+  background-color: var(--sand);
+  color: var(--text-light);
+  text-align: center;
+  padding: 20px;
+  margin-top: auto;
+  font-size: 0.9rem;
+}
+
+
+/* Buttons */
+button {
+  background-color: var(--forest);
+  color: var(--text-light);
+  border: none;
+  border-radius: 5px;
+  padding: 10px 20px;
+  cursor: pointer;
+  font-size: 1rem;
+  width: 100%;
+  transition: background-color 0.3s ease;
+}
+
+button:hover {
+  background-color: var(--sand);
+}
+
+/* Forms */
+form {
+  background: var(--bg);
+  border-radius: 10px;
+  box-shadow: var(--box-shadow);
+  padding: 20px; /* Add some padding inside the form for spacing */
+  display: flex;
+  flex-direction: column; /* Stack elements vertically */
+  align-items: stretch; /* Ensure inputs stretch to fit the container */
+}
+
+form label {
+  font-size: 1rem;
+  color: var(--pink);
+  margin-bottom: 5px; /* Add spacing below the label */
+  text-align: left; /* Align the label text to the left */
+}
+
+form input,
+form select,
+form textarea {
+  width: 100%; /* Ensure elements fit the form container */
+  padding: 10px;
+  margin-bottom: 5px; /* Add spacing between inputs */
+  border: 1px solid var(--pink);
+  border-radius: 5px;
+  box-sizing: border-box; /* Include padding and border in the width */
+}
+
+form button {
+  background: var(--pink);
+  color: white;
+  border: none;
+  border-radius: 5px;
+  padding: 10px 15px;
+  font-size: 1rem;
+  cursor: pointer;
+  align-self: flex-start; /* Align the button to the left */
+}
+
+form button:hover {
+  background: var(--sand);
+}
+
+
+form input:focus,
+form select:focus,
+form textarea:focus {
+  border-color: var(--sand);
+  outline: none;
+}
+
+/* Modals */
+.modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  visibility: hidden;
+  opacity: 0;
+  transition: visibility 0s, opacity 0.3s;
+}
+
+.modal.active {
+  visibility: visible;
+  opacity: 1;
+}
+
+.modal-content {
+  background: var(--text-light);
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: var(--box-shadow);
+  width: 90%;
+  max-width: 500px;
+}
+
+.modal-content h2 {
+  margin-top: 0;
+}
+
+/* Tables */
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 20px 0;
+}
+
+table th,
+table td {
+  text-align: left;
+  padding: 10px;
+  border: 1px solid var(--neutral-gray);
+}
+
+table th {
+  background-color: var(--forest);
+  color: var(--text-light);
+}
+
+table tr:nth-child(even) {
+  background-color: var(--neutral-gray);
+}
+
+/* Cards */
+.card {
+  background: var(--text-light);
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: var(--box-shadow);
+  transition: transform 0.3s ease;
+}
+
+.card:hover {
+  transform: scale(1.05);
+}
+
+.card img {
+
+  max-width: 100%;
+  border-radius: 10px;
+}
+
+/* Links */
+a {
+  color: var(--sand);
+  text-decoration: none;
+}
+
+a:hover {
+  text-decoration: underline;
+}
+
+/* Typography */
+h1, h2, h3, h4, h5, h6 {
+  color: var(--pink);
+}
+
+h1 {
+  font-size: 2rem;
+}
+
+p {
+  color: var(--pink);
+  line-height: 0.6;
+  font-size: 1rem;
+}
+
+/* Images */
+img {
+  margin: auto;
+  max-width: 50%;
+  height: auto;
+  display: block;
+  border-radius: 5px;
+}
+
+/* Alerts */
+.alert {
+  padding: 15px;
+  margin: 10px 0;
+  border-radius: 5px;
+}
+
+.alert-success {
+  background-color: #D4EDDA;
+  color: #155724;
+}
+
+.alert-error {
+  background-color: #F8D7DA;
+  color: #721C24;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .grid-2, .grid-3, .grid-4 {
+    grid-template-columns: 1fr;
+  }
+
+  .header {
+    flex-direction: column;
+    text-align: center;
+  }
+}
+
+#options{
+  padding-left: 20px;
+  padding-right: 20px;
+  display: flex;
+  flex-direction: column; /* Stack elements vertically */
+}

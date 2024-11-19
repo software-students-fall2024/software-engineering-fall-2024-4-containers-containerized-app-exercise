@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Home</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}"/>
+    <link rel="icon" type="image/x-icon" href="{{ url_for('static', filename='favicon.png') }}">
+</head>
+<body>
+    <h1>Welcome to StudyBuns!</h1>
+    <!-- <div class="container">
+        <img src="{{ url_for('static', filename='studybuns-logo.png') }}"/>
+        <button><a href="start-session">Start new session</a></button>
+        <div class="session-container">
+        {% for session in past %}
+            <div class="sessions">
+                {% if session.created_at %}
+                    <h2>{{ session.created_at.strftime('%B %d, %Y, %I:%M %p') }}</h2>
+                {% else %}
+                    <h2>Unknown</h2>
+                {% endif %}
+                <p>{{ session.focus_time }} minutes studied</p>
+                <p>Studied for {{ session.subject }}</p>
+                <p>Earned {{ ((session.focus_time | default(0) | int) / 
+                    ((session.focus_time | default(0) | int) - 5)) | int }} bunnie(s)
+                </p>              
+            </div>
+        {% endfor %}
+        </div>
+    </div> -->
+
+</body>
+</html>
