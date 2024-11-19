@@ -1,16 +1,57 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-    <title>Focus</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}"/>
-    <link rel="icon" type="image/x-icon" href="{{ url_for('static', filename='favicon.png') }}">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Control App</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}" />
+    <script>
+      let interval = null;
 
+      function startTracking() {
+        const startTime = new Date().getTime();
+        interval = setInterval(() => {
+          const currentTime = new Date().getTime();
+          const elapsed = Math.floor((currentTime - startTime) / 1000); // Elapsed seconds
+          document.getElementById("timer").innerText = `Elapsed Time: ${elapsed}s`;
+        }, 1000);
+      }
+
+      function stopTracking() {
+        if (interval) {
+          clearInterval(interval);
+          interval = null;
+        }
+      }
+
+      async function handleAction(action) {
+        const response = await fetch(`/${action}`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+        });
+        if (response.ok) {
+          if (action === "start") {
+            startTracking();
+          } else if (action === "stop") {
+            stopTracking();
+          }
+        } else {
+          alert("An error occurred!");
+        }
+      }
+    </script>
   </head>
   <body>
-    <div class="container">
-        <h1>Focus</h1>
-
+    <div class="container center">
+      <img src="{{ url_for('static', filename='itsOverlogo.png') }}" alt="Logo" />
+      <h1>Focus</h1>
+      <div id="timer">Elapsed Time: 0s</div>
+      <div>
+        <button onclick="handleAction('start')" class="start-button">Start</button>
+        <button onclick="handleAction('stop')" class="stop-button">Stop</button>
+      </div>
+      <div>
+        <a href="{{ url_for('home_page') }}" class="home-button">Home</a>
+      </div>
     </div>
   </body>
 </html>
