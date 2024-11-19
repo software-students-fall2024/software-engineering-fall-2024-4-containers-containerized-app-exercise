@@ -6,17 +6,16 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        # Repeat the same job for each subsystem in the following subdirectories
+        # repeat same job for each subsystem in the following subdirectories
         subdir: [machine-learning-client]
     steps:
       - uses: actions/checkout@v4
-
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
           python-version: "3.9" # Update version as needed
-
       - name: Install dependencies
+        if: ${{ hashFiles('machine-learning-client/**/*.py') != '' }}
         run: |
           cd machine-learning-client
           python -m pip install --upgrade pip
@@ -24,12 +23,12 @@ jobs:
           python -m pip install pylint black  # Install pylint and black
 
       - name: Lint with pylint
+        if: ${{ hashFiles('machine-learning-client/**/*.py') != '' }}
         run: |
           cd machine-learning-client
           pylint **/*.py
-
       - name: Format with black
+        if: ${{ hashFiles('machine-learning-client/**/*.py') != '' }}
         run: |
           cd machine-learning-client
           black --diff --check .
-
