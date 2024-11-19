@@ -19,10 +19,10 @@ services:
       - MONGODB_URI=${MONGODB_URI}
       - MONGODB_USERNAME=${MONGODB_USERNAME}
       - MONGODB_PASSWORD=${MONGODB_PASSWORD}
-      - PYTHONPATH=/app
+      - PYTHONPATH=/project
     volumes:
-      - ./machine-learning-client:/app
-    working_dir: /app
+      - ./machine-learning-client:/project
+    working_dir: /project
     ports:
       - "5050:5050"
 
@@ -35,7 +35,7 @@ services:
     environment:
       - DB_URI=${MONGODB_URI}
       - SECRET=${SECRET}
-      - PYTHONPATH=/app
+      - PYTHONPATH=/project
     volumes:
       - ./web-app:/project
     working_dir: /project

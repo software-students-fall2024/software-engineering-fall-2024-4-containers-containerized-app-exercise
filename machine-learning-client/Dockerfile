@@ -2,15 +2,16 @@ FROM python:3.10
 
 RUN pip install pipenv
 
-# Set the working directory inside the container
-WORKDIR /app
+WORKDIR /project
 
-COPY Pipfile Pipfile.lock /app/
+COPY Pipfile Pipfile.lock ./
 
 RUN pipenv install --system --deploy
 
-COPY . /app
+COPY . .
 
 EXPOSE 5050
+
+ENV FLASK_APP=src/app.py
 
 CMD ["flask", "run", "--host=0.0.0.0", "--port=5050"]
