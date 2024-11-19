@@ -20,7 +20,7 @@ def create_app():
     if not secret_key:
         raise ValueError("SECRET_KEY not found. Add it to your .env file.")
 
-    mongo_uri = os.getenv("MONGO_DB_URI")
+    mongo_uri = os.getenv("MONGO_URI")
     if mongo_uri is None:
         raise ValueError(
             "Could not connect to database. Ensure .env is properly configured."
