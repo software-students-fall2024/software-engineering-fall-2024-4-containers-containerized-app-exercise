@@ -9,7 +9,7 @@ from unittest.mock import MagicMock, patch
 
 import mongomock
 import pytest
-from app import app, detect_objects_helper
+from app import app, detect_objects
 from PIL import Image
 
 app.config["TESTING"] = True
