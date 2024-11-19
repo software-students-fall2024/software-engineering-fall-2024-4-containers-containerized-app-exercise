@@ -4,14 +4,14 @@
 A containerized app that performs speech-to-text conversion using machine learning, with a web interface to display results and a database for data storage.
 
 # Badges
-![Machine Learning Client Tests Workflow Status](https://github.com/your-repo/actions/workflows/ml-client-tests.yml/badge.svg)
-![Web App Tests Workflow Status](https://github.com/your-repo/actions/workflows/web-app-tests.yml/badge.svg)
+![Machine Learning Client Test Status](https://github.com/software-students-fall2024/4-containers-fivegum/actions/workflows/ml-client-tests.yml/badge.svg)
+![Web App Test Status](https://github.com/software-students-fall2024/4-containers-fivegum/actions/workflows/testing.yml/badge.svg)
 
 # About
 
 The Speech-to-Text App consists of three main components:
 1. **Machine Learning Client**: Processes audio data and converts speech to text.
-2. **Web App**: A Flask-based web interface that displays processed text and allows users to upload audio files.
+2. **Web App**: Allows users to display processed text and upload audio files.
 3. **Database**: A MongoDB database storing metadata and transcriptions. 
 
 # Subsystems
@@ -71,5 +71,5 @@ To run tests for individual subsystems:
 # Group Members
 - Neha Magesh: [link](https://github.com/nehamagesh)
 - Luca Ignatescu: [link](https://github.com/LucaIgnatescu)
-- James Whitten: [link](https://github.com/jwhit0)
 - Tahsin Tawhid: [link](https://github.com/tahsintawhid)
+- James Whitten: [link](https://github.com/jwhit0)
