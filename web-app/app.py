@@ -6,6 +6,7 @@ import base64
 import os
 from bson import ObjectId
 import mongomock
+
 # from bson import ObjectId
 from dotenv import load_dotenv
 from flask import (
@@ -34,19 +35,18 @@ def create_app(test_config=None):
         app.config.update(test_config)
 
     # Initialize the database connection
-    if 'DB_CLIENT' in app.config:
-        app.db = app.config['DB_CLIENT']
+    if "DB_CLIENT" in app.config:
+        app.db = app.config["DB_CLIENT"]
     else:
-        connection = pymongo.MongoClient(os.getenv('MONGO_URI'))
+        connection = pymongo.MongoClient(os.getenv("MONGO_URI"))
         app.db = connection[os.getenv("MONGO_DBNAME")]
-    
-    # connection = pymongo.MongoClient(os.getenv("MONGO_URI"))
 
+    # connection = pymongo.MongoClient(os.getenv("MONGO_URI"))
 
     @app.route("/")
     def home():
         if request.args.get("user"):
-            user_entries = list(app.db.plants.find({"user":request.args.get('user')}))
+            user_entries = list(app.db.plants.find({"user": request.args.get("user")}))
             if len(user_entries) > 3:
                 new_entries = [user_entries[-1], user_entries[-2], user_entries[-3]]
                 user_entries = new_entries

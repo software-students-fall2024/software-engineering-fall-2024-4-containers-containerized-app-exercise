@@ -3,11 +3,13 @@ Tests for app.py, the web app for this project
 This script tests each route independently to achieve a minimum of 80% code coverage
 
 """
+
 from unittest.mock import patch
 import pytest
 import mongomock
 from flask import session
 from app import create_app  # Update with your actual app file name
+
 
 @pytest.fixture
 def app():
@@ -41,6 +43,7 @@ def app():
 def client(app):
     return app.test_client()
 
+
 def test_home_without_user(client):
     """Test home page route without no user input yet"""
     response = client.get("/")
@@ -48,16 +51,20 @@ def test_home_without_user(client):
     # test for specific string that's only in the template for this route
     assert b"to get started!" in response.data
 
+
 def test_home_with_user(client, app):
     """Test home route with user input"""
-    app.db.plants.insert_many([
-        {"_id": "1", "photo": "photo1", "name": "rose", "user": "test_user"},
-        {"_id": "2", "photo": "photo2", "name": "lily", "user": "test_user"},
-    ])
+    app.db.plants.insert_many(
+        [
+            {"_id": "1", "photo": "photo1", "name": "rose", "user": "test_user"},
+            {"_id": "2", "photo": "photo2", "name": "lily", "user": "test_user"},
+        ]
+    )
     response = client.get("/?user=test_user")
     assert response.status_code == 200
     assert b"rose" in response.data
     assert b"lily" in response.data
+
 
 def test_login_post(client):
     """Test the login form results post correctly"""
@@ -88,7 +95,6 @@ def test_upload_post(client, app):
     # make sure this entry was created and the photo was added correctly
     plant = app.db.plants.find_one({"photo": photo_data})
     assert plant is not None
-    
 
 
 def test_new_entry_post(client, app):
@@ -96,8 +102,12 @@ def test_new_entry_post(client, app):
     # make sure the correct user is currently logged in
     with client.session_transaction() as session:
         session["username"] = "test_user"
-    plant_id = app.db.plants.insert_one({"photo": "data:image/jpeg;base64,encodedphoto", "name": "Plant"}).inserted_id
-    response = client.post(f"/new_entry?new_entry_id={plant_id}", data={"instructions": "Water daily"})
+    plant_id = app.db.plants.insert_one(
+        {"photo": "data:image/jpeg;base64,encodedphoto", "name": "Plant"}
+    ).inserted_id
+    response = client.post(
+        f"/new_entry?new_entry_id={plant_id}", data={"instructions": "Water daily"}
+    )
     assert response.status_code == 302
     # make sure this entry exists and the instructions were added correctly
     plant = app.db.plants.find_one({"_id": plant_id})
@@ -106,10 +116,12 @@ def test_new_entry_post(client, app):
 
 def test_history(client, app):
     """Test the past entries (history) route"""
-    app.db.plants.insert_many([
-        {"name": "cactus", "photo": "Photo1", "user": "test_user"},
-        {"name": "oak tree", "photo": "Photo2", "user": "test_user"},
-    ])
+    app.db.plants.insert_many(
+        [
+            {"name": "cactus", "photo": "Photo1", "user": "test_user"},
+            {"name": "oak tree", "photo": "Photo2", "user": "test_user"},
+        ]
+    )
     # make sure the correct user is currently logged in
     with client.session_transaction() as session:
         session["username"] = "test_user"
