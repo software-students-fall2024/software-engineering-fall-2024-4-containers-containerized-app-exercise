@@ -1,26 +1,25 @@
-from pynput import mouse
 import time
 import math
+from pynput import mouse
 
 
-last_event_time = time.time()  
-mouse_distance = 0  
-click_count = 0  
-scroll_distance = 0  
+FOCUS_THRESHOLD = 5
 
+
+last_event_time = time.time()
+mouse_distance = 0
+click_count = 0
+scroll_distance = 0
 
 last_x, last_y = None, None
 
+focused_time = 0
+unfocused_time = 0
+is_focused = True
 
-focused_time = 0  
-unfocused_time = 0  
-is_focused = True  
-
-
-FOCUS_THRESHOLD = 5  
 
 def update_focus_state():
-    global is_focused, unfocused_time, focused_time
+    global is_focused, unfocused_time, focused_time, last_event_time
 
     current_time = time.time()
     time_since_last_event = current_time - last_event_time
@@ -44,7 +43,6 @@ def on_move(x, y):
     time_interval = current_time - last_event_time
     last_event_time = current_time
 
-
     if last_x is not None and last_y is not None:
         distance = math.sqrt((x - last_x) ** 2 + (y - last_y) ** 2)
         mouse_distance += distance
@@ -54,7 +52,9 @@ def on_move(x, y):
 
     update_focus_state()
 
+
 def on_click(x, y, button, pressed):
+    """Handles mouse click events."""
     global last_event_time, click_count
 
     current_time = time.time()
@@ -63,12 +63,13 @@ def on_click(x, y, button, pressed):
 
     action = "pressed" if pressed else "released"
     print(f"Mouse {action} at ({x}, {y}) with {button}, Time interval: {time_interval:.2f} seconds")
-    
+
     if pressed:
         click_count += 1
         print(f"Click count: {click_count}")
 
     update_focus_state()
+
 
 def on_scroll(x, y, dx, dy):
     global last_event_time, scroll_distance
@@ -82,6 +83,7 @@ def on_scroll(x, y, dx, dy):
     print(f"Scroll distance: {abs(dy)}, Total scroll distance: {scroll_distance}")
 
     update_focus_state()
+
 
 def generate_final_report():
     total_time = focused_time + unfocused_time
@@ -98,14 +100,12 @@ def generate_final_report():
     print("------------------------")
 
 
+
 with mouse.Listener(on_move=on_move, on_click=on_click, on_scroll=on_scroll) as listener:
     print("Listening for mouse events... (Press Ctrl+C to stop)")
     try:
         while True:
-
             time.sleep(1)
             update_focus_state()
     except KeyboardInterrupt:
-
         generate_final_report()
-
