@@ -1,3 +1,10 @@
+"""
+Mouse Activity Tracker
+
+This module tracks mouse movement, clicks, and scrolls to monitor user focus.
+It generates a final report summarizing user activity.
+"""
+
 from dataclasses import dataclass
 import time
 import math
@@ -121,5 +128,3 @@ if __name__ == "__main__":
                 tracker.update_focus_state()
         except KeyboardInterrupt:
             tracker.generate_final_report()
-
-
