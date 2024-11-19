@@ -1,0 +1,8 @@
+[run]
+omit =
+    */torch/hub/ultralytics_yolov5_master/*
+
+[report]
+exclude_lines =
+    # Ignore `if __name__ == '__main__'` blocks
+    if __name__ == .__main__.:
