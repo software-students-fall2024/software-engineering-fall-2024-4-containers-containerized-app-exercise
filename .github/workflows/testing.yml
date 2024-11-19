@@ -1,4 +1,4 @@
-name: Test Machine Learning Client
+name: Unit Test
 
 on:
   push:
@@ -33,7 +33,7 @@ jobs:
       - name: Wait for MongoDB to be Ready
         run: sleep 3  # Increase the delay as necessary
 
-      - name: run tests in machine learning client
+      - name: Run tests in machine learning client
         run: |
           docker compose exec machine-learning-client pytest tests/
 
