@@ -6,7 +6,6 @@ name = "pypi"
 [packages]
 pylint = "*"
 black = "*"
-pynput = "*"
 [dev-packages]
 
 [requires]
