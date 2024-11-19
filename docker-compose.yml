@@ -37,7 +37,7 @@ services:
       - SECRET=${SECRET}
       - PYTHONPATH=/app
     volumes:
-      - ./web-app:/app
-    working_dir: /app
+      - ./web-app:/project
+    working_dir: /project
     ports:
       - "8080:8080"
