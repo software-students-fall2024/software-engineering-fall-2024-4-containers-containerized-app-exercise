@@ -1,6 +1,6 @@
 ![Lint-free](https://github.com/nyu-software-engineering/containerized-app-exercise/actions/workflows/lint.yml/badge.svg)
 
-![ml-lint](https://github.com/nyu-software-engineering/containerized-app-exercise/actions/workflows/ml-lint.yml/badge.svg)
+![Machine Learning Client CI](https://github.com/nyu-software-engineering/containerized-app-exercise/actions/workflows/ml-lint.yml/badge.svg)
 
 ![event-logger](https://github.com/nyu-software-engineering/containerized-app-exercise/actions/workflows/event-logger.yml/badge.svg)
 
@@ -10,15 +10,12 @@ Build a containerized app that uses machine learning. See [instructions](./instr
 
 Our app leverages Machine Learning models for plant species identification. This system allows users to identifies the species of a plant from the uploaded photo.
 
-
-
-
 ## Teammates
 
 [Hang Yin](https://github.com/Popilopi168)
 
 [Jessica Xu](https://github.com/Jessicakk0711)
 
-[]
+[ ]
 
-[]
+[ ]

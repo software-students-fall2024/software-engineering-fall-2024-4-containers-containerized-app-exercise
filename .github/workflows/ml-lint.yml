@@ -1,4 +1,4 @@
-name: ml-lint
+name: Machine Learning Client CI
 on: [push, pull_request]
 
 jobs:
