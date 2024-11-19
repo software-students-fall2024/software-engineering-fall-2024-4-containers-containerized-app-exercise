@@ -6,7 +6,7 @@ name = "pypi"
 [packages]
 pylint = "*"
 black = "*"
-pynput = {version="*", markers="sys_platform != 'linux'"}
+pynput = {version = "*", markers = "sys_platform == 'darwin'"}
 
 [dev-packages]
 
