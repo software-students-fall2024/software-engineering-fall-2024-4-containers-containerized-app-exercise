@@ -14,92 +14,75 @@ class MouseTracker:
     """Tracks mouse activity and calculates focus metrics."""
 
     def __init__(self):
-        self.last_event_time = time.time()
-        self.mouse_distance = 0
-        self.click_count = 0
-        self.scroll_distance = 0
-        self.last_x = None
-        self.last_y = None
-        self.focused_time = 0
-        self.unfocused_time = 0
+        self.metrics = {
+            "last_event_time": time.time(),
+            "mouse_distance": 0,
+            "click_count": 0,
+            "scroll_distance": 0,
+            "focused_time": 0,
+            "unfocused_time": 0,
+        }
+        self.last_position = None
         self.is_focused = True
 
     def update_focus_state(self):
         """Updates the focus state based on recent mouse activity."""
         current_time = time.time()
-        time_since_last_event = current_time - self.last_event_time
+        time_since_last_event = current_time - self.metrics["last_event_time"]
 
         if time_since_last_event > FOCUS_THRESHOLD:
             if self.is_focused:
                 self.is_focused = False
-                print(f"Warning: Student is not focused! "
-                      f"No activity for {time_since_last_event:.2f} seconds.")
-            self.unfocused_time += time_since_last_event - FOCUS_THRESHOLD
+            self.metrics["unfocused_time"] += time_since_last_event - FOCUS_THRESHOLD
         else:
             if not self.is_focused:
                 self.is_focused = True
-                print("Student regained focus.")
-            self.focused_time += time_since_last_event
+            self.metrics["focused_time"] += time_since_last_event
 
     def on_move(self, x, y):
         """Handles mouse movement events."""
         current_time = time.time()
-        time_interval = current_time - self.last_event_time
-        self.last_event_time = current_time
+        self.metrics["last_event_time"] = current_time
 
-        if self.last_x is not None and self.last_y is not None:
-            distance = math.sqrt((x - self.last_x) ** 2 + (y - self.last_y) ** 2)
-            self.mouse_distance += distance
-            print(f"Mouse moved to ({x}, {y}), Time interval: {time_interval:.2f} seconds")
-            print(f"Distance moved: {distance:.2f} pixels, "
-                  f"Total distance: {self.mouse_distance:.2f} pixels")
-        self.last_x, self.last_y = x, y
+        if self.last_position is not None:
+            prev_x, prev_y = self.last_position
+            distance = math.sqrt((x - prev_x) ** 2 + (y - prev_y) ** 2)
+            self.metrics["mouse_distance"] += distance
 
+        self.last_position = (x, y)
         self.update_focus_state()
 
     def on_click(self, x, y, button, pressed):
         """Handles mouse click events."""
         current_time = time.time()
-        time_interval = current_time - self.last_event_time
-        self.last_event_time = current_time
-
-        action = "pressed" if pressed else "released"
-        print(f"Mouse {action} at ({x}, {y}) with {button}, "
-              f"Time interval: {time_interval:.2f} seconds")
+        self.metrics["last_event_time"] = current_time
 
         if pressed:
-            self.click_count += 1
-            print(f"Click count: {self.click_count}")
+            self.metrics["click_count"] += 1
 
         self.update_focus_state()
 
     def on_scroll(self, x, y, dx, dy):
         """Handles mouse scroll events."""
         current_time = time.time()
-        time_interval = current_time - self.last_event_time
-        self.last_event_time = current_time
+        self.metrics["last_event_time"] = current_time
 
-        self.scroll_distance += abs(dy)
-        print(f"Mouse scrolled at ({x}, {y}) with delta ({dx}, {dy}), "
-              f"Time interval: {time_interval:.2f} seconds")
-        print(f"Scroll distance: {abs(dy)}, Total scroll distance: {self.scroll_distance}")
-
+        self.metrics["scroll_distance"] += abs(dy)
         self.update_focus_state()
 
     def generate_final_report(self):
         """Generates and prints a final activity report."""
-        total_time = self.focused_time + self.unfocused_time
-        focus_percentage = (self.focused_time / total_time) * 100 if total_time > 0 else 0
+        total_time = self.metrics["focused_time"] + self.metrics["unfocused_time"]
+        focus_percentage = (self.metrics["focused_time"] / total_time) * 100 if total_time > 0 else 0
         unfocus_percentage = 100 - focus_percentage
 
         print("\n--- Final Report ---")
-        print(f"Total mouse distance moved: {self.mouse_distance:.2f} pixels")
-        print(f"Total clicks: {self.click_count}")
-        print(f"Total scrolls: {self.scroll_distance}")
-        print(f"Focused time: {self.focused_time:.2f} seconds ({focus_percentage:.2f}%)")
-        print(f"Unfocused time: {self.unfocused_time:.2f} seconds ({unfocus_percentage:.2f}%)")
-        print(f"Student was {'Focused' if focus_percentage > unfocus_percentage else 'Unfocused'} "
-              f"during the class.")
+        print(f"Total mouse distance moved: {self.metrics['mouse_distance']:.2f} pixels")
+        print(f"Total clicks: {self.metrics['click_count']}")
+        print(f"Total scrolls: {self.metrics['scroll_distance']}")
+        print(f"Focused time: {self.metrics['focused_time']:.2f} seconds ({focus_percentage:.2f}%)")
+        print(f"Unfocused time: {self.metrics['unfocused_time']:.2f} seconds ({unfocus_percentage:.2f}%)")
+        print(f"Student was {'Focused' if focus_percentage > unfocus_percentage else 'Unfocused'} during the class.")
         print("------------------------")
 
 
