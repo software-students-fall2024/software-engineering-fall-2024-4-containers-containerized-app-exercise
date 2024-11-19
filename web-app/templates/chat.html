@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Chat with Your Boyfriend</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}" />
+    <script>
+      async function sendMessage(event) {
+        event.preventDefault(); // Prevent form submission
+
+        const messageInput = document.getElementById("message");
+        const chatLog = document.getElementById("chat-log");
+
+        const userMessage = messageInput.value;
+        if (!userMessage) return;
+
+        // Display user's message
+        chatLog.innerHTML += `<div class="user-message"><b>You:</b> ${userMessage}</div>`;
+
+        // Send the message to the server
+        const response = await fetch("/chat", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ message: userMessage }),
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          // Display character's response
+          chatLog.innerHTML += `<div class="character-message"><b>${data.character_name}:</b> ${data.character_message}</div>`;
+        } else {
+          chatLog.innerHTML += `<div class="error-message">Failed to get a response. Please try again.</div>`;
+        }
+
+        // Clear the input field
+        messageInput.value = "";
+        chatLog.scrollTop = chatLog.scrollHeight; // Scroll to the bottom
+      }
+    </script>
+  </head>
+  <body>
+    <div class="chat-container">
+      <h1>Chat with Your Boyfriend</h1>
+      <div id="chat-log" class="chat-log"></div>
+      <form id="chat-form" onsubmit="sendMessage(event)">
+        <input
+          type="text"
+          id="message"
+          placeholder="Type your message here..."
+          autocomplete="off"
+          required
+        />
+        <button type="submit">Send</button>
+      </form>
+    </div>
+  </body>
+</html>
