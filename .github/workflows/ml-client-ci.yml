@@ -60,7 +60,11 @@ jobs:
 
 
       # run the web-app pytests
-      - name: Run web-app tests
-        working-directory: ./machine-learning-client
-        run: |
-          pipenv run pytest 
+
+      # commented out for now because no current pytests...
+
+      
+      # - name: Run web-app tests
+      #   working-directory: ./machine-learning-client
+      #   run: |
+      #     pipenv run pytest 
