@@ -1,6 +1,7 @@
 import time
 from datetime import datetime
 from io import BytesIO
+
 import torch
 from flask import Flask, jsonify
 from PIL import Image
@@ -20,9 +21,7 @@ collection = db["detected_objects"]
 app = Flask(__name__)
 
 # Load YOLOv5 model
-model = torch.hub.load(
-    "ultralytics/yolov5", "yolov5s", pretrained=True
-).to("cpu")
+model = torch.hub.load("ultralytics/yolov5", "yolov5s", pretrained=True).to("cpu")
 
 
 def detect_objects(image):

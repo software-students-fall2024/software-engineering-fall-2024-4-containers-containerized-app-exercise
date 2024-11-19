@@ -7,8 +7,8 @@ from io import BytesIO
 from unittest import mock
 from unittest.mock import MagicMock, patch
 
-import pytest
 import mongomock
+import pytest
 from app import app, detect_objects_helper
 from PIL import Image
 
@@ -65,9 +65,7 @@ def test_detect_route_returns_error_on_missing_file(test_client):
 
 @patch("app.detect_objects")
 @patch("app.db")
-def test_detect_route_with_valid_file(
-    mock_db, mock_detect_objects, test_client
-):
+def test_detect_route_with_valid_file(mock_db, mock_detect_objects, test_client):
     """Test /api/detect returns predictions for valid file uploads."""
     mock_collection = mock_db.detections
     mock_collection.insert_one.return_value = MagicMock(inserted_id="mock_id")

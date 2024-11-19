@@ -63,10 +63,7 @@ def capture_frame():
     }
     result = collection.insert_one(document)
     return (
-        jsonify(
-            {"message": "Frame captured and saved",
-             "id": str(result.inserted_id)}
-             ),
+        jsonify({"message": "Frame captured and saved", "id": str(result.inserted_id)}),
         200,
     )
 
@@ -77,7 +74,7 @@ def latest_detection():
     detection = collection.find_one(
         {"status": "processed"},
         sort=[("timestamp", -1)],
-        )
+    )
     if not detection:
         return jsonify({"message": "No processed detections available"}), 404
 
@@ -102,11 +99,7 @@ def generate_frames():
         else:
             _, buffer = cv2.imencode(".jpg", frame)
             frame = buffer.tobytes()
-            yield (b"--frame\r\n"
-                   b"Content-Type: image/jpeg\r\n\r\n"
-                   + frame
-                   + b"\r\n"
-                   )
+            yield (b"--frame\r\n" b"Content-Type: image/jpeg\r\n\r\n" + frame + b"\r\n")
 
 
 def capture_frames_periodically():
