@@ -1,23 +1,25 @@
-FROM python:3.10-slim
+# Use the official slim Python 3.13 image
+FROM python:3.13-slim
 
 # Set the working directory
 WORKDIR /app
 
-# Copy application files
+# Copy application files into the container
 COPY . /app
 
-# Install dependencies
+# Ensure pip is up-to-date
+RUN pip3 install --no-cache-dir --upgrade pip
+
+# Install dependencies from requirements.txt
 RUN pip3 install --no-cache-dir -r requirements.txt
 
-# Explicitly ensure certifi is installed
-RUN pip3 install certifi
-
-# Expose Flask port
+# Expose Flask's default port
 EXPOSE 5000
 
-# Set environment variables
+# Set environment variables for Flask
 ENV FLASK_APP=app.py
-ENV FLASK_ENV=development
+ENV FLASK_RUN_HOST=0.0.0.0
+ENV FLASK_RUN_PORT=5000
 
-# Run the application
-CMD ["flask", "run", "--host=0.0.0.0", "--port=5000"]
+# Run the Flask application
+CMD ["flask", "run"]
