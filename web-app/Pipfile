@@ -13,3 +13,10 @@ pytest = "*"
 
 [dev-packages]
 
+[scripts]
+format = "black ."
+lint = "pylint **/*.py"
+test = "pytest"
+
+[requires]
+python_version = "3.10"
