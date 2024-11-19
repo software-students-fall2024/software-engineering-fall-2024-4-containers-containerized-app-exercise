@@ -1,9 +1,13 @@
-name: ml-lint
+name: Machine Learning Client CI
 on: [push, pull_request]
 
 jobs:
   lint-and-format:
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        # repeat same job for each subsystem in the following subdirectories
+        subdir: [machine-learning-client]
     steps:
       - uses: actions/checkout@v4
       - name: Set up Python
@@ -28,4 +32,3 @@ jobs:
         run: |
           cd machine-learning-client
           black --diff --check .
-

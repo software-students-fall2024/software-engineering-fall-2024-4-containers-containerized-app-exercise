@@ -1,33 +1,131 @@
 """
-This module contains tests for the app's flower classification functionality.
-It includes a test for predicting that a specific image belongs to the "Passion Fruit" class.
+Unit tests for the app.py module, which performs flower classification using a ResNet50 model.
+This script tests each function independently to achieve a minimum of 80% code coverage.
 """
 
-from app import load_model, predict_plant
+import os
+import pytest
+import torch
+from PIL import Image
+import torchvision.models
+from app import load_flower_names, load_model, transform_image, predict_plant
 
-# Mock the flower name mapping
-mock_flower_names = {
-    "0": "Daffodil",
-    "1": "Tiger Lily",
-    "2": "Rose",
-    "3": "Tulip",
-    "4": "Sunflower",
-    "5": "Passion Fruit",  # Assuming Passion Fruit is labeled as class 5
-    # Add all other classes here...
-}
+# Constants for data paths
+DATA_PATH = os.path.join("data", "flowers-102", "jpg", "image_00001.jpg")
+FLOWER_NAMES_PATH = os.path.join("data", "flower_to_name.json")
 
 
-def test_predict_passion_fruit():
-    """
-    Test that the image 'image_00001.jpg' is predicted as 'Passion Fruit'.
-    This test ensures that the model correctly identifies the Passion Fruit image.
-    """
-    # Test image path
-    test_image_path = "data/flowers-102/jpg/image_00001.jpg"
+@pytest.fixture
+def mock_open(monkeypatch):
+    """Fixture to mock the open function for loading flower names."""
 
-    # Use predict_plant to test
+    def mock_file_open(*_args, **_kwargs):
+        """Mock file open function to return JSON-like flower names."""
+
+        class MockFile:
+            """Mock file object that mimics open()."""
+
+            # pylint: disable=too-few-public-methods
+            def read(self):
+                """Return bytes-like JSON data for flower names."""
+                return '{"1": "Rose", "2": "Tulip"}'.encode("utf-8")
+
+            def __enter__(self):
+                return self
+
+            def __exit__(self, exc_type, exc_val, exc_tb):
+                pass
+
+        return MockFile()
+
+    monkeypatch.setattr("builtins.open", mock_file_open)
+
+
+@pytest.mark.usefixtures("mock_open")
+def test_load_flower_names():
+    """Test loading flower names from a JSON file."""
+    flower_names = load_flower_names()
+    assert flower_names == {"1": "Rose", "2": "Tulip"}
+
+
+@pytest.fixture
+def mock_resnet50(monkeypatch):
+    """Fixture to mock torchvision.models.resnet50 with a simplified model."""
+
+    class MockModel:
+        """Mock ResNet50 model with a modified final layer."""
+
+        # pylint: disable=too-few-public-methods
+        def __init__(self):
+            self.conv1 = torch.nn.Conv2d(3, 64, kernel_size=7, stride=2, padding=3)
+            self.pool = torch.nn.AdaptiveAvgPool2d((1, 1))
+            self.fc = torch.nn.Linear(64, 102)  # Mock final layer for 102 classes
+
+        def forward(self, x):
+            """Mock forward pass simulating a ResNet-like structure."""
+            x = self.conv1(x)
+            x = self.pool(x)
+            x = x.view(x.size(0), -1)  # Flatten before the fully connected layer
+            return self.fc(x)
+
+        def load_state_dict(self, _):
+            """Mock method for loading state dictionary."""
+
+        def eval(self):
+            """Mock method to set the model to evaluation mode."""
+            return self
+
+        def to(self, _device):
+            """Mock method to move the model to a specified device."""
+            return self
+
+    monkeypatch.setattr(
+        torchvision.models, "resnet50", lambda *_args, **_kwargs: MockModel()
+    )
+
+
+@pytest.mark.usefixtures("mock_resnet50")
+def test_load_model():
+    """Test loading and initializing the ResNet50 model."""
     model = load_model()
-    predicted_plant = predict_plant(test_image_path, model, mock_flower_names)
-    assert (
-        predicted_plant == "Passion Fruit"
-    ), f"Expected Passion Fruit but got {predicted_plant}"
+    assert model is not None
+
+
+@pytest.fixture
+def mock_image_open(monkeypatch):
+    """Fixture to mock PIL.Image.open to return a sample image for testing."""
+    sample_image = Image.new("RGB", (224, 224), color="red")  # Create a mock red image
+    monkeypatch.setattr(Image, "open", lambda _path: sample_image)
+
+
+@pytest.mark.usefixtures("mock_image_open")
+def test_transform_image():
+    """Test transforming an image to a tensor for model input."""
+    tensor = transform_image(DATA_PATH)
+    assert isinstance(tensor, torch.Tensor)
+    assert tensor.shape == (1, 3, 224, 224)
+
+
+@pytest.mark.usefixtures("mock_open", "mock_image_open")
+def test_predict_plant():
+    """Test predicting the plant name using the model and flower names dictionary."""
+    flower_names = load_flower_names()  # Using the mocked flower names data
+
+    # Creating a realistic mock model that downscales the image correctly
+    model = torch.nn.Sequential(
+        torch.nn.Conv2d(3, 64, kernel_size=7, stride=2, padding=3),
+        torch.nn.AdaptiveAvgPool2d((1, 1)),
+        torch.nn.Flatten(),
+        torch.nn.Linear(64, 2),  # Reduced output size for test purposes
+    )
+    model.eval()
+
+    with torch.no_grad():
+        model[3].weight.fill_(
+            0.1
+        )  # Fill weights with values that will produce predictable results
+        model[3].bias[0] = 0.5  # Bias for "Rose"
+        model[3].bias[1] = 1.0
+
+    result = predict_plant(DATA_PATH, model, flower_names)
+    assert result == "Tulip"  # Mocked result based on expected behavior
