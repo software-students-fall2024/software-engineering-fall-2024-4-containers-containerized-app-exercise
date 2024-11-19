@@ -4,47 +4,50 @@
 
 # Containerized App Exercise
 
-Build a containerized app that uses machine learning. See [instructions](./instructions.md) for details.
-
 ## Description
 
-The ASL interpreter app uses machine learning to recognize American Sign Language gestures from images.
+The ASL interpreter app uses machine learning to recognize American Sign Language gestures from images captured from a live camera feed.
 
 Designed for accessibility and ease of use, it offers a seamless, containerized experience that runs across three subsystems: gesture recognition, a web interface, and a database.
 
 ## Team
 
-[Safia](https://github.com/safiabillah)
+[Safia Billah](https://github.com/safiabillah)
 
-[Mel](https://github.com/melanie-y-zhang)
+[Melanie Zhang](https://github.com/melanie-y-zhang)
 
-[Chloe](https://github.com/jh7316)
+[Chloe Han](https://github.com/jh7316)
 
 [Fatima Villena](https://github.com/favils)
 
-## Instructions to Run
+## Configuration
 
-### Virtual Environment Configuration
-Make sure you have pipenv installed. 
+First, clone the repository into your preferred IDE or terminal.
+
+Then build the app using docker compose.  Run the command in the root directory of the project:
+
 ```bash
-pip install pipenv
-```
-Then install dependencies.
-```bash
-pipenv install
+docker-compose up
 ```
 
-And now you can run python scripts through the shell.
+This will start all three containers.
+
+Once complete, you can check out the program for yourself at the url: http://localhost:5002/
+
+Once in the browser, you will be prompted and asked to access your camera.  Just click "allow".
+
+You can stop all three containers by clicking CRTL+C or enter into your terminal:
+
 ```bash
-pipenv shell
+docker-compose stop
 ```
 
-### Setup
+You can also stop AND remove all containers by running:
 
-Build the app using docker compose.
 ```bash
-docker-compose up --build
+docker-compose down
 ```
 
 ## Task Board
+
 [Task Board](https://github.com/orgs/software-students-fall2024/projects/119/views/1)
