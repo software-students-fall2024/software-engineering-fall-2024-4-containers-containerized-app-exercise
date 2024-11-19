@@ -1,19 +1,20 @@
-import os
-import cv2
-import threading
-import time
-from flask import Flask, render_template, jsonify, Response
-from pymongo import MongoClient
-from bson.binary import Binary
-from dotenv import load_dotenv
 import atexit
 import datetime
+import os
+import threading
+import time
+
+import cv2
+from bson.binary import Binary
+from dotenv import load_dotenv
+from flask import Flask, Response, jsonify, render_template
+from pymongo import MongoClient
 
 # Load environment variables
 load_dotenv()
 
 app = Flask(__name__)
-mongo_uri = os.getenv("MONGO_URI", "mongodb+srv://raa9917:Rr12112002@cluster0.p902n.mongodb.net/?retryWrites=true&w=majority")
+mongo_uri = os.getenv("MONGO_URI")
 client = MongoClient(mongo_uri)
 db = client["object_detection"]
 collection = db["detected_objects"]
@@ -61,7 +62,10 @@ def capture_frame():
         "detections": [],
     }
     result = collection.insert_one(document)
-    return jsonify({"message": "Frame captured and saved", "id": str(result.inserted_id)}), 200
+    return (
+        jsonify({"message": "Frame captured and saved", "id": str(result.inserted_id)}),
+        200,
+    )
 
 
 @app.route("/latest_detection", methods=["GET"])
@@ -92,10 +96,7 @@ def generate_frames():
         else:
             _, buffer = cv2.imencode(".jpg", frame)
             frame = buffer.tobytes()
-            yield (
-                b"--frame\r\n"
-                b"Content-Type: image/jpeg\r\n\r\n" + frame + b"\r\n"
-            )
+            yield (b"--frame\r\n" b"Content-Type: image/jpeg\r\n\r\n" + frame + b"\r\n")
 
 
 def capture_frames_periodically():

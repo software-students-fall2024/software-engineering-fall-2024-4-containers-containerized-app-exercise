@@ -1,15 +1,17 @@
-from flask import Flask, request, jsonify
-from pymongo.mongo_client import MongoClient
-from pymongo.server_api import ServerApi
+import time
 from datetime import datetime
 from io import BytesIO
-import base64
-from PIL import Image
-import time
 import torch
+from flask import Flask, jsonify
+from PIL import Image
+from pymongo.mongo_client import MongoClient
+from pymongo.server_api import ServerApi
 
 # MongoDB connection
-uri = "mongodb+srv://raa9917:Rr12112002@cluster0.p902n.mongodb.net/?retryWrites=true&w=majority"
+uri = (
+    "mongodb+srv://raa9917:Rr12112002@cluster0.p902n.mongodb.net/"
+    "?retryWrites=true&w=majority"
+)
 client = MongoClient(uri, server_api=ServerApi("1"))
 db = client["object_detection"]
 collection = db["detected_objects"]
@@ -64,7 +66,9 @@ def process_pending_images():
                         }
                     },
                 )
-                print(f"Processed frame: {document['_id']} with detections: {detections}")
+                print(
+                    f"Processed frame: {document['_id']} with detections: {detections}"
+                )
             else:
                 print("No pending frames. Retrying...")
         except Exception as e:
