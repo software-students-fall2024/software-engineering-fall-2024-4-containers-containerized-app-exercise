@@ -6,31 +6,38 @@
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>Rock, Paper, Scissors</title>
-        <link rel="stylesheet" href="../static/style.css">
+
+        <!-- Link to the CSS file for styling -->
+        <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+        <!-- Link to external icon library -->
         <link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet">
+
     </head>
-
-    
+   
     <body>
-        <!-- HEADING -->
+        <!-- HEADER SECTION -->
         <header>
-            <a href="index.html" class="webName"><img src="../static/logo.png" id="logo">Rock, Paper, Scissors</a>
-
-            <!-- Buttons -->
-            <div class="button-container">
-                <div class="replay-button"><a href="index.html">New Game</a></div>
-                <div class="stats-button"><a href="stats.html">Stats</a></div>
+            <!-- Link to the home page -->
+            <a href="{{ url_for('home') }}" class="webName">
+                <img src="{{ url_for('static', filename='logo.png') }}" id="logo">Rock, Paper, Scissors
+            </a>
+             <!-- Buttons container -->
+             <div class="button-container">
+                <!-- Link to start a new game -->
+                <div class="replay-button"><a href="{{ url_for('home') }}">New Game</a></div>
+                <!-- Link to view game statistics -->
+                <div class="stats-button"><a href="{{ url_for('stats') }}">Stats</a></div>
             </div>
         </header>
 
-        <!-- GAME PAGE -->
+        <!-- GAME PAGE SECTION -->
         <section class="game" id="game">
             <h2 id="countdown">Are you ready?</h2>
 
             <!-- Ready buttons -->
             <div class="ready-buttons">
                 <button id="yes-button">Yes, let's play!</button>
-                <a href="tutorial.html" id="no-button">No, see tutorial.</a>
+                <a href="{{ url_for('tutorial') }}" id="no-button">No, see tutorial.</a>
             </div>
 
             <!-- Camera box -->
