@@ -2,6 +2,7 @@
 This module sets up the Flask application for the Plant Identifier project.
 """
 
+import base64
 import os
 from bson import ObjectId
 from dotenv import load_dotenv
@@ -71,7 +72,17 @@ def create_app():
     def upload():
         if request.method == "POST":
             plant_photo = request.form["photo"]
+
+            # convert photo data to jpg file
+            photo_data = plant_photo.split(",")[1]
+            with open("photo.jpg", "wb") as jpg_file:
+                jpg_file.write(base64.b64decode(photo_data))
+
+            # get plant name based on ml module that identifies plant types
+            # in the meantime use 'placeholder'
             plant_name = "placeholder"
+
+            # post to database
             plant_data = {
                 "photo": plant_photo,
                 "name": plant_name,
