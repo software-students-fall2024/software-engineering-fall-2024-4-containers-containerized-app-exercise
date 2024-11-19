@@ -4,7 +4,6 @@
 }
 
 :root {
-  --rose: #FFC1C1; /* Soft Coral Pink */
   --forest: #1B5E20; /* Deep Emerald Green */
   --sand: #F4A261; /* Warm Sunset Orange */
   --pink: #FF2515; /* Fresh Light Pink */
@@ -113,7 +112,7 @@ button {
 }
 
 button:hover {
-  background-color: var(--rose);
+  background-color: var(--sand);
 }
 
 /* Forms */
