@@ -4,6 +4,10 @@ on: [push, pull_request]
 jobs:
   lint-and-format:
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        # repeat same job for each subsystem in the following subdirectories
+        subdir: [machine-learning-client]
     steps:
       - uses: actions/checkout@v4
       - name: Set up Python
