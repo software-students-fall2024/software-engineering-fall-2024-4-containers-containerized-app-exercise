@@ -6,18 +6,12 @@ name = "pypi"
 [packages]
 pylint = "*"
 black = "*"
-pymongo = "*"
-pytest = "*"
-mongomock = "*"
-tomli = "*"
 
 [dev-packages]
 python-dotenv = "*"
 flask = "*"
 pymongo = "*"
 werkzeug = "*"
-pytest = "*"
-mongomock = "*"
 
 [requires]
-python_version = "3.9"
+python_version = "3.12"
