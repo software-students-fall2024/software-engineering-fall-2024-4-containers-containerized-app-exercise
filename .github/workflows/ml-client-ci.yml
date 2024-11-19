@@ -49,7 +49,7 @@ jobs:
       - name: Lint machine learning client with pylint
         working-directory: ./machine-learning-client
         run: |
-          pipenv run pylint ml-client.py
+          pipenv run pylint ml_client.py
 
 
       # format with black
