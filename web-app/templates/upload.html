@@ -4,13 +4,14 @@
 
 {% block content %}
 <section>
-    <div class="video-container">
-        <form action="{{ url_for('upload') }}" method="POST" enctype="multipart/form-data">
+    <div class="video-form-container">
+        <form action="{{ url_for('upload') }}" method="POST" enctype="multipart/form-data" class="form-video">
             <h1>Upload Plant Image</h1>
             <video id="video" autoplay></video>
             <canvas id="canvas" style="display: none;"></canvas>
             <img id="capturedImage" style="display: none;" alt="Captured Photo">
-            <button onclick="capturePhoto()" class="button">Capture Photo</button>
+            <button type="button" onclick="capturePhoto()" class="button" id="capture">Capture Photo</button>
+            <button type="submit" style="visibility: hidden;" class="button" id="submit">Upload Photo</button>
             <input type="hidden" id="photoData" name="photo">
         </form>
     </div>
@@ -20,6 +21,7 @@
         // Start the camera
         let stream;
         function startCamera() {
+            console.log("this works")
             navigator.mediaDevices.getUserMedia({ video: true })
                 .then(mediaStream => {
                     stream = mediaStream;
@@ -33,6 +35,7 @@
 
         // Capture a photo
         function capturePhoto() {
+            console.log("hi")
             const scaleFactor = 0.5;
             const videoElement = document.getElementById('video');
             const canvasElement = document.getElementById('canvas');
@@ -54,6 +57,10 @@
 
             // Hide the video
             videoElement.style.display = 'none';
+
+            // replace capture button with submit
+            document.getElementById('capture').style.visibility = 'hidden';
+            document.getElementById('submit').style.visibility = 'visible'
 
             // Stop all video tracks and release the camera
             if (stream) {
