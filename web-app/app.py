@@ -5,14 +5,40 @@ A Flask web application for a Rock-Paper-Scissors game with AI and ML integratio
 import os
 import time
 import random
-import logging
-from flask import Flask, render_template, request, jsonify
+import logging  # Fixed import order
+from flask import Flask, render_template, request, jsonify, make_response
 import requests
 from requests.exceptions import RequestException
+from pymongo import MongoClient
+from bson.objectid import ObjectId
 
 logging.basicConfig(level=logging.DEBUG)
 
 app = Flask(__name__)
+
+# MongoDB connection
+MONGO_URI = os.getenv("MONGO_URI", "mongodb://mongodb:27017")
+client = MongoClient(MONGO_URI)
+db = client["rps_database"]
+collection = db["stats"]
+
+
+def generate_stats_doc():
+    """
+    Creates blank stats-tracking document.
+
+    Returns:
+        _id (str): ObjectId for newly created document
+    """
+
+    stats = {
+        "Rock": {"wins": 0, "losses": 0, "ties": 0, "total": 0},
+        "Paper": {"wins": 0, "losses": 0, "ties": 0, "total": 0},
+        "Scissors": {"wins": 0, "losses": 0, "ties": 0, "total": 0},
+        "Totals": {"wins": 0, "losses": 0, "ties": 0},
+    }
+    _id = str(collection.insert_one(stats).inserted_id)
+    return _id
 
 
 def retry_request(url, files, retries=5, delay=2, timeout=10):
@@ -47,19 +73,31 @@ def retry_request(url, files, retries=5, delay=2, timeout=10):
 @app.route("/")
 def home():
     """Render the home page."""
-    return render_template("title.html")
+    resp = make_response(render_template("title.html"))
+    if "db_object_id" not in request.cookies:
+        resp.set_cookie("db_object_id", generate_stats_doc())
+    return resp
 
 
 @app.route("/index")
 def index():
     """Render the index page."""
-    return render_template("index.html")
+    resp = make_response(render_template("index.html"))
+    if "db_object_id" not in request.cookies:
+        resp.set_cookie("db_object_id", generate_stats_doc())
+    return resp
 
 
 @app.route("/statistics")
 def statistics():
     """Render the statistics page."""
-    return render_template("statistics.html")
+    _id = request.cookies.get("db_object_id", default=None)
+    if not _id:
+        _id = generate_stats_doc()
+    stats = collection.find_one({"_id": ObjectId(_id)}, {"_id": 0})
+    resp = make_response(render_template("statistics.html", stats_data=stats))
+    resp.set_cookie("db_object_id", _id)
+    return resp
 
 
 @app.route("/result", methods=["POST"])
@@ -106,6 +144,24 @@ def result():
     ai_gesture = random.choice(["Rock", "Paper", "Scissors"])
     game_result = determine_winner(user_gesture, ai_gesture)
     app.logger.debug("Game result: %s", game_result)
+    _id = request.cookies.get("db_object_id")
+    if game_result == "AI wins!":
+        res = "losses"
+    elif game_result == "It's a tie!":
+        res = "ties"
+    else:
+        res = "wins"
+    collection.update_one(
+        {"_id": ObjectId(_id)},
+        {
+            "$inc": {
+                "Totals" + "." + res: 1,
+                user_gesture + "." + res: 1,
+                user_gesture + "." + "total": 1,
+            }
+        },
+        upsert=False,
+    )
     return render_template(
         "result.html", user=user_gesture, ai=ai_gesture, result=game_result
     )
