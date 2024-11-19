@@ -1,14 +1,12 @@
 FROM python:3.10-slim
 
 WORKDIR /app
+WORKDIR /app
 
-COPY Pipfile Pipfile.lock requirements.txt /app/
+COPY Pipfile Pipfile.lock ./
+RUN pip install --no-cache-dir pipenv && \
+    pipenv install --system --deploy
 
-COPY requirements.txt ./
-RUN pip3 install -r requirements.txt
+COPY . .
 
-ADD . .
-
-EXPOSE 5000
-
-CMD ["python3", "-m" , "flask", "run", "--host=0.0.0.0"]
+CMD ["python3", "app.py"]
