@@ -3,6 +3,7 @@ const captureBtn = document.getElementById('capture-btn');
 const video = document.getElementById('camera-feed');
 const canvas = document.getElementById('snapshot');
 const ctx = canvas.getContext('2d');
+const d = document.querySelector('.desc');
 
 let stream;
 async function startCamera() {
@@ -16,6 +17,7 @@ try {
 
 cameraBtn.addEventListener('click', () => {
     startCamera();
+    d.style.display = "none";
     cameraBtn.style.display = "none";
     captureBtn.style.display = "block";
     video.style.display = "block";
@@ -29,8 +31,10 @@ cameraBtn.addEventListener('click', () => {
 });
 
 captureBtn.addEventListener('click', () => {
-    cameraBtn.disabled = false;
-    captureBtn.disabled = true;
+    d.textContent = "click start camera to redo";
+    d.style.display = "block";
+    cameraBtn.style.display = "block";
+    captureBtn.style.display = "none";
 
     canvas.width = video.videoWidth;
     canvas.height = video.videoHeight;
