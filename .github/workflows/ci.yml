@@ -1,0 +1,71 @@
+name: CI
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+
+
+jobs: 
+  build-and-test:
+    runs-on: ubuntu-latest
+
+    # # test on two different python versions (if needed)
+    # strategy:
+    #   matrix:
+    #     python-version: [3.11, 3.12]
+
+
+    steps: 
+        # checkout code
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+        # setup python
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+
+        # install pip and upgrade, and pipenv
+      - name: Install pip and pipenv
+        run: |
+          python -m pip install --upgrade pip
+          pip install pipenv
+
+        # install dependencies
+      - name: Install dependencies with pipenv
+        run: |
+          pipenv --python $(which python3)
+          pipenv install --dev --deploy --ignore-pipfile
+
+        # check lint formatting on machine learning client
+      - name: Lint machine_learning_client with pylint
+        run: |
+          pipenv run pylint machine_learning_client/ml_client.py
+
+        # ceck lint formatting on the web-app
+      - name: Lint web-app with pylint
+        run: |
+          pipenv run pylint --rcfile=./.pylintrc web-app/app.py
+          pipenv run pylint --rcfile=./.pylintrc web-app/tests/test_web_app.py
+          
+        # format with black
+      - name: Format with Black
+        run: |
+          pipenv run black --check . 
+
+
+      # ml commented out for now
+
+      #   # run the machine learning client pytests
+      # - name: Run machine_learning_client tests
+      #   run: |
+      #     pipenv run pytest --cov=machine_learning_client machine_learning_client/tests/
+
+
+        # run the web-app pytests
+      - name: Run web-app tests
+        run: |
+          pipenv run pytest --cov=web-app web-app/tests/
