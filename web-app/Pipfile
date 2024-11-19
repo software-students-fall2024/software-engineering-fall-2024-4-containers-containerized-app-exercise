@@ -6,6 +6,7 @@ name = "pypi"
 [packages]
 pylint = "*"
 black = "*"
+mongomock = "*"
 
 [dev-packages]
 python-dotenv = "*"
