@@ -4,7 +4,7 @@ Configuring the webapp tests
 
 import pytest
 
-#pylint: disable=import-error
+# pylint: disable=import-error
 from src.app import app
 
 
