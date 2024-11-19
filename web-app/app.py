@@ -5,7 +5,6 @@ This module sets up the Flask application for the Plant Identifier project.
 import base64
 import os
 from bson import ObjectId
-import mongomock
 
 # from bson import ObjectId
 from dotenv import load_dotenv

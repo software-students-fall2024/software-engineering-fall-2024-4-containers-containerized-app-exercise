@@ -7,7 +7,6 @@ This script tests each route independently to achieve a minimum of 80% code cove
 from unittest.mock import patch
 import pytest
 import mongomock
-from flask import session
 from app import create_app  # Update with your actual app file name
 
 
@@ -17,12 +16,12 @@ def app():
     Creates Flask application and Mongomock db for testing
     """
     # Mock the MongoDB client with an in-memory database (mongomock)
-    with patch("app.pymongo.MongoClient", new=mongomock.MongoClient) as MockMongoClient:
+    with patch("app.pymongo.MongoClient", new=mongomock.MongoClient) as mock_mongo_client:
         mock_client = mongomock.MongoClient()  # Use an in-memory MongoDB
         mock_db = mock_client["test_plantify"]  # Name of the in-memory test database
 
         # Replace the db attribute in the app with the mock database
-        MockMongoClient.return_value = mock_client
+        mock_mongo_client.return_value = mock_client
 
         # Pass the test-specific configuration to the app factory
         app = create_app(
