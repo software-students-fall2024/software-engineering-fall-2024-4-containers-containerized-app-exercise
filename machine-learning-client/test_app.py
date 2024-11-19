@@ -1,33 +1,51 @@
 """
-This module contains tests for the app's flower classification functionality.
-It includes a test for predicting that a specific image belongs to the "Passion Fruit" class.
+Unit tests for the app.py module, which performs flower classification using a ResNet50 model.
+This script tests each function independently to achieve a minimum of 80% code coverage.
 """
 
-from app import load_model, predict_plant
-
-# Mock the flower name mapping
-mock_flower_names = {
-    "0": "Daffodil",
-    "1": "Tiger Lily",
-    "2": "Rose",
-    "3": "Tulip",
-    "4": "Sunflower",
-    "5": "Passion Fruit",  # Assuming Passion Fruit is labeled as class 5
-    # Add all other classes here...
-}
+import unittest.mock
+import pytest
+import torch
+from unittest.mock import patch, MagicMock
+from PIL import Image
+from app import load_flower_names, load_model, transform_image, predict_plant
 
 
-def test_predict_passion_fruit():
-    """
-    Test that the image 'image_00001.jpg' is predicted as 'Passion Fruit'.
-    This test ensures that the model correctly identifies the Passion Fruit image.
-    """
-    # Test image path
-    test_image_path = "data/flowers-102/jpg/image_00001.jpg"
+def test_load_flower_names():
+    """Test loading flower names from a JSON file."""
+    with patch("builtins.open", unittest.mock.mock_open(read_data='{"1": "Rose", "2": "Tulip"}')):
+        flower_names = load_flower_names()
+        assert flower_names == {"1": "Rose", "2": "Tulip"}
 
-    # Use predict_plant to test
-    model = load_model()
-    predicted_plant = predict_plant(test_image_path, model, mock_flower_names)
-    assert (
-        predicted_plant == "Passion Fruit"
-    ), f"Expected Passion Fruit but got {predicted_plant}"
+
+def test_load_model():
+    """Test loading and initializing the ResNet50 model."""
+    with patch("torchvision.models.resnet50") as mock_resnet50:
+        model_instance = MagicMock()
+        mock_resnet50.return_value = model_instance
+        model = load_model()
+        assert model is not None
+        mock_resnet50.assert_called_once()
+
+
+def test_transform_image():
+    """Test transforming an image to a tensor for model input."""
+    # Create an in-memory image
+    img = Image.new("RGB", (224, 224), color="red")
+    with patch("PIL.Image.open", return_value=img):
+        tensor = transform_image("path/to/image.jpg")
+        assert isinstance(tensor, torch.Tensor)
+        assert tensor.shape == (1, 3, 224, 224)  # Expecting a (1, 3, 224, 224) size tensor with batch dim.
+
+
+def test_predict_plant():
+    """Test predicting the plant name using the model and flower names dictionary."""
+    flower_names = {"1": "Rose", "2": "Tulip"}
+    model = MagicMock()
+    model.return_value = torch.tensor([[0.1, 0.9]])  # Mock prediction output
+
+    with patch("app.transform_image") as mock_transform:
+        mock_transform.return_value = torch.tensor([[[[0.1]]]])  # Mocked tensor input
+        result = predict_plant("path/to/image.jpg", model, flower_names)
+        assert result == "Tulip"  # Highest probability for class "2" which is "Tulip"
+
