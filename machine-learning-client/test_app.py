@@ -18,14 +18,17 @@ FLOWER_NAMES_PATH = os.path.join("data", "flower_to_name.json")
 @pytest.fixture
 def mock_open(monkeypatch):
     """Fixture to mock the open function for loading flower names."""
+
     def mock_file_open(*_args, **_kwargs):
         """Mock file open function to return JSON-like flower names."""
+
         class MockFile:
             """Mock file object that mimics open()."""
+
             # pylint: disable=too-few-public-methods
             def read(self):
                 """Return bytes-like JSON data for flower names."""
-                return '{"1": "Rose", "2": "Tulip"}'.encode('utf-8')
+                return '{"1": "Rose", "2": "Tulip"}'.encode("utf-8")
 
             def __enter__(self):
                 return self
@@ -51,6 +54,7 @@ def mock_resnet50(monkeypatch):
 
     class MockModel:
         """Mock ResNet50 model with a modified final layer."""
+
         # pylint: disable=too-few-public-methods
         def __init__(self):
             self.conv1 = torch.nn.Conv2d(3, 64, kernel_size=7, stride=2, padding=3)
@@ -75,7 +79,9 @@ def mock_resnet50(monkeypatch):
             """Mock method to move the model to a specified device."""
             return self
 
-    monkeypatch.setattr(torchvision.models, "resnet50", lambda *_args, **_kwargs: MockModel())
+    monkeypatch.setattr(
+        torchvision.models, "resnet50", lambda *_args, **_kwargs: MockModel()
+    )
 
 
 @pytest.mark.usefixtures("mock_resnet50")
@@ -99,6 +105,7 @@ def test_transform_image():
     assert isinstance(tensor, torch.Tensor)
     assert tensor.shape == (1, 3, 224, 224)
 
+
 @pytest.mark.usefixtures("mock_open", "mock_image_open")
 def test_predict_plant():
     """Test predicting the plant name using the model and flower names dictionary."""
@@ -109,13 +116,15 @@ def test_predict_plant():
         torch.nn.Conv2d(3, 64, kernel_size=7, stride=2, padding=3),
         torch.nn.AdaptiveAvgPool2d((1, 1)),
         torch.nn.Flatten(),
-        torch.nn.Linear(64, 2)  # Reduced output size for test purposes
+        torch.nn.Linear(64, 2),  # Reduced output size for test purposes
     )
     model.eval()
 
     with torch.no_grad():
-        model[3].weight.fill_(0.1)  # Fill weights with values that will produce predictable results
-        model[3].bias[0] = 0.5      # Bias for "Rose"
+        model[3].weight.fill_(
+            0.1
+        )  # Fill weights with values that will produce predictable results
+        model[3].bias[0] = 0.5  # Bias for "Rose"
         model[3].bias[1] = 1.0
 
     result = predict_plant(DATA_PATH, model, flower_names)
