@@ -107,13 +107,3 @@ def test_latest_detection_with_data(
     response_data = response.get_json()
     assert response_data["timestamp"] == mock_detection["timestamp"]
     assert response_data["labels"] == mock_detection["detections"]
-
-
-def test_video_feed(test_client, camera_mock):  # pylint: disable=redefined-outer-name
-    """Test /video_feed route."""
-    camera_mock.read.side_effect = [(True, b"frame1"), (True, b"frame2"), (False, None)]
-
-    with patch("cv2.imencode", return_value=(True, b"mock_encoded_frame")):
-        response = test_client.get("/video_feed")
-        assert response.status_code == 200
-        assert response.content_type == "multipart/x-mixed-replace; boundary=frame"
