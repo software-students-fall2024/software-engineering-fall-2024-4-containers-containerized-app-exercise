@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Camera and Microphone Access</title>
+    <style>
+        video {
+            border: 2px solid black;
+            width: 100%;
+            max-width: 480px;
+            margin: 20px 0;
+        }
+    </style>
+</head>
+<body>
+    <h1>Camera and Microphone Access</h1>
+    <button id="startTracking">Start Tracking</button>
+    <button id="stopTracking">Stop Tracking</button>
+    <p id="status"></p>
+
+    <h2>Camera Test</h2>
+    <video id="video" autoplay playsinline></video>
+    <p id="cameraStatus">Testing camera...</p>
+    
+    <script>
+        // Start and Stop Tracking
+        document.getElementById("startTracking").addEventListener("click", () => {
+            fetch("/start-tracking", { method: "POST" })
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById("status").innerText = data.status;
+                })
+                .catch(error => {
+                    console.error("Error starting tracking:", error);
+                    document.getElementById("status").innerText = "Error starting tracking.";
+                });
+        });
+
+        document.getElementById("stopTracking").addEventListener("click", () => {
+            fetch("/stop-tracking", { method: "POST" })
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById("status").innerText = data.status;
+                })
+                .catch(error => {
+                    console.error("Error stopping tracking:", error);
+                    document.getElementById("status").innerText = "Error stopping tracking.";
+                });
+        });
+
+        // Camera Test
+        async function testCamera() {
+            const videoElement = document.getElementById("video");
+            const cameraStatus = document.getElementById("cameraStatus");
+
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+                videoElement.srcObject = stream;
+                cameraStatus.innerText = "Camera is working!";
+            } catch (error) {
+                console.error("Error accessing the camera:", error);
+                cameraStatus.innerText = "Camera access failed. Please check permissions.";
+            }
+        }
+
+        // Test the camera on page load
+        window.onload = testCamera;
+    </script>
+</body>
+</html>
