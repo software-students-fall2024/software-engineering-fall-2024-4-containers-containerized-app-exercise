@@ -1,19 +1,17 @@
-import time
-from datetime import datetime
+"""
+This module contains the code for the ML client that communicates with the frontend
+"""
+
+from datetime import datetime, timezone
 from io import BytesIO
 
 import torch
 from flask import Flask, jsonify
 from PIL import Image
 from pymongo.mongo_client import MongoClient
-from pymongo.server_api import ServerApi
 
 # MongoDB connection
-uri = (
-    "mongodb+srv://raa9917:Rr12112002@cluster0.p902n.mongodb.net/"
-    "?retryWrites=true&w=majority"
-)
-client = MongoClient(uri, server_api=ServerApi("1"))
+client = MongoClient("mongodb://localhost:27017/")
 db = client["object_detection"]
 collection = db["detected_objects"]
 
@@ -40,46 +38,35 @@ def index():
     return jsonify({"status": "running"}), 200
 
 
-def process_pending_images():
-    """Periodically process pending images from MongoDB."""
-    while True:
-        try:
-            # Find a document with status "pending"
-            document = collection.find_one({"status": "pending"})
-            if document:
-                print("Processing a pending frame...")
+@app.route("/process_pending", methods=["POST"])
+def process_pending():
+    """
+    Process a pending image from MongoDB.
+    This endpoint is triggered when the frontend captures a frame.
+    """
+    document = collection.find_one({"status": "pending"})
+    if not document:
+        return jsonify({"message": "No pending frames to process"}), 404
 
-                # Decode the image
-                image_data = BytesIO(document["image"])
-                image = Image.open(image_data)
+    image_data = BytesIO(document["image"])
+    image = Image.open(image_data)
 
-                # Perform object detection
-                detections = detect_objects(image)
+    detections = detect_objects(image)
 
-                # Update the document with detections
-                collection.update_one(
-                    {"_id": document["_id"]},
-                    {
-                        "$set": {
-                            "status": "processed",
-                            "detections": detections,
-                            "processed_at": datetime.utcnow(),
-                        }
-                    },
-                )
-                print(
-                    f"Processed frame: {document['_id']} "
-                    f"with detections: {detections}"
-                )
-            else:
-                print("No pending frames. Retrying...")
-        except Exception as e:
-            print(f"Error processing pending frames: {e}")
+    collection.update_one(
+        {"_id": document["_id"]},
+        {
+            "$set": {
+                "status": "processed",
+                "detections": detections,
+                "processed_at": datetime.now(timezone.utc),
+            }
+        },
+    )
 
-        time.sleep(5)  # Wait for 5 seconds before checking again
+    return jsonify({"message": "Frame processed", "detections": detections}), 200
 
 
 if __name__ == "__main__":
     # Start automatic processing
-    print("Starting the automatic frame processing...")
-    process_pending_images()
+    app.run(host="0.0.0.0", port=5001)

@@ -11,6 +11,8 @@ black = "*"
 python-dotenv = "*"
 pytest = "*"
 pytest-cov = "*"
+opencv-python = "*"
+requests = "*"
 
 [dev-packages]
 

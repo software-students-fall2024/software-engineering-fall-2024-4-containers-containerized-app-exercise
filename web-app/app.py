@@ -1,9 +1,14 @@
+"""
+This is the main module for the web app front end.
+"""
+
 import atexit
-import datetime
+from datetime import datetime, timezone
 import os
 
 import cv2
 from bson.binary import Binary
+import requests
 from dotenv import load_dotenv
 from flask import Flask, Response, jsonify, render_template
 from pymongo import MongoClient
@@ -18,8 +23,8 @@ db = client["object_detection"]
 collection = db["detected_objects"]
 
 # Initialize camera
-camera = cv2.VideoCapture(0)
-atexit.register(lambda: camera.release())
+camera = cv2.VideoCapture(0)  # pylint: disable=no-member
+atexit.register(lambda: camera.release())  # pylint: disable=W0108
 
 
 @app.route("/")
@@ -28,27 +33,40 @@ def index():
     return render_template("index.html")
 
 
-@app.route("/capture_frame", methods=["POST"])
-def capture_frame():
-    """Capture a frame and save it to MongoDB."""
+@app.route("/capture_and_process", methods=["POST"])
+def capture_and_process():
+    """Capture a frame, save it to MongoDB, and trigger processing."""
+    # Capture a frame
     success, frame = camera.read()
     if not success:
         return jsonify({"error": "Failed to capture frame"}), 500
 
     # Encode the frame to JPEG format
-    _, buffer = cv2.imencode(".jpg", frame)
-    image_binary = Binary(buffer.tobytes())
+    _, buffer = cv2.imencode(".jpg", frame)  # pylint: disable=no-member
+    image_binary = Binary(buffer)
 
     # Save to MongoDB
     document = {
         "image": image_binary,
-        "timestamp": datetime.datetime.utcnow(),
+        "timestamp": datetime.now(timezone.utc).isoformat(),
         "status": "pending",  # Waiting for processing
         "detections": [],
     }
     result = collection.insert_one(document)
+
+    # Trigger processing in the ML app
+    ml_response = requests.post("http://localhost:5001/process_pending", timeout=90)
+    if ml_response.status_code != 200:
+        return jsonify({"error": "Processing failed"}), 500
+
     return (
-        jsonify({"message": "Frame captured and saved", "id": str(result.inserted_id)}),
+        jsonify(
+            {
+                "message": "Frame captured and processed",
+                "id": str(result.inserted_id),
+                "detections": ml_response.json().get("detections", []),
+            }
+        ),
         200,
     )
 
@@ -81,10 +99,8 @@ def generate_frames():
         success, frame = camera.read()
         if not success:
             break
-        else:
-            _, buffer = cv2.imencode(".jpg", frame)
-            frame = buffer.tobytes()
-            yield (b"--frame\r\n" b"Content-Type: image/jpeg\r\n\r\n" + frame + b"\r\n")
+        _, buffer = cv2.imencode(".jpg", frame)  # pylint: disable=no-member
+        yield b"--frame\r\n" b"Content-Type: image/jpeg\r\n\r\n" + buffer + b"\r\n"
 
 
 if __name__ == "__main__":

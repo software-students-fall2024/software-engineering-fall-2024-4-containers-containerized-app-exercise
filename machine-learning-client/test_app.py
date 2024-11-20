@@ -4,106 +4,119 @@ or to see with coverage run with 'python -m pytest --cov=app test_app.py'
 """
 
 from io import BytesIO
-from unittest import mock
+from datetime import datetime, timezone
 from unittest.mock import MagicMock, patch
 
-import mongomock
 import pytest
-from app import app, detect_objects
 from PIL import Image
+import numpy as np
 
-app.config["TESTING"] = True
+from app import app, detect_objects
 
 
-@pytest.fixture(name="test_client")
-def fixture_test_client():
+@pytest.fixture
+def flask_test_client():
     """Fixture for Flask test client."""
     with app.test_client() as client:
         yield client
 
 
-@pytest.fixture(name="mock_mongo")
-def fixture_mock_mongo():
-    """Fixture for mocking MongoDB."""
-    with patch("app.mongo.MongoClient", new=mongomock.MongoClient):
-        yield mongomock.MongoClient()
+@pytest.fixture
+def mongo_mock(monkeypatch):
+    """Mock MongoDB operations."""
+    mock_collection = MagicMock()
+    mock_client = MagicMock()
+    mock_client["object_detection"]["detected_objects"] = mock_collection
+    monkeypatch.setattr("app.client", mock_client)
+    monkeypatch.setattr(
+        "app.collection", mock_collection
+    )  # Ensure collection is mocked
+    return mock_collection
 
 
-@patch("app.model")
-def test_detect_objects_returns_correct_predictions(mock_model):
-    """Test detect_objects with mocked YOLOv5 predictions."""
+@pytest.fixture
+def model_mock(monkeypatch):
+    """Mock YOLOv5 model."""
+    mock_model_instance = MagicMock()
     mock_results = MagicMock()
     mock_results.pandas.return_value.xyxy = [
-        MagicMock(
-            to_dict=MagicMock(
-                return_value=[
-                    {"name": "person", "confidence": 0.98},
-                    {"name": "cat", "confidence": 0.85},
-                ]
-            )
-        )
+        MagicMock(to_dict=lambda orient: [{"name": "cat", "confidence": 0.9}])
     ]
-    mock_model.return_value = mock_results
-
-    # create a blank image
-    image = Image.new("RGB", (224, 224), color="white")
-
-    detected_objects = detect_objects_helper(image)
-
-    assert detected_objects == [
-        {"label": "person", "confidence": 0.98},
-        {"label": "cat", "confidence": 0.85},
-    ]
+    mock_model_instance.return_value = mock_results
+    monkeypatch.setattr("torch.hub.load", lambda *args, **kwargs: mock_model_instance)
+    monkeypatch.setattr("app.model", mock_model_instance)
+    return mock_model_instance
 
 
-def test_detect_route_returns_error_on_missing_file(test_client):
-    """Test /api/detect returns 400 when no file is provided."""
-    response = test_client.post("/api/detect")
-    assert response.status_code == 400
-    assert "No image file provided." in response.get_data(as_text=True)
-
-
-@patch("app.detect_objects")
-@patch("app.db")
-def test_detect_route_with_valid_file(mock_db, mock_detect_objects, test_client):
-    """Test /api/detect returns predictions for valid file uploads."""
-    mock_collection = mock_db.detections
-    mock_collection.insert_one.return_value = MagicMock(inserted_id="mock_id")
-
-    mock_detect_objects.return_value = [
-        {"label": "person", "confidence": 0.98},
-        {"label": "cat", "confidence": 0.85},
-    ]
-
-    image = Image.new("RGB", (224, 224), color="white")
-    buffer = BytesIO()
-    image.save(buffer, format="PNG")
-    buffer.seek(0)
-
-    response = test_client.post(
-        "/api/detect",
-        content_type="multipart/form-data",
-        data={"file": (buffer, "test.png")},
-    )
-
+def test_index(flask_test_client):  # pylint: disable=redefined-outer-name
+    """Test the health check endpoint."""
+    response = flask_test_client.get("/")
     assert response.status_code == 200
-    assert response.get_json() == {
-        "timestamp": mock.ANY,
-        "detected_objects": [
-            {"label": "person", "confidence": 0.98},
-            {"label": "cat", "confidence": 0.85},
-        ],
+    assert response.get_json() == {"status": "running"}
+
+
+def test_detect_objects(
+    model_mock,
+):  # pylint: disable=redefined-outer-name, unused-argument
+    """Test the detect_objects function."""
+    mock_image = Image.fromarray(np.zeros((480, 640, 3), dtype=np.uint8))
+    detections = detect_objects(mock_image)
+
+    assert len(detections) == 1
+    assert detections[0]["label"] == "cat"
+    assert detections[0]["confidence"] == 0.9
+
+
+def test_process_pending_no_document(
+    flask_test_client, mongo_mock
+):  # pylint: disable=redefined-outer-name
+    """Test the /process_pending endpoint with no pending document."""
+    mongo_mock.find_one.return_value = None
+
+    response = flask_test_client.post("/process_pending")
+    assert response.status_code == 404
+    assert response.get_json() == {"message": "No pending frames to process"}
+
+
+def test_process_pending_with_document(
+    flask_test_client, mongo_mock, model_mock
+):  # pylint: disable=redefined-outer-name, unused-argument
+    """Test the /process_pending endpoint with a pending document."""
+    # Mock a pending document
+    mock_image_data = BytesIO()
+    mock_image = Image.fromarray(np.zeros((480, 640, 3), dtype=np.uint8))
+    mock_image.save(mock_image_data, format="JPEG")
+    mock_image_data.seek(0)
+
+    mongo_mock.find_one.return_value = {
+        "_id": "mock_id",
+        "status": "pending",
+        "image": mock_image_data.getvalue(),
     }
 
-    mock_collection.insert_one.assert_called_once()
+    mongo_mock.update_one.return_value = None
 
+    fixed_now = datetime(2024, 11, 20, 3, 5, 6, tzinfo=timezone.utc)
+    with patch("app.datetime") as mock_datetime:
+        mock_datetime.now.return_value = fixed_now
+        mock_datetime.timezone = timezone
 
-def test_encode_image():
-    """Test base64 encoding of an image."""
-    image = Image.new("RGB", (100, 100), color="white")
-    buffer = BytesIO()
-    image.save(buffer, format="PNG")
-    encoded_image = buffer.getvalue()
+        response = flask_test_client.post("/process_pending")
+        assert response.status_code == 200
+        response_data = response.get_json()
+        assert response_data["message"] == "Frame processed"
+        assert len(response_data["detections"]) == 1
+        assert response_data["detections"][0]["label"] == "cat"
+        assert response_data["detections"][0]["confidence"] == 0.9
 
-    assert isinstance(encoded_image, bytes)
-    assert len(encoded_image) > 0
+        mongo_mock.find_one.assert_called_once_with({"status": "pending"})
+        mongo_mock.update_one.assert_called_once_with(
+            {"_id": "mock_id"},
+            {
+                "$set": {
+                    "status": "processed",
+                    "detections": [{"label": "cat", "confidence": 0.9}],
+                    "processed_at": fixed_now,
+                }
+            },
+        )
