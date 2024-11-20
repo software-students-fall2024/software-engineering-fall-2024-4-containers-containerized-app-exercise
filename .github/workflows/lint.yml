@@ -8,6 +8,8 @@ jobs:
       matrix:
         # repeat same job for each subsystem in the following subdirectories
         subdir: [web-app, machine-learning-client]
+    env:
+      PIPENV_IGNORE_MACOS_DEPS: true # Globally ignore macOS dependencies
     steps:
       - uses: actions/checkout@v4
       - name: Set up Python
