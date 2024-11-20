@@ -18,13 +18,13 @@ jobs:
         uses: kojoru/prepare-pipenv@v1
         with:
           python-version: ${{ matrix.python-version }}
-      - name: Turn on 'editable' mode
+      - name: Upgrade pip
         run: |
-          pipenv install -e .
+            python -m pip install --upgrade pip
       - name: Install dependencies for machine-learning-client
         run: |
-          cd machine-learning-client
-          pip install -r requirements.txt
+            cd machine-learning-client
+            pip install -r requirements.txt
 
       - name: Install dependencies for web-app
         run: |
