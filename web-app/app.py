@@ -31,6 +31,7 @@ def user_loader(username):
     user.id = username
     return user
 
+
 @login_manager.request_loader
 def request_loader(request):
     username = request.form.get('username')
