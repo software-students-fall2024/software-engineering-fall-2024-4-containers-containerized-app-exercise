@@ -13,5 +13,6 @@ COPY . .
 EXPOSE 8080
 
 ENV FLASK_APP=src/app.py
+ENV FLASK_ENV=development  
 
-CMD ["flask", "run", "--host=0.0.0.0", "--port=8080"]
+CMD ["flask", "run", "--host=0.0.0.0", "--port=8080", "--debug"]

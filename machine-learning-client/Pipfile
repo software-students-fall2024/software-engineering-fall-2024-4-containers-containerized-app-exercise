@@ -12,6 +12,8 @@ SpeechRecognition = "*"
 pymongo = "*"
 python-dotenv = "*"
 pytest = "*"
+pydub = "*"
+pocketsphinx = "*"
 
 [dev-packages]
 pytest = "*"

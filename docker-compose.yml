@@ -20,6 +20,7 @@ services:
       - MONGODB_USERNAME=${MONGODB_USERNAME}
       - MONGODB_PASSWORD=${MONGODB_PASSWORD}
       - PYTHONPATH=/project
+      - PYTHONUNBUFFERED=1
     volumes:
       - ./machine-learning-client:/project
     working_dir: /project
@@ -36,6 +37,7 @@ services:
       - DB_URI=${MONGODB_URI}
       - SECRET=${SECRET}
       - PYTHONPATH=/project
+      - PYTHONUNBUFFERED=1
     volumes:
       - ./web-app:/project
     working_dir: /project
