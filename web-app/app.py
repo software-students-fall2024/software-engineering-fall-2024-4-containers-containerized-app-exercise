@@ -19,9 +19,14 @@ import certifi
 from bson.objectid import ObjectId
 from dotenv import load_dotenv
 
-# Add path for the camera tracking client
+# Add path for the machine-learning-client directory
 sys.path.append(os.path.abspath("../machine-learning-client"))
-from camera_tracker import start_tracking, stop_tracking  # Import tracking functions
+
+# Import camera and mouse tracking functions with aliases
+from camera_tracker import start_tracking as start_camera_tracking, stop_tracking as stop_camera_tracking
+from mouse_tracker import start_tracking as start_mouse_tracking, stop_tracking as stop_mouse_tracking
+
+
 
 load_dotenv()
 
@@ -143,25 +148,30 @@ def create_app():
     @app.route("/start", methods=["POST"])
     def start_tracking_route():
         """
-        Start camera tracking.
+        Start both camera and mouse tracking.
         """
         try:
-            start_tracking()  # Start the background tracking
-            return jsonify({"status": "started"}), 200
+            # Start camera tracking in a separate thread
+            #Thread(target=start_camera_tracking, daemon=True).start()
+            # Start mouse tracking
+            start_mouse_tracking()
+            return jsonify({"status": "tracking_started"}), 200
         except Exception as e:
             return jsonify({"status": "error", "message": str(e)}), 500
 
     @app.route("/stop", methods=["POST"])
     def stop_tracking_route():
         """
-        Stop camera tracking.
+        Stop both camera and mouse tracking.
         """
         try:
-            stop_tracking()  # Stop the background tracking
-            return jsonify({"status": "stopped"}), 200
+            # Stop camera tracking
+            #stop_camera_tracking()
+            # Stop mouse tracking
+            stop_mouse_tracking()
+            return jsonify({"status": "tracking_stopped"}), 200
         except Exception as e:
             return jsonify({"status": "error", "message": str(e)}), 500
-
     return app
 
 

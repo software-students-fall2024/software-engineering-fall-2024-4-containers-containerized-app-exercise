@@ -32,7 +32,8 @@
             document.getElementById("status").innerText = "Tracking Stopped!";
           }
         } else {
-          document.getElementById("status").innerText = "An error occurred. Please try again.";
+          document.getElementById("status").innerText =
+            "An error occurred. Please try again.";
         }
       }
     </script>
@@ -40,7 +41,7 @@
   <body>
     <div class="container center">
       <img src="{{ url_for('static', filename='itsOverlogo.png') }}" alt="Logo" />
-      <h1>Control Camera Tracking</h1>
+      <h1>Control Camera and Mouse Tracking</h1>
       <div id="timer">Elapsed Time: 0s</div>
       <div id="status">Status: Waiting for action...</div>
       <div>

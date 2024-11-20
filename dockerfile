@@ -12,6 +12,7 @@ RUN apt-get update && apt-get install -y \
     libsm6 \
     libxext6 \
     libxrender-dev \
+    xvfb \
     && rm -rf /var/lib/apt/lists/*
 
 # Ensure pip is up-to-date
@@ -35,6 +36,12 @@ RUN pipenv install --system --deploy --dev --skip-lock
 COPY machine-learning-client /app/machine-learning-client
 COPY web-app /app/web-app
 
+# Set the DISPLAY variable for Xvfb
+ENV DISPLAY=:99
+
+# Start Xvfb in the background and run Flask
+CMD ["sh", "-c", "Xvfb :99 -screen 0 1024x768x16 & flask run"]
+
 # Expose Flask's default port
 EXPOSE 5000
 
@@ -45,6 +52,3 @@ ENV FLASK_RUN_PORT=5000
 
 # Set the working directory for Flask
 WORKDIR /app/web-app
-
-# Run the Flask application
-CMD ["flask", "run"]
