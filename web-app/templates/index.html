@@ -96,7 +96,6 @@
         const playButton = document.getElementById('play-button');
         const gameForm = document.getElementById('game-form');
         const loadingMessage = document.getElementById('loading-message');
-
         // Access the camera
         navigator.mediaDevices.getUserMedia({ video: true })
             .then((stream) => {
@@ -106,7 +105,6 @@
                 console.error("Error accessing the camera: ", err);
                 alert("Could not access the camera. Please ensure your browser has permission.");
             });
-
         // Capture the video frame
         captureButton.addEventListener('click', () => {
             const context = canvas.getContext('2d');
@@ -121,7 +119,6 @@
                 alert("Gesture captured! Now click 'Play!' to submit.");
             }, "image/jpeg");
         });
-
         // Show loading message on form submission
         gameForm.addEventListener('submit', (e) => {
             e.preventDefault(); // Prevent immediate navigation
@@ -136,3 +133,4 @@
     </script>
 </body>
 </html>
+
