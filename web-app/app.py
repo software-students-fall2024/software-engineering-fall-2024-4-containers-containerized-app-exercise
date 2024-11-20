@@ -16,6 +16,8 @@ login_manager.init_app(app)
 users = {'bob123': {'password': 'test'}, 'jen987': {'password': 'foobar'}}
 
 class User(flask_login.UserMixin):
+    def __init__(self, username: str) -> None:
+        self.id = username
     pass
 
 @login_manager.user_loader
@@ -23,8 +25,7 @@ def user_loader(username):
     # Fetch user from "database"
     if username not in users:
         return None
-    user = User()
-    user.id = username
+    user = User(username)
     return user
 
 @login_manager.request_loader
@@ -33,8 +34,7 @@ def request_loader(request):
     if username not in users:
         return
     
-    user = User()
-    user.id = username
+    user = User(username)
     return user
 
 @app.route("/login", methods=['GET', 'POST'])
@@ -48,8 +48,7 @@ def login():
         if not username or not password:
             error = "Error: Missing username or password"
         elif username in users and users[username]['password'] == password:
-            user = User()
-            user.id = username
+            user = User(username)
             login_user(user)
             return redirect(url_for('show_home', username=username))
         else:
