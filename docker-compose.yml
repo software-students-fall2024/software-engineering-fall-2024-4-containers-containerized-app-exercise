@@ -10,7 +10,7 @@ services:
       - mongodb_data:/data/db
 
   web_app:
-    build: ./web-app
+    build: ./web_app
     container_name: web_app
     ports:
       - "5002:5002"
