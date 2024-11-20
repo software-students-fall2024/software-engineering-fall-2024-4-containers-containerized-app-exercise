@@ -3,9 +3,9 @@ Camera tracking script for monitoring user focus using OpenCV and MongoDB.
 """
 
 import time
-from pymongo import MongoClient
+from threading import Thread, Event  # Standard library imports
+from pymongo import MongoClient  # Third-party imports
 import cv2  # pylint: disable=no-name-in-module
-from threading import Thread, Event
 
 # MongoDB connection URI
 MONGODB_URI = (
@@ -24,7 +24,7 @@ face_cascade = cv2.CascadeClassifier(
 )  # pylint: disable=no-member
 
 # Stop event to signal termination
-stop_event = Event()
+stop_event = Event()  # pylint: disable=global-variable-not-assigned
 
 
 def detect_face(frame):
@@ -51,6 +51,7 @@ def record_summary(total_time, focused_time):
 
 def _camera_tracking():
     """Internal function for running the camera tracker."""
+    global stop_event  # pylint: disable=global-variable-not-assigned
     cap = cv2.VideoCapture(0)  # pylint: disable=no-member
 
     if not cap.isOpened():
@@ -106,8 +107,7 @@ def _camera_tracking():
 
 def start_tracking():
     """Start the camera tracking."""
-    global stop_event
-    stop_event.clear()
+    stop_event.clear()  # pylint: disable=no-member
     tracker_thread = Thread(target=_camera_tracking, daemon=True)
     tracker_thread.start()
     print("Camera tracking started.")
@@ -115,8 +115,7 @@ def start_tracking():
 
 def stop_tracking():
     """Stop the camera tracking."""
-    global stop_event
-    stop_event.set()
+    stop_event.set()  # pylint: disable=no-member
     print("Camera tracking stopped.")
 
 
