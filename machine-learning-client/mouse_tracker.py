@@ -189,17 +189,14 @@ if __name__ == "__main__":
 
     except (ConnectionFailure, OperationFailure, WriteError) as db_error:
         print(f"A database error occurred: {db_error}")
-    except ValueError as value_error:  # Example: Handle specific logical errors
+    except ValueError as value_error:
         print(f"A value error occurred: {value_error}")
-    except KeyboardInterrupt:
-        # Ensure KeyboardInterrupt is handled specifically if needed
-        print("\nProgram was manually interrupted.")
-    except RuntimeError as runtime_error:  # Example: Handle runtime-related errors
+    except RuntimeError as runtime_error:
         print(f"A runtime error occurred: {runtime_error}")
     finally:
-        # Ensure the tracker is stopped if initialized, even in case of an error
-        try:
-            if "tracker" in locals() and isinstance(tracker, MouseTrackerWithInterface):
+        # Ensure the tracker is stopped if initialized
+        if "tracker" in locals() and isinstance(tracker, MouseTrackerWithInterface):
+            try:
                 tracker.stop_tracking()
-        except Exception as cleanup_error:
-            print(f"An error occurred while stopping the tracker: {cleanup_error}")
+            except WriteError as cleanup_error:
+                print(f"An error occurred while stopping the tracker: {cleanup_error}")
