@@ -104,7 +104,7 @@
       }, 2000);
 
       function captureFrame() {
-        fetch("/capture_frame", { method: "POST" })
+        fetch("/capture_and_process", { method: "POST" })
           .then((response) => response.json())
           .then((data) => {
             document.getElementById("status").innerText = data.message;
