@@ -70,7 +70,7 @@ def mock_resnet50(monkeypatch):
 
         def load_state_dict(self, _):
             """Mock method for loading state dictionary."""
-            pass
+            pass  # pylint: disable=unnecessary-pass
 
         def eval(self):
             """Mock method to set the model to evaluation mode."""
