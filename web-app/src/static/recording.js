@@ -12,19 +12,24 @@ recordButton.addEventListener("click", async () => {
     statusText.textContent = "Recording...";
     isRecording = true;
 
+    // Get the audio stream
     const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
     mediaRecorder = new MediaRecorder(stream);
 
+    // Push binary data chunks to `audioChunks` array
     mediaRecorder.ondataavailable = (event) => {
       audioChunks.push(event.data);
     };
 
+    // When recording stops, process the binary data
     mediaRecorder.onstop = async () => {
-      const audioBlob = new Blob(audioChunks, { type: "audio/wav" });
-      audioChunks = [];
+      const audioBlob = new Blob(audioChunks, { type: mediaRecorder.mimeType }); // Use native mimeType
+      console.log(mediaRecorder.mimeType);
+      audioChunks = []; // Clear chunks
 
+      // Send the binary data to the server
       const formData = new FormData();
-      formData.append("audio", audioBlob);
+      formData.append("audio", audioBlob); // Raw binary audio data
       formData.append("name", nameInput.value);
 
       try {
@@ -49,6 +54,7 @@ recordButton.addEventListener("click", async () => {
     statusText.textContent = "Processing...";
     isRecording = false;
 
+    // Stop recording
     if (mediaRecorder) {
       mediaRecorder.stop();
     }
