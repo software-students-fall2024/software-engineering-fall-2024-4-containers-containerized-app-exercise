@@ -8,3 +8,7 @@ pylint
 black
 pipenv
 pymongo
+pytest
+pytest-cov
+
+
