@@ -92,7 +92,6 @@ def video_feed():
         generate_frames(), mimetype="multipart/x-mixed-replace; boundary=frame"
     )
 
-
 def generate_frames():
     """Generate video frames for streaming."""
     while True:
@@ -100,7 +99,8 @@ def generate_frames():
         if not success:
             break
         _, buffer = cv2.imencode(".jpg", frame)  # pylint: disable=no-member
-        yield b"--frame\r\n" b"Content-Type: image/jpeg\r\n\r\n" + buffer + b"\r\n"
+        frame_bytes = buffer.tobytes()  # Convert buffer to bytes
+        yield b"--frame\r\n" b"Content-Type: image/jpeg\r\n\r\n" + frame_bytes + b"\r\n"
 
 
 if __name__ == "__main__":
