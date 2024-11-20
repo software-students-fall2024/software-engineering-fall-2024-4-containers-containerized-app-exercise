@@ -150,8 +150,13 @@ model = load_model()
 
 @app.route("/predict", methods=["POST"])
 def predict():
-    """
-    Predicts the plant name from an uploaded image file.
+    """Predicts the class of the image at the given path.
+
+    Args:
+        image_path (str): The path to the image file.
+
+    Returns:
+        dict: A dictionary containing the prediction results.
     """
     if "image" not in request.files:
         return jsonify({"error": "No image uploaded"}), 400
