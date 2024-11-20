@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "da932425710c2d52df8fe08efe3fea185ed0c9ed9c721350eea4309119f2bf9a"
+            "sha256": "c9cd936143d669dd9f48d0a1bd7cb8dc421f60a914cc8a9c296e86be17e3d11e"
         },
         "pipfile-spec": 6,
         "requires": {
@@ -144,7 +144,7 @@
                 "sha256:ea46d2cda17921e417085ac6286d43ae448113158afcf39e0abe484c58fb3d78",
                 "sha256:ea98d4c2ec39ca29e62e0327db21418696161fb138ee6278daf2acbedf7ce504"
             ],
-            "markers": "python_version >= '3.8'",
+            "markers": "sys_platform == 'darwin'",
             "version": "==10.3.1"
         },
         "pyobjc-framework-applicationservices": {
@@ -220,5 +220,15 @@
             "version": "==0.13.2"
         }
     },
-    "develop": {}
+    "develop": {
+        "setuptools": {
+            "hashes": [
+                "sha256:5c4ccb41111392671f02bb5f8436dfc5a9a7185e80500531b133f5775c4163ef",
+                "sha256:87cb777c3b96d638ca02031192d40390e0ad97737e27b6b4fa831bea86f2f829"
+            ],
+            "index": "pypi",
+            "markers": "python_version >= '3.9'",
+            "version": "==75.5.0"
+        }
+    }
 }
