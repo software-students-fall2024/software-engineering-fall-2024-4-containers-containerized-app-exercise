@@ -86,7 +86,7 @@ def test_capture_and_process_success(
 
         assert response.status_code == 200
         response_data = response.get_json()
-        assert response_data["message"] == "Frame captured and processed"
+        assert response_data["message"] == "Frame captured and processed by ml service"
         assert "id" in response_data
         assert len(response_data["detections"]) == 1
         assert response_data["detections"][0]["label"] == "cat"

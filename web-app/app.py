@@ -11,7 +11,7 @@ from bson.binary import Binary
 import requests
 import numpy as np
 from dotenv import load_dotenv
-from flask import Flask, Response, jsonify, render_template, request
+from flask import Flask, jsonify, render_template, request
 from pymongo import MongoClient
 
 # Load environment variables
@@ -25,11 +25,10 @@ collection = db["detected_objects"]
 
 # define ml service for docker
 ml_service_url = os.getenv("ML_SERVICE_URL", "http://ml-client:5001")
-ml_response = requests.post(f"{ml_service_url}/process_pending", timeout=90)
 
 # Initialize camera
-camera = None  # pylint: disable=no-member
-atexit.register(lambda: camera.release())  # pylint: disable=W0108
+CAMERA = None  # pylint: disable=no-member
+atexit.register(lambda: CAMERA.release() if CAMERA else None)  # pylint: disable=W0108
 
 
 @app.route("/")
