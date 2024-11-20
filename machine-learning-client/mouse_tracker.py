@@ -143,18 +143,60 @@ class MouseTracker:
             print(f"Failed to save report to MongoDB: {error}")
 
 
-if __name__ == "__main__":
-    tracker = MouseTracker()
+class MouseTrackerWithInterface(MouseTracker):
+    """Mouse Tracker with start and stop interfaces."""
 
-    with mouse.Listener(
-        on_move=tracker.on_move, on_click=tracker.on_click, on_scroll=tracker.on_scroll
-    ) as listener:
-        print("Listening for mouse events... (Press Ctrl+C to stop)")
+    def __init__(self):
+        super().__init__()
+        self.listener = None
+
+    def start_tracking(self):
+        """Start mouse tracking."""
+        if not self.listener:
+            self.listener = mouse.Listener(
+                on_move=self.on_move, on_click=self.on_click, on_scroll=self.on_scroll
+            )
+            self.listener.start()
+            print("Mouse tracking started.")
+
+    def stop_tracking(self):
+        """Stop mouse tracking."""
+        if self.listener:
+            self.listener.stop()
+            self.listener = None
+            print("Mouse tracking stopped.")
+            # Generate and save the final report after stopping
+            final_report = self.generate_final_report()
+            self.save_to_database(final_report)
+
+
+if __name__ == "__main__":
+    try:
+        tracker = MouseTrackerWithInterface()
+
+        print("Starting mouse tracking...")
+        tracker.start_tracking()
+
         try:
+            # Run indefinitely until manually stopped
             while True:
                 time.sleep(1)
-                tracker.update_focus_state()
         except KeyboardInterrupt:
-            print("\nStopped monitoring.")
-            final_report = tracker.generate_final_report()
-            tracker.save_to_database(final_report)
+            print("\nManual interruption detected. Stopping mouse tracking...")
+        finally:
+            tracker.stop_tracking()
+            print("\nMouse tracking stopped. Generating final report...")
+
+    except (ConnectionFailure, OperationFailure, WriteError) as db_error:
+        print(f"A database error occurred: {db_error}")
+    except ValueError as value_error:
+        print(f"A value error occurred: {value_error}")
+    except RuntimeError as runtime_error:
+        print(f"A runtime error occurred: {runtime_error}")
+    finally:
+        # Ensure the tracker is stopped if initialized
+        if "tracker" in locals() and isinstance(tracker, MouseTrackerWithInterface):
+            try:
+                tracker.stop_tracking()
+            except WriteError as cleanup_error:
+                print(f"An error occurred while stopping the tracker: {cleanup_error}")
