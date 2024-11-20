@@ -47,6 +47,11 @@
     </table>
   </div>
 
+  <div>
+    <button id="captureButton" onclick="captureFrame()">Capture Frame</button>
+    <p id="status"></p>
+  </div>
+
   <script>
     setInterval(() => {
       fetch('/latest_detection')
@@ -79,6 +84,18 @@
         })
         .catch(error => console.error("Error fetching detection data:", error));
     }, 2000);
+
+    function captureFrame() {
+      fetch('/capture_frame', { method: 'POST' })
+        .then(response => response.json())
+        .then(data => {
+          document.getElementById('status').innerText = data.message;
+        })
+        .catch(err => {
+          document.getElementById('status').innerText = 'Error capturing frame';
+          console.error(err);
+        });
+    }
   </script>
 </body>
 </html>
