@@ -6,15 +6,15 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        # repeat same job for each subsystem in the following subdirectories
         subdir: [web-app, machine-learning-client]
+
     steps:
       - uses: actions/checkout@v4
       
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
-          python-version: "3.13" # Update version(s) as needed
+          python-version: "3.13"
 
       - name: Install dependencies (ignoring macOS-specific ones)
         if: ${{ hashFiles(format('{0}/**/*.py', matrix.subdir)) != '' }}
@@ -22,12 +22,10 @@ jobs:
           cd ${{ matrix.subdir }}
           python3 -m pip install --upgrade pip
           python3 -m pip install pipenv
-          pipenv sync --dev --python $(which python)
-          pipenv lock --clear
-          
-          # Filter out macOS-specific dependencies
+
+          # Clear and regenerate the lock file to exclude macOS-specific dependencies
           if [[ "$RUNNER_OS" != "macOS" ]]; then
-            echo "Ignoring macOS-specific dependencies."
+            echo "Clearing and regenerating Pipfile.lock to exclude macOS-specific dependencies."
             pipenv lock --clear
           fi
           
@@ -37,8 +35,6 @@ jobs:
         if: ${{ hashFiles(format('{0}/**/*.py', matrix.subdir)) != '' }}
         run: |
           cd ${{ matrix.subdir }}
-          echo "Python virtualenv path: $(pipenv --venv)/lib/python3.10/site-packages"
-          export PYTHONPATH=$(pipenv --venv)/lib/python3.10/site-packages
           pipenv run pylint **/*.py
 
       - name: Format with black
