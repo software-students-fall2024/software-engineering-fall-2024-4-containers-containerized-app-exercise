@@ -102,7 +102,7 @@ def test_real_transcription():
     input_text = "Hello, this is a test."
     input_file = "real_speech.wav"
 
-    tts = gTTS(text=input_text, lang='en')
+    tts = gTTS(text=input_text, lang="en")
     tts.save(input_file)
 
     linear16_file = convert_to_linear16(input_file)
