@@ -73,7 +73,7 @@ def test_process_pending_no_document(
     """Test the /process_pending endpoint with no pending document."""
     mongo_mock.find_one.return_value = None
 
-    response = flask_test_client.post("/process_pending")
+    response = flask_test_client.post("/capture_and_process")
     assert response.status_code == 404
     assert response.get_json() == {"message": "No pending frames to process"}
 
@@ -101,7 +101,7 @@ def test_process_pending_with_document(
         mock_datetime.now.return_value = fixed_now
         mock_datetime.timezone = timezone
 
-        response = flask_test_client.post("/process_pending")
+        response = flask_test_client.post("/capture_and_process")
         assert response.status_code == 200
         response_data = response.get_json()
         assert response_data["message"] == "Frame processed"
