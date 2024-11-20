@@ -74,3 +74,4 @@ def test_store_game_result(mock_games_collection):
     assert inserted_data["computer_choice"] == computer_choice
     assert inserted_data["result"] == result
     assert "timestamp" in inserted_data  # Ensure timestamp is present
+    

@@ -102,3 +102,4 @@ model.evaluate(x_test, y_test)
 
 # Save the model
 model.save("machine-learning-client/model/rps_model.h5", include_optimizer=False, save_format="h5")
+
