@@ -23,9 +23,12 @@ tomli = "*"
 
 [dev-packages]
 python-dotenv = "*"
-flask = "*"
+bson = "*"
 pymongo = "*"
-werkzeug = "*"
+
+[dev-packages]
+pytest = "*"
+coverage = "*"
 
 [requires]
-python_version = "3.12"
+python_version = "3.9"

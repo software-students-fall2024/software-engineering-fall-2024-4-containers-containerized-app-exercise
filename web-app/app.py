@@ -2,11 +2,14 @@
 This module sets up the Flask application for the Plant Identifier project.
 """
 
+import base64
 import os
 import base64
 import uuid
 
 from bson import ObjectId
+
+# from bson import ObjectId
 from dotenv import load_dotenv
 from flask import (
     Flask,
@@ -29,6 +32,9 @@ def create_app():
     app = Flask(__name__)
     app.config["MAX_CONTENT_LENGTH"] = 5 * 1024 * 1024  # 5 MB limit
     app.secret_key = os.getenv("SECRET_KEY", "supersecretkey")
+
+    # if test_config:
+    #     app.config.update(test_config)
 
     connection = pymongo.MongoClient(os.getenv("MONGO_URI"))
     db = connection[os.getenv("MONGO_DBNAME")]
@@ -71,7 +77,7 @@ def register_routes(app, db):
             username = request.form["username"]
             password = request.form["password"]
 
-            db.users.insert_one({"username": username, "password": password})
+            app.db.users.insert_one({"username": username, "password": password})
             session["username"] = username
 
             return redirect(url_for("home", user=username))
