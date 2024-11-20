@@ -182,24 +182,33 @@ if __name__ == "__main__":
             while True:
                 time.sleep(1)
         except KeyboardInterrupt:
+            # Handle manual interruption (Ctrl+C)
             print("\nManual interruption detected. Stopping mouse tracking...")
         finally:
+            # Ensure tracker is stopped properly
             tracker.stop_tracking()
             print("\nMouse tracking stopped. Generating final report...")
 
     except (ConnectionFailure, OperationFailure, WriteError) as db_error:
+        # Handle database-related exceptions
         print(f"A database error occurred: {db_error}")
-    except ValueError as value_error:  # Example: Handle specific logical errors
+    except ValueError as value_error:
+        # Handle specific logical errors, if any
         print(f"A value error occurred: {value_error}")
     except KeyboardInterrupt:
-        # Ensure KeyboardInterrupt is handled specifically if needed
+        # Ensure manual interruptions are explicitly logged
         print("\nProgram was manually interrupted.")
-    except RuntimeError as runtime_error:  # Example: Handle runtime-related errors
+    except RuntimeError as runtime_error:
+        # Handle runtime-related errors
         print(f"A runtime error occurred: {runtime_error}")
+    except Exception as e:
+        # Fallback for unexpected errors, with detailed logging
+        print(f"An unexpected error occurred: {e}")
     finally:
-        # Ensure the tracker is stopped if initialized, even in case of an error
+        # Ensure the tracker is stopped if it was initialized
         try:
             if "tracker" in locals() and isinstance(tracker, MouseTrackerWithInterface):
                 tracker.stop_tracking()
         except Exception as cleanup_error:
+            # Log any errors that occur during cleanup
             print(f"An error occurred while stopping the tracker: {cleanup_error}")
