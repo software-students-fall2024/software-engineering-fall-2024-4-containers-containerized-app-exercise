@@ -23,6 +23,8 @@ jobs:
           pipenv sync --dev --python $(which python)
           pipenv shell --fancy --python $(which python)
           pipenv install --dev
+
+          PIPENV_IGNORE_MACOS_DEPS=true pipenv install --dev
       - name: Lint with pylint
         if: ${{ hashFiles(format('{0}/**/*.py', matrix.subdir)) != '' }}
         # you may set pylint to ignore any files or dependencies that make no sense to lint
