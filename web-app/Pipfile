@@ -7,7 +7,16 @@ verify_ssl = true
 dill = "*"
 pylint = "*"
 black = "*"
+setuptools = "*"
+wheel = "*"
 
+# macOS-specific dependencies
+pyobjc-core = {version = "==10.3.1", markers = "sys_platform == 'darwin'"}
+pyobjc-framework-quartz = {version = "==10.3.1", markers = "sys_platform == 'darwin'"}
+pyobjc-framework-applicationservices = {version = "==10.3.1", markers = "sys_platform == 'darwin'"}
+
+[requires]
+python_version = "3.13"
 
 [packages]
 flask = "==3.1.0"
@@ -15,6 +24,3 @@ pymongo = {extras = ["srv"], version = "==4.10.1"}
 flask-login = "==0.6.3"
 python-dotenv = "==1.0.1"
 certifi = "*"
-
-[requires]
-python_version = "3.13"
