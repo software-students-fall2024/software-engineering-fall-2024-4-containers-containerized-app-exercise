@@ -1,5 +1,7 @@
 # test_app.py
-# Run tests with: pytest test_app.py -v
+# cd ../machine-learning-client
+# pytest test_app.py -v
+# pytest -v
 
 import pytest
 from unittest.mock import patch, MagicMock
@@ -161,4 +163,3 @@ def test_result_route_no_image(mock_retry_request, client, mock_collection):
     assert response.status_code == 400
     assert b"No image file provided" in response.data
 
-    
