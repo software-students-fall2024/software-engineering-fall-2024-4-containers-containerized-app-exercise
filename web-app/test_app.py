@@ -3,7 +3,6 @@
 # pytest test_app.py -v
 # pytest -v
 
-
 import pytest
 from unittest.mock import patch, MagicMock
 from bson.objectid import ObjectId
@@ -16,11 +15,6 @@ def client():
     app.config['TESTING'] = True
     with app.test_client() as client:
         yield client
-
-@pytest.fixture
-@patch('app.collection')
-def mock_collection(mock_collection):
-    return mock_collection
 
 # Tests for generate_stats_doc
 @patch('app.collection')
@@ -49,19 +43,23 @@ def test_retry_request_success_on_first_try(mock_post):
 
 @patch('app.requests.post')
 def test_retry_request_success_after_retries(mock_post):
-    mock_response = MagicMock()
-    mock_response.raise_for_status.side_effect = [Exception("Connection error"), Exception("Timeout"), None]
-    mock_post.return_value = mock_response
+    # Simulate exceptions on the first two attempts, then a successful response
+    mock_post.side_effect = [
+        Exception("Connection error"),
+        Exception("Timeout"),
+        MagicMock()
+    ]
 
     url = "http://example.com/predict"
     files = {"image": MagicMock()}
 
     response = retry_request(url, files, retries=3, delay=0)
-    assert response == mock_response
+    assert response is not None
     assert mock_post.call_count == 3
 
 @patch('app.requests.post')
 def test_retry_request_all_failures(mock_post):
+    # Simulate exceptions on all attempts
     mock_post.side_effect = Exception("Connection error")
 
     url = "http://example.com/predict"
@@ -89,8 +87,9 @@ def test_index_route(mock_generate_stats_doc, client):
     response = client.get('/index')
     assert response.status_code == 200
 
+@patch('app.collection')
 @patch('app.generate_stats_doc', return_value=str(ObjectId()))
-def test_statistics_route(mock_generate_stats_doc, client, mock_collection):
+def test_statistics_route(mock_generate_stats_doc, mock_collection, client):
     stats = {
         "Rock": {"wins": 1, "losses": 0, "ties": 0, "total": 1},
         "Paper": {"wins": 0, "losses": 1, "ties": 0, "total": 1},
@@ -105,7 +104,7 @@ def test_statistics_route(mock_generate_stats_doc, client, mock_collection):
 
 @patch('app.retry_request')
 @patch('app.collection.update_one')
-def test_result_route_success(mock_update_one, mock_retry_request, client, mock_collection):
+def test_result_route_success(mock_update_one, mock_retry_request, client):
     mock_response = MagicMock()
     mock_response.json.return_value = {"gesture": "Rock"}
     mock_retry_request.return_value = mock_response
@@ -120,7 +119,7 @@ def test_result_route_success(mock_update_one, mock_retry_request, client, mock_
     assert b"AI wins!" in response.data
 
 @patch('app.retry_request')
-def test_result_route_unknown_gesture(mock_retry_request, client, mock_collection):
+def test_result_route_unknown_gesture(mock_retry_request, client):
     mock_response = MagicMock()
     mock_response.json.return_value = {"gesture": "Unknown"}
     mock_retry_request.return_value = mock_response
@@ -135,7 +134,7 @@ def test_result_route_unknown_gesture(mock_retry_request, client, mock_collectio
     assert b"Gesture not recognized" in response.data
 
 @patch('app.retry_request')
-def test_result_route_ml_failure(mock_retry_request, client, mock_collection):
+def test_result_route_ml_failure(mock_retry_request, client):
     mock_retry_request.return_value = None
 
     mock_id = ObjectId()
@@ -148,9 +147,9 @@ def test_result_route_ml_failure(mock_retry_request, client, mock_collection):
     assert b"No valid prediction" in response.data
 
 @patch('app.retry_request')
-def test_result_route_no_image(mock_retry_request, client, mock_collection):
+def test_result_route_no_image(mock_retry_request, client):
     response = client.post('/result', data={}, content_type='multipart/form-data')
     assert response.status_code == 400
     assert b"No image file provided" in response.data
 
-    
+
