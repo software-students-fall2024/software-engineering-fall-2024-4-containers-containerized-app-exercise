@@ -9,8 +9,9 @@ import os
 import cv2
 from bson.binary import Binary
 import requests
+import numpy as np
 from dotenv import load_dotenv
-from flask import Flask, Response, jsonify, render_template
+from flask import Flask, Response, jsonify, render_template, request
 from pymongo import MongoClient
 
 # Load environment variables
@@ -33,23 +34,29 @@ def index():
     return render_template("index.html")
 
 
-@app.route("/capture_and_process", methods=["POST"])
+@app.route("/capture_and_process", methods=["POST"])  # pylint: disable=no-member
 def capture_and_process():
-    """Capture a frame, save it to MongoDB, and trigger processing."""
-    # Capture a frame
-    success, frame = camera.read()
-    if not success:
-        return jsonify({"error": "Failed to capture frame"}), 500
+    """Process a frame uploaded by the client."""
+    # Check if a frame was uploaded
+    if "frame" not in request.files:
+        return jsonify({"error": "No frame provided"}), 400
 
-    # Encode the frame to JPEG format
-    _, buffer = cv2.imencode(".jpg", frame)  # pylint: disable=no-member
+    # Read the uploaded frame
+    frame_file = request.files["frame"].read()
+    np_frame = np.frombuffer(frame_file, np.uint8)
+    frame = cv2.imdecode(np_frame, cv2.IMREAD_COLOR)  # pylint: disable=no-member
+
+    if frame is None:
+        return jsonify({"error": "Invalid frame data"}), 400
+
+    # Process the frame (e.g., save to MongoDB, send to ML client)
+    _, buffer = cv2.imencode(".jpg", frame) # pylint: disable=no-member
     image_binary = Binary(buffer)
 
-    # Save to MongoDB
     document = {
         "image": image_binary,
         "timestamp": datetime.now(timezone.utc).isoformat(),
-        "status": "pending",  # Waiting for processing
+        "status": "pending",
         "detections": [],
     }
     result = collection.insert_one(document)

@@ -103,16 +103,34 @@
       }, 2000);
 
       function captureFrame() {
-        fetch("/capture_and_process", { method: "POST" })
-          .then((response) => response.json())
-          .then((data) => {
-            document.getElementById("status").innerText = data.message;
+        const videoElement = document.getElementById("live-video");
+        const canvas = document.createElement("canvas");
+        canvas.width = videoElement.videoWidth;
+        canvas.height = videoElement.videoHeight;
+        const context = canvas.getContext("2d");
+
+        // Draw current video frame on canvas
+        context.drawImage(videoElement, 0, 0, canvas.width, canvas.height);
+
+        // Convert canvas to image blob
+        canvas.toBlob((blob) => {
+          const formData = new FormData();
+          formData.append("frame", blob, "frame.jpg");
+
+          fetch("/capture_and_process", {
+            method: "POST",
+            body: formData,
           })
-          .catch((err) => {
-            document.getElementById("status").innerText =
-              "Error capturing frame";
-            console.error(err);
-          });
+            .then((response) => response.json())
+            .then((data) => {
+              document.getElementById("status").innerText = data.message;
+            })
+            .catch((err) => {
+              document.getElementById("status").innerText =
+                "Error capturing frame";
+              console.error(err);
+            });
+        }, "image/jpeg");
       }
     </script>
   </body>
