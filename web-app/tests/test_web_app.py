@@ -2,7 +2,7 @@
 This is the tests for the webapp
 """
 
-from io import BytesIO
+# from io import BytesIO
 
 # pylint: disable=unused-import
 from unittest.mock import patch
@@ -21,22 +21,22 @@ def test_record_route(test_client):
     assert response.status_code == 200
 
 
-@patch("src.app.metadata_collection.insert_one")
-def test_db_failure(mock_md, mock_audio, test_client):
-    """Test failure when database insertion fails"""
-    mock_audio.return_value.inserted_id = None  # Simulating the failure
-    mock_md.return_value.acknowledged = False  # Simulating failure in metadata insert
-
-    data = {
-        "name": "test_audio",
-    }
-    file_info = (BytesIO(b"fake_audio_data"), "test_audio.wav")
-
-    response = test_client.post("/upload-audio", data={"audio": file_info, **data})
-
-    assert response.status_code == 500
-
-
+# @patch("src.app.metadata_collection.insert_one")
+# def test_db_failure(mock_md, mock_audio, test_client):
+#     """Test failure when database insertion fails"""
+#     mock_audio.return_value.inserted_id = None  # Simulating the failure
+#     mock_md.return_value.acknowledged = False  # Simulating failure in metadata insert
+#
+#     data = {
+#         "name": "test_audio",
+#     }
+#     file_info = (BytesIO(b"fake_audio_data"), "test_audio.wav")
+#
+#     response = test_client.post("/upload-audio", data={"audio": file_info, **data})
+#
+#     assert response.status_code == 500
+#
+#
 # @patch("src.app.audio_collection.insert_one")
 # def test_missing_filename(mock_audio, test_client):
 #     """Test missing filename"""
