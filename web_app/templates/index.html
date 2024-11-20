@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>ASL Translator</title>
+        <!-- link to CSS -->
+        <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+        <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+    </head>
+
+    <body>
+        <div id="butterfly-overlay">
+            <img src="{{ url_for('static', filename='images/butterfly.gif') }}" alt="butterfly" />
+        </div>
+        <h1 aria-label="translate your asl">
+            <span class="highlight c1">translate</span>
+            <span class="highlight c2">your</span>
+            <span class="highlight c3"><strong>asl</strong></span>
+        </h1>
+        <h2 class="subtitle">( hover for a cool effect )</h2>
+        <h2 class="info">American Sign Language (ASL) is a complete, natural language that has the same linguistic properties as spoken languages, with grammar that differs from English. ASL is expressed by movements of the hands and face. 
+            <p><a href="https://www.nidcd.nih.gov/health/american-sign-language">Learn More.</a>
+        </h2>
+
+        <!-- start/stop recording here -->
+        <section id="video_section">
+            <h2 class="desc">click <strong>start camera</strong> to begin.</h2>
+            <video id="camera-feed" autoplay playsinline style="display: none";></video>
+            <canvas id="snapshot" style="display:none;"></canvas>
+            <button class="button-52" id="camera-btn">Start Camera</button>
+            <button id="capture-btn" style="display:none;">Capture</button>
+            <a href="/history" class="history">View History</a>
+        </section>
+        <section id="result_section"></section>
+
+        <!-- link to JS -->
+        <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+    </body>
+</html>
