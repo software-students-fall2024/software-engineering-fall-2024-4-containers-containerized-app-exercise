@@ -10,7 +10,7 @@ import pytest
 from app import create_app
 
 
-@pytest.fixture
+@pytest.fixture()
 def app():
     """Build app"""
     connection = pymongo.MongoClient(os.getenv("MONGO_URI"))
@@ -24,14 +24,7 @@ def app():
     for collection in test_app.db.list_collection_names():
         test_app.db.drop_collection(collection)
 
-    return test_app
-
-
-@pytest.fixture
-def build_client():
-    """Initialize client"""
-    return app.test_client()
-
+    yield test_app
 
 def test_home_without_user(client):
     """Test home page route without no user input yet"""
@@ -41,9 +34,16 @@ def test_home_without_user(client):
     assert b"to get started!" in response.data
 
 
-def test_home_with_user(client, app):
+def test_home_with_user(client):
     """Test home route with user input"""
-    app.db.plants.insert_many(
+    connection = pymongo.MongoClient(os.getenv("MONGO_URI"))
+    # make config to identify test
+    new_app = create_app(test_config={"TESTING": True})
+    new_app.debug = True
+    new_app.db = connection[os.getenv("MONGO_TEST_DBNAME")]
+
+    item = new_app.db.plants
+    item.insert_many(
         [
             {"_id": "1", "photo": "photo1", "name": "rose", "user": "test_user"},
             {"_id": "2", "photo": "photo2", "name": "lily", "user": "test_user"},
@@ -62,19 +62,30 @@ def test_login_post(client):
     assert response.headers["Location"] == "/?user=test_user"
 
 
-def test_signup_post(client, app):
+def test_signup_post(client):
     """Test the signup form results post correctly"""
+    connection = pymongo.MongoClient(os.getenv("MONGO_URI"))
+    # make config to identify test
+    new_app = create_app(test_config={"TESTING": True})
+    new_app.debug = True
+    new_app.db = connection[os.getenv("MONGO_TEST_DBNAME")]
+
     response = client.post("/signup", data={"username": "new_user", "password": "pass"})
     assert response.status_code == 302
     assert response.headers["Location"] == "/?user=new_user"
     # make sure new user was added properly to db
-    user = app.db.users.find_one({"username": "new_user"})
+    user = new_app.db.users.find_one({"username": "new_user"})
     assert user is not None
 
 
-def test_upload_post(client, app):
+def test_upload_post(client):
     """Test that a new entry photo uploads correctly"""
     # make sure the correct user is currently logged in
+    connection = pymongo.MongoClient(os.getenv("MONGO_URI"))
+    # make config to identify test
+    new_app = create_app(test_config={"TESTING": True})
+    new_app.debug = True
+    new_app.db = connection[os.getenv("MONGO_TEST_DBNAME")]
     with client.session_transaction() as session:
         session["username"] = "test_user"
     # make a mock photo item that's consistent with the real db input
@@ -82,16 +93,21 @@ def test_upload_post(client, app):
     response = client.post("/upload", data={"photo": photo_data})
     assert response.status_code == 302
     # make sure this entry was created and the photo was added correctly
-    plant = app.db.plants.find_one({"photo": photo_data})
+    plant = new_app.db.plants.find_one({"photo": photo_data})
     assert plant is not None
 
 
-def test_new_entry_post(client, app):
+def test_new_entry_post(client):
     """Test that the rest of the new entry posts correctly"""
+    connection = pymongo.MongoClient(os.getenv("MONGO_URI"))
+    # make config to identify test
+    new_app = create_app(test_config={"TESTING": True})
+    new_app.debug = True
+    new_app.db = connection[os.getenv("MONGO_TEST_DBNAME")]
     # make sure the correct user is currently logged in
     with client.session_transaction() as session:
         session["username"] = "test_user"
-    plant_id = app.db.plants.insert_one(
+    plant_id = new_app.db.plants.insert_one(
         {"photo": "data:image/jpeg;base64,encodedphoto", "name": "Plant"}
     ).inserted_id
     response = client.post(
@@ -99,13 +115,18 @@ def test_new_entry_post(client, app):
     )
     assert response.status_code == 302
     # make sure this entry exists and the instructions were added correctly
-    plant = app.db.plants.find_one({"_id": plant_id})
+    plant = new_app.db.plants.find_one({"_id": plant_id})
     assert plant["instructions"] == "Water daily"
 
 
-def test_history(client, app):
+def test_history(client):
     """Test the past entries (history) route"""
-    app.db.plants.insert_many(
+    connection = pymongo.MongoClient(os.getenv("MONGO_URI"))
+    # make config to identify test
+    new_app = create_app(test_config={"TESTING": True})
+    new_app.debug = True
+    new_app.db = connection[os.getenv("MONGO_TEST_DBNAME")]
+    new_app.db.plants.insert_many(
         [
             {"name": "cactus", "photo": "Photo1", "user": "test_user"},
             {"name": "oak tree", "photo": "Photo2", "user": "test_user"},
