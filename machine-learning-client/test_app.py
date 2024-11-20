@@ -70,6 +70,7 @@ def mock_resnet50(monkeypatch):
 
         def load_state_dict(self, _):
             """Mock method for loading state dictionary."""
+            pass
 
         def eval(self):
             """Mock method to set the model to evaluation mode."""
@@ -133,7 +134,6 @@ def test_predict_plant(monkeypatch):
 
     # Call predict_plant with only the image_path argument
     result = predict_plant(DATA_PATH)
-    
     # Assert the expected result
-    assert result == "Tulip"  # Mocked result based on expected behavior
+    assert result == "Tulip"
     
