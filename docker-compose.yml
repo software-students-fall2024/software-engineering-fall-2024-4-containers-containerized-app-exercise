@@ -6,6 +6,7 @@ services:
       - "27017:27017"
     networks:
       - app-network
+
   ml-client:
     build: ./machine-learning-client
     container_name: ml-client
@@ -13,16 +14,28 @@ services:
       - mongodb
     networks:
       - app-network
+    healthcheck:  # Add a health check for ml-client
+      test: ["CMD", "curl", "-f", "http://localhost:5001"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+
   web-app:
     build: ./web-app
     container_name: web-app
     ports:
-      - "5000:5000"
+      - "5000:5000" # Exposes Flask app to host
     depends_on:
-      - mongodb
-      - ml-client
+      ml-client:
+        condition: service_healthy
+      mongodb:
+        condition: service_started
     networks:
       - app-network
+    environment:
+      - MONGO_URI=mongodb://mongodb:27017/
+      - ML_SERVICE_URL=http://ml-client:5001 
+
 networks:
   app-network:
     driver: bridge

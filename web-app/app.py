@@ -9,8 +9,9 @@ import os
 import cv2
 from bson.binary import Binary
 import requests
+import numpy as np
 from dotenv import load_dotenv
-from flask import Flask, Response, jsonify, render_template
+from flask import Flask, jsonify, render_template, request
 from pymongo import MongoClient
 
 # Load environment variables
@@ -22,9 +23,12 @@ client = MongoClient(mongo_uri)
 db = client["object_detection"]
 collection = db["detected_objects"]
 
+# define ml service for docker
+ml_service_url = os.getenv("ML_SERVICE_URL", "http://ml-client:5001")
+
 # Initialize camera
-camera = cv2.VideoCapture(0)  # pylint: disable=no-member
-atexit.register(lambda: camera.release())  # pylint: disable=W0108
+CAMERA = None  # pylint: disable=no-member
+atexit.register(lambda: CAMERA.release() if CAMERA else None)  # pylint: disable=W0108
 
 
 @app.route("/")
@@ -33,36 +37,42 @@ def index():
     return render_template("index.html")
 
 
-@app.route("/capture_and_process", methods=["POST"])
+@app.route("/capture_and_process", methods=["POST"])  # pylint: disable=no-member
 def capture_and_process():
-    """Capture a frame, save it to MongoDB, and trigger processing."""
-    # Capture a frame
-    success, frame = camera.read()
-    if not success:
-        return jsonify({"error": "Failed to capture frame"}), 500
+    """Process a frame uploaded by the client."""
+    # Check if a frame was uploaded
+    if "frame" not in request.files:
+        return jsonify({"error": "No frame provided"}), 400
 
-    # Encode the frame to JPEG format
+    # Read the uploaded frame
+    frame_file = request.files["frame"].read()
+    np_frame = np.frombuffer(frame_file, np.uint8)
+    frame = cv2.imdecode(np_frame, cv2.IMREAD_COLOR)  # pylint: disable=no-member
+
+    if frame is None:
+        return jsonify({"error": "Invalid frame data"}), 400
+
+    # Process the frame (e.g., save to MongoDB, send to ML client)
     _, buffer = cv2.imencode(".jpg", frame)  # pylint: disable=no-member
     image_binary = Binary(buffer)
 
-    # Save to MongoDB
     document = {
         "image": image_binary,
         "timestamp": datetime.now(timezone.utc).isoformat(),
-        "status": "pending",  # Waiting for processing
+        "status": "pending",
         "detections": [],
     }
     result = collection.insert_one(document)
 
     # Trigger processing in the ML app
-    ml_response = requests.post("http://localhost:5001/process_pending", timeout=90)
+    ml_response = requests.post(f"{ml_service_url}/process_pending", timeout=90)
     if ml_response.status_code != 200:
-        return jsonify({"error": "Processing failed"}), 500
+        return jsonify({"error": "Processing failed to reach ml service!"}), 500
 
     return (
         jsonify(
             {
-                "message": "Frame captured and processed",
+                "message": "Frame captured and processed by ml service",
                 "id": str(result.inserted_id),
                 "detections": ml_response.json().get("detections", []),
             }
@@ -83,25 +93,6 @@ def latest_detection():
 
     detections = detection.get("detections", [])
     return jsonify({"timestamp": detection["timestamp"], "labels": detections})
-
-
-@app.route("/video_feed")
-def video_feed():
-    """Stream the video feed."""
-    return Response(
-        generate_frames(), mimetype="multipart/x-mixed-replace; boundary=frame"
-    )
-
-
-def generate_frames():
-    """Generate video frames for streaming."""
-    while True:
-        success, frame = camera.read()
-        if not success:
-            break
-        _, buffer = cv2.imencode(".jpg", frame)  # pylint: disable=no-member
-        frame_bytes = buffer.tobytes()  # Convert buffer to bytes
-        yield b"--frame\r\n" b"Content-Type: image/jpeg\r\n\r\n" + frame_bytes + b"\r\n"
 
 
 if __name__ == "__main__":

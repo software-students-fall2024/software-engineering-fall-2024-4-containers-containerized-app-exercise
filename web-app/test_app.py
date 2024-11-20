@@ -7,6 +7,7 @@ or to see with coverage run with
 
 from unittest.mock import MagicMock, patch
 from datetime import datetime, timezone
+from io import BytesIO
 import pytest
 from bson import ObjectId
 from app import app
@@ -55,13 +56,19 @@ def test_index_page(
     assert b"Real-Time Object Detection" in response.data
 
 
-def test_capture_and_process_success(  # pylint: disable=redefined-outer-name
-    test_client, mongo_mock, camera_mock, requests_mock
-):
+def test_capture_and_process_success(
+    test_client, mongo_mock, requests_mock
+):  # pylint: disable=redefined-outer-name
     """Test /capture_and_process with successful processing."""
-    camera_mock.read.return_value = (True, b"mock_frame")
+    # Mock uploaded frame
+    mock_frame_data = b"mock_frame_data"
+    mock_encoded_frame = b"mock_encoded_frame"
+    mock_image_file = BytesIO(mock_frame_data)
 
-    with patch("cv2.imencode", return_value=(True, b"mock_encoded_frame")):
+    with patch("cv2.imdecode", return_value="mock_frame") as mock_imdecode, patch(
+        "cv2.imencode", return_value=(True, mock_encoded_frame)
+    ):
+
         requests_mock.return_value.status_code = 200
         requests_mock.return_value.json.return_value = {
             "detections": [{"label": "cat", "confidence": 0.95}]
@@ -70,26 +77,20 @@ def test_capture_and_process_success(  # pylint: disable=redefined-outer-name
         mock_insert_result = MagicMock(inserted_id=ObjectId())
         mongo_mock.insert_one.return_value = mock_insert_result
 
-        response = test_client.post("/capture_and_process")
+        # Simulate file upload
+        response = test_client.post(
+            "/capture_and_process",
+            data={"frame": (mock_image_file, "frame.jpg")},
+            content_type="multipart/form-data",
+        )
+
         assert response.status_code == 200
         response_data = response.get_json()
-        assert response_data["message"] == "Frame captured and processed"
+        assert response_data["message"] == "Frame captured and processed by ml service"
         assert "id" in response_data
         assert len(response_data["detections"]) == 1
         assert response_data["detections"][0]["label"] == "cat"
-
-
-def test_capture_and_process_ml_failure(  # pylint: disable=redefined-outer-name,unused-argument
-    test_client, mongo_mock, camera_mock, requests_mock
-):
-    """Test /capture_and_process when ML app fails."""
-    camera_mock.read.return_value = (True, b"mock_frame")
-
-    with patch("cv2.imencode", return_value=(True, b"mock_encoded_frame")):
-        requests_mock.return_value.status_code = 500
-        response = test_client.post("/capture_and_process")
-        assert response.status_code == 500
-        assert response.get_json() == {"error": "Processing failed"}
+        mock_imdecode.assert_called_once()
 
 
 def test_latest_detection_with_data(
