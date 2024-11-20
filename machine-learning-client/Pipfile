@@ -7,11 +7,6 @@ name = "pypi"
 pylint = "*"
 black = "*"
 pynput = "*"
-pyobjc-core = {version = "*", markers = "sys_platform == 'darwin'"}
-pyobjc-framework-applicationservices = {version = "*", markers = "sys_platform == 'darwin'"}
-pyobjc-framework-quartz = {version = "*", markers = "sys_platform == 'darwin'"}
-pyobjc-framework-cocoa = {version = "*", markers = "sys_platform == 'darwin'"}
-pyobjc-framework-coretext = {version = "*", markers = "sys_platform == 'darwin'"}
 
 [dev-packages]
 setuptools = "==75.5.0"
