@@ -4,8 +4,6 @@ Flask application with camera tracking integration using OpenCV and MongoDB.
 
 import os
 import sys
-import time
-from threading import Thread, Event
 from flask import Flask, render_template, request, redirect, url_for, flash, jsonify
 from flask_login import (
     LoginManager,
@@ -23,15 +21,19 @@ from dotenv import load_dotenv
 sys.path.append(os.path.abspath("../machine-learning-client"))
 
 # Import camera and mouse tracking functions with aliases
-from camera_tracker import start_tracking as start_camera_tracking, stop_tracking as stop_camera_tracking
-from mouse_tracker import start_tracking as start_mouse_tracking, stop_tracking as stop_mouse_tracking
-
-
+try:
+    from camera_tracker import (
+        start_tracking as start_camera_tracking,
+        stop_tracking as stop_camera_tracking,
+    )
+    from mouse_tracker import (
+        start_tracking as start_mouse_tracking,
+        stop_tracking as stop_mouse_tracking,
+    )
+except ImportError as e:
+    print(f"ImportError: {e}")
 
 load_dotenv()
-
-# Define an event to signal the function to stop
-stop_event = Event()
 
 
 def create_app():
@@ -55,7 +57,7 @@ def create_app():
         cxn.admin.command("ping")
         print(" * Connected to MongoDB!")
     except pymongo.errors.ServerSelectionTimeoutError as e:
-        print(" * MongoDB connection error:", e)
+        print(f" * MongoDB connection error: {e}")
 
     class User(UserMixin):
         """
@@ -151,13 +153,28 @@ def create_app():
         Start both camera and mouse tracking.
         """
         try:
-            # Start camera tracking in a separate thread
-            #Thread(target=start_camera_tracking, daemon=True).start()
-            # Start mouse tracking
+            # Uncomment these lines if camera tracking is needed
+            start_camera_tracking()
+
             start_mouse_tracking()
             return jsonify({"status": "tracking_started"}), 200
-        except Exception as e:
-            return jsonify({"status": "error", "message": str(e)}), 500
+        except pymongo.errors.PyMongoError as db_error:
+            return (
+                jsonify({"status": "error", "message": f"Database error: {db_error}"}),
+                500,
+            )
+        except ValueError as value_error:
+            return (
+                jsonify({"status": "error", "message": f"Value error: {value_error}"}),
+                500,
+            )
+        except RuntimeError as runtime_error:
+            return (
+                jsonify(
+                    {"status": "error", "message": f"Runtime error: {runtime_error}"}
+                ),
+                500,
+            )
 
     @app.route("/stop", methods=["POST"])
     def stop_tracking_route():
@@ -165,13 +182,20 @@ def create_app():
         Stop both camera and mouse tracking.
         """
         try:
-            # Stop camera tracking
-            #stop_camera_tracking()
-            # Stop mouse tracking
+            # Uncomment these lines if camera tracking is needed
+            stop_camera_tracking()
+
             stop_mouse_tracking()
             return jsonify({"status": "tracking_stopped"}), 200
-        except Exception as e:
-            return jsonify({"status": "error", "message": str(e)}), 500
+        except pymongo.errors.PyMongoError as db_error:
+            return (
+                jsonify({"status": "error", "message": f"Database error: {db_error}"}),
+                500,
+            )
+        except Exception as general_error:  # pylint: disable=broad-exception-caught
+            # Broad exception to catch unexpected errors and prevent crashes.
+            return jsonify({"status": "error", "message": str(general_error)}), 500
+
     return app
 
 
