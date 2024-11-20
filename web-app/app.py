@@ -33,11 +33,12 @@ def create_app(test_config=None):
     if test_config:
         app.config.update(test_config)
 
+    connection = pymongo.MongoClient(os.getenv("MONGO_URI"))
+
     # Initialize the database connection
-    if "DB_CLIENT" in app.config:
-        app.db = app.config["DB_CLIENT"]
+    if "TESTING" in app.config:
+        app.db = connection[os.getenv("MONGO_TEST_DBNAME")]
     else:
-        connection = pymongo.MongoClient(os.getenv("MONGO_URI"))
         app.db = connection[os.getenv("MONGO_DBNAME")]
 
     # connection = pymongo.MongoClient(os.getenv("MONGO_URI"))

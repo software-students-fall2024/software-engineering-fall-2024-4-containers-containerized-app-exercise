@@ -4,39 +4,30 @@ This script tests each route independently to achieve a minimum of 80% code cove
 
 """
 
-from unittest.mock import patch
+import os
+import pymongo
 import pytest
-import mongomock
 from app import create_app
 
 
 @pytest.fixture
 def app():
-    """
-    Creates Flask application and Mongomock db for testing
-    """
-    # mock db with mongomock
-    with patch("app.pymongo.MongoClient", new=mongomock.MongoClient) as mock_mongo_client:
-        mock_client = mongomock.MongoClient()
-        mock_db = mock_client["test_plantify"]
+    connection = pymongo.MongoClient(os.getenv("MONGO_URI"))
+    # make config to identify test
+    app = create_app(
+        test_config={
+            "TESTING": True
+        }
+    )
+    app.debug = True
 
-        # assign mock db
-        mock_mongo_client.return_value = mock_client
+    app.db = connection[os.getenv("MONGO_TEST_DBNAME")]
 
-        # make config
-        app = create_app(
-            test_config={
-                "TESTING": True,
-                "MONGO_URI": "mongodb://mock_uri:27017/test_plantify",
-                "DB_CLIENT": mock_client,
-            }
-        )
-        app.debug = True
+    # clear collections so tests can be repeated
+    for collection in app.db.list_collection_names():
+        app.db.drop_collection(collection)
 
-        app.db = mock_db  # Attach the mock database to the app for testing
-
-        return app
-
+    return app
 
 @pytest.fixture
 def client(app):
