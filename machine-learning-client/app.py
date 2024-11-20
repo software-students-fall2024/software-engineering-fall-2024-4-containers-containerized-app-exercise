@@ -12,7 +12,6 @@ from PIL import Image
 import torchvision
 from flask import Flask, jsonify, request
 from pymongo import MongoClient
-from flask_cors import CORS
 from werkzeug.utils import secure_filename
 
 # Initialize MongoDB connection
@@ -175,6 +174,5 @@ def predict():
 
 if __name__ == "__main__":
     FLASK_PORT = os.getenv("FLASK_PORT", "3001")
-    CORS(app)
     app.run(host="0.0.0.0", port=FLASK_PORT)
     
