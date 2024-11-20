@@ -4,8 +4,8 @@ FROM python:3.13-slim
 # Set the working directory inside the container
 WORKDIR /app
 
-# Update the package manager and install dependencies
-RUN apt-get update && apt-get install -y \
+# Update and install necessary dependencies
+RUN apt-get update && apt-get install -y --no-install-recommends \
     build-essential \
     linux-headers-generic \
     libglib2.0-0 \
@@ -15,40 +15,32 @@ RUN apt-get update && apt-get install -y \
     xvfb \
     && rm -rf /var/lib/apt/lists/*
 
-# Ensure pip is up-to-date
-RUN pip3 install --no-cache-dir --upgrade pip
+# Upgrade pip and install pipenv
+RUN pip3 install --no-cache-dir --upgrade pip pipenv
 
-# Install pipenv globally
-RUN pip3 install pipenv
-
-# Install machine-learning-client dependencies
+# Install dependencies for machine-learning-client
 WORKDIR /app/machine-learning-client
 COPY machine-learning-client/Pipfile machine-learning-client/Pipfile.lock ./
 RUN pipenv install --system --deploy --dev --skip-lock \
     && pip3 install opencv-python-headless
 
-# Install web-app dependencies
+# Install dependencies for web-app
 WORKDIR /app/web-app
 COPY web-app/Pipfile web-app/Pipfile.lock ./
 RUN pipenv install --system --deploy --dev --skip-lock
 
-# Copy the machine-learning-client and web-app source code into the container
+# Copy application source code
 COPY machine-learning-client /app/machine-learning-client
 COPY web-app /app/web-app
 
-# Set the DISPLAY variable for Xvfb
+# Set environment variables for Flask and Xvfb
 ENV DISPLAY=:99
-
-# Start Xvfb in the background and run Flask
-CMD ["sh", "-c", "Xvfb :99 -screen 0 1024x768x16 & flask run"]
-
-# Expose Flask's default port
-EXPOSE 5000
-
-# Set environment variables for Flask
 ENV FLASK_APP=/app/web-app/app.py
 ENV FLASK_RUN_HOST=0.0.0.0
 ENV FLASK_RUN_PORT=5000
 
-# Set the working directory for Flask
-WORKDIR /app/web-app
+# Expose Flask's default port
+EXPOSE 5000
+
+# Start Xvfb and Flask application
+CMD ["sh", "-c", "Xvfb :99 -screen 0 1024x768x16 & flask run"]
