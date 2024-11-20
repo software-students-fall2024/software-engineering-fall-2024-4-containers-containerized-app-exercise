@@ -11,7 +11,7 @@ from PIL import Image
 from pymongo.mongo_client import MongoClient
 
 # MongoDB connection
-client = MongoClient("mongodb://localhost:27017/")
+client = MongoClient("mongodb://mongodb:27017/")
 db = client["object_detection"]
 collection = db["detected_objects"]
 
