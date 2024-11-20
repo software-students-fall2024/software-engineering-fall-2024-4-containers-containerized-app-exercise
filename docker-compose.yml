@@ -7,7 +7,7 @@ services:
     ports: 
       - "3000:3000"
     environment:
-      - DB_HOST: mongodb://db/scoobygang
+      DB_HOST: mongodb://db/scoobygang
     depends_on:
       - db
 
@@ -24,8 +24,7 @@ services:
     ports:
       - "5001:5001"
     environment:
-      - DB_HOST: mongodb://database/scoobygang
-      - FLASK_ENV=development
+      DB_HOST: mongodb://database/scoobygang
     depends_on:
       - db
 

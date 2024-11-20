@@ -5,7 +5,8 @@ FROM python:3.9
 WORKDIR /app
 
 # Install dependencies (TensorFlow, PyTorch, or other ML libraries)
-RUN pip3 install --no-cahe-dir  Z Z
+COPY requirements.txt .
+RUN pip3 install --no-cache-dir -r requirements.txt
 
 # Copy your machine learning code
 COPY . .
