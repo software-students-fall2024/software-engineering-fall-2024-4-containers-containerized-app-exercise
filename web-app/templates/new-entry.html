@@ -1,0 +1,29 @@
+{% extends "layout.html" %}
+
+{% block title %} My Journal {% endblock %}
+
+{% block content %}
+<section>
+    <div class="upload-container">
+        <form action="{{ url_for('new_entry', new_entry_id=new_entry_id) }}" method="POST">
+            <h1>Upload New Entry</h1>
+            {% if photo %}
+            <img src="{{ photo }}" alt="Plant photo" class="plant-photo">
+            {% else %}
+            <p>No photo found.</p>
+            {% endif %}
+    
+            {% if name %}
+            <p>Plant: {{ name }}</p>
+            {% else %}
+            <p>No name found.</p>
+            {% endif %}
+    
+            <label for="instructions" class="text">Add details or care instructions:</label>
+            <input type="text" name="instructions" id="instructions">
+            <button type="submit" class="button">Save New Entry</button>
+        </form>
+    </div>
+    <!-- <a href="{{ url_for('home') }}">Return to Home</a> -->
+</section>
+{% endblock %}
