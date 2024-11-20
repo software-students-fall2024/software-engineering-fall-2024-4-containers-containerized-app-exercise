@@ -9,6 +9,7 @@ black = "*"
 requests = "*"
 flask = "*"
 pymongo = "*"
+pytest = "*"
 
 [dev-packages]
 
