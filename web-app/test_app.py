@@ -12,8 +12,8 @@ from io import BytesIO
 from flask.testing import FlaskClient
 import pytest
 from bson.objectid import ObjectId
-from app import app, generate_stats_doc, retry_request
 import requests
+from app import app, generate_stats_doc, retry_request
 
 
 @pytest.fixture
