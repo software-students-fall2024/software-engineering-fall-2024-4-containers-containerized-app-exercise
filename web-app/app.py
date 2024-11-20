@@ -1,7 +1,6 @@
 """
 A Flask web application for a Rock-Paper-Scissors game with AI and ML integration.
 """
-
 import os
 import time
 import random

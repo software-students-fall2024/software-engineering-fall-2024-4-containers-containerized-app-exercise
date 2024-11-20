@@ -6,7 +6,6 @@ from bson.objectid import ObjectId
 from io import BytesIO
 from app import app, generate_stats_doc, retry_request
 
-
 @pytest.fixture
 def client():
     app.config['TESTING'] = True
