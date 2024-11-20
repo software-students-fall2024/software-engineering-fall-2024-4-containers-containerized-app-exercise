@@ -7,12 +7,16 @@ WORKDIR /app
 # Copy the current directory contents into the container
 COPY . /app
 
-# Install Python dependencies from requirements.txt
-COPY requirements.txt /app/requirements.txt
-RUN pip install --no-cache-dir flask
+# Install system dependencies for camera access
+RUN apt-get update && apt-get install -y \
+    ffmpeg libsm6 libxext6 && \
+    apt-get clean
 
-# Expose port 5000 for the Flask web server
+# Install Python dependencies
+RUN pip install --no-cache-dir -r requirements.txt
+
+# Expose port 5000 for the web server
 EXPOSE 5000
 
-# Command to run the Flask app
+# Command to run the web server
 CMD ["python", "web_server.py"]

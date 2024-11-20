@@ -19,3 +19,5 @@ python-dotenv==1.0.1
 setuptools==75.5.0
 tomlkit==0.13.2
 virtualenv==20.27.1
+Flask
+Flask-Login
