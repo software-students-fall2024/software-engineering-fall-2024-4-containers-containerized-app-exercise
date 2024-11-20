@@ -4,8 +4,21 @@ verify_ssl = true
 name = "pypi"
 
 [packages]
+flask = "*"
+torchvision = "*"
+pillow = "*"
+pymongo = "*"
+python-dotenv = "*"
+werkzeug = "*"
+scipy = "*"
+tqdm = "*"
+pytest = "*"
 pylint = "*"
 black = "*"
+numpy = "*"
+dill = "*"
+flask-cors = "*"
+requests = "*"
 
 [dev-packages]
 python-dotenv = "*"
