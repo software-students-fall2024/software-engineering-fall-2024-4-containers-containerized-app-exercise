@@ -19,3 +19,6 @@ Our app leverages Machine Learning models for plant species identification. This
 [ ]
 
 [ ]
+
+
+Commands to run: `docker-compose up --build`

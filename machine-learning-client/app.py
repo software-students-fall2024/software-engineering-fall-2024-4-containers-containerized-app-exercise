@@ -3,6 +3,7 @@ This module performs flower classification using a pre-trained ResNet50 model.
 It includes functions to load the flower class names, initialize the model, 
 transform images, and predict the flower name based on an input image.
 """
+
 import os
 import json
 import torch
@@ -24,6 +25,7 @@ db = client[MONGO_DBNAME]
 def create_app():
     app = Flask(__name__)
     return app
+
 
 app = create_app()
 
@@ -90,7 +92,7 @@ def transform_image(image_path):
             transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),
         ]
     )
-    image = Image.open(image_path).convert('RGB')  # Convert image to RGB
+    image = Image.open(image_path).convert("RGB")  # Convert image to RGB
     return transform(image).unsqueeze(0)  # Add batch dimension
 
 
@@ -145,18 +147,19 @@ def predict_plant(image_path, model, flower_names):
 flower_names = load_flower_names()
 model = load_model()
 
-@app.route('/predict', methods=['POST'])
+
+@app.route("/predict", methods=["POST"])
 def predict():
     """
     Predicts the plant name from an uploaded image file.
     """
-    if 'image' not in request.files:
-        return jsonify({'error': 'No image uploaded'}), 400
+    if "image" not in request.files:
+        return jsonify({"error": "No image uploaded"}), 400
 
-    image_file = request.files['image']
+    image_file = request.files["image"]
 
     # Save the image to a temporary location
-    image_path = os.path.join('/tmp', secure_filename(image_file.filename))
+    image_path = os.path.join("/tmp", secure_filename(image_file.filename))
     image_file.save(image_path)
 
     try:
@@ -167,9 +170,10 @@ def predict():
         if os.path.exists(image_path):
             os.remove(image_path)
 
-    return jsonify({'plant_name': plant_name}), 200
+    return jsonify({"plant_name": plant_name}), 200
+
 
 if __name__ == "__main__":
     FLASK_PORT = os.getenv("FLASK_PORT", "3001")
     CORS(app)
-    app.run(host='0.0.0.0', port=FLASK_PORT)
+    app.run(host="0.0.0.0", port=FLASK_PORT)
