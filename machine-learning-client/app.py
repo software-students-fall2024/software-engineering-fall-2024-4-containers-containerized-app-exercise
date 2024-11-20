@@ -38,8 +38,8 @@ def index():
     return jsonify({"status": "running"}), 200
 
 
-@app.route("/capture_and_process", methods=["POST"])
-def capture_and_process():
+@app.route("/process_pending", methods=["POST"])
+def process_pending():
     """
     Process a pending image from MongoDB.
     This endpoint is triggered when the frontend captures a frame.
