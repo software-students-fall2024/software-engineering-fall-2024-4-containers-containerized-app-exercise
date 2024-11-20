@@ -44,7 +44,7 @@ h3 {
 
 .box {
     width: 300px;
-    height: 100px;
+    height: 200px;
     border: 2px black;
     color: #000000;
     background-color: rgb(135, 135, 135);
@@ -76,4 +76,10 @@ h3 {
     font-size: 16px;
     border-radius: 5px;
     align-items: center;
+}
+
+.container {
+  display: flex;
+  justify-content: space-around;
+  align-items: flex-start;
 }
