@@ -46,14 +46,14 @@ def model_mock(monkeypatch):
     return mock_model_instance
 
 
-def test_index(flask_test_client):
+def test_index(flask_test_client): # pylint: disable=redefined-outer-name
     """Test the health check endpoint."""
     response = flask_test_client.get("/")
     assert response.status_code == 200
     assert response.get_json() == {"status": "running"}
 
 
-def test_detect_objects(model_mock):
+def test_detect_objects(model_mock): # pylint: disable=redefined-outer-name, unused-argument
     """Test the detect_objects function."""
     mock_image = Image.fromarray(np.zeros((480, 640, 3), dtype=np.uint8))
     detections = detect_objects(mock_image)
@@ -63,7 +63,7 @@ def test_detect_objects(model_mock):
     assert detections[0]["confidence"] == 0.9
 
 
-def test_process_pending_no_document(flask_test_client, mongo_mock):
+def test_process_pending_no_document(flask_test_client, mongo_mock): # pylint: disable=redefined-outer-name
     """Test the /process_pending endpoint with no pending document."""
     mongo_mock.find_one.return_value = None
 
@@ -72,7 +72,7 @@ def test_process_pending_no_document(flask_test_client, mongo_mock):
     assert response.get_json() == {"message": "No pending frames to process"}
 
 
-def test_process_pending_with_document(flask_test_client, mongo_mock, model_mock):
+def test_process_pending_with_document(flask_test_client, mongo_mock, model_mock): # pylint: disable=redefined-outer-name, unused-argument
     """Test the /process_pending endpoint with a pending document."""
     # Mock a pending document
     mock_image_data = BytesIO()
