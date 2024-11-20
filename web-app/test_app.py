@@ -26,6 +26,7 @@ def app():
 
     yield test_app
 
+
 def test_home_without_user(client):
     """Test home page route without no user input yet"""
     response = client.get("/")
