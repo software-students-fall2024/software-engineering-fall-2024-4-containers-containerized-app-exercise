@@ -150,13 +150,8 @@ model = load_model()
 
 @app.route("/predict", methods=["POST"])
 def predict():
-    """Predicts the class of the image at the given path.
-
-    Args:
-        image_path (str): The path to the image file.
-
-    Returns:
-        dict: A dictionary containing the prediction results.
+    """
+    Predicts the plant name from an uploaded image file.
     """
     if "image" not in request.files:
         return jsonify({"error": "No image uploaded"}), 400
@@ -182,3 +177,4 @@ if __name__ == "__main__":
     FLASK_PORT = os.getenv("FLASK_PORT", "3001")
     CORS(app)
     app.run(host="0.0.0.0", port=FLASK_PORT)
+    
