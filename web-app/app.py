@@ -1,3 +1,7 @@
+"""
+This is the main module for the web app front end.
+"""
+
 import atexit
 import datetime
 import os
@@ -20,8 +24,8 @@ db = client["object_detection"]
 collection = db["detected_objects"]
 
 # Initialize camera
-camera = cv2.VideoCapture(0)
-atexit.register(lambda: camera.release())
+camera = cv2.VideoCapture(0)  # pylint: disable=no-member
+atexit.register(lambda: camera.release()) # pylint: disable=W0108
 
 
 @app.route("/")
@@ -51,7 +55,7 @@ def capture_frame():
         return jsonify({"error": "Failed to capture frame"}), 500
 
     # Encode the frame to JPEG format
-    _, buffer = cv2.imencode(".jpg", frame)
+    _, buffer = cv2.imencode(".jpg", frame)  # pylint: disable=no-member
     image_binary = Binary(buffer.tobytes())
 
     # Save to MongoDB
@@ -96,10 +100,9 @@ def generate_frames():
         success, frame = camera.read()
         if not success:
             break
-        else:
-            _, buffer = cv2.imencode(".jpg", frame)
-            frame = buffer.tobytes()
-            yield (b"--frame\r\n" b"Content-Type: image/jpeg\r\n\r\n" + frame + b"\r\n")
+        _, buffer = cv2.imencode(".jpg", frame)  # pylint: disable=no-member
+        frame = buffer.tobytes()
+        yield b"--frame\r\n" b"Content-Type: image/jpeg\r\n\r\n" + frame + b"\r\n"
 
 
 def capture_frames_periodically():
