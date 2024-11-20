@@ -4,8 +4,8 @@
 A containerized app that performs speech-to-text conversion using machine learning, with a web interface to display results and a database for data storage.
 
 # Badges
-![Machine Learning Client Test Status](https://github.com/software-students-fall2024/4-containers-fivegum/actions/workflows/ml-client-tests.yml/badge.svg)
-![Web App Test Status](https://github.com/software-students-fall2024/4-containers-fivegum/actions/workflows/testing.yml/badge.svg)
+![Machine Learning Client Workflow Status](https://github.com/software-students-fall2024/4-containers-fivegum/actions/workflows/ml-client-tests.yml/badge.svg)
+![Web App Workflow Status](https://github.com/software-students-fall2024/4-containers-fivegum/actions/workflows/testing.yml/badge.svg)
 
 # About
 
