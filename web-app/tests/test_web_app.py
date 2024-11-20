@@ -2,78 +2,159 @@
 This is the tests for the webapp
 """
 
-# from io import BytesIO
-
-# pylint: disable=unused-import
-from unittest.mock import patch
-
-# pylint: disable=unused-import
+from datetime import datetime
 import pytest
+from flask import Flask
+from pymongo.collection import Collection
+from gridfs import GridFS
+from io import BytesIO
 
 # pylint: disable=unused-import
 # pylint: disable=import-error
-from src.app import app, metadata_collection
+from src.app import app, metadata_collection, grid_fs
 
 
 def test_record_route(test_client):
-    """Test that the record route '/' works."""
+    """Test that the record route works"""
     response = test_client.get("/record")
     assert response.status_code == 200
 
 
-# @patch("src.app.metadata_collection.insert_one")
-# def test_db_failure(mock_md, mock_audio, test_client):
-#     """Test failure when database insertion fails"""
-#     mock_audio.return_value.inserted_id = None  # Simulating the failure
-#     mock_md.return_value.acknowledged = False  # Simulating failure in metadata insert
-#
-#     data = {
-#         "name": "test_audio",
-#     }
-#     file_info = (BytesIO(b"fake_audio_data"), "test_audio.wav")
-#
-#     response = test_client.post("/upload-audio", data={"audio": file_info, **data})
-#
-#     assert response.status_code == 500
-#
-#
-# @patch("src.app.audio_collection.insert_one")
-# def test_missing_filename(mock_audio, test_client):
-#     """Test missing filename"""
-#     file_info = (BytesIO(b"fake_audio_data"), "test_audio.wav")
-#     response = test_client.post("/upload-audio", data={"audio": file_info})
-#     assert response.status_code == 400
-#     assert not mock_audio.called
-#
-#
-# @patch("src.app.audio_collection.insert_one")
-# @patch("src.app.requests.get")
-# @patch("src.app.metadata_collection.insert_one")
-# def test_upload_audio(mock_req, mock_md, mock_audio, test_client):
-#     """Test uploading audio"""
-#     mock_audio.return_value.inserted_id = "mock_file"
-#     mock_md.return_value.acknowledged = True
-#     mock_req.return_value.ok = True
-#     mock_req.return_value.text = "Success"
-#
-#     data = {
-#         "name": "test_audio",
-#     }
-#     file_info = (BytesIO(b"fake_audio_data"), "test_audio.wav")
-#     response = test_client.post("/upload-audio", data={"audio": file_info, **data})
-#
-#     assert response.status_code == 302
-#     assert mock_audio.called
-#     assert mock_md.called
-#     assert mock_req.called
-#
-#
-# @patch("src.app.audio_collection.insert_one")
-#
-#
-# @patch("src.app.audio_collection.insert_one")
-# def test_audio_missing(mock_audio, test_client):
-#     """test without audio"""
-#     response = test_client.post("/upload-audio", data={"name": "test_audio"})
-#     assert response.status_code == 400
-#     assert not mock_audio.called
+def test_upload_audio_missing(test_client):
+    """
+    Test that the /upload-audio route handles missing fields properly
+    """
+    response = test_client.post("/upload-audio", data={})
+    assert response.status_code == 400
+    assert response.json == {"error": "Audio file and name are required"}
+
+
+def test_upload_audio_gridfs_fail(test_client, monkeypatch):
+    """
+    Test failure in Gridfs
+    """
+
+    def mock_put(*args, **kwargs):
+        return None
+
+    monkeypatch.setattr(grid_fs, "put", mock_put)
+
+    file_data = (BytesIO(b"audio"), "audio.wav")
+
+    response = test_client.post(
+        "/upload-audio",
+        data={"audio": file_data, "name": "audio"},
+    )
+
+    assert response.status_code == 500
+
+    assert response.json == {"error": "Failed to store the audio file in GridFS"}
+
+
+def test_upload_audio_metadata(test_client, monkeypatch):
+    """
+    Test failure during storing metadata
+    """
+
+    def mock_insert(metadata):
+        class Result:
+            acknowledged = False
+
+        return Result()
+
+    monkeypatch.setattr(metadata_collection, "insert_one", mock_insert)
+
+    def mock_put(*args, **kwargs):
+        return "mock_gridfs"
+
+    monkeypatch.setattr(grid_fs, "put", mock_put)
+
+    file = (BytesIO(b"audio"), "audio.wav")
+    response = test_client.post(
+        "/upload-audio",
+        data={"audio": file, "name": "audio"},
+    )
+
+    assert response.status_code == 500
+    assert response.json == {"error": "Failed to store the metadata in the database"}
+
+
+def test_upload_audio_ml(test_client, monkeypatch):
+    """
+    Test failure to notify ML client
+    """
+
+    def mock_insert(metadata):
+        class Result:
+            acknowledged = True
+
+        return Result()
+
+    def mock_put(*args, **kwargs):
+        return "mock_gridfs"
+
+    def mock_get(*args, **kwargs):
+        class Response:
+            status_code = 500
+            text = "ML client error"
+
+        return Response()
+
+    monkeypatch.setattr(metadata_collection, "insert_one", mock_insert)
+    monkeypatch.setattr(grid_fs, "put", mock_put)
+    monkeypatch.setattr("src.app.requests.get", mock_get)
+
+    file = (BytesIO(b"audio"), "audio.wav")
+    response = test_client.post(
+        "/upload-audio",
+        data={"audio": file, "name": "audio"},
+    )
+
+    assert response.status_code == 500
+    assert (
+        response.json["message"]
+        == "File uploaded, but ML client responded with an error."
+    )
+    assert response.json["ml_client_response"] == "ML client error"
+
+
+def test_upload_audio(test_client, monkeypatch):
+    """
+    Test successful upload
+    """
+
+    def mock_insert(metadata):
+        class Result:
+            acknowledged = True
+
+        return Result()
+
+    def mock_put(*args, **kwargs):
+        return "mock_gridfs"
+
+    def mock_get(*args, **kwargs):
+        class MockResponse:
+            status_code = 200
+            text = "Success"
+
+        return MockResponse()
+
+    monkeypatch.setattr(metadata_collection, "insert_one", mock_insert)
+    monkeypatch.setattr(grid_fs, "put", mock_put)
+    monkeypatch.setattr("src.app.requests.get", mock_get)
+
+    file = (BytesIO(b"audio"), "audio.wav")
+
+    response = test_client.post(
+        "/upload-audio",
+        data={"audio": file, "name": "audio"},
+    )
+
+    assert response.status_code == 200
+
+    assert (
+        response.json["message"]
+        == "File uploaded successfully, and ML client notified."
+    )
+
+    assert response.json["file_id"] == "mock_gridfs"
