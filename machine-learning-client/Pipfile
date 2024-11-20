@@ -9,6 +9,7 @@ pymongo = {extras = ["srv"], version = "==4.10.1"}
 flask-login = "==0.6.3"
 python-dotenv = "==1.0.1"
 certifi = "*"
+pynput = "*"
 
 [dev-packages]
 black = "*"
