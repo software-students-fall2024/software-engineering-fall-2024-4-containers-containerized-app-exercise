@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "c9cd936143d669dd9f48d0a1bd7cb8dc421f60a914cc8a9c296e86be17e3d11e"
+            "sha256": "e74e9b7cc99b5dd7f9910c455cd174189e20d3988c5683595f42f9b2d86c8332"
         },
         "pipfile-spec": 6,
         "requires": {
@@ -172,7 +172,7 @@
                 "sha256:a7151186bb7805deea434fae9a4423335e6371d105f29e73cc2036c6779a9dbc",
                 "sha256:de5e62e5ccf2871a94acf3bf79646b20ea893cc9db78afa8d1fe1b0d0f7cbdb0"
             ],
-            "markers": "python_version >= '3.8'",
+            "markers": "sys_platform == 'darwin'",
             "version": "==10.3.1"
         },
         "pyobjc-framework-coretext": {
