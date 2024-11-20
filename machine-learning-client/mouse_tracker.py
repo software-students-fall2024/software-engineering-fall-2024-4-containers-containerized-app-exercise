@@ -27,7 +27,9 @@ try:
     # Test connection by inserting a test document
     test_document = {"test": "connection", "timestamp": time.time()}
     test_result = mouse_collection.insert_one(test_document)
-    print(f"Connected to MongoDB successfully! Test document ID: {test_result.inserted_id}")
+    print(
+        f"Connected to MongoDB successfully! Test document ID: {test_result.inserted_id}"
+    )
 except (ConnectionFailure, OperationFailure) as error:
     print(f"Failed to connect to MongoDB: {error}")
 
@@ -38,6 +40,7 @@ FOCUS_THRESHOLD = 5  # Time (in seconds) before marking the user as unfocused
 @dataclass
 class MouseMetrics:
     """Group metrics related to mouse activity."""
+
     mouse_distance: float = 0
     click_count: int = 0
     scroll_distance: float = 0
