@@ -37,6 +37,7 @@ login_manager.login_view = "login"
 # Focus threshold
 FOCUS_THRESHOLD = 5  # Time in seconds
 
+
 # Mouse tracking metrics class
 class MouseMetrics:
     def __init__(self):
@@ -73,7 +74,9 @@ class MouseMetrics:
 
     def generate_report(self):
         total_time = self.focused_time + self.unfocused_time
-        focus_percentage = (self.focused_time / total_time) * 100 if total_time > 0 else 0
+        focus_percentage = (
+            (self.focused_time / total_time) * 100 if total_time > 0 else 0
+        )
         return {
             "total_mouse_distance": round(self.mouse_distance, 2),
             "total_clicks": self.click_count,
@@ -82,6 +85,7 @@ class MouseMetrics:
             "focus_percentage": round(focus_percentage, 2),
             "overall_status": "Focused" if focus_percentage > 50 else "Unfocused",
         }
+
 
 # Initialize mouse metrics
 mouse_metrics = MouseMetrics()
@@ -92,6 +96,7 @@ try:
     print(" * Connected to MongoDB!")
 except pymongo.errors.ServerSelectionTimeoutError as e:
     print(f" * MongoDB connection error: {e}")
+
 
 # User class for Flask-Login
 class User(UserMixin):
@@ -109,6 +114,9 @@ def load_user(user_id):
 
 @app.route("/", methods=["GET", "POST"])
 def login():
+    """
+    Route for the login page.
+    """
     if request.method == "POST":
         username = request.form["username"]
         password = request.form["password"]
@@ -119,34 +127,56 @@ def login():
             login_user(user)
             return redirect(url_for("home_page"))
         flash("Invalid username or password.")
+
     return render_template("login.html")
 
 
 @app.route("/signup", methods=["GET", "POST"])
 def signup():
+    """
+    Route for the sign-up page.
+    Allows new users to create an account and saves their information to the database.
+    """
     if request.method == "POST":
         username = request.form["username"]
         password = request.form["password"]
 
-        if db.users.find_one({"username": username}):
+        existing_user = db.users.find_one({"username": username})
+        if existing_user:
             flash("Username already exists. Please choose a different username.")
             return redirect(url_for("signup"))
 
-        db.users.insert_one({"username": username, "password": password})
+        new_user = {"username": username, "password": password}
+        db.users.insert_one(new_user)
+
         flash("Account created successfully. Please log in.")
         return redirect(url_for("login"))
+
     return render_template("signup.html")
 
 
 @app.route("/home_page")
 @login_required
 def home_page():
-    past_sessions = db.sessions.find({"username": current_user.id}).sort("created_at", -1)
-    return render_template("home_page.html", past=past_sessions, username=current_user.id)
+    """
+    Route for the home page.
+
+    Returns:
+        str: The rendered HTML template.
+    """
+    past_sessions = db.sessions.find({"username": current_user.id}).sort(
+        "created_at", -1
+    )
+    return render_template(
+        "home_page.html", past=past_sessions, username=current_user.id
+    )
 
 
 @app.route("/start-session")
 def session_form():
+    """
+    Render the focus session control page.
+    """
     return render_template("focus.html")
 
 

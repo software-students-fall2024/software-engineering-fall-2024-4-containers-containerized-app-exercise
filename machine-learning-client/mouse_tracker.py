@@ -2,6 +2,7 @@ from flask import Blueprint, request, jsonify
 import time
 import math
 
+
 class MouseMetrics:
     def __init__(self):
         self.mouse_distance = 0
@@ -20,7 +21,9 @@ class MouseMetrics:
             self.mouse_distance += distance
         self.last_x, self.last_y = x, y
         if current_time - self.last_event_time > self.FOCUS_THRESHOLD:
-            self.unfocused_time += current_time - self.last_event_time - self.FOCUS_THRESHOLD
+            self.unfocused_time += (
+                current_time - self.last_event_time - self.FOCUS_THRESHOLD
+            )
         else:
             self.focused_time += current_time - self.last_event_time
         self.last_event_time = current_time
@@ -30,7 +33,9 @@ class MouseMetrics:
 
     def generate_report(self):
         total_time = self.focused_time + self.unfocused_time
-        focus_percentage = (self.focused_time / total_time) * 100 if total_time > 0 else 0
+        focus_percentage = (
+            (self.focused_time / total_time) * 100 if total_time > 0 else 0
+        )
         return {
             "total_mouse_distance": round(self.mouse_distance, 2),
             "click_count": self.click_count,
@@ -40,7 +45,9 @@ class MouseMetrics:
             "status": "Focused" if focus_percentage > 50 else "Unfocused",
         }
 
+
 mouse_metrics = MouseMetrics()
+
 
 def init_mouse_routes(app, db):
     mouse_bp = Blueprint("mouse", __name__)
