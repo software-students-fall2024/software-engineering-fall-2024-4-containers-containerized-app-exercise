@@ -8,17 +8,26 @@
 </head>
 <body>
 
-    <script>
+    <<!--<script>
         //get spoken transcript here
         /* example
 
         var myVariable = "Hello, world!";
         document.getElementById("spoken").innerHTML = myVariable;
         */
-    </script>
+    </script>-->
+
+    <script>
+        fetch('/api/status')
+    .then(response => response.json())
+    .then(data => {
+        document.getElementById('spoken').style.display = 'none'
+    })
+    .catch(error => console.error('Error displaying speech transcript'));
+     </script>
 
     <div class="transcript">
-        <!-- spoken done in js/-->
+        <!-- spoken populated in script/-->
         <p id="spoken"></p>
     </div>
 

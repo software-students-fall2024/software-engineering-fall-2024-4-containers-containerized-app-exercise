@@ -8,14 +8,23 @@
 </head>
 <body>
 
-    <script>
-        //get upload transcript here
+    <!--<script>
+        //get spoken transcript here
         /* example
 
         var myVariable = "Hello, world!";
         document.getElementById("uploaded").innerHTML = myVariable;
         */
-    </script>
+    </script>-->
+
+    <script>
+        fetch('/api/status')
+    .then(response => response.json())
+    .then(data => {
+        document.getElementById('uploaded').style.display = 'none'
+    })
+    .catch(error => console.error('Error displaying speech transcript'));
+     </script>
 
     <div class="transcript">
         <!-- upload done in js-->
