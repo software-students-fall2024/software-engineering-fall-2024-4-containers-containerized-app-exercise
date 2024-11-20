@@ -6,12 +6,15 @@ name = "pypi"
 [packages]
 pylint = "*"
 black = "*"
+flask = "*"
+flask-cors = "*"
+python-dotenv = "*"
+bson = "*"
+pymongo = "*"
 
 [dev-packages]
-python-dotenv = "*"
-flask = "*"
-pymongo = "*"
-werkzeug = "*"
+pytest = "*"
+coverage = "*"
 
 [requires]
-python_version = "3.12"
+python_version = "3.9"
