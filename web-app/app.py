@@ -17,7 +17,6 @@ from flask import (
     session,
     url_for,
 )
-from flask_cors import CORS
 import pymongo
 import requests
 
@@ -192,5 +191,5 @@ def create_app():
 
 if __name__ == "__main__":
     APP = create_app()
-    CORS(APP)
     APP.run(host="0.0.0.0", port=5000)
+    
