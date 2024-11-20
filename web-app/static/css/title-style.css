@@ -9,7 +9,6 @@ body {
     flex-direction: column;
     overflow: hidden;
 }
-
 h1 {
     font-size: 3em;
     font-weight: bold;
@@ -23,7 +22,6 @@ h1 {
     background-color: white;
     position: relative;
 }
-
 button {
     font-size: 1em;
     padding: 15px 30px;
@@ -33,7 +31,6 @@ button {
     background-color: white;
     border-radius: 10px;
 }
-
 button:hover {
     transform: scale(1.1);
     background-color:#FF1493;
