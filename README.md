@@ -37,6 +37,14 @@ The Speech-to-Text App consists of three main components:
 - Stores audio metadata and processed text.
 
 ### Setup:
+Create a .env file with the following:
+```
+MONGODB_USERNAME=user
+MONGODB_PASSWORD=pass
+MONGODB_URI=mongodb://user:pass@mongodb:27017
+SECRET=your-secret-key
+```
+
 To run MongoDB locally using Docker:
 ```
 docker run --name mongodb -d -p 27017:27017 mongo
