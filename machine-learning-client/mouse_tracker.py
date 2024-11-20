@@ -189,5 +189,8 @@ if __name__ == "__main__":
 
     except (ConnectionFailure, OperationFailure, WriteError) as db_error:
         print(f"A database error occurred: {db_error}")
-    except Exception as e:
+    except ValueError as value_error:  # Catching more specific exceptions
+        print(f"A value error occurred: {value_error}")
+    except Exception as e:  # Keep this as a last-resort fallback
         print(f"An unexpected error occurred: {e}")
+
