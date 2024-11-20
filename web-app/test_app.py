@@ -3,6 +3,7 @@
 # pytest test_app.py -v
 # pytest -v
 
+
 import sys
 import os
 import pytest
@@ -78,27 +79,27 @@ def test_retry_request_all_failures(mock_post):
     assert mock_post.call_count == 3
 
 # Tests for routes
-@patch('app.generate_stats_doc', return_value="mocked_id")
+@patch('app.generate_stats_doc', return_value=str(ObjectId()))
 def test_home_route(mock_generate_stats_doc, client):
     """Test the home route renders correctly."""
     response = client.get('/')
     assert response.status_code == 200
     assert "db_object_id" in response.headers['Set-Cookie']
 
-@patch('app.generate_stats_doc', return_value="mocked_id")
+@patch('app.generate_stats_doc', return_value=str(ObjectId()))
 def test_home_route_with_existing_cookie(mock_generate_stats_doc, client):
     """Test the home route when 'db_object_id' cookie already exists."""
-    client.set_cookie('db_object_id', 'mocked_id')
+    client.set_cookie('db_object_id', str(ObjectId()))
     response = client.get('/')
     assert response.status_code == 200
 
-@patch('app.generate_stats_doc', return_value="mocked_id")
+@patch('app.generate_stats_doc', return_value=str(ObjectId()))
 def test_index_route(mock_generate_stats_doc, client):
     """Test the index route behaves similarly to the home route."""
     response = client.get('/index')
     assert response.status_code == 200
 
-@patch('app.generate_stats_doc', return_value="mocked_id")
+@patch('app.generate_stats_doc', return_value=str(ObjectId()))
 def test_statistics_route(mock_generate_stats_doc, client, mock_collection):
     """Test the statistics route retrieves stats and renders the template."""
     stats = {
@@ -114,7 +115,8 @@ def test_statistics_route(mock_generate_stats_doc, client, mock_collection):
     assert b"Statistics" in response.data
 
 @patch('app.retry_request')
-def test_result_route_success(mock_retry_request, client, mock_collection):
+@patch('app.collection.update_one')
+def test_result_route_success(mock_update_one, mock_retry_request, client, mock_collection):
     """Test the result route with a successful ML prediction."""
     mock_response = MagicMock()
     mock_response.json.return_value = {"gesture": "Rock"}
@@ -166,3 +168,5 @@ def test_result_route_no_image(mock_retry_request, client, mock_collection):
     assert response.status_code == 400
     assert b"No image file provided" in response.data
 
+
+    
