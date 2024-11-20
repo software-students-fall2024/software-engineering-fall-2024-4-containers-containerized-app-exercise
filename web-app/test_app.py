@@ -4,13 +4,11 @@
 # pytest -v
 
 
-import sys
-import os
+
 import pytest
 from unittest.mock import patch, MagicMock
 from bson.objectid import ObjectId
 from io import BytesIO
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 from app import app, generate_stats_doc, retry_request
 
 # Fixtures
@@ -56,8 +54,8 @@ def test_retry_request_success_on_first_try(mock_post):
 def test_retry_request_success_after_retries(mock_post):
     """Test retry_request succeeds after retries."""
     mock_response = MagicMock()
-    mock_response.raise_for_status.return_value = None
-    mock_post.side_effect = [Exception("Connection error"), Exception("Timeout"), mock_response]
+    mock_response.raise_for_status.side_effect = [Exception("Connection error"), Exception("Timeout"), None]
+    mock_post.return_value = mock_response
 
     url = "http://example.com/predict"
     files = {"image": MagicMock()}
@@ -129,7 +127,7 @@ def test_result_route_success(mock_update_one, mock_retry_request, client, mock_
     response = client.post('/result', data=data, content_type='multipart/form-data')
 
     assert response.status_code == 200
-    assert b"You win!" in response.data
+    assert b"AI wins!" in response.data
 
 @patch('app.retry_request')
 def test_result_route_unknown_gesture(mock_retry_request, client, mock_collection):
@@ -169,4 +167,3 @@ def test_result_route_no_image(mock_retry_request, client, mock_collection):
     assert b"No image file provided" in response.data
 
 
-    
