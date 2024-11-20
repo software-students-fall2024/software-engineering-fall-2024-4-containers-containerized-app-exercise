@@ -21,7 +21,7 @@ Before starting, ensure you have the following installed:
    cd 4-containers-ghost-in-the-machine
 3. Build and start the app using Docker Compose:
    ```
-   docker-compose up
+   docker-compose up --build
    ```
    This will start all containers.
 4. Open the app in your browser at:
