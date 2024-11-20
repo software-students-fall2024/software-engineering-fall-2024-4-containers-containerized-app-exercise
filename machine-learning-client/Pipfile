@@ -17,8 +17,8 @@ pyobjc-framework-applicationservices = {version = "==10.3.1", markers = "sys_pla
 pyobjc-framework-cocoa = {version = "==10.3.1", markers = "sys_platform == 'darwin'"}
 
 [dev-packages]
-black = ">=23.0.0"
-pylint = ">=3.0.0"
+black = "*"
+pylint = "*"
 
 [requires]
 python_version = "3.13"
