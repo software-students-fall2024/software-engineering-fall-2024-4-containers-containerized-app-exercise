@@ -10,8 +10,9 @@ import torch
 from torchvision import transforms
 from PIL import Image
 import torchvision
-from flask import Flask, jsonify, request
+from flask import Flask, jsonify, request, send_from_directory
 from pymongo import MongoClient
+from flask_cors import CORS
 from werkzeug.utils import secure_filename
 
 # Initialize MongoDB connection
@@ -20,14 +21,8 @@ MONGO_DBNAME = os.getenv("MONGO_DBNAME", "plant_identifier")
 client = MongoClient(MONGO_URI)
 db = client[MONGO_DBNAME]
 
-
-def create_app():
-    app = Flask(__name__)
-    return app
-
-
-app = create_app()
-
+# Initialize Flask app
+app = Flask(__name__)
 
 def load_flower_names():
     """
@@ -39,13 +34,12 @@ def load_flower_names():
     with open("data/flower_to_name.json", encoding="utf-8") as file:
         return json.load(file)
 
-
 def load_model():
     """
     Load and initialize the ResNet50 model for flower classification.
 
     Returns:
-        model: A ResNet50 model with the last layer modified for 102 classes.
+        torch.nn.Module: A ResNet50 model with the last layer modified for 102 classes.
     """
     # Initialize the model architecture with ResNet50
     model = torchvision.models.resnet50(
@@ -73,7 +67,6 @@ def load_model():
 
     return model
 
-
 def transform_image(image_path):
     """
     Apply image transformations to prepare the input image for the model.
@@ -94,15 +87,12 @@ def transform_image(image_path):
     image = Image.open(image_path).convert("RGB")  # Convert image to RGB
     return transform(image).unsqueeze(0)  # Add batch dimension
 
-
-def predict_plant(image_path, model, flower_names):
+def predict_plant(image_path):
     """
     Predict the plant name from an input image.
 
     Args:
         image_path (str): Path to the image file.
-        model (torch.nn.Module): Pre-trained model for flower classification.
-        flower_names (dict): Dictionary mapping class indices to plant names.
 
     Returns:
         str: Predicted plant name.
@@ -116,41 +106,25 @@ def predict_plant(image_path, model, flower_names):
 
     # Get the model's predictions
     with torch.no_grad():
-        outputs = model(image_tensor)
+        outputs = TRAINED_MODEL(image_tensor)
         _, predicted_class = torch.max(outputs, 1)
-        predicted_class_id = predicted_class.item() + 1
+        predicted_class_id = predicted_class.item() + 1  # Adjust for zero-based index
 
     # Map the predicted class ID to the plant name
-    plant_name = flower_names.get(str(predicted_class_id), "Unknown plant")
+    plant_name = FLOWER_CLASS_NAMES.get(str(predicted_class_id), "Unknown plant")
     return plant_name
 
-
-# def main(image_path):
-#     """
-#     Main function to load the model, predict the plant from an image, and print the result.
-
-#     Args:
-#         image_path (str): Path to the input image.
-#     """
-#     flower_names = load_flower_names()  # Load flower name mapping
-#     model = load_model()  # Load the pre-trained model
-#     plant_name = predict_plant(image_path, model, flower_names)
-#     print(f"Predicted plant: {plant_name}")
-
-
-# Example usage
-# main("data/flowers-102/jpg/image_00001.jpg")
-
-
 # Load the model and flower names once when the app starts
-flower_names = load_flower_names()
-model = load_model()
-
+FLOWER_CLASS_NAMES = load_flower_names()
+TRAINED_MODEL = load_model()
 
 @app.route("/predict", methods=["POST"])
 def predict():
     """
     Predicts the plant name from an uploaded image file.
+
+    Returns:
+        Response: JSON response containing the predicted plant name.
     """
     if "image" not in request.files:
         return jsonify({"error": "No image uploaded"}), 400
@@ -163,7 +137,7 @@ def predict():
 
     try:
         # Predict the plant name
-        plant_name = predict_plant(image_path, model, flower_names)
+        plant_name = predict_plant(image_path)
     finally:
         # Clean up the temporary file
         if os.path.exists(image_path):
@@ -171,8 +145,22 @@ def predict():
 
     return jsonify({"plant_name": plant_name}), 200
 
+@app.route("/uploads/<filename>")
+def uploaded_file(filename):
+    """
+    Serve uploaded files.
+
+    Args:
+        filename (str): Name of the file to serve.
+
+    Returns:
+        Response: The requested file.
+    """
+    uploads_dir = os.path.join(app.root_path, "static", "uploads")
+    return send_from_directory(uploads_dir, filename)
 
 if __name__ == "__main__":
     FLASK_PORT = os.getenv("FLASK_PORT", "3001")
+    CORS(app)
     app.run(host="0.0.0.0", port=FLASK_PORT)
     
