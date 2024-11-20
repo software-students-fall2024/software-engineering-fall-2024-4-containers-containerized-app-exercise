@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Create Account</title>
+</head>
+<body>
+    <h2>Create Account</h2>
+    <form action="{{ url_for('create_account') }}" method="POST">
+        <label for="username">Username:</label>
+        <input type="text" name="username" placeholder="Enter username" id="username">
+        <br>
+        <label for="password">Password:</label>
+        <input type="password" name="password" placeholder="Enter password" id="password">
+        <br>
+        <label for="password_confirm">Confirm Password:</label>
+        <input type="password" name="password_confirm" placeholder="Confirm password" id="password_confirm">
+        <br>
+        <button type="submit">Create Account</button>
+    </form>
+
+    <form action="{{ url_for('login') }}" method="GET">
+        <p>Already have an account?</p>
+        <button type="submit">Go to Login</button>
+    </form>
+
+    {% if error %}
+        <p>{{ error }}</p>
+    {% endif %}
+</body>
+</html>

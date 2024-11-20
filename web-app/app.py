@@ -1,20 +1,18 @@
 # import necessary pkgs
 import flask
-from flask import Flask, render_template, request, redirect, abort, url_for, make_response
+from flask import Flask, render_template, request, redirect, url_for
 import flask_login
 from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
-
-import os
 
 # instantiate flask app, create key
 app = Flask(__name__)
 app.secret_key = "tripledoubleholymoly"
 
-# code for setting up flask login
+# Setup flask-login
 login_manager = flask_login.LoginManager()
 login_manager.init_app(app)
 
-# at some point we will need to connect to pymongo db
+# Simulated database of users
 users = {'bob123': {'password': 'test'}, 'jen987': {'password': 'foobar'}}
 
 class User(flask_login.UserMixin):
@@ -22,15 +20,12 @@ class User(flask_login.UserMixin):
 
 @login_manager.user_loader
 def user_loader(username):
-    # catch error if user is not in database
+    # Fetch user from "database"
     if username not in users:
-        return
-    
-    # create new user object
+        return None
     user = User()
     user.id = username
     return user
-
 
 @login_manager.request_loader
 def request_loader(request):
@@ -42,56 +37,62 @@ def request_loader(request):
     user.id = username
     return user
 
-
-@app.route("/login", methods = ['GET', 'POST'])
+@app.route("/login", methods=['GET', 'POST'])
 def login():
-    if (flask.request.method == 'GET'):
-        # pypi default, in future create template
-        return '''
-               <form action='login' method='POST'>
-                <input type='text' name='username' id='username' placeholder='username'/>
-                <input type='password' name='password' id='password' placeholder='password'/>
-                <input type='submit' name='submit'/>
-               </form>
-               '''
+    error = None
+    if request.method == 'POST':
+        username = request.form.get('username')
+        password = request.form.get('password')
 
-    username = flask.request.form['username']
-    if username in users and flask.request.form['password'] == users[username]['password']:
-        user = User()
-        user.id = username
-        flask_login.login_user(user)
-        return flask.redirect(url_for('show_home', username = username))
+        # Validate input
+        if not username or not password:
+            error = "Error: Missing username or password"
+        elif username in users and users[username]['password'] == password:
+            user = User()
+            user.id = username
+            login_user(user)
+            return redirect(url_for('show_home', username=username))
+        else:
+            error = "Error: Invalid credentials"
 
-    return 'Bad login'
+    return render_template('login.html', error=error)
 
-@app.route('/protected')
-@flask_login.login_required
-def protected():
-    return 'Logged in as: ' + flask_login.current_user.id
+@app.route("/create_account", methods=['GET', 'POST'])
+def create_account():
+    error = None
+    if request.method == 'POST':
+        username = request.form.get('username')
+        password = request.form.get('password')
+        password_confirm = request.form.get('password_confirm')
+
+        # Validation logic
+        if username in users:
+            error = "Error: Username already exists, try another!"
+        elif not username or not password:
+            error = "Error: Username or password left blank."
+        elif password != password_confirm:
+            error = "Error: Passwords do not match."
+        else:
+            # Add new user to "database"
+            users[username] = {'password': password}
+            return redirect(url_for('login'))
+
+    return render_template('create_account.html', error=error)
 
 @app.route('/logout')
 def logout():
-    flask_login.logout_user()
-    return 'Logged out'
+    logout_user()
+    return redirect(url_for('login'))
 
 @login_manager.unauthorized_handler
 def unauthorized_handler():
-    return 'Uh oh! You are not authorized to access this account.', 401
+    return "Unauthorized Access. Please log in.", 401
 
-# when app is launched, should be taken directly to login page
 @app.route("/")
 def redirect_login():
     return redirect(url_for('login'))
 
-
-# protected page once user completes login
 @app.route("/<username>")
 @login_required
 def show_home(username):
-    return "Welcome, " + username + "!"
-    # need to implement:
-    #   - button to record, talk with team more about how pages will be organized
-    #   - button to redirect to next page to show user's statistics
-
-# @app.route("/<username>/mystats")
-# @login_required
+    return render_template("user_home.html", username = username)
