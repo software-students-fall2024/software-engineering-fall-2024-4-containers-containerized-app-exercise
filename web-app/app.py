@@ -20,6 +20,7 @@ client = MongoClient(MONGO_URI)
 db = client["rps_database"]
 collection = db["stats"]
 
+
 def generate_stats_doc():
     """
     Creates blank stats-tracking document.
@@ -36,6 +37,7 @@ def generate_stats_doc():
     }
     _id = str(collection.insert_one(stats).inserted_id)
     return _id
+
 
 def retry_request(url, files, retries=5, delay=2, timeout=10):
     """
@@ -65,6 +67,7 @@ def retry_request(url, files, retries=5, delay=2, timeout=10):
                 return None
     return None
 
+
 @app.route("/")
 def home():
     """Render the home page."""
@@ -73,6 +76,7 @@ def home():
         resp.set_cookie("db_object_id", generate_stats_doc())
     return resp
 
+
 @app.route("/index")
 def index():
     """Render the index page."""
@@ -80,6 +84,7 @@ def index():
     if "db_object_id" not in request.cookies:
         resp.set_cookie("db_object_id", generate_stats_doc())
     return resp
+
 
 @app.route("/statistics")
 def statistics():
@@ -91,6 +96,7 @@ def statistics():
     resp = make_response(render_template("statistics.html", stats_data=stats))
     resp.set_cookie("db_object_id", _id)
     return resp
+
 
 @app.route("/result", methods=["POST"])
 def result():
@@ -158,6 +164,7 @@ def result():
         "result.html", user=user_gesture, ai=ai_gesture, result=game_result
     )
 
+
 def determine_winner(user, ai_choice):
     """
     Determine the winner of the Rock-Paper-Scissors game.
@@ -180,7 +187,6 @@ def determine_winner(user, ai_choice):
         return "You win!"
     return "AI wins!"
 
+
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000)
-
-

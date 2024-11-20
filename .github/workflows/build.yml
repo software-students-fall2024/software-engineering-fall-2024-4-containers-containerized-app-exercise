@@ -1,0 +1,46 @@
+name: CI
+
+on:
+  pull_request:
+    branches:
+      - main
+  push:
+    branches:
+      - main
+
+jobs:
+  build_and_test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    strategy:
+      matrix:
+        python-version: ["3.9", "3.11"]
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Docker
+        uses: docker/setup-buildx-action@v2
+
+      - name: Build web-app Docker container
+        working-directory: web-app
+        run: |
+          docker build -t web-app:latest .
+
+      - name: Build machine-learning-client Docker container
+        working-directory: machine-learning-client
+        run: |
+          docker build -t ml-client:latest .
+
+      - name: Run tests in web-app Docker container
+        run: |
+          docker run --rm web-app pytest /web-app/test_app.py --verbose
+
+      - name: Run tests in machine-learning-client Docker container
+        run: |
+          docker run --rm ml-client pytest /machine-learning-client/test_client.py --verbose
+
+      - name: Cleanup Docker images
+        run: |
+          docker rmi web-app:latest ml-client:latest
