@@ -31,11 +31,11 @@ def client():
 @patch("app.collection")
 def test_generate_stats_doc(mock_collection):
     """
-    tests that the `generate_stats_doc` function inserts a document 
+    tests that the `generate_stats_doc` function inserts a document
     into the database and correctly returns its ID.
 
     Args:
-        mock_collection (MagicMock): Mock database collection to simulate 
+        mock_collection (MagicMock): Mock database collection to simulate
         `insert_one` behavior.
 
     """
@@ -52,7 +52,7 @@ def test_generate_stats_doc(mock_collection):
 @patch("app.requests.post")
 def test_retry_request_success_on_first_try(mock_post):
     """
-    Verifies that the `retry_request` function can make a POST request 
+    Verifies that the `retry_request` function can make a POST request
     and return the response without retries if the initial attempt succeeds.
 
     Args:
@@ -76,7 +76,7 @@ def test_retry_request_success_after_retries(mock_post):
     Verifies the `retry_request` function handles HTTP errors
 
     Args:
-        mock_post (MagicMock): Mocked `requests.post` method to simulate HTTP failures 
+        mock_post (MagicMock): Mocked `requests.post` method to simulate HTTP failures
         on initial attempts and a successful response on a retry.
     """
 
@@ -106,7 +106,7 @@ def test_retry_request_all_failures(mock_post):
     Tests the `retry_request` function when all retry attempts fail.
 
     Args:
-        mock_post (MagicMock): Mocked `requests.post` method to simulate HTTP failures 
+        mock_post (MagicMock): Mocked `requests.post` method to simulate HTTP failures
         for all retry attempts.
     """
     mock_response = MagicMock()
@@ -202,8 +202,9 @@ def test_result_route_success(mock_retry_request, flask_client: FlaskClient):
     flask_client.set_cookie("db_object_id", str(mock_id))
 
     data = {"image": (BytesIO(b"fake image data"), "test_image.jpg")}
-    response = flask_client.post("/result", data=data,
-                                 content_type="multipart/form-data")
+    response = flask_client.post(
+        "/result", data=data, content_type="multipart/form-data"
+    )
 
     assert response.status_code == 200
     assert b"You win!" in response.data
@@ -225,8 +226,9 @@ def test_result_route_unknown_gesture(mock_retry_request, flask_client: FlaskCli
     flask_client.set_cookie("db_object_id", str(mock_id))
 
     data = {"image": (BytesIO(b"fake image data"), "test_image.jpg")}
-    response = flask_client.post("/result", data=data,
-                                 content_type="multipart/form-data")
+    response = flask_client.post(
+        "/result", data=data, content_type="multipart/form-data"
+    )
 
     assert response.status_code == 200
     assert b"Gesture not recognized" in response.data
@@ -247,8 +249,9 @@ def test_result_route_ml_failure(mock_retry_request, flask_client: FlaskClient):
     flask_client.set_cookie("db_object_id", str(mock_id))
 
     data = {"image": (BytesIO(b"fake image data"), "test_image.jpg")}
-    response = flask_client.post("/result", data=data,
-                                 content_type="multipart/form-data")
+    response = flask_client.post(
+        "/result", data=data, content_type="multipart/form-data"
+    )
 
     assert response.status_code == 200
     assert b"No valid prediction" in response.data
@@ -262,7 +265,6 @@ def test_result_route_no_image(flask_client: FlaskClient):
     Args:
         client (FlaskClient):  Flask client used to simulate HTTP requests.
     """
-    response = flask_client.post(
-        "/result", data={}, content_type="multipart/form-data")
+    response = flask_client.post("/result", data={}, content_type="multipart/form-data")
     assert response.status_code == 400
     assert b"No image file provided" in response.data
