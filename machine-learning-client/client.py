@@ -25,6 +25,7 @@ API_KEY = os.getenv("ROBOFLOW_API_KEY")  # API key passed via environment variab
 MODEL_ID = os.getenv("ROBOFLOW_MODEL_ID")  # Model ID passed via environment variables
 rf_client = InferenceHTTPClient(api_url=API_URL, api_key=API_KEY)
 
+
 @app.route("/predict", methods=["POST"])
 def predict():
     """
@@ -48,8 +49,12 @@ def predict():
         result = rf_client.infer(image_path, model_id=MODEL_ID)
 
         # Extract prediction details
-        gesture = result.get("predictions", [{}])[0].get("class", "Unknown")
-        prediction_score = result.get("predictions", [{}])[0].get("confidence", 0)
+        prediction = result.get("predictions", [{}])[0]
+        gesture = prediction.get("class", "Unknown")
+        if gesture == "Unknown":
+            prediction_score = 0
+        else:
+            prediction_score = prediction.get("confidence", 0)
 
         # Store prediction in MongoDB
         prediction_data = {
@@ -66,7 +71,6 @@ def predict():
         logging.error("Prediction error: %s", str(prediction_error))
         return jsonify({"error": f"Prediction error: {str(prediction_error)}"}), 500
 
+
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000)
-
-
