@@ -32,19 +32,6 @@
       <h2>Live Video Feed</h2>
       <video id="live-video" autoplay playsinline width="80%"></video>
     </div>
-    <script>
-      const videoElement = document.getElementById("live-video");
-
-      // Access webcam using getUserMedia
-      navigator.mediaDevices
-        .getUserMedia({ video: true })
-        .then((stream) => {
-          videoElement.srcObject = stream;
-        })
-        .catch((error) => {
-          console.error("Error accessing webcam:", error);
-        });
-    </script>
 
     <div>
       <h2>Detected Labels and Confidence</h2>
@@ -67,6 +54,18 @@
     </div>
 
     <script>
+      const videoElement = document.getElementById("live-video");
+
+      // Access webcam using getUserMedia
+      navigator.mediaDevices
+        .getUserMedia({ video: true })
+        .then((stream) => {
+          videoElement.srcObject = stream;
+        })
+        .catch((error) => {
+          console.error("Error accessing webcam:", error);
+        });
+
       setInterval(() => {
         fetch("/latest_detection")
           .then((response) => response.json())
