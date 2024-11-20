@@ -92,6 +92,7 @@ def video_feed():
         generate_frames(), mimetype="multipart/x-mixed-replace; boundary=frame"
     )
 
+
 def generate_frames():
     """Generate video frames for streaming."""
     while True:
