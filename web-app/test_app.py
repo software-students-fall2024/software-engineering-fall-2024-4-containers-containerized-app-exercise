@@ -55,7 +55,7 @@ def test_index_page(
     assert b"Real-Time Object Detection" in response.data
 
 
-def test_capture_and_process_success( # pylint: disable=redefined-outer-name
+def test_capture_and_process_success(  # pylint: disable=redefined-outer-name
     test_client, mongo_mock, camera_mock, requests_mock
 ):
     """Test /capture_and_process with successful processing."""
@@ -79,7 +79,7 @@ def test_capture_and_process_success( # pylint: disable=redefined-outer-name
         assert response_data["detections"][0]["label"] == "cat"
 
 
-def test_capture_and_process_ml_failure( # pylint: disable=redefined-outer-name,unused-argument
+def test_capture_and_process_ml_failure(  # pylint: disable=redefined-outer-name,unused-argument
     test_client, mongo_mock, camera_mock, requests_mock
 ):
     """Test /capture_and_process when ML app fails."""
@@ -92,7 +92,9 @@ def test_capture_and_process_ml_failure( # pylint: disable=redefined-outer-name,
         assert response.get_json() == {"error": "Processing failed"}
 
 
-def test_latest_detection_with_data(test_client, mongo_mock): # pylint: disable=redefined-outer-name
+def test_latest_detection_with_data(
+    test_client, mongo_mock
+):  # pylint: disable=redefined-outer-name
     """Test /latest_detection with available processed data."""
     mock_detection = {
         "timestamp": datetime(2024, 11, 20, 3, 5, 6, tzinfo=timezone.utc).isoformat(),
@@ -107,7 +109,7 @@ def test_latest_detection_with_data(test_client, mongo_mock): # pylint: disable=
     assert response_data["labels"] == mock_detection["detections"]
 
 
-def test_video_feed(test_client, camera_mock): # pylint: disable=redefined-outer-name
+def test_video_feed(test_client, camera_mock):  # pylint: disable=redefined-outer-name
     """Test /video_feed route."""
     camera_mock.read.side_effect = [(True, b"frame1"), (True, b"frame2"), (False, None)]
 

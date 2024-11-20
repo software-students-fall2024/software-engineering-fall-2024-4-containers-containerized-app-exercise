@@ -42,7 +42,7 @@ def capture_and_process():
         return jsonify({"error": "Failed to capture frame"}), 500
 
     # Encode the frame to JPEG format
-    _, buffer = cv2.imencode(".jpg", frame) # pylint: disable=no-member
+    _, buffer = cv2.imencode(".jpg", frame)  # pylint: disable=no-member
     image_binary = Binary(buffer)
 
     # Save to MongoDB
@@ -101,7 +101,6 @@ def generate_frames():
             break
         _, buffer = cv2.imencode(".jpg", frame)  # pylint: disable=no-member
         yield b"--frame\r\n" b"Content-Type: image/jpeg\r\n\r\n" + buffer + b"\r\n"
-
 
 
 if __name__ == "__main__":
