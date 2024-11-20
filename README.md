@@ -14,13 +14,6 @@ Our app leverages Machine Learning models for plant species identification. This
 
 [Jessica Xu](https://github.com/Jessicakk0711)
 
-<<<<<<< HEAD
 [Alexandra Mastrangelo](https://github.com/alexandramastrangelo)
 
 [Natalie Trump](https://github.com/nht251)
-=======
-[ ]
-
-[ ]
-
->>>>>>> 05e1712e4ebc21f19155f24976286c75d475794e
