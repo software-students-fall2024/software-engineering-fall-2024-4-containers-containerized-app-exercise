@@ -1,19 +1,22 @@
+# Pipfile
+
 [[source]]
+name = "pypi"
 url = "https://pypi.org/simple"
 verify_ssl = true
-name = "pypi"
-
-[packages]
-flask = "==3.0.3"
-pymongo = "==4.10.1"
-tensorflow = "==2.18.0"
 
 [dev-packages]
-pylint = "*"  # Linter for code quality
-black = "*"   # Code formatter
-pytest = "*"  # Test framework
-pytest-flask = "*"  # Flask-specific pytest extension
+pylint = "*"
+black = "*"
+pytest = "*"
+pytest-mock = "*"
+
+[packages]
+tensorflow = ">=2.0"
+tensorflow-datasets = "*"
+pymongo = "*"
+numpy = "*"
 flask = "*"
 
 [requires]
-python_version = "3.10"
+python_version = "3.12"
