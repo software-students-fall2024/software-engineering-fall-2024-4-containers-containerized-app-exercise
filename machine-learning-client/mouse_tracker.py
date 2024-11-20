@@ -4,11 +4,35 @@ Mouse Activity Tracker
 This module tracks mouse movement, clicks, and scrolls to monitor user focus.
 It generates a final report summarizing user activity.
 """
-
-from dataclasses import dataclass
 import time
-import math
 from pynput import mouse
+import math
+from dataclasses import dataclass
+from pymongo import MongoClient
+
+# MongoDB connection URI
+MONGODB_URI = (
+    "mongodb+srv://itsOver:itsOver@itsover.bx305.mongodb.net/"
+    "?retryWrites=true&w=majority&appName=itsOver"
+)
+try:
+    # Connect to MongoDB
+    client = MongoClient(MONGODB_URI)
+    db = client["itsOver"]
+    mouse_collection = db["mouse_activity"]
+
+    # Test connection by inserting a test document
+    test_document = {"test": "connection", "timestamp": time.time()}
+    result = mouse_collection.insert_one(test_document)
+
+    print(f"Connected to MongoDB successfully! Test document ID: {result.inserted_id}")
+
+    # Fetch the inserted document
+    fetched_document = mouse_collection.find_one({"_id": result.inserted_id})
+    print(f"Fetched document: {fetched_document}")
+except Exception as e:
+    print(f"Failed to connect to MongoDB: {e}")
+
 
 FOCUS_THRESHOLD = 5  # Time (in seconds) before marking the user as unfocused
 
@@ -134,6 +158,34 @@ class MouseTracker:
         )
         print("------------------------")
 
+    def generate_final_report(self):
+        """Generate a final report in dictionary format and print it."""
+        total_time = self.focused_time + self.unfocused_time
+        focus_percentage = (
+            (self.focused_time / total_time) * 100 if total_time > 0 else 0
+        )
+        unfocus_percentage = 100 - focus_percentage
+
+        # Create a report dictionary
+        report = {
+            "total_mouse_distance": round(self.metrics.mouse_distance, 2),
+            "total_clicks": self.metrics.click_count,
+            "total_scrolls": self.metrics.scroll_distance,
+            "focused_time": round(self.focused_time, 2),
+            "unfocused_time": round(self.unfocused_time, 2),
+            "focus_percentage": round(focus_percentage, 2),
+            "unfocus_percentage": round(unfocus_percentage, 2),
+            "overall_status": "Focused" if focus_percentage > unfocus_percentage else "Unfocused",
+        }
+        return report
+    
+    def save_to_database(self, report):
+        """Saves the final report to MongoDB."""
+        try:
+            result = mouse_collection.insert_one(report)  # Insert the report into the collection
+            print(f"Final report saved to MongoDB with ID: {result.inserted_id}")
+        except Exception as e:
+            print(f"Failed to save report to MongoDB: {e}")
 
 if __name__ == "__main__":
     tracker = MouseTracker()
@@ -147,4 +199,9 @@ if __name__ == "__main__":
                 time.sleep(1)
                 tracker.update_focus_state()
         except KeyboardInterrupt:
-            tracker.generate_final_report()
+            print("\nStopped monitoring.")
+            # Generate the final report
+            report = tracker.generate_final_report()
+            # Save the final report to MongoDB
+            tracker.save_to_database(report)
+
