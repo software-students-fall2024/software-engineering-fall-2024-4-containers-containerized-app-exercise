@@ -4,13 +4,22 @@ verify_ssl = true
 name = "pypi"
 
 [packages]
-pylint = "*"
-black = "*"
+flask = "==3.1.0"
+pymongo = {extras = ["srv"], version = "==4.10.1"}
+flask-login = "==0.6.3"
+python-dotenv = "==1.0.1"
+certifi = "*"
 pynput = "*"
 
+# Add a marker to ensure macOS-specific dependencies are installed only on macOS
+pyobjc-core = {version = "==10.3.1", markers = "sys_platform == 'darwin'"}
+pyobjc-framework-quartz = {version = "==10.3.1", markers = "sys_platform == 'darwin'"}
+pyobjc-framework-applicationservices = {version = "==10.3.1", markers = "sys_platform == 'darwin'"}
+pyobjc-framework-cocoa = {version = "==10.3.1", markers = "sys_platform == 'darwin'"}
+
 [dev-packages]
-setuptools = "==75.5.0"
+black = "*"
+pylint = "*"
 
 [requires]
 python_version = "3.13"
-

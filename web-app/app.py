@@ -1,11 +1,9 @@
 """
-This module contains the Flask application for a web application
-that provides user authentication and session management with MongoDB.
+Flask application with camera tracking integration using OpenCV and MongoDB.
 """
 
 import os
-import time
-from threading import Thread, Event
+import sys
 from flask import Flask, render_template, request, redirect, url_for, flash, jsonify
 from flask_login import (
     LoginManager,
@@ -19,26 +17,29 @@ import certifi
 from bson.objectid import ObjectId
 from dotenv import load_dotenv
 
+# Add path for the machine-learning-client directory
+sys.path.append(os.path.abspath("../machine-learning-client"))
+
+# Import camera and mouse tracking functions with aliases
+try:
+    from camera_tracker import (
+        start_tracking as start_camera_tracking,
+        stop_tracking as stop_camera_tracking,
+    )
+    from mouse_tracker import (
+        start_tracking as start_mouse_tracking,
+        stop_tracking as stop_mouse_tracking,
+    )
+except ImportError as e:
+    print(f"ImportError: {e}")
 
 load_dotenv()
-
-
-# Define an event to signal the function to stop
-stop_event = Event()
-
-
-def background_task():
-    """
-    A simple background task that runs in a loop until the stop event is set.
-    """
-    while not stop_event.is_set():
-        print("Running background task...")
-        time.sleep(1)  # Simulate work
 
 
 def create_app():
     """
     Create and configure the Flask application.
+
     Returns:
         Flask: The Flask application object.
     """
@@ -56,7 +57,7 @@ def create_app():
         cxn.admin.command("ping")
         print(" * Connected to MongoDB!")
     except pymongo.errors.ServerSelectionTimeoutError as e:
-        print(" * MongoDB connection error:", e)
+        print(f" * MongoDB connection error: {e}")
 
     class User(UserMixin):
         """
@@ -70,8 +71,10 @@ def create_app():
     def load_user(user_id):
         """
         Load the user object from the database by user ID.
+
         Args:
             user_id (str): The ID of the user.
+
         Returns:
             User: A User object if found, otherwise None.
         """
@@ -110,11 +113,13 @@ def create_app():
 
             existing_user = db.users.find_one({"username": username})
             if existing_user:
+                flash("Username already exists. Please choose a different username.")
                 return redirect(url_for("signup"))
 
             new_user = {"username": username, "password": password}
             db.users.insert_one(new_user)
 
+            flash("Account created successfully. Please log in.")
             return redirect(url_for("login"))
 
         return render_template("signup.html")
@@ -124,6 +129,7 @@ def create_app():
     def home_page():
         """
         Route for the home page.
+
         Returns:
             str: The rendered HTML template.
         """
@@ -137,31 +143,58 @@ def create_app():
     @app.route("/start-session")
     def session_form():
         """
-        Route for the home page.
-        Returns:
-            rendered template (str): The rendered HTML template.
+        Render the focus session control page.
         """
         return render_template("focus.html")
 
     @app.route("/start", methods=["POST"])
-    def start_function():
+    def start_tracking_route():
         """
-        Start the background function.
+        Start both camera and mouse tracking.
         """
-        if stop_event.is_set():  # Reset the stop event if previously set
-            stop_event.clear()
+        try:
+            # Uncomment these lines if camera tracking is needed
+            start_camera_tracking()
 
-        thread = Thread(target=background_task, daemon=True)
-        thread.start()
-        return jsonify({"status": "started"}), 200
+            start_mouse_tracking()
+            return jsonify({"status": "tracking_started"}), 200
+        except pymongo.errors.PyMongoError as db_error:
+            return (
+                jsonify({"status": "error", "message": f"Database error: {db_error}"}),
+                500,
+            )
+        except ValueError as value_error:
+            return (
+                jsonify({"status": "error", "message": f"Value error: {value_error}"}),
+                500,
+            )
+        except RuntimeError as runtime_error:
+            return (
+                jsonify(
+                    {"status": "error", "message": f"Runtime error: {runtime_error}"}
+                ),
+                500,
+            )
 
     @app.route("/stop", methods=["POST"])
-    def stop_function():
+    def stop_tracking_route():
         """
-        Stop the background function.
+        Stop both camera and mouse tracking.
         """
-        stop_event.set()
-        return jsonify({"status": "stopped"}), 200
+        try:
+            # Uncomment these lines if camera tracking is needed
+            stop_camera_tracking()
+
+            stop_mouse_tracking()
+            return jsonify({"status": "tracking_stopped"}), 200
+        except pymongo.errors.PyMongoError as db_error:
+            return (
+                jsonify({"status": "error", "message": f"Database error: {db_error}"}),
+                500,
+            )
+        except Exception as general_error:  # pylint: disable=broad-exception-caught
+            # Broad exception to catch unexpected errors and prevent crashes.
+            return jsonify({"status": "error", "message": str(general_error)}), 500
 
     return app
 

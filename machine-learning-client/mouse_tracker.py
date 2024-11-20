@@ -200,3 +200,19 @@ if __name__ == "__main__":
                 tracker.stop_tracking()
             except WriteError as cleanup_error:
                 print(f"An error occurred while stopping the tracker: {cleanup_error}")
+
+_tracker_instance = MouseTrackerWithInterface()
+
+
+def start_tracking():
+    """
+    Start mouse tracking using the global tracker instance.
+    """
+    _tracker_instance.start_tracking()
+
+
+def stop_tracking():
+    """
+    Stop mouse tracking using the global tracker instance.
+    """
+    _tracker_instance.stop_tracking()
