@@ -7,7 +7,7 @@ import noisereduce as nr
 from datetime import datetime
 
 # MongoDB setup
-client = MongoClient("mongodb://.../")
+client = MongoClient("mongodb://database/scoobygang")
 db = client.audio_analysis
 collection = db.audio_logs
 
