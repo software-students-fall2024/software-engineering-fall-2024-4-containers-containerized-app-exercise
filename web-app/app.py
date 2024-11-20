@@ -15,7 +15,7 @@ def index():
 def get_swear_counts():
     docs = swears_collection.find()
     for doc in docs:
-        print(doc);
+        print(doc)
     swear_counts = {doc["word"]: doc["count"] for doc in swears_collection.find()}
     return jsonify(swear_counts)
 
