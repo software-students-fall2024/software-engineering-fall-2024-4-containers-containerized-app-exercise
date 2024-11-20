@@ -1,9 +1,9 @@
 """
-This module contains the Flask application for a web application
-that provides user authentication and session management with MongoDB.
+Flask application with camera tracking integration using OpenCV and MongoDB.
 """
 
 import os
+import sys
 import time
 from threading import Thread, Event
 from flask import Flask, render_template, request, redirect, url_for, flash, jsonify
@@ -19,26 +19,20 @@ import certifi
 from bson.objectid import ObjectId
 from dotenv import load_dotenv
 
+# Add path for the camera tracking client
+sys.path.append(os.path.abspath("../machine-learning-client"))
+from camera_tracker import start_tracking, stop_tracking  # Import tracking functions
 
 load_dotenv()
-
 
 # Define an event to signal the function to stop
 stop_event = Event()
 
 
-def background_task():
-    """
-    A simple background task that runs in a loop until the stop event is set.
-    """
-    while not stop_event.is_set():
-        print("Running background task...")
-        time.sleep(1)  # Simulate work
-
-
 def create_app():
     """
     Create and configure the Flask application.
+
     Returns:
         Flask: The Flask application object.
     """
@@ -70,8 +64,10 @@ def create_app():
     def load_user(user_id):
         """
         Load the user object from the database by user ID.
+
         Args:
             user_id (str): The ID of the user.
+
         Returns:
             User: A User object if found, otherwise None.
         """
@@ -110,11 +106,13 @@ def create_app():
 
             existing_user = db.users.find_one({"username": username})
             if existing_user:
+                flash("Username already exists. Please choose a different username.")
                 return redirect(url_for("signup"))
 
             new_user = {"username": username, "password": password}
             db.users.insert_one(new_user)
 
+            flash("Account created successfully. Please log in.")
             return redirect(url_for("login"))
 
         return render_template("signup.html")
@@ -124,6 +122,7 @@ def create_app():
     def home_page():
         """
         Route for the home page.
+
         Returns:
             str: The rendered HTML template.
         """
@@ -137,31 +136,31 @@ def create_app():
     @app.route("/start-session")
     def session_form():
         """
-        Route for the home page.
-        Returns:
-            rendered template (str): The rendered HTML template.
+        Render the focus session control page.
         """
         return render_template("focus.html")
 
     @app.route("/start", methods=["POST"])
-    def start_function():
+    def start_tracking_route():
         """
-        Start the background function.
+        Start camera tracking.
         """
-        if stop_event.is_set():  # Reset the stop event if previously set
-            stop_event.clear()
-
-        thread = Thread(target=background_task, daemon=True)
-        thread.start()
-        return jsonify({"status": "started"}), 200
+        try:
+            start_tracking()  # Start the background tracking
+            return jsonify({"status": "started"}), 200
+        except Exception as e:
+            return jsonify({"status": "error", "message": str(e)}), 500
 
     @app.route("/stop", methods=["POST"])
-    def stop_function():
+    def stop_tracking_route():
         """
-        Stop the background function.
+        Stop camera tracking.
         """
-        stop_event.set()
-        return jsonify({"status": "stopped"}), 200
+        try:
+            stop_tracking()  # Stop the background tracking
+            return jsonify({"status": "stopped"}), 200
+        except Exception as e:
+            return jsonify({"status": "error", "message": str(e)}), 500
 
     return app
 

@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "cac105f9c96e7fde11bcf2eb2702916468f39fe863df7e59514d08acc01ffc4b"
+            "sha256": "1168edff63001bc4237c5dd8850040b5113b0256deab248914f9d29d996e3066"
         },
         "pipfile-spec": 6,
         "requires": {
@@ -172,7 +172,7 @@
                 "sha256:a7151186bb7805deea434fae9a4423335e6371d105f29e73cc2036c6779a9dbc",
                 "sha256:de5e62e5ccf2871a94acf3bf79646b20ea893cc9db78afa8d1fe1b0d0f7cbdb0"
             ],
-            "markers": "sys_platform == 'darwin'",
+            "markers": "python_version >= '3.8'",
             "version": "==10.3.1"
         },
         "pyobjc-framework-coretext": {
@@ -186,7 +186,7 @@
                 "sha256:b8fa2d5078ed774431ae64ba886156e319aec0b8c6cc23dabfd86778265b416f",
                 "sha256:dd6123cfccc38e32be884d1a13fb62bd636ecb192b9e8ae2b8011c977dec229e"
             ],
-            "markers": "sys_platform == 'darwin'",
+            "markers": "python_version >= '3.8'",
             "version": "==10.3.1"
         },
         "pyobjc-framework-quartz": {
@@ -229,6 +229,15 @@
             "index": "pypi",
             "markers": "python_version >= '3.9'",
             "version": "==75.5.0"
+        },
+        "wheel": {
+            "hashes": [
+                "sha256:52f0baa5e6522155090a09c6bd95718cc46956d1b51d537ea5454249edb671c7",
+                "sha256:a57353941a3183b3d5365346b567a260a0602a0f8a635926a7dede41b94c674a"
+            ],
+            "index": "pypi",
+            "markers": "python_version >= '3.8'",
+            "version": "==0.45.0"
         }
     }
 }
