@@ -177,14 +177,19 @@ if __name__ == "__main__":
         print("Starting mouse tracking...")
         tracker.start_tracking()
 
-        # Allow tracking to run for 10 seconds or until manually stopped
+        #Run indefinitely until manually stopped
         try:
-            time.sleep(10)
+            while True:
+                time.sleep(1)
         except KeyboardInterrupt:
             print("\nManual interruption detected. Stopping mouse tracking...")
 
         # Stop tracking and save the report
         tracker.stop_tracking()
 
+    except KeyboardInterrupt:
+            print("\nProgram interrupted manually.")
+    except (ConnectionFailure, OperationFailure, WriteError) as db_error:
+            print(f"Database error occurred: {db_error}")
     except Exception as e:
-        print(f"An unexpected error occurred: {e}")
+            print(f"An unexpected error occurred: {e}")
