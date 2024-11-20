@@ -4,50 +4,93 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Focus Control</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}" />
+    <link rel="icon" type="image/x-icon" href="{{ url_for('static', filename='favicon.png') }}">
     <script>
-      let interval = null;
-
-      function updateTimer(startTime) {
-        interval = setInterval(() => {
-          const elapsed = Math.floor((new Date().getTime() - startTime) / 1000);
-          document.getElementById("timer").innerText = `Elapsed Time: ${elapsed}s`;
-        }, 1000);
-      }
-
-      async function handleAction(action) {
-        const response = await fetch(`/${action}`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-        });
-
-        if (response.ok) {
-          const result = await response.json();
-          if (action === "start") {
-            const startTime = new Date().getTime();
-            updateTimer(startTime);
-            document.getElementById("status").innerText = "Tracking Started!";
-          } else if (action === "stop") {
-            clearInterval(interval);
-            interval = null;
-            document.getElementById("status").innerText = "Tracking Stopped!";
+      let isMouseTracking = false;
+      let mouseMoveListener = null;
+      let mouseClickListener = null;
+    
+      async function handleMouseTracking(action) {
+        const statusElement = document.getElementById("mouse-status");
+    
+        if (action === "start" && !isMouseTracking) {
+          isMouseTracking = true;
+          statusElement.innerText = "Mouse Tracking Started!";
+    
+          // Define the mouse move listener
+          mouseMoveListener = (event) => {
+            fetch("/track-mouse", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ event: "mousemove", x: event.clientX, y: event.clientY }),
+            });
+          };
+    
+          // Define the mouse click listener
+          mouseClickListener = (event) => {
+            fetch("/track-mouse", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ event: "click", x: event.clientX, y: event.clientY }),
+            });
+          };
+    
+          // Attach the listeners
+          document.addEventListener("mousemove", mouseMoveListener);
+          document.addEventListener("click", mouseClickListener);
+        } else if (action === "stop" && isMouseTracking) {
+          isMouseTracking = false;
+          statusElement.innerText = "Mouse Tracking Stopped!";
+    
+          // Remove the listeners
+          if (mouseMoveListener) {
+            document.removeEventListener("mousemove", mouseMoveListener);
+            mouseMoveListener = null;
           }
-        } else {
-          document.getElementById("status").innerText =
-            "An error occurred. Please try again.";
+    
+          if (mouseClickListener) {
+            document.removeEventListener("click", mouseClickListener);
+            mouseClickListener = null;
+          }
         }
       }
+    
+      async function fetchMouseReport() {
+        const response = await fetch("/mouse-report");
+        const report = await response.json();
+        document.getElementById("mouse-report").innerText = `
+            Total Distance: ${report.total_mouse_distance} px
+            Clicks: ${report.total_clicks}
+            Focused Time: ${report.focused_time}s
+            Unfocused Time: ${report.unfocused_time}s
+            Focus: ${report.focus_percentage}%
+            Status: ${report.overall_status}
+        `;
+      }
     </script>
+    
+    
   </head>
   <body>
-    <div class="container center">
+    <div class="container">
       <img src="{{ url_for('static', filename='itsOverlogo.png') }}" alt="Logo" />
       <h1>Control Camera and Mouse Tracking</h1>
-      <div id="timer">Elapsed Time: 0s</div>
-      <div id="status">Status: Waiting for action...</div>
-      <div>
-        <button onclick="handleAction('start')" class="start-button">Start</button>
-        <button onclick="handleAction('stop')" class="stop-button">Stop</button>
-      </div>
+
+      <!-- Mouse Controls -->
+      <div id="mouse-status">Mouse Tracking: OFF</div>
+      <button onclick="handleMouseTracking('start')">Start Mouse Tracking</button>
+      <button onclick="handleMouseTracking('stop')">Stop Mouse Tracking</button>
+
+      <h2>Mouse Report</h2>
+      <div id="mouse-report">No data available</div>
+      <button onclick="fetchMouseReport()">Refresh Report</button>
+
+      <!-- Camera Controls -->
+      <div id="camera-status" class="status">Camera Tracking: OFF</div>
+      <button onclick="handleCameraTracking('start')">Start Camera</button>
+      <button onclick="handleCameraTracking('stop')">Stop Camera</button>
     </div>
+
+    <button><a href="/home_page">Home Page</a></button>
   </body>
 </html>

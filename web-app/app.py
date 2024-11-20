@@ -1,9 +1,10 @@
 """
-Flask application with camera tracking integration using OpenCV and MongoDB.
+Flask application with camera and mouse tracking integration using OpenCV and MongoDB.
 """
 
 import os
-import sys
+import math
+import time
 from flask import Flask, render_template, request, redirect, url_for, flash, jsonify
 from flask_login import (
     LoginManager,
@@ -17,189 +18,182 @@ import certifi
 from bson.objectid import ObjectId
 from dotenv import load_dotenv
 
-# Add path for the machine-learning-client directory
-sys.path.append(os.path.abspath("../machine-learning-client"))
-
-# Import camera and mouse tracking functions with aliases
-try:
-    from camera_tracker import (
-        start_tracking as start_camera_tracking,
-        stop_tracking as stop_camera_tracking,
-    )
-    from mouse_tracker import (
-        start_tracking as start_mouse_tracking,
-        stop_tracking as stop_mouse_tracking,
-    )
-except ImportError as e:
-    print(f"ImportError: {e}")
-
+# Load environment variables
 load_dotenv()
 
+# Flask app
+app = Flask(__name__)
+app.secret_key = os.getenv("SECRET_KEY", "default_secret_key")
 
-def create_app():
-    """
-    Create and configure the Flask application.
+# MongoDB connection
+mongo_client = pymongo.MongoClient(os.getenv("MONGO_URI"), tlsCAFile=certifi.where())
+db = mongo_client[os.getenv("MONGO_DBNAME")]
 
-    Returns:
-        Flask: The Flask application object.
-    """
-    app = Flask(__name__)
+# Initialize Flask-Login
+login_manager = LoginManager()
+login_manager.init_app(app)
+login_manager.login_view = "login"
 
-    app.secret_key = os.getenv("SECRET_KEY")
-    cxn = pymongo.MongoClient(os.getenv("MONGO_URI"), tlsCAFile=certifi.where())
-    db = cxn[os.getenv("MONGO_DBNAME")]
+# Focus threshold
+FOCUS_THRESHOLD = 5  # Time in seconds
 
-    login_manager = LoginManager()
-    login_manager.init_app(app)
-    login_manager.login_view = "login"
+# Mouse tracking metrics class
+class MouseMetrics:
+    def __init__(self):
+        self.mouse_distance = 0
+        self.click_count = 0
+        self.last_x = None
+        self.last_y = None
+        self.focused_time = 0
+        self.unfocused_time = 0
+        self.is_focused = True
+        self.last_event_time = time.time()
 
+    def process_mouse_move(self, x, y):
+        current_time = time.time()
+        time_since_last_event = current_time - self.last_event_time
+        self.last_event_time = current_time
+
+        # Calculate distance moved
+        if self.last_x is not None and self.last_y is not None:
+            distance = math.sqrt((x - self.last_x) ** 2 + (y - self.last_y) ** 2)
+            self.mouse_distance += distance
+        self.last_x, self.last_y = x, y
+
+        # Update focus state
+        if time_since_last_event > FOCUS_THRESHOLD:
+            self.unfocused_time += time_since_last_event - FOCUS_THRESHOLD
+            self.is_focused = False
+        else:
+            self.focused_time += time_since_last_event
+            self.is_focused = True
+
+    def process_mouse_click(self):
+        self.click_count += 1
+
+    def generate_report(self):
+        total_time = self.focused_time + self.unfocused_time
+        focus_percentage = (self.focused_time / total_time) * 100 if total_time > 0 else 0
+        return {
+            "total_mouse_distance": round(self.mouse_distance, 2),
+            "total_clicks": self.click_count,
+            "focused_time": round(self.focused_time, 2),
+            "unfocused_time": round(self.unfocused_time, 2),
+            "focus_percentage": round(focus_percentage, 2),
+            "overall_status": "Focused" if focus_percentage > 50 else "Unfocused",
+        }
+
+# Initialize mouse metrics
+mouse_metrics = MouseMetrics()
+
+# Test MongoDB connection
+try:
+    mongo_client.admin.command("ping")
+    print(" * Connected to MongoDB!")
+except pymongo.errors.ServerSelectionTimeoutError as e:
+    print(f" * MongoDB connection error: {e}")
+
+# User class for Flask-Login
+class User(UserMixin):
+    def __init__(self, user_id):
+        self.id = user_id
+
+
+@login_manager.user_loader
+def load_user(user_id):
+    user_data = db.users.find_one({"_id": ObjectId(user_id)})
+    if user_data:
+        return User(str(user_data["_id"]))
+    return None
+
+
+@app.route("/", methods=["GET", "POST"])
+def login():
+    if request.method == "POST":
+        username = request.form["username"]
+        password = request.form["password"]
+        user_data = db.users.find_one({"username": username})
+
+        if user_data and user_data["password"] == password:
+            user = User(str(user_data["_id"]))
+            login_user(user)
+            return redirect(url_for("home_page"))
+        flash("Invalid username or password.")
+    return render_template("login.html")
+
+
+@app.route("/signup", methods=["GET", "POST"])
+def signup():
+    if request.method == "POST":
+        username = request.form["username"]
+        password = request.form["password"]
+
+        if db.users.find_one({"username": username}):
+            flash("Username already exists. Please choose a different username.")
+            return redirect(url_for("signup"))
+
+        db.users.insert_one({"username": username, "password": password})
+        flash("Account created successfully. Please log in.")
+        return redirect(url_for("login"))
+    return render_template("signup.html")
+
+
+@app.route("/home_page")
+@login_required
+def home_page():
+    past_sessions = db.sessions.find({"username": current_user.id}).sort("created_at", -1)
+    return render_template("home_page.html", past=past_sessions, username=current_user.id)
+
+
+@app.route("/start-session")
+def session_form():
+    return render_template("focus.html")
+
+
+@app.route("/track-mouse", methods=["POST"])
+def track_mouse():
     try:
-        cxn.admin.command("ping")
-        print(" * Connected to MongoDB!")
-    except pymongo.errors.ServerSelectionTimeoutError as e:
-        print(f" * MongoDB connection error: {e}")
+        data = request.json
+        event = data.get("event")
+        x, y = data.get("x"), data.get("y")
 
-    class User(UserMixin):
-        """
-        Represents a logged-in user.
-        """
+        if event == "mousemove":
+            mouse_metrics.process_mouse_move(x, y)
+        elif event == "click":
+            mouse_metrics.process_mouse_click()
 
-        def __init__(self, user_id):
-            self.id = user_id
+        db.mouse_activity.insert_one({**data, "timestamp": time.time()})
+        return jsonify({"status": "success"}), 200
+    except Exception as e:
+        return jsonify({"status": "error", "message": str(e)}), 500
 
-    @login_manager.user_loader
-    def load_user(user_id):
-        """
-        Load the user object from the database by user ID.
 
-        Args:
-            user_id (str): The ID of the user.
+@app.route("/mouse-report", methods=["GET"])
+def mouse_report():
+    try:
+        report = mouse_metrics.generate_report()
+        return jsonify(report), 200
+    except Exception as e:
+        return jsonify({"status": "error", "message": str(e)}), 500
 
-        Returns:
-            User: A User object if found, otherwise None.
-        """
-        user_data = db.users.find_one({"_id": ObjectId(user_id)})
-        if user_data:
-            return User(str(user_data["_id"]))
-        return None
 
-    @app.route("/", methods=["GET", "POST"])
-    def login():
-        """
-        Route for the login page.
-        """
-        if request.method == "POST":
-            username = request.form["username"]
-            password = request.form["password"]
-            user_data = db.users.find_one({"username": username})
+@app.route("/start-camera", methods=["POST"])
+def start_camera():
+    try:
+        # Placeholder for actual camera tracking logic
+        return jsonify({"status": "Camera started"}), 200
+    except Exception as e:
+        return jsonify({"status": "error", "message": str(e)}), 500
 
-            if user_data and user_data["password"] == password:
-                user = User(str(user_data["_id"]))
-                login_user(user)
-                return redirect(url_for("home_page"))
-            flash("Invalid username or password.")
 
-        return render_template("login.html")
-
-    @app.route("/signup", methods=["GET", "POST"])
-    def signup():
-        """
-        Route for the sign-up page.
-        Allows new users to create an account and saves their information to the database.
-        """
-        if request.method == "POST":
-            username = request.form["username"]
-            password = request.form["password"]
-
-            existing_user = db.users.find_one({"username": username})
-            if existing_user:
-                flash("Username already exists. Please choose a different username.")
-                return redirect(url_for("signup"))
-
-            new_user = {"username": username, "password": password}
-            db.users.insert_one(new_user)
-
-            flash("Account created successfully. Please log in.")
-            return redirect(url_for("login"))
-
-        return render_template("signup.html")
-
-    @app.route("/home_page")
-    @login_required
-    def home_page():
-        """
-        Route for the home page.
-
-        Returns:
-            str: The rendered HTML template.
-        """
-        past_sessions = db.sessions.find({"username": current_user.id}).sort(
-            "created_at", -1
-        )
-        return render_template(
-            "home_page.html", past=past_sessions, username=current_user.id
-        )
-
-    @app.route("/start-session")
-    def session_form():
-        """
-        Render the focus session control page.
-        """
-        return render_template("focus.html")
-
-    @app.route("/start", methods=["POST"])
-    def start_tracking_route():
-        """
-        Start both camera and mouse tracking.
-        """
-        try:
-            # Uncomment these lines if camera tracking is needed
-            start_camera_tracking()
-
-            start_mouse_tracking()
-            return jsonify({"status": "tracking_started"}), 200
-        except pymongo.errors.PyMongoError as db_error:
-            return (
-                jsonify({"status": "error", "message": f"Database error: {db_error}"}),
-                500,
-            )
-        except ValueError as value_error:
-            return (
-                jsonify({"status": "error", "message": f"Value error: {value_error}"}),
-                500,
-            )
-        except RuntimeError as runtime_error:
-            return (
-                jsonify(
-                    {"status": "error", "message": f"Runtime error: {runtime_error}"}
-                ),
-                500,
-            )
-
-    @app.route("/stop", methods=["POST"])
-    def stop_tracking_route():
-        """
-        Stop both camera and mouse tracking.
-        """
-        try:
-            # Uncomment these lines if camera tracking is needed
-            stop_camera_tracking()
-
-            stop_mouse_tracking()
-            return jsonify({"status": "tracking_stopped"}), 200
-        except pymongo.errors.PyMongoError as db_error:
-            return (
-                jsonify({"status": "error", "message": f"Database error: {db_error}"}),
-                500,
-            )
-        except Exception as general_error:  # pylint: disable=broad-exception-caught
-            # Broad exception to catch unexpected errors and prevent crashes.
-            return jsonify({"status": "error", "message": str(general_error)}), 500
-
-    return app
+@app.route("/stop-camera", methods=["POST"])
+def stop_camera():
+    try:
+        # Placeholder for actual camera tracking logic
+        return jsonify({"status": "Camera stopped"}), 200
+    except Exception as e:
+        return jsonify({"status": "error", "message": str(e)}), 500
 
 
 if __name__ == "__main__":
-    FLASK_PORT = os.getenv("FLASK_PORT", "5000")
-    flask_app = create_app()
-    flask_app.run(port=FLASK_PORT)
+    app.run(port=os.getenv("FLASK_PORT", 5000), debug=True)
