@@ -110,6 +110,7 @@ def index():
             {"file_id": 1, "name": 1, "upload_time": 1, "transcription": 1, "_id": 0},
         )
     )
+    print(metadata)
 
     return render_template("index.html", recordings=metadata)
 

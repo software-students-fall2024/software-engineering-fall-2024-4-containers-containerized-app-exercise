@@ -77,7 +77,6 @@ def predict():
     """
     Predict transcription for the given file_id.
     """
-    print('predicting')
     file_id = request.args.get("file_id")
     if not file_id:
         return jsonify({"error": "file_id is required"}), 400
@@ -90,8 +89,8 @@ def predict():
         transcription = perform_speech_recognition(wav_io)
         print("Transcription loaded:", transcription)
 
-        metadata.update_one(
-            {"file_id": file_id},
+        result = metadata.update_one(
+            {"file_id": str(file_id)},
             {
                 "$set": {
                     "transcription": transcription,
@@ -101,7 +100,12 @@ def predict():
             },
         )
 
-        print("Metadata succesfully updated with transcription:", transcription);
+        if result.matched_count == 0:
+            print("No document matched the query. Update failed.")
+        elif result.modified_count == 0:
+            print("Document matched, but no changes were made.")
+        else:
+            print("Document updated successfully.")
 
         return jsonify({
             "message": "Prediction completed successfully",
