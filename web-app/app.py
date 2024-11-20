@@ -183,7 +183,9 @@ def process_photo(filepath, filename):
     ml_client_url = "http://ml-client:3001/predict"
     with open(filepath, "rb") as file_handle:
         files = {"image": (filename, file_handle, "image/png")}
-        response = requests.post(ml_client_url, files=files, timeout=10)  # Added timeout
+        response = requests.post(
+            ml_client_url, files=files, timeout=10
+        )  # Added timeout
         response.raise_for_status()
         result = response.json()
         plant_name = result.get("plant_name", "Unknown")
@@ -212,4 +214,3 @@ def get_db():
 if __name__ == "__main__":
     APP = create_app()
     APP.run(host="0.0.0.0", port=5000)
-    
