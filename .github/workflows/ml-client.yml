@@ -1,0 +1,66 @@
+name: Machine Learning Client CI
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'machine-learning-client/**'
+      - '.github/workflows/ml-client.yml'
+      
+  pull_request:
+    branches:
+      - main
+    paths:
+      - 'machine-learning-client/**'
+      - '.github/workflows/ml-client.yml'
+
+jobs:
+  test-and-build:
+    runs-on: ubuntu-latest
+    container:
+      image: nvidia/cuda:12.0.1-cudnn8-devel-ubuntu22.04
+    defaults:
+      run:
+        working-directory: ./machine-learning-client
+
+    env:
+      LANG: en_US.UTF-8
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Verify CUDA and cuDNN installation
+        run: |
+          ldconfig -p | grep libcudnn || echo "cuDNN not found"
+          nvcc --version || echo "CUDA not found"
+          nvidia-smi || echo "GPU not found"
+        shell: bash
+
+      # Cache Pipenv environment
+      - name: Cache dependencies
+        uses: actions/cache@v3
+        with:
+          path: |
+            ~/.cache/pip
+            ~/.local/share/virtualenvs
+          key: ${{ runner.os }}-pipenv-${{ hashFiles('Pipfile.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-pipenv-
+
+      - name: Install system dependencies
+        run: |
+          apt-get update
+          apt-get install -y python3.11 python3-pip libgl1 libglib2.0-0
+          python3.11 -m pip install --upgrade pip
+          python3.11 -m pip install pipenv
+
+      - name: Install Python dependencies
+        run: |
+          pipenv install --dev
+          pipenv run pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu118
+
+      - name: Run tests
+        run: |
+          pipenv run coverage run --rcfile=.coveragerc -m pytest
+          pipenv run coverage report -i
