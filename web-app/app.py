@@ -3,7 +3,7 @@ This is the main module for the web app front end.
 """
 
 import atexit
-import datetime
+from datetime import datetime, timezone
 import os
 
 import cv2
@@ -42,20 +42,20 @@ def capture_and_process():
         return jsonify({"error": "Failed to capture frame"}), 500
 
     # Encode the frame to JPEG format
-    _, buffer = cv2.imencode(".jpg", frame)
-    image_binary = Binary(buffer.tobytes())
+    _, buffer = cv2.imencode(".jpg", frame) # pylint: disable=no-member
+    image_binary = Binary(buffer)
 
     # Save to MongoDB
     document = {
         "image": image_binary,
-        "timestamp": datetime.datetime(),
+        "timestamp": datetime.now(timezone.utc).isoformat(),
         "status": "pending",  # Waiting for processing
         "detections": [],
     }
     result = collection.insert_one(document)
 
     # Trigger processing in the ML app
-    ml_response = requests.post("http://localhost:5001/process_pending")
+    ml_response = requests.post("http://localhost:5001/process_pending", timeout=90)
     if ml_response.status_code != 200:
         return jsonify({"error": "Processing failed"}), 500
 
@@ -100,8 +100,8 @@ def generate_frames():
         if not success:
             break
         _, buffer = cv2.imencode(".jpg", frame)  # pylint: disable=no-member
-        frame = buffer.tobytes()
-        yield b"--frame\r\n" b"Content-Type: image/jpeg\r\n\r\n" + frame + b"\r\n"
+        yield b"--frame\r\n" b"Content-Type: image/jpeg\r\n\r\n" + buffer + b"\r\n"
+
 
 
 if __name__ == "__main__":
