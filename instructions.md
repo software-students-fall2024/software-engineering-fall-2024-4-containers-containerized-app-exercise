@@ -2,13 +2,13 @@
 
 Build a containerized app made up of multiple subsystems, each operating in a container.
 
-## Concept
+## Concept 
 
 Containers are small-footprint, portable, isolated environments within which applications can run.
 
 In this exercise, you will create a system consisting of three separate but internetworked [Docker](https://docker.com) containers.
 
-## Requirements
+## Requirements 
 
 The system you will build consists of three independent software sub-systems:
 

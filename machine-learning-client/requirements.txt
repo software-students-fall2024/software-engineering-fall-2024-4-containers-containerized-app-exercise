@@ -8,3 +8,7 @@ black
 pipenv 
 pymongo
 inference-sdk
+pytest
+pytest-cov
+
+
