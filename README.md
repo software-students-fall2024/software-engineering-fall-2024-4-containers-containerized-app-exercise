@@ -10,6 +10,14 @@ The ASL interpreter app uses machine learning to recognize American Sign Languag
 
 Designed for accessibility and ease of use, it offers a seamless, containerized experience that runs across three subsystems: gesture recognition, a web interface, and a database.
 
+Following are some gestures the app can detect:
+
+![gesture1](images/gesture1.png)
+![gesture2](images/gesture2.png)
+![gesture3](images/gesture3.png)
+![gesture4](images/gesture4.png)
+![gesture5](images/gesture5.png)
+
 ## Team
 
 [Safia Billah](https://github.com/safiabillah)
