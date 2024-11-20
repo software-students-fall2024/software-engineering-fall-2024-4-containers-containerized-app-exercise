@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Camera and Microphone Access</title>
+</head>
+<body>
+    <h1>Camera and Microphone Access</h1>
+    <button id="startTracking">Start Tracking</button>
+    <button id="stopTracking">Stop Tracking</button>
+    <p id="status"></p>
+
+    <script>
+        document.getElementById("startTracking").addEventListener("click", () => {
+            fetch("/start-tracking", { method: "POST" })
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById("status").innerText = data.status;
+                });
+        });
+
+        document.getElementById("stopTracking").addEventListener("click", () => {
+            fetch("/stop-tracking", { method: "POST" })
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById("status").innerText = data.status;
+                });
+        });
+    </script>
+</body>
+</html>
