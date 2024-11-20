@@ -8,6 +8,9 @@ pylint = "*"
 black = "*"
 pynput = "*"
 [dev-packages]
+pyobjc-core = {version = "*", markers = "sys_platform == 'darwin'"}
+setuptools = "==75.5.0"
 
 [requires]
 python_version = "3.13"
+
