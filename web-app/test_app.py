@@ -3,11 +3,13 @@
 # pytest test_app.py -v
 # pytest -v
 
+
 import pytest
 from unittest.mock import patch, MagicMock
 from bson.objectid import ObjectId
 from io import BytesIO
 from app import app, generate_stats_doc, retry_request
+import requests
 
 # Fixtures
 @pytest.fixture
@@ -43,24 +45,30 @@ def test_retry_request_success_on_first_try(mock_post):
 
 @patch('app.requests.post')
 def test_retry_request_success_after_retries(mock_post):
-    # Simulate exceptions on the first two attempts, then a successful response
-    mock_post.side_effect = [
-        Exception("Connection error"),
-        Exception("Timeout"),
-        MagicMock()
+    # Create a mock response object
+    mock_response = MagicMock()
+    # Simulate exceptions on the first two attempts, then succeed
+    mock_response.raise_for_status.side_effect = [
+        requests.exceptions.HTTPError("Connection error"),
+        requests.exceptions.HTTPError("Timeout"),
+        None  # Success on third attempt
     ]
+    # Always return the mock_response from requests.post
+    mock_post.return_value = mock_response
 
     url = "http://example.com/predict"
     files = {"image": MagicMock()}
 
     response = retry_request(url, files, retries=3, delay=0)
-    assert response is not None
+    assert response == mock_response
     assert mock_post.call_count == 3
+    assert mock_response.raise_for_status.call_count == 3
 
 @patch('app.requests.post')
 def test_retry_request_all_failures(mock_post):
-    # Simulate exceptions on all attempts
-    mock_post.side_effect = Exception("Connection error")
+    mock_response = MagicMock()
+    mock_response.raise_for_status.side_effect = requests.exceptions.HTTPError("Connection error")
+    mock_post.return_value = mock_response
 
     url = "http://example.com/predict"
     files = {"image": MagicMock()}
@@ -68,6 +76,7 @@ def test_retry_request_all_failures(mock_post):
     response = retry_request(url, files, retries=3, delay=0)
     assert response is None
     assert mock_post.call_count == 3
+    assert mock_response.raise_for_status.call_count == 3
 
 # Tests for routes
 @patch('app.generate_stats_doc', return_value=str(ObjectId()))
@@ -116,7 +125,7 @@ def test_result_route_success(mock_update_one, mock_retry_request, client):
     response = client.post('/result', data=data, content_type='multipart/form-data')
 
     assert response.status_code == 200
-    assert b"AI wins!" in response.data
+    assert b"You win!" in response.data
 
 @patch('app.retry_request')
 def test_result_route_unknown_gesture(mock_retry_request, client):
