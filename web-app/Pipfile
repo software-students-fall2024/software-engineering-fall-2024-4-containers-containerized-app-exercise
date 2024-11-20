@@ -7,6 +7,7 @@ name = "pypi"
 pylint = "*"
 black = "*"
 flask = "*"
+flask-login = "*"
 
 [dev-packages]
 
