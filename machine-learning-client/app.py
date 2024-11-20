@@ -24,6 +24,7 @@ db = client[MONGO_DBNAME]
 # Initialize Flask app
 app = Flask(__name__)
 
+
 def load_flower_names():
     """
     Load flower class names from the flower_to_name.json file.
@@ -33,6 +34,7 @@ def load_flower_names():
     """
     with open("data/flower_to_name.json", encoding="utf-8") as file:
         return json.load(file)
+
 
 def load_model():
     """
@@ -67,6 +69,7 @@ def load_model():
 
     return model
 
+
 def transform_image(image_path):
     """
     Apply image transformations to prepare the input image for the model.
@@ -86,6 +89,7 @@ def transform_image(image_path):
     )
     image = Image.open(image_path).convert("RGB")  # Convert image to RGB
     return transform(image).unsqueeze(0)  # Add batch dimension
+
 
 def predict_plant(image_path):
     """
@@ -114,9 +118,11 @@ def predict_plant(image_path):
     plant_name = FLOWER_CLASS_NAMES.get(str(predicted_class_id), "Unknown plant")
     return plant_name
 
+
 # Load the model and flower names once when the app starts
 FLOWER_CLASS_NAMES = load_flower_names()
 TRAINED_MODEL = load_model()
+
 
 @app.route("/predict", methods=["POST"])
 def predict():
@@ -145,6 +151,7 @@ def predict():
 
     return jsonify({"plant_name": plant_name}), 200
 
+
 @app.route("/uploads/<filename>")
 def uploaded_file(filename):
     """
@@ -159,8 +166,8 @@ def uploaded_file(filename):
     uploads_dir = os.path.join(app.root_path, "static", "uploads")
     return send_from_directory(uploads_dir, filename)
 
+
 if __name__ == "__main__":
     FLASK_PORT = os.getenv("FLASK_PORT", "3001")
     CORS(app)
     app.run(host="0.0.0.0", port=FLASK_PORT)
-    

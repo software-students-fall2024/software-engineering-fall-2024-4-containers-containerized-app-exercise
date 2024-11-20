@@ -124,7 +124,9 @@ def test_predict_plant(monkeypatch):
 
     with torch.no_grad():
         # Set weights and biases to produce predictable outputs
-        model[3].weight.fill_(0.1)  # Fill weights with values that will produce predictable results
+        model[3].weight.fill_(
+            0.1
+        )  # Fill weights with values that will produce predictable results
         model[3].bias[0] = 0.5  # Bias for "Rose"
         model[3].bias[1] = 1.0  # Bias for "Tulip"
 
@@ -136,4 +138,3 @@ def test_predict_plant(monkeypatch):
     result = predict_plant(DATA_PATH)
     # Assert the expected result
     assert result == "Tulip"
-    
