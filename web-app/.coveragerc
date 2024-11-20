@@ -2,3 +2,7 @@
 omit =
     */config-3.py
     */config.py
+    
+exclude_lines =
+    # Ignore `if __name__ == '__main__'` blocks
+    if __name__ == .__main__.:
