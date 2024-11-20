@@ -1,12 +1,15 @@
 # test_app.py
-# cd ../machine-learning-client
+# cd web-app
 # pytest test_app.py -v
 # pytest -v
 
+import sys
+import os
 import pytest
 from unittest.mock import patch, MagicMock
 from bson.objectid import ObjectId
 from io import BytesIO
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 from app import app, generate_stats_doc, retry_request
 
 # Fixtures
