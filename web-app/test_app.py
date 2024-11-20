@@ -1,38 +1,35 @@
 # test_app.py
-# pytest test_app.py -v
+# Run tests with: pytest test_app.py -v
+
 import pytest
 from unittest.mock import patch, MagicMock
 from bson.objectid import ObjectId
 from io import BytesIO
 from app import app, generate_stats_doc, retry_request
 
+# Fixtures
 @pytest.fixture
 def client():
     app.config['TESTING'] = True
     with app.test_client() as client:
         yield client
 
-
-# Mock MongoDB collection
 @pytest.fixture
 @patch('app.collection')
 def mock_collection(mock_collection):
     return mock_collection
 
-
-# Test for generate_stats_doc
+# Tests for generate_stats_doc
 @patch('app.collection')
 def test_generate_stats_doc(mock_collection):
     """Test that generate_stats_doc inserts the correct document and returns an ObjectId."""
-    mock_inserted_id = ObjectId()  # Create a valid ObjectId
+    mock_inserted_id = ObjectId()
     mock_collection.insert_one.return_value.inserted_id = mock_inserted_id
 
     _id = generate_stats_doc()
 
-    # Assert that the document was inserted
     mock_collection.insert_one.assert_called_once()
     assert _id == str(mock_inserted_id)
-
 
 # Tests for retry_request
 @patch('app.requests.post')
@@ -49,7 +46,6 @@ def test_retry_request_success_on_first_try(mock_post):
     assert response == mock_response
     mock_post.assert_called_once()
 
-
 @patch('app.requests.post')
 def test_retry_request_success_after_retries(mock_post):
     """Test retry_request succeeds after retries."""
@@ -64,7 +60,6 @@ def test_retry_request_success_after_retries(mock_post):
     assert response == mock_response
     assert mock_post.call_count == 3
 
-
 @patch('app.requests.post')
 def test_retry_request_all_failures(mock_post):
     """Test retry_request fails after all retries."""
@@ -77,8 +72,7 @@ def test_retry_request_all_failures(mock_post):
     assert response is None
     assert mock_post.call_count == 3
 
-
-# Test for home route
+# Tests for routes
 @patch('app.generate_stats_doc', return_value="mocked_id")
 def test_home_route(mock_generate_stats_doc, client):
     """Test the home route renders correctly."""
@@ -86,8 +80,6 @@ def test_home_route(mock_generate_stats_doc, client):
     assert response.status_code == 200
     assert "db_object_id" in response.headers['Set-Cookie']
 
-
-# Test for home route with existing cookie
 @patch('app.generate_stats_doc', return_value="mocked_id")
 def test_home_route_with_existing_cookie(mock_generate_stats_doc, client):
     """Test the home route when 'db_object_id' cookie already exists."""
@@ -95,16 +87,12 @@ def test_home_route_with_existing_cookie(mock_generate_stats_doc, client):
     response = client.get('/')
     assert response.status_code == 200
 
-
-# Test for index route
 @patch('app.generate_stats_doc', return_value="mocked_id")
 def test_index_route(mock_generate_stats_doc, client):
     """Test the index route behaves similarly to the home route."""
     response = client.get('/index')
     assert response.status_code == 200
 
-
-# Test for statistics route
 @patch('app.generate_stats_doc', return_value="mocked_id")
 def test_statistics_route(mock_generate_stats_doc, client, mock_collection):
     """Test the statistics route retrieves stats and renders the template."""
@@ -120,8 +108,6 @@ def test_statistics_route(mock_generate_stats_doc, client, mock_collection):
     assert response.status_code == 200
     assert b"Statistics" in response.data
 
-
-# Test for result route
 @patch('app.retry_request')
 def test_result_route_success(mock_retry_request, client, mock_collection):
     """Test the result route with a successful ML prediction."""
@@ -137,7 +123,6 @@ def test_result_route_success(mock_retry_request, client, mock_collection):
 
     assert response.status_code == 200
     assert b"You win!" in response.data
-
 
 @patch('app.retry_request')
 def test_result_route_unknown_gesture(mock_retry_request, client, mock_collection):
@@ -155,7 +140,6 @@ def test_result_route_unknown_gesture(mock_retry_request, client, mock_collectio
     assert response.status_code == 200
     assert b"Gesture not recognized" in response.data
 
-
 @patch('app.retry_request')
 def test_result_route_ml_failure(mock_retry_request, client, mock_collection):
     """Test the result route when ML client fails to respond."""
@@ -170,10 +154,11 @@ def test_result_route_ml_failure(mock_retry_request, client, mock_collection):
     assert response.status_code == 200
     assert b"No valid prediction" in response.data
 
-
 @patch('app.retry_request')
 def test_result_route_no_image(mock_retry_request, client, mock_collection):
     """Test the result route when no image is provided."""
     response = client.post('/result', data={}, content_type='multipart/form-data')
     assert response.status_code == 400
     assert b"No image file provided" in response.data
+
+    
