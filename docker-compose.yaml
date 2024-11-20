@@ -4,7 +4,7 @@ services:
     ports:
       - 5001:5000 # map port 5000 of host machine to port 5000 of container
     environment:
-      - MONGO_URI=mongodb://mongodb:27017/plant_identifier
+      - MONGO_URI=mongodb://mongodb:27017
       - MONGO_DBNAME=plant_identifier
       - FLASK_PORT=5000
       - SECRET_KEY=supersecretkey
@@ -14,7 +14,7 @@ services:
     networks:
       - app-network
     volumes:
-      - ./uploads:/uploads # a directory on the host machine where we can store any files uploaded to the back-end container
+      - ./uploads:/web-app/uploads
     command: python app.py
   
   mongodb:
@@ -29,7 +29,7 @@ services:
   ml-client:
     build: ./machine-learning-client
     environment:
-      - MONGODB_URI=mongodb://mongodb:27017/plant_identifier
+      - MONGODB_URI=mongodb://mongodb:27017
     depends_on:
       - mongodb
     networks:
@@ -41,3 +41,5 @@ volumes:
 networks:
   app-network:
     driver: bridge
+
+  

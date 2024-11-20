@@ -12,6 +12,7 @@ import torchvision
 from flask import Flask, jsonify, request
 from pymongo import MongoClient
 from flask_cors import CORS
+from werkzeug.utils import secure_filename
 
 # Initialize MongoDB connection
 MONGO_URI = os.getenv("MONGO_URI", "mongodb://localhost:27017/")
@@ -89,7 +90,7 @@ def transform_image(image_path):
             transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),
         ]
     )
-    image = Image.open(image_path)
+    image = Image.open(image_path).convert('RGB')  # Convert image to RGB
     return transform(image).unsqueeze(0)  # Add batch dimension
 
 
@@ -147,25 +148,25 @@ model = load_model()
 @app.route('/predict', methods=['POST'])
 def predict():
     """
-    Endpoint to predict the plant name from an uploaded image.
-    Expects an image file in the 'image' form field.
+    Predicts the plant name from an uploaded image file.
     """
     if 'image' not in request.files:
         return jsonify({'error': 'No image uploaded'}), 400
+
     image_file = request.files['image']
-    # Save the image to a temporary file
-    image_path = '/tmp/' + image_file.filename
+
+    # Save the image to a temporary location
+    image_path = os.path.join('/tmp', secure_filename(image_file.filename))
     image_file.save(image_path)
-    # Predict the plant name
-    plant_name = predict_plant(image_path, model, flower_names)
-    # Store metadata and result in the database
-    result = {
-        "photo": image_file.filename,
-        "plant_name": plant_name,
-    }
-    db.predictions.insert_one(result)
-    # Remove the temporary file if necessary
-    os.remove(image_path)
+
+    try:
+        # Predict the plant name
+        plant_name = predict_plant(image_path, model, flower_names)
+    finally:
+        # Clean up the temporary file
+        if os.path.exists(image_path):
+            os.remove(image_path)
+
     return jsonify({'plant_name': plant_name}), 200
 
 if __name__ == "__main__":

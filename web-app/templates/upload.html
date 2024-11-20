@@ -10,7 +10,7 @@
             <video id="video" autoplay></video>
             <canvas id="canvas" style="display: none;"></canvas>
             <img id="capturedImage" style="display: none;" alt="Captured Photo">
-            <button onclick="capturePhoto()" class="button">Capture Photo</button>
+            <button type="button" onclick="capturePhoto()" class="button">Capture Photo</button>
             <input type="hidden" id="photoData" name="photo">
         </form>
     </div>
@@ -63,6 +63,8 @@
                 });
                 videoElement.srcObject = null; // Remove the video source
             }
+
+            document.forms[0].submit();
         }
 
         // Initialize camera on page load

@@ -17,6 +17,9 @@ from flask import (
 import pymongo
 from flask_cors import CORS
 from werkzeug.utils import secure_filename
+import base64
+import requests
+import uuid
 
 load_dotenv()
 
@@ -67,39 +70,60 @@ def create_app():
 
         return render_template("signup.html")
 
+
     @app.route("/upload", methods=["GET", "POST"])
     def upload():
         if request.method == "POST":
-            plant_photo = request.form["photo"]
-            plant_name = "placeholder"
-            # Save the uploaded image
-            photo = request.files['photo']
-            filename = secure_filename(photo.filename)
-            filepath = os.path.join('uploads', filename)
-            photo.save(filepath)
-            
-            # Send the image to the ML client
-            ml_client_url = 'http://ml-client:3001/predict'
-            files = {'image': open(filepath, 'rb')}
+            # Retrieve the base64-encoded image from the form
+            photo_data = request.form.get("photo")
+            if not photo_data:
+                return "No photo data received", 400
+
+            # Decode the base64 string to binary image data
+            photo_data = photo_data.split(",")[1]  # Remove the "data:image/png;base64," prefix
+            photo_binary = base64.b64decode(photo_data)
+
+            # Ensure the directory exists
             try:
-                response = request.post(ml_client_url, files=files)
-                response.raise_for_status()
-                result = response.json()
-                plant_name = result.get('plant_name', 'Unknown')
-            except request.exceptions.RequestException as e:
-                print(f"Error communicating with ML client: {e}")
-                plant_name = 'Error'
-            return redirect(url_for("results"))
-                        
-            # plant_data = {
-            #     "photo": plant_photo,
-            #     "name": plant_name,
-            #     "user": session["username"],
-            # }
-            # new_entry = db.plants.insert_one(plant_data)
-            # new_entry_id = new_entry.inserted_id
-            # return redirect(url_for("new_entry", new_entry_id=new_entry_id))
-            
+                uploads_dir = os.path.join(app.root_path, 'static', 'uploads')
+                os.makedirs(uploads_dir, exist_ok=True)
+                print(f"Uploads directory: {uploads_dir} (Exists: {os.path.exists(uploads_dir)})")
+            except Exception as e:
+                print(f"Failed to create directory {uploads_dir}: {e}")
+                return "Directory creation failed", 500
+
+            # Save the decoded image to a file
+            filename = f"{uuid.uuid4()}.png"
+            filepath = os.path.join(uploads_dir, filename)
+
+            try:
+                with open(filepath, "wb") as f:
+                    f.write(photo_binary)
+                print(f"File saved successfully: {filepath}")
+            except Exception as e:
+                print(f"Unexpected error while saving file: {e}")
+                return "File save failed", 500
+
+            try:
+                # Send the saved image to the ML client
+                ml_client_url = "http://ml-client:3001/predict"
+                with open(filepath, "rb") as file:
+                    files = {"image": (filename, file, "image/png")}
+                    response = requests.post(ml_client_url, files=files)
+                    response.raise_for_status()
+                    result = response.json()
+                    plant_name = result.get("plant_name", "Unknown")
+                    res = {"photo": filename, "filepath": filepath, "plant_name": plant_name}
+
+                    # Save the result to the database
+                    db.predictions.insert_one(res)
+            except Exception as e:
+                print(f"Error: {e}")
+                return "Error processing the photo", 500
+
+            # Redirect to the results page with the filename
+            return redirect(url_for("results", filename=filename))
+
         return render_template("upload.html")
 
     @app.route("/new_entry", methods=["GET", "POST"])
@@ -142,7 +166,7 @@ def create_app():
 
 
 if __name__ == "__main__":
-    FLASK_PORT = os.getenv("FLASK_PORT", "5000")
+    # FLASK_PORT = os.getenv("FLASK_PORT", "5000")
     app = create_app()
     CORS(app)
-    app.run(port=FLASK_PORT)
+    app.run(host="0.0.0.0", port=5000)
