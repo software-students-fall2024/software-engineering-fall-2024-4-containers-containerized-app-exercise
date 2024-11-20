@@ -4,7 +4,7 @@ This is the web-app portion
 
 from datetime import datetime
 from os import getenv
-from flask import Flask, jsonify, render_template, request, redirect, url_for
+from flask import Flask, jsonify, render_template, request
 from pymongo import MongoClient
 from gridfs import GridFS
 import requests
@@ -26,6 +26,7 @@ db = client["audio_db"]
 grid_fs = GridFS(db)
 metadata_collection = db["audio_metadata"]
 
+
 @app.route("/upload-audio", methods=["POST"])
 def upload_audio():
     """
@@ -40,62 +41,73 @@ def upload_audio():
 
     ml_client_url = "http://machine-learning-client:5050/predict"
 
+    # Store raw binary file in GridFS with metadata
+    print("MIME TYPE: ", audio_file.mimetype)
+    gridfs_id = grid_fs.put(
+        audio_file,
+        filename=file_name,
+        content_type=audio_file.mimetype,  # Store the MIME type
+    )
+
+    if not gridfs_id:
+        return jsonify({"error": "Failed to store the audio file in GridFS"}), 500
+
+    # Store metadata in metadata collection
+    metadata = {
+        "file_id": str(gridfs_id),
+        "name": file_name,
+        "upload_time": datetime.utcnow(),
+        "transcription": "",
+    }
+
+    metadata_result = metadata_collection.insert_one(metadata)
+
+    if not metadata_result.acknowledged:
+        return jsonify({"error": "Failed to store the metadata in the database"}), 500
+
+    print("File successfully uploaded with GridFS ID:", gridfs_id)
+
+    # Notify ML client
     try:
-        # Store raw binary file in GridFS with metadata
-        print("MIME TYPE: ",audio_file.mimetype)
-        gridfs_id = grid_fs.put(
-            audio_file,
-            filename=file_name,
-            content_type=audio_file.mimetype,  # Store the MIME type
+        response = requests.get(
+            ml_client_url,
+            params={"file_id": str(gridfs_id)},
+            timeout=10,
         )
 
-        if not gridfs_id:
-            return jsonify({"error": "Failed to store the audio file in GridFS"}), 500
-
-        # Store metadata in metadata collection
-        metadata = {
-            "file_id": str(gridfs_id),
-            "name": file_name,
-            "upload_time": datetime.utcnow(),
-            "transcription": "",
-        }
-
-        metadata_result = metadata_collection.insert_one(metadata)
-
-        if not metadata_result.acknowledged:
-            return jsonify({"error": "Failed to store the metadata in the database"}), 500
-
-        print("File successfully uploaded with GridFS ID:", gridfs_id)
-
-        # Notify ML client
-        try:
-            response = requests.get(
-                ml_client_url,
-                params={"file_id": str(gridfs_id)},
-                timeout=10,
+        if response.status_code == 200:
+            return (
+                jsonify(
+                    {
+                        "message": "File uploaded successfully, and ML client notified.",
+                        "file_id": str(gridfs_id),
+                    }
+                ),
+                200,
             )
-
-            if response.status_code == 200:
-                return jsonify({
-                    "message": "File uploaded successfully, and ML client notified.",
-                    "file_id": str(gridfs_id)
-                }), 200
-            else:
-                return jsonify({
+        return (
+            jsonify(
+                {
                     "message": "File uploaded, but ML client responded with an error.",
                     "file_id": str(gridfs_id),
                     "ml_client_response": response.text,
-                }), 500
+                }
+            ),
+            500,
+        )
 
-        except requests.exceptions.RequestException as e:
-            return jsonify({
-                "message": "File uploaded, but failed to notify ML client.",
-                "file_id": str(gridfs_id),
-                "error": str(e),
-            }), 500
+    except requests.exceptions.RequestException as e:
+        return (
+            jsonify(
+                {
+                    "message": "File uploaded, but failed to notify ML client.",
+                    "file_id": str(gridfs_id),
+                    "error": str(e),
+                }
+            ),
+            500,
+        )
 
-    except Exception as e:
-        return jsonify({"error": "An error occurred while uploading the audio", "details": str(e)}), 500
 
 @app.route("/")
 def index():
@@ -121,6 +133,7 @@ def record():
     Record route
     """
     return render_template("record.html")
+
 
 if __name__ == "__main__":
     print("App listening on port 8080")
