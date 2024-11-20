@@ -12,25 +12,24 @@ from app import create_app
 
 @pytest.fixture
 def app():
+    """Build app"""
     connection = pymongo.MongoClient(os.getenv("MONGO_URI"))
     # make config to identify test
-    app = create_app(
-        test_config={
-            "TESTING": True
-        }
-    )
-    app.debug = True
+    test_app = create_app(test_config={"TESTING": True})
+    test_app.debug = True
 
-    app.db = connection[os.getenv("MONGO_TEST_DBNAME")]
+    test_app.db = connection[os.getenv("MONGO_TEST_DBNAME")]
 
     # clear collections so tests can be repeated
-    for collection in app.db.list_collection_names():
-        app.db.drop_collection(collection)
+    for collection in test_app.db.list_collection_names():
+        test_app.db.drop_collection(collection)
 
-    return app
+    return test_app
+
 
 @pytest.fixture
-def client(app):
+def build_client():
+    """Initialize client"""
     return app.test_client()
 
 
