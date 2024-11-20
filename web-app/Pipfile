@@ -19,6 +19,7 @@ numpy = "*"
 dill = "*"
 flask-cors = "*"
 requests = "*"
+tomli = "*"
 
 [dev-packages]
 python-dotenv = "*"
