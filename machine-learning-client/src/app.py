@@ -1,12 +1,19 @@
+"""
+This is the machine learning model. 
+It performs text to speech, exposed as an API.
+"""
+
+from datetime import datetime
+from io import BytesIO
+import os
 from flask import Flask, jsonify, request
 from pymongo import MongoClient
+from pymongo.errors import PyMongoError
 from gridfs import GridFS
 from bson import ObjectId
-from datetime import datetime
+from bson.errors import InvalidId
 from pydub import AudioSegment
-from io import BytesIO
 import speech_recognition as sr
-import os
 
 app = Flask(__name__)
 
@@ -28,7 +35,9 @@ def fetch_and_convert_to_wav(file_id):
 
     # Convert to WAV using pydub
     file_data = grid_file.read()
-    audio = AudioSegment.from_file(BytesIO(file_data), format=content_type.split("/")[-1])
+    audio = AudioSegment.from_file(
+        BytesIO(file_data), format=content_type.split("/")[-1]
+    )
     wav_io = BytesIO()
     audio.export(wav_io, format="wav")
     wav_io.seek(0)
@@ -49,15 +58,12 @@ def perform_speech_recognition(wav_io):
         # Open the audio file from the in-memory buffer
         with sr.AudioFile(wav_io) as source:
             print("Audio file opened successfully.")
-            
             # Record the audio
             audio_data = recognizer.record(source)
             print("Audio data recorded successfully.")
-            
             # Perform speech-to-text
             transcription = recognizer.recognize_sphinx(audio_data)
             print("Transcription completed successfully:", transcription)
-            
             return transcription
 
     except sr.UnknownValueError:
@@ -107,12 +113,25 @@ def predict():
         else:
             print("Document updated successfully.")
 
-        return jsonify({
-            "message": "Prediction completed successfully",
-            "file_id": str(file_id),
-            "status": "completed",
-            "transcription": transcription,
-        }), 200
+        return (
+            jsonify(
+                {
+                    "message": "Prediction completed successfully",
+                    "file_id": str(file_id),
+                    "status": "completed",
+                    "transcription": transcription,
+                }
+            ),
+            200,
+        )
+    except InvalidId:
+        print("Invalid file_id format. Could not convert to ObjectId.")
+        return jsonify({"error": "Invalid file_id format"}), 400
 
-    except Exception as e:
-        return jsonify({"error": str(e)}), 500
+    except FileNotFoundError:
+        print("The file could not be found in GridFS.")
+        return jsonify({"error": "File not found in GridFS"}), 404
+
+    except PyMongoError as e:
+        print("Database operation failed:", str(e))
+        return jsonify({"error": "Database operation failed"}), 500
