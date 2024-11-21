@@ -5,12 +5,14 @@ Unit tests for the MouseMetrics class in mouse_tracker.py.
 import pytest
 from mouse_tracker import MouseMetrics
 
+
 @pytest.fixture
 def mouse_metrics():
     """
     Fixture to create a new instance of MouseMetrics for each test.
     """
     return MouseMetrics()
+
 
 # pylint: disable=redefined-outer-name
 def test_initial_metrics(mouse_metrics):
@@ -24,6 +26,7 @@ def test_initial_metrics(mouse_metrics):
     assert mouse_metrics.last_x is None
     assert mouse_metrics.last_y is None
 
+
 def test_process_mouse_move(mouse_metrics):
     """
     Test the process_mouse_move method.
@@ -32,6 +35,7 @@ def test_process_mouse_move(mouse_metrics):
     mouse_metrics.process_mouse_move(3, 4)  # Distance = 5 (3-4-5 triangle)
     assert mouse_metrics.mouse_distance == 5
 
+
 def test_process_mouse_click(mouse_metrics):
     """
     Test the process_mouse_click method.
@@ -39,6 +43,7 @@ def test_process_mouse_click(mouse_metrics):
     mouse_metrics.process_mouse_click()
     mouse_metrics.process_mouse_click()
     assert mouse_metrics.click_count == 2
+
 
 def test_generate_report(mouse_metrics):
     """
@@ -58,6 +63,7 @@ def test_generate_report(mouse_metrics):
     assert report["focus_percentage"] == 66.67  # 2/3 focus time
     assert report["status"] == "Focused"
 
+
 def test_sanitize_invalid_floats(mouse_metrics):
     """
     Test that invalid floats in the report are sanitized.
@@ -68,6 +74,7 @@ def test_sanitize_invalid_floats(mouse_metrics):
 
     assert report["total_mouse_distance"] == 0
     assert report["focused_time"] == 0
+
 
 def test_reset_metrics(mouse_metrics):
     """
@@ -85,6 +92,7 @@ def test_reset_metrics(mouse_metrics):
     assert mouse_metrics.last_x is None
     assert mouse_metrics.last_y is None
 
+
 def test_process_mouse_move_invalid_input(mouse_metrics):
     """
     Test process_mouse_move with invalid inputs.
@@ -94,6 +102,7 @@ def test_process_mouse_move_invalid_input(mouse_metrics):
         mouse_metrics.process_mouse_move(None, 5)
     with pytest.raises(TypeError):
         mouse_metrics.process_mouse_move("a", "b")
+
 
 def test_generate_report_no_activity(mouse_metrics):
     """
