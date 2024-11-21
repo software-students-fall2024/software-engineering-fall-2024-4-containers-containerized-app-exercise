@@ -16,12 +16,44 @@ body {
     background-size: cover;
     /* background-image: url('../images/7954dfbed29ddb1da52fe435869c1baa.jpg'); */
 }
+
+.header-container {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 20px; /* Adds space below the header */
+}
+
+.back-button {
+    position: relative; /* Prevents it from overlapping other elements */
+    top: auto;
+    left: auto;
+    margin-right: 20px; /* Adds space to separate the back button */
+    background-color: #2c5f2d;
+    color: white;
+    padding: 10px 20px;
+    font-size: 16px;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.empty-journal {
+    margin-top: 50px; /* Adds space between the message and other elements */
+    text-align: center;
+    color: #555; /* Optional: style for the "No identifications found" message */
+}
+
 .journal-content {
+    margin-top: 20px; /* Adds space between the header and journal entries */
+}
+
+/* .journal-content {
     display: flex;
     flex-direction: column;
     width:100%;
     align-items: center;
-}
+} */
+
 .card-container {
     display: grid;
     grid-template-columns:repeat(3, 1fr);
@@ -50,39 +82,74 @@ h1, p, a, h2, h3, .text{
 p, .text{
     font-size:larger;
 }
+/* Main container for forms */
 .form {
-    /* align-items: center; */
-    display: grid;
-    place-items: center;
-    background-color: black;
-    width:20%;
-
-}
-form {
-    display: grid;
-    gap: 1px;
-    padding: 80px;
-    border: 1px solid #ccc;
-    border-radius: 5px;
-    background-color: white;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center; 
+    background-color: #fff;
+    padding: 40px; 
+    border-radius: 10px; 
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1); 
     width: 100%;
+    max-width: 500px; 
+    margin: 40px auto;
+}
+
+/* The actual form element inside the container */
+form {
+    display: flex; /* Change to flex for better alignment */
+    flex-direction: column; /* Ensures inputs stack vertically */
+    width: 100%; /* Ensures form takes full width of the container */
+}
+
+
+form input, form textarea, form select {
+    width: 100%; 
+    padding: 10px; 
+    border: 1px solid #ccc; 
+    border-radius: 5px; 
+    box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1); 
+}
+
+/* Form labels */
+form label {
+    font-size: 16px; 
+    margin-bottom: 5px; 
+    color: #2c5f2d; 
+}
+
+/* Buttons inside forms */
+form button {
+    background-color: #2c5f2d;
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+    transition: background-color 0.3s, transform 0.2s;
+}
+
+form button:hover {
+    background-color: #224a22; /* Darker hover effect */
+    transform: translateY(-2px);
 }
 
 .intro-message {
-    width: 50%;
     text-align: center;
 }
 
 section {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
+    position: relative; /* Makes the section the reference for absolute positioning */
+    padding: 20px;
 }
 
 .recent-container {
     display: flex;
     flex-direction: column;
+    align-items: center;
     width:100%;
 }
 
@@ -101,26 +168,32 @@ section {
 }
 
 #canvas, #video {
-    width: 50%;
-    height:50vh;
-    margin:0;
+    width: 70%;
+    height:40vh;
+    margin:0 auto;
 }
 
 .video-form-container {
-    height: 50vh;
-    display: grid;
-    place-items: center;
-    align-content: center;
+    height: 80vh;
+    display: flex; /* Flexbox for alignment */
+    justify-content: center; /* Centers horizontally */
+    align-items: center; /* Centers vertically */
+    background-color: #f8f8f8; /* Optional: light background for contrast */
+    padding: 10px; /* Adds spacing around the container */
+    box-sizing: border-box; /* Includes padding in height/width calculations */
 }
+
 .form-video {
-    display: grid;
-    gap: 1px;
-    padding: 80px;
-    border: 1px solid #ccc;
-    border-radius: 5px;
-    background-color: white;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    width: 100%;
+    display: flex;
+    flex-direction: column; /* Stacks items vertically */
+    gap: 10px; /* Adds spacing between child elements */
+    padding: 40px; /* Adjust padding for better spacing */
+    border: 1px solid #ccc; /* Light border for definition */
+    border-radius: 10px; /* Smooth rounded corners */
+    background-color: white; /* Form background color */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Subtle shadow for depth */
+    width: 100%; /* Full width of the container */
+    max-width: 600px; /* Restricts the width for larger screens */
 }
 
 .upload-container {
@@ -128,7 +201,6 @@ section {
     place-items: center;
     background-color: black;
     height:70vh;
-    width: 60%;
 }
 
 .entry-card {
@@ -149,6 +221,31 @@ section {
     color:rgb(14, 92, 23);
 } */
 
+.recent-activity-button-container {
+    display: flex;
+    justify-content: center; /* Center the buttons horizontally */
+    gap: 20px; /* Add spacing between buttons */
+    margin-top: 20px; /* Add space above the buttons */
+}
+
+.recent-activity-button-container .button {
+    display: inline-block;
+    padding: 10px 20px;
+    background-color: #2c5f2d; /* Button background color */
+    color: white; /* Button text color */
+    text-decoration: none; /* Remove underline from links */
+    border-radius: 5px; /* Rounded corners */
+    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1); /* Add shadow for depth */
+    transition: background-color 0.3s, transform 0.2s;
+    font-size: 16px;
+    font-weight: bold;
+}
+
+.recent-activity-button-container .button:hover {
+    background-color: #224a22; /* Darker hover effect */
+    transform: translateY(-2px);
+}
+
 .button {
     background-color: #2c5f2d;
     color: #fff;
@@ -165,6 +262,27 @@ section {
     transform: translateY(-2px);
 }
 
+.back-button {
+    position: absolute; /* Positions relative to the nearest positioned parent */
+    top: 10px; /* Adjust distance from the top of the parent container */
+    left: 10px; /* Adjust distance from the left of the parent container */
+    background-color: #2c5f2d;
+    color: white;
+    padding: 10px 20px;
+    font-size: 16px;
+    text-decoration: none;
+    border-radius: 5px;
+    box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.1);
+    transition: background-color 0.3s, transform 0.2s;
+    z-index: 10; /* Ensures it stays above other content */
+}
+
+.back-button:hover {
+    background-color: #224a22; /* Darker hover effect */
+    transform: translateY(-2px);
+}
+
+
 .card:hover {
     box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
     transform: translateY(-5px);
@@ -177,13 +295,14 @@ section {
 }
 
 .nav {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
+    display: flex; /* Flex layout to align items */
+    justify-content: space-between; /* Logo on the left, dropdown on the right */
+    align-items: center; /* Vertically aligns items */
     padding: 10px 20px;
-    background-color: #d8e8d3;
-    color: white;
-    border-bottom: 1px solid #c5d6c1;
+    background-color: #d8e8d3; /* Background color of the nav bar */
+    border-bottom: 1px solid #c5d6c1; /* Optional bottom border */
+    position: relative;
+    z-index: 1000;
 }
 
 .dropdown {

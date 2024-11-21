@@ -32,7 +32,7 @@ To set up this project locally, follow these steps:
     ```
 
 2. **Create a virtual environment**:
-    - make sure to create `env.` file under both `web-app` and `machine-learning-client` folder
+    - make sure to create `.env` file under both `web-app` and `machine-learning-client` folder
     - create a virtual environment
     ```bash
     python -m venv flower-env
