@@ -220,6 +220,7 @@ def save_photo(photo_binary):
 
     return filepath, filename
 
+
 def process_photo(filepath, filename):
     """Sends the photo to the ML client and saves the prediction to MongoDB."""
     ml_client_url = "http://ml-client:3001/predict"
