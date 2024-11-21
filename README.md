@@ -1,6 +1,6 @@
 ![Lint-free](https://github.com/nyu-software-engineering/containerized-app-exercise/actions/workflows/lint.yml/badge.svg)
-![Web App CI](https://github.com/software-students-fall2024/4-containers-ghost-in-the-machine/actions/workflows/web-app.yml/badge.svg)
-![Machine Learning Client CI](https://github.com/software-students-fall2024/4-containers-ghost-in-the-machine/actions/workflows/machine-learning-client.yml/badge.svg)
+![Web App CI](https://github.com/software-students-fall2024/4-containers-ghost-in-the-machine/actions/workflows/web-app-tests.yml/badge.svg)
+![Machine Learning Client CI](https://github.com/software-students-fall2024/4-containers-ghost-in-the-machine/actions/workflows/client-tests.yml/badge.svg)
 
 # Containerized App Exercise
 
