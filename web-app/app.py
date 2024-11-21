@@ -10,7 +10,6 @@ from flask_cors import CORS
 from pymongo import MongoClient
 from pymongo.errors import ConnectionFailure
 from dotenv import load_dotenv
-#from ml_client import classify_image, store_game_result
 
 
 # Load environment variables from .env file
@@ -98,23 +97,6 @@ def add_data():
         logger.error("Error adding data: %s", add_data_exception)
         return jsonify({"message": f"Error adding data: {add_data_exception}"}), 500
 
-
-
-@app.route("/classify", methods=["POST"])
-def classify():
-    # Capture and preprocess the input image
-    image = request.files["image"]
-    image_array = preprocess_uploaded_image(image)  # Write this helper to handle uploaded files
-    user_choice = classify_image(image_array)
-
-    # Simulate computer choice and determine the result
-    computer_choice = simulate_computer_choice()  # Write this helper
-    result = determine_result(user_choice, computer_choice)  # Write this helper
-
-    # Store the result in MongoDB
-    store_game_result(games_collection, user_choice, computer_choice, result)
-
-    return jsonify({"user_choice": user_choice, "computer_choice": computer_choice, "result": result})
 
 
 if __name__ == "__main__":
