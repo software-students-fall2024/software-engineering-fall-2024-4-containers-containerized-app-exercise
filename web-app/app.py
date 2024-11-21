@@ -4,12 +4,10 @@ This module sets up the Flask application for the Plant Identifier project.
 
 import base64
 import os
-import base64
 import uuid
 
 from bson import ObjectId
-
-# from bson import ObjectId
+from bson.errors import InvalidId  # Added import
 from dotenv import load_dotenv
 from flask import (
     Flask,
@@ -23,6 +21,7 @@ from flask import (
 )
 import pymongo
 import requests
+from werkzeug.security import generate_password_hash, check_password_hash
 
 load_dotenv()
 
@@ -31,13 +30,14 @@ def create_app():
     """Initializes and configures the Flask app."""
     app = Flask(__name__)
     app.config["MAX_CONTENT_LENGTH"] = 5 * 1024 * 1024  # 5 MB limit
-    app.secret_key = os.getenv("SECRET_KEY", "supersecretkey")
-
-    # if test_config:
-    #     app.config.update(test_config)
+    secret_key = os.getenv("SECRET_KEY")
+    if not secret_key:
+        raise ValueError("No SECRET_KEY set for Flask application")
+    app.secret_key = secret_key
 
     connection = pymongo.MongoClient(os.getenv("MONGO_URI"))
     db = connection[os.getenv("MONGO_DBNAME")]
+    app.db = db  # Attach db to app for easy access in routes
 
     register_routes(app, db)
 
@@ -53,7 +53,7 @@ def register_routes(app, db):
         user = request.args.get("user")
         if user:
             user_entries = list(db.plants.find().sort("_id", pymongo.DESCENDING))
-            user_entries = user_entries[-3:] if len(user_entries) > 3 else user_entries
+            user_entries = user_entries[:3]  # Get the latest three entries
             return render_template("home.html", user=user, user_entries=user_entries)
         return render_template("home.html")
 
@@ -62,11 +62,13 @@ def register_routes(app, db):
         """Handle user login."""
         if request.method == "POST":
             username = request.form["username"]
-            # password = request.form["password"]
+            password = request.form["password"]
 
-            session["username"] = username
-
-            return redirect(url_for("home", user=username))
+            user = db.users.find_one({"username": username})
+            if user and check_password_hash(user["password"], password):
+                session["username"] = username
+                return redirect(url_for("home", user=username))
+            return render_template("login.html", error="Invalid credentials")  # Removed 'else'
 
         return render_template("login.html")
 
@@ -77,7 +79,11 @@ def register_routes(app, db):
             username = request.form["username"]
             password = request.form["password"]
 
-            app.db.users.insert_one({"username": username, "password": password})
+            if db.users.find_one({"username": username}):
+                return render_template("signup.html", error="Username already exists")
+
+            hashed_password = generate_password_hash(password)
+            db.users.insert_one({"username": username, "password": hashed_password})
             session["username"] = username
 
             return redirect(url_for("home", user=username))
@@ -105,7 +111,7 @@ def register_routes(app, db):
                 return handle_error("File save failed", 500)
 
             try:
-                process_photo(filepath, filename)
+                process_photo(app=db, filepath=filepath, filename=filename)
             except (requests.RequestException, pymongo.errors.PyMongoError) as error:
                 print(f"Processing error: {error}")
                 return handle_error("Error processing the photo", 500)
@@ -121,7 +127,10 @@ def register_routes(app, db):
         if not new_entry_id:
             return handle_error("No entry ID provided", 400)
 
-        entry_id = ObjectId(new_entry_id)
+        try:
+            entry_id = ObjectId(new_entry_id)
+        except InvalidId:  # Changed from Exception to InvalidId
+            return handle_error("Invalid entry ID", 400)
 
         if request.method == "POST":
             instructions = request.form["instructions"]
@@ -151,7 +160,7 @@ def register_routes(app, db):
     @app.route("/history")
     def history():
         """Display all prediction results from the database."""
-        all_results = list(db.predictions.find())
+        all_results = list(db.predictions.find().sort("_id", pymongo.DESCENDING))
         return render_template("history.html", results=all_results)
 
     @app.route("/uploads/<filename>")
@@ -184,7 +193,7 @@ def save_photo(photo_binary):
     return filepath, filename
 
 
-def process_photo(filepath, filename):
+def process_photo(app, filepath, filename):
     """Sends the photo to the ML client and saves the prediction to MongoDB."""
     ml_client_url = "http://ml-client:3001/predict"
     with open(filepath, "rb") as file_handle:
@@ -202,21 +211,16 @@ def process_photo(filepath, filename):
         }
 
         # Save the result to the database
-        db = get_db()
-        db.predictions.insert_one(res)
+        app.db.predictions.insert_one(res)
         print(f"Inserted prediction into MongoDB: {res}")
 
 
 def handle_error(message, status_code):
     """Handles errors by returning a response with a message and status code."""
-    return make_response(message, status_code)
-
-
-def get_db():
-    """Retrieves the database connection from the Flask app context."""
-    return pymongo.MongoClient(os.getenv("MONGO_URI"))[os.getenv("MONGO_DBNAME")]
+    return make_response(render_template("error.html", message=message), status_code)
 
 
 if __name__ == "__main__":
     APP = create_app()
     APP.run(host="0.0.0.0", port=5000)
+    

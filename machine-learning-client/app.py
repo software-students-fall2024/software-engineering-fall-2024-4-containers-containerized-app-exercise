@@ -171,3 +171,4 @@ if __name__ == "__main__":
     FLASK_PORT = os.getenv("FLASK_PORT", "3001")
     CORS(app)
     app.run(host="0.0.0.0", port=FLASK_PORT)
+    
