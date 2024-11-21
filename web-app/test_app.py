@@ -18,7 +18,7 @@ def app():
     # Initialize the Flask app with test configuration
     test_config = {
         "TESTING": True,
-        "SECRET_KEY": "test_secret_key",
+        "SECRET_KEY": "supersecretkey",
         "MONGO_URI": os.getenv("MONGO_URI", "mongodb://localhost:27017"),
         "MONGO_TEST_DBNAME": os.getenv("MONGO_TEST_DBNAME", "plant_identifier_test")
     }

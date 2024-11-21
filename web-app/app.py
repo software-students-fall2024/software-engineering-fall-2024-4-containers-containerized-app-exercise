@@ -30,7 +30,7 @@ def create_app():
     """Initializes and configures the Flask app."""
     app = Flask(__name__)
     app.config["MAX_CONTENT_LENGTH"] = 5 * 1024 * 1024  # 5 MB limit
-    secret_key = os.getenv("SECRET_KEY")
+    secret_key = os.getenv("SECRET_KEY", "supersecretkey")
     if not secret_key:
         raise ValueError("No SECRET_KEY set for Flask application")
     app.secret_key = secret_key
