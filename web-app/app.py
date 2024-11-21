@@ -4,6 +4,7 @@ This is the main application file for the Swear Jar app.
 It uses Flask to serve an HTML template and a REST API for swear counts.
 Data is stored in a MongoDB database.
 """
+
 from flask import Flask, render_template, jsonify
 from pymongo import MongoClient
 
