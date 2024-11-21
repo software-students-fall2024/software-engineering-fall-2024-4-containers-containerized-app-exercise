@@ -12,8 +12,8 @@
       let mouseClickListener = null;
       let mouseStartTime = null;
       let cameraStartTime = null;
-      let mouseInterval = null; // For updating mouse elapsed time
-      let cameraInterval = null; // For updating camera elapsed time
+      let mouseInterval = null; 
+      let cameraInterval = null; 
 
       function openTab(tabName) {
         const tabs = document.querySelectorAll(".tab-content");
@@ -125,7 +125,7 @@
       <!-- Tab Navigation -->
       <div class="tab">
         <button id="Mouse-tab" class="active" onclick="openTab('Mouse')">Mouse</button>
-        <button id="Camera-tab" onclick="openTab('Camera')">Camera</button>
+        <button id="Camera-tab" onclick="openTab('Camera')" disabled style="cursor: not-allowed;">Camera</button>
       </div>
 
       <!-- Mouse Tracking Section -->
