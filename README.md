@@ -30,7 +30,7 @@ To set up this project locally, follow these steps:
     cd <repository-folder>
     ```
 
-2. **Create a virtual environment** (optional but recommended):
+2. **Create a virtual environment**:
     ```bash
     python -m venv flower-env
     source flower-env/bin/activate  # On Windows use `flower-env\Scripts\activate`

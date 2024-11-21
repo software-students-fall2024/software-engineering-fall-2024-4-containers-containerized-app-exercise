@@ -124,8 +124,7 @@ def create_dataloader(img_dir, labels, transform):
         shuffle=True,
         num_workers=4 if torch.cuda.is_available() else 0,
         pin_memory=True,
-    ) 
-
+    )
 
 def main():
     """
