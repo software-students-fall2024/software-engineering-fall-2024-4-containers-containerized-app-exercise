@@ -120,5 +120,4 @@ def redirect_login():
 @login_required
 def show_home(username):
     """show logged-in user's homepage"""
-    
     return render_template("user_home.html", username = username)
