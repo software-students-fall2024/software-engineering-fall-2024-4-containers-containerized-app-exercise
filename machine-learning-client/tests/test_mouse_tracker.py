@@ -1,3 +1,7 @@
+"""
+Unit tests for the MouseMetrics class in mouse_tracker.py.
+"""
+
 import pytest
 from mouse_tracker import MouseMetrics
 
@@ -8,6 +12,7 @@ def mouse_metrics():
     """
     return MouseMetrics()
 
+# pylint: disable=redefined-outer-name
 def test_initial_metrics(mouse_metrics):
     """
     Test that the MouseMetrics instance initializes correctly.
