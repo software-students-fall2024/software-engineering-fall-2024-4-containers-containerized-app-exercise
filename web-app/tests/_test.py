@@ -1,5 +1,9 @@
+"""
+Unit tests for the Flask web application.
+"""
+
 from flask import url_for
-from app import db
+from ..app import db
 
 
 def test_invalid_signup(client):
@@ -90,7 +94,7 @@ def test_logout_flow(client):
     assert b"Login" in response.data
 
 
-def test_delete_user_data(client):
+def test_delete_user_data():
     """Test clearing user data from the database."""
     # Insert a test user
     user = db.users.insert_one({"username": "testuser", "password": "testpassword"})
