@@ -1,3 +1,7 @@
+"""
+Unit tests for mouse_tracker.py.
+"""
+
 import pytest
 from mouse_tracker import MouseMetrics
 
