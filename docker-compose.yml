@@ -1,0 +1,32 @@
+version: "3.8"
+services:
+  mongodb:
+    # Use the official MongoDB image
+    image: mongo
+    # Assign a container name for easier reference
+    container_name: mongodb
+    # Expose the default MongoDB port to the host machine
+    ports:
+      - "27017:27017"
+
+  backend:
+    # Build the backend service from the Dockerfile located in the ./web-app directory
+    build:
+      context: ./web-app
+    # Assign a container name for the backend service
+    container_name: flask-backend
+    # Map the container's Flask port to the host machine
+    ports:
+      - "5888:5000"
+    # Ensure the backend service waits for MongoDB to be ready before starting
+    depends_on:
+      - mongodb
+    # Load environment variables from the .env file in the current directory
+    env_file:
+      - ./.env
+    # Additional environment variables directly specified in the compose file
+    environment:
+      - FLASK_RUN_HOST=0.0.0.0  # Ensure Flask listens on all interfaces within the container
+      - FLASK_RUN_PORT=5000     # Specify the Flask application port
+
+  
