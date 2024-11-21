@@ -1,6 +1,5 @@
 Flask
 Flask-Cors
-torch
 torchvision
 pillow
 pymongo
@@ -13,3 +12,5 @@ pylint
 black
 numpy
 dill
+flask_cors
+requests

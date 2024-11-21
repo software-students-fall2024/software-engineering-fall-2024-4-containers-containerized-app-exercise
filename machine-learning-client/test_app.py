@@ -70,6 +70,7 @@ def mock_resnet50(monkeypatch):
 
         def load_state_dict(self, _):
             """Mock method for loading state dictionary."""
+            pass  # pylint: disable=unnecessary-pass
 
         def eval(self):
             """Mock method to set the model to evaluation mode."""
@@ -106,12 +107,13 @@ def test_transform_image():
     assert tensor.shape == (1, 3, 224, 224)
 
 
-@pytest.mark.usefixtures("mock_open", "mock_image_open")
-def test_predict_plant():
+@pytest.mark.usefixtures("mock_open", "mock_image_open", "mock_resnet50")
+def test_predict_plant(monkeypatch):
     """Test predicting the plant name using the model and flower names dictionary."""
+    # Load mocked flower names
     flower_names = load_flower_names()  # Using the mocked flower names data
 
-    # Creating a realistic mock model that downscales the image correctly
+    # Create a mock model that produces predictable outputs
     model = torch.nn.Sequential(
         torch.nn.Conv2d(3, 64, kernel_size=7, stride=2, padding=3),
         torch.nn.AdaptiveAvgPool2d((1, 1)),
@@ -121,11 +123,18 @@ def test_predict_plant():
     model.eval()
 
     with torch.no_grad():
+        # Set weights and biases to produce predictable outputs
         model[3].weight.fill_(
             0.1
         )  # Fill weights with values that will produce predictable results
         model[3].bias[0] = 0.5  # Bias for "Rose"
-        model[3].bias[1] = 1.0
+        model[3].bias[1] = 1.0  # Bias for "Tulip"
 
-    result = predict_plant(DATA_PATH, model, flower_names)
-    assert result == "Tulip"  # Mocked result based on expected behavior
+    # Mock the global variables in app.py
+    monkeypatch.setattr("app.TRAINED_MODEL", model)
+    monkeypatch.setattr("app.FLOWER_CLASS_NAMES", flower_names)
+
+    # Call predict_plant with only the image_path argument
+    result = predict_plant(DATA_PATH)
+    # Assert the expected result
+    assert result == "Tulip"
