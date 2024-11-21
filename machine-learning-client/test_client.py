@@ -19,7 +19,7 @@ from requests.exceptions import RequestException
 from pymongo.errors import PyMongoError
 
 
-@pytest.fixture(name='flask_client_fixture')
+@pytest.fixture(name="flask_client_fixture")
 def create_flask_client():
     """
     Provide a Flask test client for testing application routes.
@@ -205,12 +205,12 @@ def test_predict_invalid_inference_response(
     mock_collection, mock_rf_client, flask_client_fixture
 ):  # pylint: disable=redefined-outer-name
     """
-    Test that an invalid inference response (missing 'class' key) returns 'Unknown' 
+    Test that an invalid inference response (missing 'class' key) returns 'Unknown'
     gesture and 0 confidence.
 
     Args:
         mock_collection (MagicMock): Mock database collection to simulate `insert_one`.
-        mock_rf_client (MagicMock): Mock inference client to simulate invalid `infer` 
+        mock_rf_client (MagicMock): Mock inference client to simulate invalid `infer`
             response.
         flask_client_fixture (FlaskClient): Flask test client for making requests.
     """
@@ -240,4 +240,3 @@ def test_predict_invalid_inference_response(
 
     # Ensure data was inserted into MongoDB once with 'Unknown' gesture
     mock_collection.insert_one.assert_called_once_with(expected_data)
-    
