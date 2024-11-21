@@ -35,6 +35,9 @@ tomlkit = "==0.13.2"
 [dev-packages]
 black = "*"
 pylint = "*"
+coverage = "*"
+pytest = "*"
+pymongo = "*"
 
 [requires]
 python_version = "3.13"
