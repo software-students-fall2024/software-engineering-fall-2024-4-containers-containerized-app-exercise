@@ -33,9 +33,9 @@ jobs:
               cd web-app
               pip install -r requirements.txt
 
-      - name: Turn on 'editable' mode (If applicable)
-        run: |
-          pip install -e .
+    #   - name: Turn on 'editable' mode (If applicable)
+    #     run: |
+    #       pip install -e .
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v1
