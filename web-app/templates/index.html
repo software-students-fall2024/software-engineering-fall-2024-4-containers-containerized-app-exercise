@@ -91,7 +91,7 @@
 
         <!-- Swear Jar Section -->
         <div class="swear-jar">
-            <img id="swearJarImage" src="../images/empty-jar.png" alt="Swear Jar">
+            <img id="swearJarImage" src="{{ url_for('static', filename='images/empty-jar.png') }}" alt="Swear Jar">
             <div>
                 <h3>Number of Coins in the Jar:</h3>
                 <p style="font-size: 2em;" id="totalSwears">0</p>
@@ -138,11 +138,11 @@
 
                 // change image based on num of swears
                 if (total === 0) {
-                    swearJarImage.src = "../images/empty-jar.png";
+                    swearJarImage.src = "/static/images/empty-jar.png"; 
                 } else if (total < 20) {
-                    swearJarImage.src = "../images/swear-jar.png";
+                    swearJarImage.src = "/static/images/swear-jar.png";
                 } else {
-                    swearJarImage.src = "../images/full-jar.png";
+                    swearJarImage.src = "/static/images/full-jar.png";
                 }
             } catch (err) {
                 console.error('Error fetching swear counts:', err);
