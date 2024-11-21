@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rock Paper Scissors</title>
+    <style> 
+        /* Global styles */ 
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #4e54c8, #8f94fb);
+            color: #fff;
+            text-align: center;
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+        h1 {
+            font-size: 3rem;
+            margin-bottom: 20px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+        }
+        video, canvas {
+            border: 5px solid #fff;
+            border-radius: 10px;
+            box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.3);
+            margin-bottom: 20px;
+        }
+        button {
+            background-color: #ff6347;
+            border: none;
+            border-radius: 5px;
+            padding: 10px 20px;
+            color: white;
+            font-size: 1.2rem;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+        button:hover {
+            background-color: #ff4500;
+        }
+        form {
+            margin-top: 20px;
+        }
+
+        #capture {
+            margin-bottom: 10px;
+        }
+
+        #loading-message {
+            display: none;
+            font-size: 1.5rem;
+            margin-top: 20px;
+            color: #ffd700;
+        }
+
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2rem;
+            }
+            button {
+                font-size: 1rem;
+            }
+
+            video, canvas {
+                width: 90%;
+                height: auto;
+            }
+        }
+    </style>
+</head>
+<body>
+    <h1>Rock Paper Scissors</h1>
+
+    <video id="video" autoplay playsinline width="640" height="480"></video>
+    <canvas id="canvas" width="640" height="480" style="display:none;"></canvas>
+
+    <button id="capture">Capture Gesture</button>
+    <form id="game-form" action="/result" method="POST" enctype="multipart/form-data">
+        <input type="file" id="image-input" name="image" style="display: none;">
+        <button type="submit" id="play-button">Play!</button>
+    </form>
+
+    <!-- Loading Message -->
+    <div id="loading-message">Processing your move... Please wait.</div>
+
+    <script>
+        const video = document.getElementById('video');
+        const canvas = document.getElementById('canvas');
+        const captureButton = document.getElementById('capture');
+        const imageInput = document.getElementById('image-input');
+        const playButton = document.getElementById('play-button');
+        const gameForm = document.getElementById('game-form');
+        const loadingMessage = document.getElementById('loading-message');
+        // Access the camera
+        navigator.mediaDevices.getUserMedia({ video: true })
+            .then((stream) => {
+                video.srcObject = stream;
+            })
+            .catch((err) => {
+                console.error("Error accessing the camera: ", err);
+                alert("Could not access the camera. Please ensure your browser has permission.");
+            });
+        // Capture the video frame
+        captureButton.addEventListener('click', () => {
+            const context = canvas.getContext('2d');
+            context.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+            canvas.toBlob((blob) => {
+                const file = new File([blob], "gesture.jpg", { type: "image/jpeg" });
+                const dataTransfer = new DataTransfer();
+                dataTransfer.items.add(file);
+                imageInput.files = dataTransfer.files;
+
+                alert("Gesture captured! Now click 'Play!' to submit.");
+            }, "image/jpeg");
+        });
+        // Show loading message on form submission
+        gameForm.addEventListener('submit', (e) => {
+            e.preventDefault(); // Prevent immediate navigation
+            loadingMessage.style.display = 'block'; // Show the loading message
+            playButton.disabled = true; // Disable the button to prevent duplicate submissions
+
+            // Submit the form after a short delay to allow the user to see the loading state
+            setTimeout(() => {
+                gameForm.submit();
+            }, 500);
+        });
+    </script>
+</body>
+</html>
+
