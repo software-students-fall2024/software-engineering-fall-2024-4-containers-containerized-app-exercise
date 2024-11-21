@@ -13,6 +13,7 @@ soundfile = "*"
 wave = "*"
 noisereduce = "*"
 pymongo = "*"
+speechrecognition = "*"
 
 [dev-packages]
 
