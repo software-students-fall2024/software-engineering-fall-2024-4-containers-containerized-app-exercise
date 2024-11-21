@@ -4,27 +4,40 @@
 
 {% block content %}
 <section>
+    <div class="header-container">
+        <button class="button back-button" onclick="goBack()"><i class="fa fa-arrow-left"></i> Back</button>
+    </div>
+    <h1>Journal</h1>
     {% if results %}
     <div class="journal-content">
-        <h1>Journal</h1>
         <div class="card-container">
             {% for result in results %}
                 <div class="card">
                     <p class="entry-name">{{ result['plant_name'] }}</p>
-                    <img src="/static/uploads/{{ result.photo }}" alt="Plant photo" class="entry-photo">
-                    <!-- Include instructions if they exist -->
+                    <img src="{{ url_for('static', filename='uploads/' ~ result.photo) }}" alt="Plant photo" class="entry-photo">
+                    <form action="{{ url_for('delete_entry', entry_id=result['_id']) }}" method="POST" style="display:inline;">
+                        <button type="submit" class="button delete-button">Delete</button>
+                    </form>                    
                     {% if result.get('instructions') %}
                         <p>Notes and Instructions:</p>
-                        <p class="entry-instructions">
-                            {{ result['instructions'] }}
-                        </p>
+                        <p class="entry-instructions">{{ result['instructions'] }}</p>
                     {% endif %}
                 </div>
             {% endfor %}
         </div>
     </div>
     {% else %}
+    <div class="empty-journal">
         <p>No identifications found.</p>
+    </div>
     {% endif %}
 </section>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    function goBack() {
+        window.history.back();
+    }
+</script>
 {% endblock %}

@@ -18,8 +18,10 @@
                 {% endfor %}
             </div>
         </div>
-        <a href="{{ url_for('history') }}" class="link">View Full Journal</a>
-        <a href="{{ url_for('upload') }}" class="link">New Entry</a>
+        <div class="recent-activity-button-container">
+            <a href="{{ url_for('history') }}" class="link button">View Full Journal</a>
+            <a href="{{ url_for('upload') }}" class="link button">New Entry</a>
+        </div>
     </section>
     {% else %}
     <section>

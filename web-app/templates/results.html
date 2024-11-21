@@ -1,21 +1,31 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <title>Identification Result</title>
-</head>
-<body>
-    <h1>Identification Result</h1>
+{% extends "layout.html" %}
+
+{% block title %}Identification Result{% endblock %}
+
+{% block content %}
+<button class="button back-button" onclick="goBack()"><i class="fa fa-arrow-left"></i> Back</button>
+<section class="results-container">
+    <h1 class="results-title">Identification Result</h1>
 
     {% if result %}
-        <p><strong>Plant Name:</strong> {{ result.plant_name }}</p>
-        <!-- Display the image -->
-        <p>
-            <img src="{{ url_for('static', filename='uploads/' + result.photo) }}" alt="Uploaded Image" style="max-width: 400px;">
-        </p>
+        <div class="result-card">
+            <p><strong>Plant Name:</strong> {{ result.plant_name }}</p>
+            <!-- Display the image -->
+            <div class="result-image">
+                <img src="{{ url_for('static', filename='uploads/' + result.photo) }}" alt="Uploaded Image">
+            </div>
+        </div>
     {% else %}
-        <p>No result found for this image.</p>
+        <p class="no-result">No result found for this image.</p>
     {% endif %}
 
-    <a href="{{ url_for('home') }}">Back to Home</a>
-</body>
-</html>
+</section>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    function goBack() {
+        window.history.back();
+    }
+</script>
+{% endblock %}

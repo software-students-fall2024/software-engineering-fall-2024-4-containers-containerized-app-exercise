@@ -4,6 +4,7 @@
 
 {% block content %}
 <section>
+    <button class="button back-button" onclick="goBack()"><i class="fa fa-arrow-left"></i> Back</button>
     <div class="upload-container">
         <form action="{{ url_for('new_entry', new_entry_id=new_entry_id) }}" method="POST">
             <h1>Upload New Entry</h1>
@@ -24,6 +25,14 @@
             <button type="submit" class="button">Save New Entry</button>
         </form>
     </div>
-    <!-- <a href="{{ url_for('home') }}">Return to Home</a> -->
 </section>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    function goBack() {
+        console.log("goBack function triggered"); // Debugging
+        window.history.back();
+    }
+</script>
 {% endblock %}

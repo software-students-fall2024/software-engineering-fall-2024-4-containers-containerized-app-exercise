@@ -18,10 +18,9 @@ This app demonstrates how to perform flower classification using **transfer lear
 
 [Jessica Xu](https://github.com/Jessicakk0711)
 
-[ ]
+[Alexandra Mastrangelo](https://github.com/alexandramastrangelo)
 
-[ ]
-
+[Natalie Trump](https://github.com/nht251)
 ## Installation
 
 To set up this project locally, follow these steps:
@@ -33,7 +32,7 @@ To set up this project locally, follow these steps:
     ```
 
 2. **Create a virtual environment**:
-    - make sure to create `env.` file under both `web-app` and `machine-learning-client` folder
+    - make sure to create `.env` file under both `web-app` and `machine-learning-client` folder
     - create a virtual environment
     ```bash
     python -m venv flower-env
