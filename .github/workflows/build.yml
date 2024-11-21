@@ -1,4 +1,4 @@
-name: CI Workflow
+name: Web App CI
 
 on:
   pull_request:
@@ -6,63 +6,33 @@ on:
       - main
 
 jobs:
-  build:
+  build-and-test:
     runs-on: ubuntu-latest
-    timeout-minutes: 20  # Increased timeout to accommodate larger builds
-    strategy:
-      matrix:
-        python-version: ["3.9", "3.11"]
+
     steps:
-      - uses: actions/checkout@v4
+    - name: Checkout code
+      uses: actions/checkout@v2
 
-      - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v4
-        with:
-          python-version: ${{ matrix.python-version }}
+    - name: Set up Python
+      uses: actions/setup-python@v2
+      with:
+        python-version: '3.9'
 
-      - name: Cache pip
-        uses: actions/cache@v3
-        with:
-          path: ~/.cache/pip
-          key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
-          restore-keys: |
-            ${{ runner.os }}-pip-
+    - name: Install pipenv
+      run: pip install pipenv
 
-      - name: Upgrade pip
-        run: |
-          python -m pip install --no-cache-dir --upgrade pip
+    - name: Install dependencies
+      working-directory: ./web-app
+      run: pipenv install --dev
 
-      - name: Install dependencies for machine-learning-client
-        run: |
-          cd machine-learning-client
-          pip install --no-cache-dir --trusted-host pypi.python.org -r requirements.txt
+    - name: Run linting
+      working-directory: ./web-app
+      run: pipenv run pylint app.py
 
-      - name: Install dependencies for web-app
-        run: |
-          cd web-app
-          pip install --no-cache-dir --trusted-host pypi.python.org -r requirements.txt
+    - name: Format code with Black
+      working-directory: ./web-app
+      run: pipenv run black .
 
-      - name: Install Docker using Docker's official script
-        run: |
-          curl -fsSL https://get.docker.com -o get-docker.sh
-          sudo sh get-docker.sh
-        continue-on-error: false
-
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v2
-
-      - name: Build and start containers
-        run: |
-          docker-compose up --build -d
-
-      # - name: Run tests for web-app
-      #   run: |
-      #     docker-compose exec web-app pytest
-
-      - name: Run tests for machine-learning-client
-        run: |
-          docker-compose exec ml-client pytest
-
-      - name: Tear down
-        run: |
-          docker-compose down -v --remove-orphans
+    - name: Run tests
+      working-directory: ./web-app
+      run: pipenv run pytest
