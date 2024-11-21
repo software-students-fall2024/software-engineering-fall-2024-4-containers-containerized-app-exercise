@@ -2,7 +2,7 @@
 Module: a flask application that acts as the interface for user login,
 audio recording, and viewing statistics
 """
-
+import flask, flask_login
 from flask import Flask, render_template, request, redirect, url_for
 from flask_login import login_user, login_required, logout_user
 
@@ -18,10 +18,11 @@ login_manager.init_app(app)
 users = {'bob123': {'password': 'test'}, 'jen987': {'password': 'foobar'}}
 
 
-class User(flask_login.UserMixin):
+class User(flask_login.UserMixin): #pylint: disable = too-few-public-methods
     """user class for flask-login"""
     def __init__(self, username: str) -> None:
         self.id = username
+    pass
 
 @login_manager.user_loader
 def user_loader(username):
