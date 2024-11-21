@@ -89,13 +89,20 @@ body {
 
 /* Footer */
 .footer {
-  background-color: var(--sand);
-  color: var(--text-light);
+  background-color: var(--bg);
   text-align: center;
-  padding: 20px;
-  margin-top: auto;
+  padding-top: 10px;
+  padding-bottom: 10px;
   font-size: 0.9rem;
+  position: fixed; 
+  bottom: 0;
+  width: 100vw;
+  a{
+    color: var(--pink);
+    font-size: 1.5em;
+  }
 }
+
 
 
 /* Buttons */
@@ -109,6 +116,9 @@ button {
   font-size: 1rem;
   width: 100%;
   transition: background-color 0.3s ease;
+  margin-top: 10px;
+  font-family: 'Ubuntu', sans-serif;
+  
 }
 
 button:hover {
@@ -256,6 +266,7 @@ a:hover {
 /* Typography */
 h1, h2, h3, h4, h5, h6 {
   color: var(--pink);
+  text-align: center;
 }
 
 h1 {
@@ -311,4 +322,28 @@ img {
   padding-right: 20px;
   display: flex;
   flex-direction: column; /* Stack elements vertically */
+}
+
+.tab {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 20px;
+}
+.tab button {
+  background-color: var(--sand);
+  color: white;
+  padding: 10px 20px;
+  border: none;
+  cursor: pointer;
+  font-size: 16px;
+  margin-right: 5px;
+}
+.tab button.active {
+  background-color: var(--pink);
+}
+.tab-content {
+  display: none;
+}
+.tab-content.active {
+  display: block;
 }

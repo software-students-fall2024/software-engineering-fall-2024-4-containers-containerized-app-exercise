@@ -7,17 +7,43 @@
     <link rel="icon" type="image/x-icon" href="{{ url_for('static', filename='favicon.png') }}">
     <script>
       let isMouseTracking = false;
+      let isCameraTracking = false;
       let mouseMoveListener = null;
       let mouseClickListener = null;
-    
+      let mouseStartTime = null;
+      let cameraStartTime = null;
+      let mouseInterval = null; // For updating mouse elapsed time
+      let cameraInterval = null; // For updating camera elapsed time
+
+      function openTab(tabName) {
+        const tabs = document.querySelectorAll(".tab-content");
+        tabs.forEach((tab) => {
+          tab.classList.remove("active");
+        });
+        document.getElementById(tabName).classList.add("active");
+
+        const buttons = document.querySelectorAll(".tab button");
+        buttons.forEach((button) => {
+          button.classList.remove("active");
+        });
+        document.getElementById(tabName + "-tab").classList.add("active");
+      }
+
       async function handleMouseTracking(action) {
         const statusElement = document.getElementById("mouse-status");
-    
+        const timeElement = document.getElementById("mouse-timer");
+
         if (action === "start" && !isMouseTracking) {
           isMouseTracking = true;
           statusElement.innerText = "Mouse Tracking Started!";
-    
-          // Define the mouse move listener
+          mouseStartTime = Date.now();
+
+          // Start the interval to update elapsed time every second
+          mouseInterval = setInterval(() => {
+            const elapsedTime = ((Date.now() - mouseStartTime) / 1000) | 0;
+            timeElement.innerText = `Elapsed Time: ${elapsedTime}s`;
+          }, 1000);
+
           mouseMoveListener = (event) => {
             fetch("/track-mouse", {
               method: "POST",
@@ -25,8 +51,7 @@
               body: JSON.stringify({ event: "mousemove", x: event.clientX, y: event.clientY }),
             });
           };
-    
-          // Define the mouse click listener
+
           mouseClickListener = (event) => {
             fetch("/track-mouse", {
               method: "POST",
@@ -34,63 +59,98 @@
               body: JSON.stringify({ event: "click", x: event.clientX, y: event.clientY }),
             });
           };
-    
-          // Attach the listeners
+
           document.addEventListener("mousemove", mouseMoveListener);
           document.addEventListener("click", mouseClickListener);
         } else if (action === "stop" && isMouseTracking) {
           isMouseTracking = false;
           statusElement.innerText = "Mouse Tracking Stopped!";
-    
-          // Remove the listeners
+
+          // Stop the interval and update the final elapsed time
+          clearInterval(mouseInterval);
+          const elapsedTime = ((Date.now() - mouseStartTime) / 1000) | 0;
+          timeElement.innerText = `Elapsed Time: ${elapsedTime}s`;
+
+
           if (mouseMoveListener) {
             document.removeEventListener("mousemove", mouseMoveListener);
             mouseMoveListener = null;
           }
-    
+
           if (mouseClickListener) {
             document.removeEventListener("click", mouseClickListener);
             mouseClickListener = null;
           }
+
+          await fetch("/mouse-report");
+          window.location.href = "/home_page";
         }
       }
-    
-      async function fetchMouseReport() {
-        const response = await fetch("/mouse-report");
-        const report = await response.json();
-        document.getElementById("mouse-report").innerText = `
-            Total Distance: ${report.total_mouse_distance} px
-            Clicks: ${report.total_clicks}
-            Focused Time: ${report.focused_time}s
-            Unfocused Time: ${report.unfocused_time}s
-            Focus: ${report.focus_percentage}%
-            Status: ${report.overall_status}
-        `;
+
+      async function handleCameraTracking(action) {
+        const statusElement = document.getElementById("camera-status");
+        const timeElement = document.getElementById("camera-timer");
+
+        if (action === "start" && !isCameraTracking) {
+          isCameraTracking = true;
+          statusElement.innerText = "Camera Tracking Started!";
+          cameraStartTime = Date.now();
+
+          // Start the interval to update elapsed time every second
+          cameraInterval = setInterval(() => {
+            const elapsedTime = ((Date.now() - cameraStartTime) / 1000).toFixed(2);
+            timeElement.innerText = `Elapsed Time: ${elapsedTime}s`;
+          }, 1000);
+
+          await fetch("/start-camera", { method: "POST" });
+        } else if (action === "stop" && isCameraTracking) {
+          isCameraTracking = false;
+          statusElement.innerText = "Camera Tracking Stopped!";
+
+          // Stop the interval and update the final elapsed time
+          clearInterval(cameraInterval);
+          const elapsedTime = ((Date.now() - cameraStartTime) / 1000).toFixed(2);
+          timeElement.innerText = `Elapsed Time: ${elapsedTime}s`;
+
+          await fetch("/stop-camera", { method: "POST" });
+        }
       }
     </script>
-    
-    
   </head>
   <body>
     <div class="container">
       <img src="{{ url_for('static', filename='itsOverlogo.png') }}" alt="Logo" />
       <h1>Control Camera and Mouse Tracking</h1>
 
-      <!-- Mouse Controls -->
-      <div id="mouse-status">Mouse Tracking: OFF</div>
-      <button onclick="handleMouseTracking('start')">Start Mouse Tracking</button>
-      <button onclick="handleMouseTracking('stop')">Stop Mouse Tracking</button>
+      <!-- Tab Navigation -->
+      <div class="tab">
+        <button id="Mouse-tab" class="active" onclick="openTab('Mouse')">Mouse</button>
+        <button id="Camera-tab" onclick="openTab('Camera')">Camera</button>
+      </div>
 
-      <h2>Mouse Report</h2>
-      <div id="mouse-report">No data available</div>
-      <button onclick="fetchMouseReport()">Refresh Report</button>
+      <!-- Mouse Tracking Section -->
+      <div id="Mouse" class="tab-content active">
+        <h2>Mouse Tracking</h2>
+        <div id="mouse-status">Mouse Tracking: OFF</div>
+        <div id="mouse-timer" class="timer">Elapsed Time: 0s</div>
+        <button onclick="handleMouseTracking('start')">Start</button>
+        <button onclick="handleMouseTracking('stop')">Stop</button>
+        
+      </div>
 
-      <!-- Camera Controls -->
-      <div id="camera-status" class="status">Camera Tracking: OFF</div>
-      <button onclick="handleCameraTracking('start')">Start Camera</button>
-      <button onclick="handleCameraTracking('stop')">Stop Camera</button>
+      <!-- Camera Tracking Section -->
+      <div id="Camera" class="tab-content">
+        <h2>Camera Tracking</h2>
+        <div id="camera-status">Camera Tracking: OFF</div>
+        <div id="camera-timer" class="timer">Elapsed Time: 0s</div>
+        <button onclick="handleCameraTracking('start')">Start</button>
+        <button onclick="handleCameraTracking('stop')">Stop</button>
+        
+      </div>
     </div>
 
-    <button><a href="/home_page">Home Page</a></button>
+    <div class="footer">
+      <a href="/home_page">BACK</a>
+    </div>
   </body>
 </html>

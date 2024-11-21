@@ -31,19 +31,27 @@ class MouseMetrics:
     def process_mouse_click(self):
         self.click_count += 1
 
-    def generate_report(self):
-        total_time = self.focused_time + self.unfocused_time
-        focus_percentage = (
-            (self.focused_time / total_time) * 100 if total_time > 0 else 0
-        )
-        return {
-            "total_mouse_distance": round(self.mouse_distance, 2),
-            "click_count": self.click_count,
-            "focused_time": round(self.focused_time, 2),
-            "unfocused_time": round(self.unfocused_time, 2),
-            "focus_percentage": round(focus_percentage, 2),
-            "status": "Focused" if focus_percentage > 50 else "Unfocused",
-        }
+
+def generate_report(self):
+    total_time = self.focused_time + self.unfocused_time
+    focus_percentage = (self.focused_time / total_time) * 100 if total_time > 0 else 0
+
+    # Build the report
+    report = {
+        "total_mouse_distance": round(self.mouse_distance, 2),
+        "click_count": self.click_count,
+        "focused_time": round(self.focused_time, 2),
+        "unfocused_time": round(self.unfocused_time, 2),
+        "focus_percentage": round(focus_percentage, 2),
+        "status": "Focused" if focus_percentage > 50 else "Unfocused",
+    }
+
+    # Sanitize the report
+    for key, value in report.items():
+        if isinstance(value, float) and (math.isnan(value) or math.isinf(value)):
+            report[key] = 0  # Replace invalid floats with 0
+
+    return report
 
 
 mouse_metrics = MouseMetrics()

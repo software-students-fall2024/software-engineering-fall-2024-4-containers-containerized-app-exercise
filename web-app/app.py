@@ -192,7 +192,7 @@ def track_mouse():
         elif event == "click":
             mouse_metrics.process_mouse_click()
 
-        db.mouse_activity.insert_one({**data, "timestamp": time.time()})
+        # db.mouse_activity.insert_one({**data, "timestamp": time.time()})
         return jsonify({"status": "success"}), 200
     except Exception as e:
         return jsonify({"status": "error", "message": str(e)}), 500
@@ -201,9 +201,23 @@ def track_mouse():
 @app.route("/mouse-report", methods=["GET"])
 def mouse_report():
     try:
+        # Generate the sanitized report
         report = mouse_metrics.generate_report()
+
+        # Add a timestamp to the report
+        report["timestamp"] = time.time()
+
+        # Insert the report into the database
+        insert_result = db.mouse_activity.insert_one(report)
+
+        # Add the MongoDB ObjectId to the report (as a string for JSON compatibility)
+        report["_id"] = str(insert_result.inserted_id)
+
+        # Return the report as a JSON response
         return jsonify(report), 200
     except Exception as e:
+        # Log and return an error if something goes wrong
+        print(f"Error inserting mouse report: {e}")
         return jsonify({"status": "error", "message": str(e)}), 500
 
 
