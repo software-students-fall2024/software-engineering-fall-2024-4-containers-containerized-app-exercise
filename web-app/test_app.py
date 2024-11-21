@@ -1,142 +1,96 @@
 """
-Tests for app.py, the web app for this project
-This script tests each route independently to achieve a minimum of 80% code coverage
-
+Extended test suite for the Flask application without pymongo.
 """
 
 import os
-import pymongo
 import pytest
-from app import create_app
+from app import create_app, decode_photo, save_photo
 
 
-@pytest.fixture()
-def app():
-    """Build app"""
-    connection = pymongo.MongoClient(os.getenv("MONGO_URI"))
-    # make config to identify test
-    test_app = create_app(test_config={"TESTING": True})
-    test_app.debug = True
+@pytest.fixture
+def app():  # pylint: disable=redefined-outer-name
+    """Create and configure a new app instance for testing."""
+    # Mock environment variables
+    os.environ["MONGO_URI"] = "mongodb://mockdb:27017/"
+    os.environ["MONGO_DBNAME"] = "test"
 
-    test_app.db = connection[os.getenv("MONGO_TEST_DBNAME")]
+    app = create_app()  # pylint: disable=redefined-outer-name
+    app.config.update(
+        {
+            "TESTING": True,
+            "SECRET_KEY": "testsecretkey",
+        }
+    )
+    return app
 
-    # clear collections so tests can be repeated
-    for collection in test_app.db.list_collection_names():
-        test_app.db.drop_collection(collection)
 
-    yield test_app
+@pytest.fixture
+def client(app):  # pylint: disable=redefined-outer-name
+    """A test client for the app."""
+    return app.test_client()
 
 
-def test_home_without_user(client):
-    """Test home page route without no user input yet"""
+def test_home_page(client):  # pylint: disable=redefined-outer-name
+    """Test the home page."""
     response = client.get("/")
     assert response.status_code == 200
-    # test for specific string that's only in the template for this route
-    assert b"to get started!" in response.data
+    assert b"Welcome to PlatifyAI!" in response.data
+    assert b'<a href="/login">Log in</a>' in response.data
+    assert b'<a href="/signup">Sign up</a>' in response.data
 
 
-def test_home_with_user(client):
-    """Test home route with user input"""
-    connection = pymongo.MongoClient(os.getenv("MONGO_URI"))
-    # make config to identify test
-    new_app = create_app(test_config={"TESTING": True})
-    new_app.debug = True
-    new_app.db = connection[os.getenv("MONGO_TEST_DBNAME")]
-
-    item = new_app.db.plants
-    item.insert_many(
-        [
-            {"_id": "1", "photo": "photo1", "name": "rose", "user": "test_user"},
-            {"_id": "2", "photo": "photo2", "name": "lily", "user": "test_user"},
-        ]
-    )
-    response = client.get("/?user=test_user")
+def test_signup_get(client):  # pylint: disable=redefined-outer-name
+    """Test GET request to signup page."""
+    response = client.get("/signup")
     assert response.status_code == 200
-    assert b"rose" in response.data
-    assert b"lily" in response.data
+    assert b"Sign Up" in response.data
 
 
-def test_login_post(client):
-    """Test the login form results post correctly"""
-    response = client.post("/login", data={"username": "test_user"})
-    assert response.status_code == 302
-    assert response.headers["Location"] == "/?user=test_user"
-
-
-def test_signup_post(client):
-    """Test the signup form results post correctly"""
-    connection = pymongo.MongoClient(os.getenv("MONGO_URI"))
-    # make config to identify test
-    new_app = create_app(test_config={"TESTING": True})
-    new_app.debug = True
-    new_app.db = connection[os.getenv("MONGO_TEST_DBNAME")]
-
-    response = client.post("/signup", data={"username": "new_user", "password": "pass"})
-    assert response.status_code == 302
-    assert response.headers["Location"] == "/?user=new_user"
-    # make sure new user was added properly to db
-    user = new_app.db.users.find_one({"username": "new_user"})
-    assert user is not None
-
-
-def test_upload_post(client):
-    """Test that a new entry photo uploads correctly"""
-    # make sure the correct user is currently logged in
-    connection = pymongo.MongoClient(os.getenv("MONGO_URI"))
-    # make config to identify test
-    new_app = create_app(test_config={"TESTING": True})
-    new_app.debug = True
-    new_app.db = connection[os.getenv("MONGO_TEST_DBNAME")]
-    with client.session_transaction() as session:
-        session["username"] = "test_user"
-    # make a mock photo item that's consistent with the real db input
-    photo_data = "data:image/jpeg;base64,encodedphoto"
-    response = client.post("/upload", data={"photo": photo_data})
-    assert response.status_code == 302
-    # make sure this entry was created and the photo was added correctly
-    plant = new_app.db.plants.find_one({"photo": photo_data})
-    assert plant is not None
-
-
-def test_new_entry_post(client):
-    """Test that the rest of the new entry posts correctly"""
-    connection = pymongo.MongoClient(os.getenv("MONGO_URI"))
-    # make config to identify test
-    new_app = create_app(test_config={"TESTING": True})
-    new_app.debug = True
-    new_app.db = connection[os.getenv("MONGO_TEST_DBNAME")]
-    # make sure the correct user is currently logged in
-    with client.session_transaction() as session:
-        session["username"] = "test_user"
-    plant_id = new_app.db.plants.insert_one(
-        {"photo": "data:image/jpeg;base64,encodedphoto", "name": "Plant"}
-    ).inserted_id
-    response = client.post(
-        f"/new_entry?new_entry_id={plant_id}", data={"instructions": "Water daily"}
-    )
-    assert response.status_code == 302
-    # make sure this entry exists and the instructions were added correctly
-    plant = new_app.db.plants.find_one({"_id": plant_id})
-    assert plant["instructions"] == "Water daily"
-
-
-def test_history(client):
-    """Test the past entries (history) route"""
-    connection = pymongo.MongoClient(os.getenv("MONGO_URI"))
-    # make config to identify test
-    new_app = create_app(test_config={"TESTING": True})
-    new_app.debug = True
-    new_app.db = connection[os.getenv("MONGO_TEST_DBNAME")]
-    new_app.db.plants.insert_many(
-        [
-            {"name": "cactus", "photo": "Photo1", "user": "test_user"},
-            {"name": "oak tree", "photo": "Photo2", "user": "test_user"},
-        ]
-    )
-    # make sure the correct user is currently logged in
-    with client.session_transaction() as session:
-        session["username"] = "test_user"
-    response = client.get("/history")
+def test_upload_get(client):  # pylint: disable=redefined-outer-name
+    """Test GET request to upload page."""
+    response = client.get("/upload")
     assert response.status_code == 200
-    assert b"cactus" in response.data
-    assert b"oak tree" in response.data
+    assert b"Upload" in response.data
+
+
+def test_upload_post_no_photo(client):  # pylint: disable=redefined-outer-name
+    """Test POST request to upload without photo data."""
+    response = client.post("/upload", data={})
+    assert response.status_code == 400
+    assert b"No photo data received" in response.data
+
+
+def test_decode_photo_valid():  # pylint: disable=redefined-outer-name
+    """Test decode_photo with valid data."""
+    valid_data = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAA"
+    decoded = decode_photo(valid_data)
+    assert isinstance(decoded, bytes)
+
+
+def test_decode_photo_invalid():  # pylint: disable=redefined-outer-name
+    """Test decode_photo with invalid data."""
+    invalid_data = "invaliddata"
+    with pytest.raises(ValueError) as excinfo:
+        decode_photo(invalid_data)
+    assert "Invalid photo data" in str(excinfo.value)
+
+
+def test_save_photo():  # pylint: disable=redefined-outer-name
+    """Test save_photo function."""
+    photo_binary = b"test binary data"
+    uploads_dir = os.path.join("static", "uploads")
+    os.makedirs(uploads_dir, exist_ok=True)
+
+    filepath, filename = save_photo(photo_binary)
+    assert os.path.exists(filepath)
+    assert filename.endswith(".png")
+
+    # Cleanup
+    os.remove(filepath)
+
+
+def test_new_entry_no_id(client):  # pylint: disable=redefined-outer-name
+    """Test new_entry route with no ID provided."""
+    response = client.get("/new_entry")
+    assert response.status_code == 400
+    assert b"No entry ID provided" in response.data

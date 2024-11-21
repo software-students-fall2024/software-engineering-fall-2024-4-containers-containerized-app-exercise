@@ -4,25 +4,28 @@
 
 {% block content %}
 <section>
-    {% if all_results %}
+    {% if results %}
     <div class="journal-content">
         <h1>Journal</h1>
         <div class="card-container">
-            {% for result in all_results %}
+            {% for result in results %}
                 <div class="card">
-                    <p class="entry-name">{{ result['name'] }}</p>
-                    <img src="{{ result['photo'] }}" alt="Plant photo" class="entry-photo">
-                    <p>Notes and Instructions:</p>
-                    <p class="entry-instructions">
-                        {{ result['instructions']}}
-                    </p>
+                    <p class="entry-name">{{ result['plant_name'] }}</p>
+                    <img src="/static/uploads/{{ result.photo }}" alt="Plant photo" class="entry-photo">
+                    <!-- Include instructions if they exist -->
+                    {% if result.get('instructions') %}
+                        <p>Notes and Instructions:</p>
+                        <p class="entry-instructions">
+                            {{ result['instructions'] }}
+                        </p>
+                    {% endif %}
                 </div>
                 
             {% endfor %}
         </div>
-        {% else %}
-            <p>No identifications found.</p>
-        {% endif %}
     </div>
+    {% else %}
+        <p>No identifications found.</p>
+    {% endif %}
 </section>
 {% endblock %}

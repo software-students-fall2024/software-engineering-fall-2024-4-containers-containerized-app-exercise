@@ -1,0 +1,42 @@
+services:
+  web-app:
+    build: ./web-app # build the Docker image from the Dockerfile in the back-end directory
+    ports:
+      - 5001:5000 # map port 5000 of host machine to port 5000 of container
+    depends_on:
+      - ml-client
+      - mongodb
+    networks:
+      - app-network
+    volumes:
+      - ./uploads:/web-app/uploads
+      - ./.env:/../.env
+    command: python app.py
+  
+  mongodb:
+    image: mongo
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo_data:/data/db
+      - ./.env:/../.env
+    networks:
+      - app-network
+
+  ml-client:
+    build: ./machine-learning-client
+    environment:
+      - MONGODB_URI=mongodb://mongodb:27017
+    depends_on:
+      - mongodb
+    networks:
+      - app-network
+
+volumes:
+  mongo_data:
+
+networks:
+  app-network:
+    driver: bridge
+
+  

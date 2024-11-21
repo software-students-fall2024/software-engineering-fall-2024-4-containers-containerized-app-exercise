@@ -10,18 +10,18 @@
             <video id="video" autoplay></video>
             <canvas id="canvas" style="display: none;"></canvas>
             <img id="capturedImage" style="display: none;" alt="Captured Photo">
-            <button type="button" onclick="capturePhoto()" class="button" id="capture">Capture Photo</button>
-            <button type="submit" style="visibility: hidden;" class="button" id="submit">Upload Photo</button>
+            <button type="button" id="capture" onclick="capturePhoto()" class="button">Capture Photo</button>
+            <button type="submit" id="submit" class="button" style="visibility: hidden;">Submit Photo</button>
             <input type="hidden" id="photoData" name="photo">
         </form>
     </div>
-<a href="{{ url_for('home') }}">Return to Home</a>
+    <a href="{{ url_for('home') }}">Return to Home</a>
 
     <script>
         // Start the camera
         let stream;
         function startCamera() {
-            console.log("this works")
+            console.log("Camera initialized");
             navigator.mediaDevices.getUserMedia({ video: true })
                 .then(mediaStream => {
                     stream = mediaStream;
@@ -35,7 +35,7 @@
 
         // Capture a photo
         function capturePhoto() {
-            console.log("hi")
+            console.log("Capturing photo");
             const scaleFactor = 0.5;
             const videoElement = document.getElementById('video');
             const canvasElement = document.getElementById('canvas');
@@ -58,9 +58,9 @@
             // Hide the video
             videoElement.style.display = 'none';
 
-            // replace capture button with submit
+            // Replace capture button with submit
             document.getElementById('capture').style.visibility = 'hidden';
-            document.getElementById('submit').style.visibility = 'visible'
+            document.getElementById('submit').style.visibility = 'visible';
 
             // Stop all video tracks and release the camera
             if (stream) {
@@ -70,12 +70,13 @@
                 });
                 videoElement.srcObject = null; // Remove the video source
             }
+
+            // Optionally, you can auto-submit the form here
+            // document.forms[0].submit();
         }
 
         // Initialize camera on page load
         window.onload = startCamera;
     </script>
-
-
 </section>
 {% endblock %}
