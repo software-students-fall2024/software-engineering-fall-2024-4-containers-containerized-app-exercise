@@ -141,6 +141,7 @@ def test_predict_plant(monkeypatch):
     # Assert the expected result
     assert result == "Tulip"
 
+
 @pytest.fixture
 def create_flask_test_app():
     """Create a test Flask app."""
@@ -161,9 +162,9 @@ def test_predict_route(request, monkeypatch):
     monkeypatch.setattr("app.predict_plant", mock_predict_plant)
 
     with flask_test_app.test_client() as client:
-        data = {
-            "image": (io.BytesIO(b"dummy image data"), "image.jpg")
-        }
-        response = client.post("/predict", data=data, content_type="multipart/form-data")
+        data = {"image": (io.BytesIO(b"dummy image data"), "image.jpg")}
+        response = client.post(
+            "/predict", data=data, content_type="multipart/form-data"
+        )
         assert response.status_code == 200
         assert response.get_json() == {"plant_name": "Mocked Flower"}
