@@ -51,7 +51,7 @@ Create a `.env` file in the root directory with the following content:
 
 1. **Build the Docker Image**
    
-   Navigate to the root directory and run the following command to build the Docker image:
+   Navigate to the root directory and run the following command to build the Docker image and run:
 
    ```bash 
     docker-compose up --build
