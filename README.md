@@ -68,27 +68,37 @@ git clone <[repository-url](https://github.com/software-students-fall2024/4-cont
 cd <4-containers-rawf>
 ```
 
-**2. Build & Run Containers**
-- *For Machine Learning Client:*
+**2. Verify MongoDB Connection:**
+- Download the MongoDB extension for your chosen source code editor
+- Connect to the database url: mongodb://mongodb:27017/
+
+**3. Create a Virtual Environment:**
+- *Mac:*
    ```
-   docker build -t ml-client ./machine-learning-client
-   docker run -d --name ml-client ml-client
-   ```
-  
-- *For Web App:*
-   ```
-   docker build -t web-app ./web-app
-   docker run -d -p 5000:5000 --name web-app web-app
+   python3 -m venv .venv
+   source .venv/bin/activate
    ```
 
-**3. Integrate with Docker Compose:** ```docker-compose up```
+- *Windows:*
+   ```
+   python3 -m venv .venv
+   .venv\Scripts\activate
+   ```
 
-**4. Play!:** access our web app ([here](http://localhost:5000)! 
+**4. Install Dependencies:**
+```
+pip install requests
+pip install pymongo
+```
+
+**5. Integrate with Docker Compose:** ```docker-compose up --build```
+
+**6. Play:** access our web app, [Rock, Paper, Scissors](http://localhost:5000), and play! 
 
 
 ## TEAM MEMBERS
 
-- ***Wenli Shi:*** ([WenliShi2332](https://github.com/WenliShi2332))
-- ***Alex Hsu:*** ([hsualexotake](https://github.com/hsualexotake))
-- ***Reese Burns:*** ([reeseburns](https://github.com/reeseburns))
-- ***Finn Eskeland:*** ([finn1003](https://github.com/finn1003))
+- [Wenli Shi](https://github.com/WenliShi2332)
+- [Alex Hsu](https://github.com/hsualexotake)
+- [Reese Burns](https://github.com/reeseburns)
+- [Finn Eskeland](https://github.com/finn1003)
