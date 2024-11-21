@@ -104,6 +104,5 @@ x_test, y_test = rock_paper_scissors_test["image"], rock_paper_scissors_test["la
 cnn_model.evaluate(x_test, y_test)
 
 # Save the model
-cnn_model.save("machine-learning-client/model/rps_model.h5", include_optimizer=False, save_format="h5")
-
-
+cnn_model.save("machine-learning-client/model/rps_model.h5", 
+               include_optimizer=False, save_format="h5")
