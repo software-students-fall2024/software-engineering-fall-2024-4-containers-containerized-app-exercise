@@ -6,7 +6,7 @@ Unit tests for the Flask application defined in `app.py`.
 # pytest test_app.py -v
 # pytest -v
 
-# pylint web-app/ 
+# pylint web-app/
 # black .
 
 
