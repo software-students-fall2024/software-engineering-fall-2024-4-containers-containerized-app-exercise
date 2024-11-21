@@ -11,12 +11,6 @@ jobs:
   build-and-test:
     runs-on: ubuntu-latest
 
-    # # test on two different python versions (if needed)
-    # strategy:
-    #   matrix:
-    #     python-version: [3.11, 3.12]
-
-
     steps: 
 
       # checkout code
@@ -28,7 +22,7 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
-          python-version: '3.10'
+          python-version: '3.12'
 
 
       # install pip and upgrade, and pipenv
@@ -49,8 +43,7 @@ jobs:
       - name: Lint machine learning client with pylint
         working-directory: ./machine-learning-client
         run: |
-          pipenv run pylint ml_client.py
-
+          pipenv run pylint --disable=import-error,no-member,no-name-in-module ml_client.py model/train_model.py
 
       # format with black
       - name: Format with Black

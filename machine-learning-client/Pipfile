@@ -1,15 +1,22 @@
+# Pipfile
+
 [[source]]
+name = "pypi"
 url = "https://pypi.org/simple"
 verify_ssl = true
-name = "pypi"
 
-[packages]
+[dev-packages]
 pylint = "*"
 black = "*"
 pytest = "*"
+pytest-mock = "*"
 
-[dev-packages]
-
+[packages]
+tensorflow = ">=2.0"
+tensorflow-datasets = "*"
+pymongo = "*"
+numpy = "*"
+flask = "*"
 
 [requires]
-python_version = "3.10"
+python_version = "3.12"

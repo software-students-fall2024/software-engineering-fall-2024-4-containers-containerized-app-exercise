@@ -11,6 +11,7 @@ from pymongo import MongoClient
 from pymongo.errors import ConnectionFailure
 from dotenv import load_dotenv
 
+
 # Load environment variables from .env file
 load_dotenv()
 
