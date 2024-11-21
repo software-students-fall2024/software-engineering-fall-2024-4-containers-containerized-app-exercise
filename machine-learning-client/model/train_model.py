@@ -4,6 +4,7 @@ This Module Trains a Rock, Paper, Scissors Machine Learning Model
 # pylint: disable=E1101
 # pylint: disable=import-error
 # pylint: disable=no-member
+# pylint: disable=no-name-in-module
 
 import os
 import tensorflow as tf

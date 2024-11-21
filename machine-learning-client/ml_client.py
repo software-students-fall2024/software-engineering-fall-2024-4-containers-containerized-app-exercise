@@ -4,6 +4,8 @@ This Module Loads A Trained Machine Learning Model, Preprocesses an Input Image,
 Then Classifies the Image as Either Rock, Paper, or Scissors. 
 """
 
+# pylint: disable=no-name-in-module
+
 from datetime import datetime
 import numpy as np
 import tensorflow as tf
@@ -36,8 +38,13 @@ def classify():
         result = classes[np.argmax(predictions)]
 
         return jsonify({"result": result})
-    except Exception as e:
-        return jsonify({"error": str(e)}), 500
+    
+    except KeyError as e:  
+        return jsonify({"error": f"Key error: {str(e)}"}), 400
+    except ValueError as e:  
+        return jsonify({"error": f"Value error: {str(e)}"}), 400
+    except Exception as e:  
+        return jsonify({"error": f"Unexpected error: {str(e)}"}), 500
 
 
 @app.route("/store", methods=["POST"])
