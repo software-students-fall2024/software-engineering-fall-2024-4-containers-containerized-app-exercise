@@ -158,8 +158,13 @@ def signup():
     Route for user sign-up.
     """
     if request.method == "POST":
-        username = request.form["username"]
-        password = request.form["password"]
+        username = request.form.get("username", "").strip()
+        password = request.form.get("password", "").strip()
+
+        # Check for missing fields
+        if not username or not password:
+            flash("Username and password are required.")
+            return redirect(url_for("signup"))
 
         existing_user = db.users.find_one({"username": username})
         if existing_user:
