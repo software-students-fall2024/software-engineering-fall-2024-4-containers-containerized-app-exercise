@@ -38,7 +38,6 @@ def classify():
         result = classes[np.argmax(predictions)]
 
         return jsonify({"result": result})
-    
     except Exception as e:  # pylint: disable=broad-except
         return jsonify({"error": f"Unexpected error: {str(e)}"}), 500
 
