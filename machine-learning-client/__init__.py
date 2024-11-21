@@ -1,3 +1,6 @@
+"""
+This module initializes the MongoDB client and exports common database objects.
+"""
 from pymongo import MongoClient
 
 # MongoDB setup
