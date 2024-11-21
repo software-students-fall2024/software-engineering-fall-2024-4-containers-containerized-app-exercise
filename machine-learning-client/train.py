@@ -126,6 +126,7 @@ def create_dataloader(img_dir, labels, transform):
         pin_memory=True,
     )
 
+
 def main():
     """
     Main function for setting up the dataset, model, and training process.
