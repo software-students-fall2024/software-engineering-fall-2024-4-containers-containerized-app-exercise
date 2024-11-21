@@ -1,5 +1,5 @@
 from pymongo import MongoClient
-import speech_recognition as sr
+import SpeechRecognition as sr
 import numpy as np
 import wave
 import soundfile as sf
