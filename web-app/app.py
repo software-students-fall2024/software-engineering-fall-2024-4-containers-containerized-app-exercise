@@ -1,11 +1,10 @@
 """
-Module: a flask application that acts as the interface for user login, audio recording, and viewing statistics
+Module: a flask application that acts as the interface for user login,
+audio recording, and viewing statistics
 """
 
-import flask
-import flask_login
 from flask import Flask, render_template, request, redirect, url_for
-from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user
+from flask_login import login_user, login_required, logout_user
 
 # instantiate flask app, create key
 app = Flask(__name__)
@@ -23,7 +22,6 @@ class User(flask_login.UserMixin):
     """user class for flask-login"""
     def __init__(self, username: str) -> None:
         self.id = username
-    pass
 
 @login_manager.user_loader
 def user_loader(username):
@@ -33,13 +31,13 @@ def user_loader(username):
     user = User(username)
     return user
 
-@login_manager.request_loader
-def request_loader(request):
-    """load a user from a request, for APIs"""
-    username = request.form.get('username')
-    if username in users:
-        return User(username)
-    return None
+#@login_manager.request_loader
+#def request_loader(request):
+#    """load a user from a request, for APIs"""
+#    username = request.form.get('username')
+#    if username in users:
+#        return User(username)
+#    return None
 
 @app.route("/login", methods=['GET', 'POST'])
 def login():
