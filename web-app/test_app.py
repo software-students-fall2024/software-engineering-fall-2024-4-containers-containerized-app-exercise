@@ -1,10 +1,10 @@
 """
-Simplified test suite for the Flask application without pymongo.
+Extended test suite for the Flask application without pymongo.
 """
 
 import os
 import pytest
-from app import create_app, decode_photo
+from app import create_app, decode_photo, handle_error, save_photo
 
 
 @pytest.fixture
@@ -73,3 +73,24 @@ def test_decode_photo_invalid():  # pylint: disable=redefined-outer-name
     with pytest.raises(ValueError) as excinfo:
         decode_photo(invalid_data)
     assert "Invalid photo data" in str(excinfo.value)
+
+
+def test_save_photo():  # pylint: disable=redefined-outer-name
+    """Test save_photo function."""
+    photo_binary = b"test binary data"
+    uploads_dir = os.path.join("static", "uploads")
+    os.makedirs(uploads_dir, exist_ok=True)
+
+    filepath, filename = save_photo(photo_binary)
+    assert os.path.exists(filepath)
+    assert filename.endswith(".png")
+
+    # Cleanup
+    os.remove(filepath)
+
+
+def test_new_entry_no_id(client):  # pylint: disable=redefined-outer-name
+    """Test new_entry route with no ID provided."""
+    response = client.get("/new_entry")
+    assert response.status_code == 400
+    assert b"No entry ID provided" in response.data
