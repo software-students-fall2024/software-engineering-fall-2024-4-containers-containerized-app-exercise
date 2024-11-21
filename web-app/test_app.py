@@ -3,19 +3,19 @@ Simplified test suite for the Flask application without pymongo.
 """
 
 import pytest
-from dotenv import load_dotenv
 from app import create_app, decode_photo
 
 
 @pytest.fixture
 def app():  # pylint: disable=redefined-outer-name
     """Create and configure a new app instance for testing."""
-    load_dotenv()
     app = create_app()  # pylint: disable=redefined-outer-name
     app.config.update(
         {
             "TESTING": True,
             "SECRET_KEY": "testsecretkey",
+            "MONGO_URI": "mongodb://mongodb:27017/",
+            "MONGO_DBNAME": "test"
         }
     )
     return app
