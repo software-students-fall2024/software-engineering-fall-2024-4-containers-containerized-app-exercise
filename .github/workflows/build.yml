@@ -20,15 +20,18 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
 
-      - name: Install dependencies
+      - name: Upgrade pip
         run: |
-          python -m pip install --upgrade pip
-          pip install -r requirements.txt
-
-      - name: Install development dependencies (Optional)
-        if: matrix.python-version == '3.9' # Adjust condition as needed
+              python -m pip install --upgrade pip
+      - name: Install dependencies for machine-learning-client
         run: |
-          pip install -r dev-requirements.txt
+              cd machine-learning-client
+              pip install -r requirements.txt
+  
+      - name: Install dependencies for web-app
+        run: |
+              cd web-app
+              pip install -r requirements.txt
 
       - name: Turn on 'editable' mode (If applicable)
         run: |
@@ -53,4 +56,3 @@ jobs:
       - name: Tear down
         run: |
           docker-compose down
-          
