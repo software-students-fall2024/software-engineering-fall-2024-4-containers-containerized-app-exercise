@@ -56,30 +56,31 @@ def register_routes(app, db):
     @app.route("/")
     def home():
         """Render the home page."""
-        user = request.args.get("user")
-        if user:
-            user_entries = list(db.plants.find().sort("_id", pymongo.DESCENDING))
-            user_entries = user_entries[-3:] if len(user_entries) > 3 else user_entries
-            return render_template("home.html", user=user, user_entries=user_entries)
-        return render_template("home.html")
+        username = session.get("username")  # Fetch the logged-in user's name from the session
+        if username:
+            user_entries = list(db.plants.find({"user": username}))
+            recent_entries = user_entries[-3:] if len(user_entries) > 3 else user_entries  # Show last 3 entries
+            return render_template(
+                "home.html", user=username, user_entries=recent_entries
+            )
+        return render_template("home.html", user=None)
 
     @app.route("/login", methods=["GET", "POST"])
     def login():
-        """Handle user login."""
         if request.method == "POST":
             username = request.form["username"]
             # password = request.form["password"]
 
-            session["username"] = username
-
-            return redirect(url_for("home", user=username))
+            # Simulate authentication logic here
+            session["username"] = username  # Set the username in the session
+            return redirect(url_for("home"))
 
         return render_template("login.html")
+
     
     @app.route("/logout")
     def logout():
-        # clear session
-        session.clear()
+        session.pop("username", None)  # Remove username from the session
         return redirect(url_for("home"))
 
 
