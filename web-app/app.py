@@ -28,7 +28,7 @@ def create_app():
     """Initializes and configures the Flask app."""
     app = Flask(__name__)
     app.config["MAX_CONTENT_LENGTH"] = 5 * 1024 * 1024  # 5 MB limit
-    app.secret_key = os.getenv("SECRET_KEY", "supersecretkey")
+    app.secret_key = os.getenv("SECRET_KEY")
 
     # Debugging: Print environment variables
     print(f"MONGO_URI: {os.getenv('MONGO_URI')}")
