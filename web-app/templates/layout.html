@@ -11,7 +11,7 @@
             rel="stylesheet"
             crossorigin="anonymous"
         >
-      
+
         <!-- main stylesheet -->
         <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
     </head>
@@ -32,8 +32,10 @@
                     </div>
                 </div>
             {% else %}
-                <a href="{{ url_for('login') }}" class="button">Login</a>
-                <a href="{{ url_for('signup') }}" class="button">Sign Up</a>
+                <div class="auth-buttons">
+                    <a href="{{ url_for('login') }}" class="button">Login</a>
+                    <a href="{{ url_for('signup') }}" class="button">Sign Up</a>
+                </div>
             {% endif %}
         </div>
         <main>   

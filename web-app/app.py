@@ -56,10 +56,14 @@ def register_routes(app, db):
     @app.route("/")
     def home():
         """Render the home page."""
-        username = session.get("username")  # Fetch the logged-in user's name from the session
+        username = session.get(
+            "username"
+        )  # Fetch the logged-in user's name from the session
         if username:
             user_entries = list(db.plants.find({"user": username}))
-            recent_entries = user_entries[-3:] if len(user_entries) > 3 else user_entries  # Show last 3 entries
+            recent_entries = (
+                user_entries[-3:] if len(user_entries) > 3 else user_entries
+            )  # Show last 3 entries
             return render_template(
                 "home.html", user=username, user_entries=recent_entries
             )
@@ -77,12 +81,10 @@ def register_routes(app, db):
 
         return render_template("login.html")
 
-    
     @app.route("/logout")
     def logout():
         session.pop("username", None)  # Remove username from the session
         return redirect(url_for("home"))
-
 
     @app.route("/signup", methods=["GET", "POST"])
     def signup():

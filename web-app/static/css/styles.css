@@ -5,30 +5,26 @@ html {
     /* background-size: cover; }
 */
 
-
 body {
-    /* background-color: rgb(200, 245, 200); */
     margin: 0;
     padding: 0;
     box-sizing: border-box;
-    height:100vh;
-    /* background-color: rgba(85, 107, 47, 0.205); */
+    height: 100vh;
     background-size: cover;
-    /* background-image: url('../images/7954dfbed29ddb1da52fe435869c1baa.jpg'); */
 }
 
 .header-container {
     display: flex;
     align-items: center;
     gap: 10px;
-    margin: 20px; /* Adds space below the header */
+    margin: 20px;
 }
 
 .back-button {
-    position: relative; /* Prevents it from overlapping other elements */
+    position: relative;
     top: auto;
     left: auto;
-    margin-right: 20px; /* Adds space to separate the back button */
+    margin-right: 20px;
     background-color: #2c5f2d;
     color: white;
     padding: 10px 20px;
@@ -38,89 +34,79 @@ body {
 }
 
 .empty-journal {
-    margin-top: 50px; /* Adds space between the message and other elements */
+    margin-top: 50px;
     text-align: center;
-    color: #555; /* Optional: style for the "No identifications found" message */
+    color: #555;
 }
 
 .journal-content {
-    margin-top: 20px; /* Adds space between the header and journal entries */
+    margin-top: 20px;
 }
-
-/* .journal-content {
-    display: flex;
-    flex-direction: column;
-    width:100%;
-    align-items: center;
-} */
 
 .card-container {
     display: grid;
-    grid-template-columns:repeat(3, 1fr);
+    grid-template-columns: repeat(3, 1fr);
     gap: 40px;
     width: 90%;
-    /* padding: 20px; */
-}
-.card {
-    border: 1px solid #ccc; /* Border for the card */
-    border-radius: 10px; /* Rounded corners */
-    overflow: hidden; /* Ensures content doesn’t overflow the card */
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Optional: Add some shadow for the card */
-    background-color: rgba(85, 128, 0, 0.352);
-    padding:20px;
-}
-  
-.card img {
-    width: 100%; /* Ensures image takes the full width */
-    height: auto; /* Maintains aspect ratio */
 }
 
-h1, p, a, h2, h3, .text{
-    color:rgb(14, 92, 23);
-    font-family:fantasy;
+.card {
+    border: 1px solid #ccc;
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    background-color: rgba(85, 128, 0, 0.352);
+    padding: 20px;
 }
-p, .text{
-    font-size:larger;
+
+.card img {
+    width: 100%;
+    height: auto;
 }
-/* Main container for forms */
+
+h1, p, a, h2, h3, .text {
+    color: rgb(14, 92, 23);
+    font-family: fantasy;
+}
+
+p, .text {
+    font-size: larger;
+}
+
 .form {
     display: flex;
     flex-direction: column;
     align-items: center;
-    justify-content: center; 
+    justify-content: center;
     background-color: #fff;
-    padding: 40px; 
-    border-radius: 10px; 
-    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1); 
+    padding: 40px;
+    border-radius: 10px;
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
     width: 100%;
-    max-width: 500px; 
+    max-width: 500px;
     margin: 40px auto;
 }
 
-/* The actual form element inside the container */
 form {
-    display: flex; /* Change to flex for better alignment */
-    flex-direction: column; /* Ensures inputs stack vertically */
-    width: 100%; /* Ensures form takes full width of the container */
+    display: flex;
+    flex-direction: column;
+    width: 100%;
 }
-
 
 form input, form textarea, form select {
-    width: 100%; 
-    padding: 10px; 
-    border: 1px solid #ccc; 
-    border-radius: 5px; 
-    box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1); 
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1);
 }
 
-/* Form labels */
 form label {
-    font-size: 16px; 
-    margin-bottom: 5px; 
-    color: #2c5f2d; 
+    font-size: 16px;
+    margin-bottom: 5px;
+    color: #2c5f2d;
 }
 
-/* Buttons inside forms */
 form button {
     background-color: #2c5f2d;
     color: white;
@@ -133,7 +119,7 @@ form button {
 }
 
 form button:hover {
-    background-color: #224a22; /* Darker hover effect */
+    background-color: #224a22;
     transform: translateY(-2px);
 }
 
@@ -142,7 +128,7 @@ form button:hover {
 }
 
 section {
-    position: relative; /* Makes the section the reference for absolute positioning */
+    position: relative;
     padding: 20px;
 }
 
@@ -150,18 +136,20 @@ section {
     display: flex;
     flex-direction: column;
     align-items: center;
-    width:100%;
+    width: 100%;
 }
 
 .latest {
     text-align: left;
     margin: 10px;
 }
+
 .recent-entries {
     display: flex;
     flex-direction: row;
-    margin-left:100px;
+    margin-left: 100px;
 }
+
 .recent-entry {
     border-radius: 5px;
     margin: 10px;
@@ -169,80 +157,74 @@ section {
 
 #canvas, #video {
     width: 70%;
-    height:40vh;
-    margin:0 auto;
+    height: 40vh;
+    margin: 0 auto;
 }
 
 .video-form-container {
     height: 80vh;
-    display: flex; /* Flexbox for alignment */
-    justify-content: center; /* Centers horizontally */
-    align-items: center; /* Centers vertically */
-    background-color: #f8f8f8; /* Optional: light background for contrast */
-    padding: 10px; /* Adds spacing around the container */
-    box-sizing: border-box; /* Includes padding in height/width calculations */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: #f8f8f8;
+    padding: 10px;
+    box-sizing: border-box;
 }
 
 .form-video {
     display: flex;
-    flex-direction: column; /* Stacks items vertically */
-    gap: 10px; /* Adds spacing between child elements */
-    padding: 40px; /* Adjust padding for better spacing */
-    border: 1px solid #ccc; /* Light border for definition */
-    border-radius: 10px; /* Smooth rounded corners */
-    background-color: white; /* Form background color */
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Subtle shadow for depth */
-    width: 100%; /* Full width of the container */
-    max-width: 600px; /* Restricts the width for larger screens */
+    flex-direction: column;
+    gap: 10px;
+    padding: 40px;
+    border: 1px solid #ccc;
+    border-radius: 10px;
+    background-color: white;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    width: 100%;
+    max-width: 600px;
 }
 
 .upload-container {
     display: grid;
     place-items: center;
     background-color: black;
-    height:70vh;
+    height: 70vh;
 }
 
 .entry-card {
     display: flex;
     flex-direction: column;
     width: 30%;
-    /* background-color: rgba(85, 107, 47, 0.205); */
     padding: 10px;
 }
 
 .left-side, .right-side {
     width: 50%;
-    opacity:100%;
+    opacity: 100%;
 }
-
-/* .button{
-    background-color: rgba(14, 92, 23, 0.143);
-    color:rgb(14, 92, 23);
-} */
 
 .recent-activity-button-container {
     display: flex;
-    justify-content: center; /* Center the buttons horizontally */
-    gap: 20px; /* Add spacing between buttons */
-    margin-top: 20px; /* Add space above the buttons */
+    justify-content: center;
+    gap: 20px;
+    margin-top: 20px;
 }
 
 .recent-activity-button-container .button {
     display: inline-block;
     padding: 10px 20px;
-    background-color: #2c5f2d; /* Button background color */
-    color: white; /* Button text color */
-    text-decoration: none; /* Remove underline from links */
-    border-radius: 5px; /* Rounded corners */
-    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1); /* Add shadow for depth */
+    background-color: #2c5f2d;
+    color: white;
+    text-decoration: none;
+    border-radius: 5px;
+    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
     transition: background-color 0.3s, transform 0.2s;
     font-size: 16px;
     font-weight: bold;
 }
 
 .recent-activity-button-container .button:hover {
-    background-color: #224a22; /* Darker hover effect */
+    background-color: #224a22;
     transform: translateY(-2px);
 }
 
@@ -263,9 +245,9 @@ section {
 }
 
 .back-button {
-    position: absolute; /* Positions relative to the nearest positioned parent */
-    top: 10px; /* Adjust distance from the top of the parent container */
-    left: 10px; /* Adjust distance from the left of the parent container */
+    position: absolute;
+    top: 10px;
+    left: 10px;
     background-color: #2c5f2d;
     color: white;
     padding: 10px 20px;
@@ -274,14 +256,13 @@ section {
     border-radius: 5px;
     box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.1);
     transition: background-color 0.3s, transform 0.2s;
-    z-index: 10; /* Ensures it stays above other content */
+    z-index: 10;
 }
 
 .back-button:hover {
-    background-color: #224a22; /* Darker hover effect */
+    background-color: #224a22;
     transform: translateY(-2px);
 }
-
 
 .card:hover {
     box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
@@ -295,18 +276,27 @@ section {
 }
 
 .nav {
-    display: flex; /* Flex layout to align items */
-    justify-content: space-between; /* Logo on the left, dropdown on the right */
-    align-items: center; /* Vertically aligns items */
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
     padding: 10px 20px;
-    background-color: #d8e8d3; /* Background color of the nav bar */
-    border-bottom: 1px solid #c5d6c1; /* Optional bottom border */
+    background-color: #d8e8d3;
+    border-bottom: 1px solid #c5d6c1;
     position: relative;
     z-index: 1000;
 }
 
+.auth-buttons {
+    display: flex;
+    gap: 10px;
+}
+
 .dropdown {
     position: relative;
+}
+
+.button {
+    font-family: fantasy;
 }
 
 .dropdown-content {
@@ -335,15 +325,13 @@ section {
 }
 
 .logo-link {
-    text-decoration: none; /* removes underline from link */
-    color: inherit; 
+    text-decoration: none;
+    color: inherit;
 }
-
 
 .logo-link:hover {
-    color: #224a22; 
+    color: #224a22;
 }
-
 
 /* Container for the results page */
 .results-container {
@@ -362,7 +350,7 @@ section {
 
 /* Title styling */
 .results-title {
-    font-family: 'Arial', sans-serif;
+    font-family: fantasy;
     font-size: 24px;
     color: #2c5f2d;
     margin-bottom: 20px;
@@ -397,128 +385,12 @@ section {
     margin: 20px 0;
 }
 
-
-/* .entry {
-    display: flex;
-    flex-direction: column;
-    width: 55%;
-    height: 80%;
-    background-color: green;
-    background-size: cover;
-    border-radius: 10px;
-    align-items: center;
-    justify-content: center;
-    box-shadow: 0px 0px 10px 10px rgba(0, 0, 0, 0.1);
-    padding: 20px;
-    margin-top: 10px;
-    margin-bottom: 10px;
-} */
-
-/* button {
-    width: 120px;
-    height: 50px;
-    font-size: 1em;
-    background-color: rgb(14, 92, 23);
-    border: none;
-    color: white;
-    cursor: pointer;
-    border-radius: 10px;
-    margin: 5px;
-    box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.2);
-} */
-
 footer {
     position: fixed;
     bottom: 0;
+    margin: 10px;
     width: 100%;
     height: 50px;
     color: white;
     font-size: 16px;
 }
-
-/* body {
-    background-image: url('../images/background.avif');
-    margin: 0;
-}
-
-.content {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 100%;
-    height:100vh;
-}
-.journal-cover {
-    width: 50%;
-    height: 100vh;
-    background-image: url('../images/journal2.jpg');
-    background-size: cover;
-    background-position: center;
-    background-repeat: no-repeat;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    padding: 30px;
-    border-radius: 8px;
-    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4);
-    border: 1px solid #8b7765;
-}
-
-.cover-title {
-    text-align: center;
-}
-
-h1 {
-    font-size: 3em;
-    font-family: 'Great Vibes', cursive;
-    color: #2c5f2d;
-    margin: 0;
-    padding: 0;
-}
-
-h1 {
-    font-size: 2.8em;
-    font-family: 'Great Vibes', cursive;
-    color: #4b382a;
-    margin: 0;
-}
-
-
-.cover-title p {
-    font-size: 1.2em;
-    color: #6d5642;
-    margin-top: 8px;
-    font-style: italic;
-}
-
-
-.button:hover {
-    background-color: #388e3c;
-    transform: translateY(-2px);
-}
-
-.journal-cover::before {
-    content: '';
-    position: absolute;
-    left: -10px;
-    top: 0;
-    height: 100%;
-    width: 15px;
-    background: #8b7765;
-    box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.5);
-    border-top-left-radius: 8px;
-    border-bottom-left-radius: 8px;
-}
-
-.journal-cover::after {
-    content: '';
-    position: absolute;
-    width: 100%;
-    height: 100%;
-    top: 0;
-    left: 0;
-    border: 2px solid rgba(107, 84, 64, 0.6);
-    border-radius: 8px;
-    box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.3);
-} */
