@@ -6,12 +6,15 @@ WORKDIR /app
 
 # Update and install necessary dependencies
 RUN apt-get update && apt-get install -y --no-install-recommends \
-    build-essential \
-    linux-headers-generic \
+    libglib2.0-0 \
+    libsm6 \
+    libxext6 \
+    libxrender-dev \
+    xvfb \
     && rm -rf /var/lib/apt/lists/*
 
 # Upgrade pip and install pipenv
-RUN pip3 install --no-cache-dir --upgrade pip pipenv
+RUN pip3 install --no-cache-dir --upgrade pip pipenv gunicorn opencv-python-headless
 
 # Copy Pipfiles and install dependencies
 COPY Pipfile Pipfile.lock ./
@@ -20,8 +23,14 @@ RUN pipenv install --system --deploy --dev --skip-lock
 # Copy the source code
 COPY . .
 
-# Expose any necessary ports (if required for ML APIs)
-EXPOSE 8000
+# Set environment variables for Flask and Xvfb
+ENV DISPLAY=:99
+ENV FLASK_APP=/app/app.py
+ENV FLASK_RUN_HOST=0.0.0.0
+ENV FLASK_RUN_PORT=5000
 
-# Define the default command to run your ML client (adjust as needed)
-CMD ["python", "mouse_tracker.py"]
+# Expose Flask's new port
+EXPOSE 5000
+
+# Start Xvfb (for GUI support, if needed) and run Flask
+CMD ["gunicorn", "--bind", "0.0.0.0:5000", "app:app"]
