@@ -18,6 +18,8 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 # Upgrade pip and install pipenv
 RUN pip3 install --no-cache-dir --upgrade pip pipenv
 
+RUN pip3 install gunicorn
+
 # Copy Pipfiles for machine-learning-client and install dependencies
 WORKDIR /app/machine-learning-client
 COPY machine-learning-client/Pipfile machine-learning-client/Pipfile.lock ./
@@ -43,4 +45,4 @@ ENV FLASK_RUN_PORT=5000
 EXPOSE 5000
 
 # Start Xvfb (for GUI support, if needed) and run Flask
-CMD ["sh", "-c", "Xvfb :99 -screen 0 1024x768x16 & flask run"]
+CMD ["gunicorn", "--bind", "0.0.0.0:5000", "app:app"]

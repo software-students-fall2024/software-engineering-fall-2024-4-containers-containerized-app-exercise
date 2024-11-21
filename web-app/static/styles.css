@@ -32,6 +32,7 @@ body {
   max-width: 1200px;
   margin: 0 auto;
   padding: 20px;
+  margin-bottom: 50px;
 }
 
 .flex {
@@ -98,6 +99,8 @@ body {
   bottom: 0;
   width: 100vw;
   a{
+    margin-left: 10px;
+    margin-right: 10px;
     color: var(--pink);
     font-size: 1.5em;
   }
@@ -211,7 +214,7 @@ form textarea:focus {
   margin-top: 0;
 }
 
-/* Tables */
+/* General Table Styles */
 table {
   width: 100%;
   border-collapse: collapse;
@@ -230,9 +233,65 @@ table th {
   color: var(--text-light);
 }
 
-table tr:nth-child(even) {
-  background-color: var(--neutral-gray);
+table td {
+  text-align: center; /* Center-align the data */
 }
+
+/* Center Table Container */
+.table-container {
+  display: flex;
+  justify-content: center; /* Horizontally center the table */
+  align-items: center; /* Vertically center if needed */
+  flex-direction: column;
+  margin: 20px auto; /* Center with auto margins */
+  width: 100%;
+  max-width: 800px; /* Add a max width for better alignment */
+}
+
+/* Responsive Table for Smaller Screens */
+@media screen and (max-width: 768px) {
+  table {
+    border: 0;
+  }
+
+  table caption {
+    font-size: 1.3rem;
+    margin-bottom: 10px;
+    text-align: center;
+  }
+
+  table thead {
+    display: none; /* Hide the table header */
+  }
+
+  table tr {
+    display: block;
+    margin-bottom: 10px;
+    border-bottom: 2px solid var(--neutral-gray); /* Add spacing between rows */
+  }
+
+  table td {
+    display: block;
+    text-align: right;
+    font-size: 1rem;
+    border: 0;
+    position: relative;
+    padding-left: 50%; /* Push the content to the right */
+    white-space: normal; /* Allow wrapping for small content */
+  }
+
+  table td::before {
+    content: attr(data-label); /* Use `data-label` to display column headers */
+    position: absolute;
+    left: 10px;
+    font-weight: bold;
+    color: var(--neutral-gray-dark);
+    white-space: nowrap;
+  }
+}
+
+
+
 
 /* Cards */
 .card {
@@ -248,7 +307,6 @@ table tr:nth-child(even) {
 }
 
 .card img {
-
   max-width: 100%;
   border-radius: 10px;
 }
@@ -282,7 +340,7 @@ p {
 /* Images */
 img {
   margin: auto;
-  max-width: 50%;
+  max-width: 40%;
   height: auto;
   display: block;
   border-radius: 5px;
