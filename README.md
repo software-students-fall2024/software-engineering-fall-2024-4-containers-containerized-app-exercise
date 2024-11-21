@@ -4,27 +4,25 @@
 
 ![Lint-free](https://github.com/nyu-software-engineering/containerized-app-exercise/actions/workflows/lint.yml/badge.svg)
 
-
 # CONTAINERIZED APP EXERCISE
 
 Build a containerized app that uses machine learning. See [instructions](./instructions.md) for details.
 
 ## TABLE OF CONTENTS
 1. [Description](#description)
-2. [Configuration](#configuration-steps)
 3. [Setup Steps](#setup-steps)
-4. [Team Members](#team-members)
-5. [Task Board](https://github.com/orgs/software-students-fall2024/projects/120)
+3. [Team Members](#team-members)
+4. [Task Board](https://github.com/orgs/software-students-fall2024/projects/120)
 
 ## DESCRIPTION
 
-Our containerized web application is designed to play an interactive game of *Rock-Paper-Scissors* with the user by utilizing machine learning for image recognition. Built with scalability and modularity in mind, the app leverages Docker to containerize the application, making deployment and management straightforward across different environments.
+Our containerized web app is an interactive game of *Rock-Paper-Scissors* between the user and computer by utilizing machine learning for image recognition. Our web app leverages Docker to containerize the application, making usage and management simple and easy across different environments.
 
 ***Key Features:***
 
 **1. Image Recognition with Machine Learning:**
 
-- Uses a pre-trained machine learning model to recognize hand gestures (rock, paper, scissors) via the user's webcam or uploaded image
+- Uses a pre-trained machine learning model to recognize hand gestures (rock, paper, scissors) via the user's webcam
 - Processes images in real-time to identify the user's choice 
 - Compares predicted user choice with computer's randomly generated choice to determine the winner of current round
  
@@ -33,32 +31,6 @@ Our containerized web application is designed to play an interactive game of *Ro
 - Provides an intuitive and responsive web interface that guides users through the game
 - Easily play the game directly from your web browser without needing to install any additional software
 - Provides real-time feedback, with visual cues showing the user's move, computer's move, and outcome of each round
-
-## CONFIGURATION STEPS
-
-**1. Install Docker and Docker Compose**
-- Ensure Docker is installed on your system
-- Install Docker Compose to manage multiple containers
-
-**2. Setup MongoDB Database:** ```docker run --name mongodb -d -p 27017:27017 mongo```
-
-**3. Configure Machine-Learning Client:** Navigate to the machine-learning-client directory...
-- *Install Dependencies:* ```pipenv install```
-- *Format and Lint:*
-   ```
-   black .
-   pyling .
-   ```
-- *Run Unit Tests:* ```pytest --cov=machine-learning-client```
-
-**4. Configure Web App:** Navigate to the web-app directory...
-- *Install Dependencies:* ```pipenv install```
-- *Format and Lint:*
-   ```
-   black .
-   pylint .
-   ```
-- *Run Unit Tests:* ```pytest --cov=web-app```
 
 ## SETUP STEPS
 
@@ -69,8 +41,8 @@ cd <4-containers-rawf>
 ```
 
 **2. Verify MongoDB Connection:**
-- Download the MongoDB extension for your chosen source code editor
-- Connect to the database url: mongodb://mongodb:27017/
+- *Download MongoDB:* download this extension onto your chosen source code editor
+- *Connect to Database URL:* mongodb://mongodb:27017/
 
 **3. Create a Virtual Environment:**
 - *Mac:*
@@ -91,10 +63,12 @@ pip install requests
 pip install pymongo
 ```
 
-**5. Integrate with Docker Compose:** ```docker-compose up --build```
+**5. Integrate with Docker Compose:** 
+```
+docker-compose up --build
+```
 
 **6. Play:** access our web app, [Rock, Paper, Scissors](http://localhost:5000), and play! 
-
 
 ## TEAM MEMBERS
 
