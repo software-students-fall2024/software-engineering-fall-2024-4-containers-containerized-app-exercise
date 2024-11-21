@@ -22,7 +22,7 @@ def app():
         "MONGO_URI": os.getenv("MONGO_URI", "mongodb://localhost:27017"),
         "MONGO_TEST_DBNAME": os.getenv("MONGO_TEST_DBNAME", "plant_identifier_test")
     }
-    test_app = create_app(test_config=test_config)
+    test_app = create_app()
     test_app.debug = True
 
     # Connect to the test MongoDB instance
