@@ -39,33 +39,31 @@ Create a `.env` file in the root directory with the following content:
 
 ```env
     MONGO_DBNAME=itsOver
-    MONGO_URI=mongodb+srv://itsOver:itsOver@itsover.bx305.mongodb.net/?retryWrites=true&w=majority
-    FLASK_RUN_PORT=5000
+    MONGO_URI=mongodb+srv://itsOver:itsOver@itsover.bx305.mongodb.net/?retryWrites=true&w=majority&appName=itsOver
+    FLASK_APP=app.py
+    FLASK_ENV=development
+    FLASK_PORT=5000
+    SECRET_KEY=itsOver
+    PYTHONPATH=$(pwd) pytest web-app/tests
 ```
     This .env file will configure the connection to your MongoDB instance.
 ### **4. Run Using Docker**
 
 1. **Build the Docker Image**
    
-   Navigate to the directory containing your `Dockerfile` (e.g., `machine-learning-client` or `web-app`) and run the following command to build the Docker image:
+   Navigate to the root directory and run the following command to build the Docker image:
 
-   ```bash
-   docker build -t flask-app .
+   ```bash 
+    docker-compose up --build
    ```
-
-2. **Run the Docker Container**
-    ```bash
-    docker run -p 5001:5000 --env-file .env flask-app
-    ```
-
-3. **Access the Application**
+2. **Access the Application**
     After successfully running the Docker container, you can access the application using the following URLs:
 
     - **Home Page**: [http://localhost:5001/](http://localhost:5001/)
     - **API Endpoint**: [http://localhost:5001/api/data](http://localhost:5001/api/data)
 
-4. **Play with the Web**
-    After accessing the Home Page, you can sign up and login to use the mouse tracking functionality and camera tracking functionality. You can also view your past tracking records.
+3. **Play with the Web**
+    After accessing the Home Page, you can sign up and login to use the mouse tracking functionality. You can also view your past tracking records. Our camera tracker is temporily disabled.
 
 ### **5. Local Development Without Docker**
 #### **Setup Instructions**
