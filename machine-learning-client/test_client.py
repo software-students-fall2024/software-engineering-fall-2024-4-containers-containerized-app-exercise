@@ -1,5 +1,5 @@
 """
-Unit tests for the Flask application defined in `client.py`.
+Unit tests for `client.py`.
 """
 
 # test_client.py
@@ -76,7 +76,7 @@ def test_predict_success(
     mock_collection.insert_one.assert_called_once()
 
 
-# Test prediction with no image provided
+# test prediction with no image provided
 def test_predict_no_image(flask_client_fixture):
     """
     Test that submitting a prediction request without an image returns a 400 error.
@@ -95,7 +95,7 @@ def test_predict_no_image(flask_client_fixture):
     assert json_data["error"] == "No image file provided"
 
 
-# Test inference API failure
+# test inference API failure
 @patch("client.rf_client")
 def test_predict_inference_failure(
     mock_rf_client, flask_client_fixture
@@ -124,7 +124,7 @@ def test_predict_inference_failure(
     assert "Prediction error" in json_data["error"]
 
 
-# Test MongoDB insertion failure
+# test MongoDB insertion failure
 @patch("client.rf_client")
 @patch("client.collection")
 def test_predict_mongodb_failure(
@@ -160,7 +160,7 @@ def test_predict_mongodb_failure(
     assert "Prediction error" in json_data["error"]
 
 
-# Test FileNotFoundError during file saving
+# test FileNotFoundError during file saving
 @patch("client.rf_client")
 @patch("os.makedirs")
 def test_predict_file_not_found(
@@ -198,7 +198,7 @@ def test_predict_file_not_found(
         assert "Prediction error" in json_data["error"]
 
 
-# Test invalid inference response (missing 'class' key)
+# test invalid inference response (missing 'class' key)
 @patch("client.rf_client")
 @patch("client.collection")
 def test_predict_invalid_inference_response(
