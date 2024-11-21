@@ -9,6 +9,9 @@ black = "*"
 jinja2 = "*"
 flask = "*"
 pymongo = "*"
+moviepy = "*"
+ffmpeg-python = "*"
+opencv-python = "*"
 
 [dev-packages]
 
