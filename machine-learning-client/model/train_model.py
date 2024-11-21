@@ -2,6 +2,8 @@
 This Module Trains a Rock, Paper, Scissors Machine Learning Model
 """
 # pylint: disable=E1101
+# pylint: disable=import-error
+# pylint: disable=no-member
 
 import os
 import tensorflow as tf
@@ -73,23 +75,23 @@ def create_model():
 
 
 # Load data
-ds_train, ds_test, info = load_data()
+train_dataset, test_dataset, dataset_info = load_data()
 
 # Create the model
-model = create_model()
+cnn_model = create_model()
 
 # Define callbacks for fitting the model
 logdir = os.path.join("machine-learning-client/model/logs", "rps-model")
 tensorboard = TensorBoard(log_dir=logdir)
 
 # Train the model
-model.fit(
-    ds_train,
+cnn_model.fit(
+    train_dataset,
     epochs=EPOCHS,
-    validation_data=ds_test,
+    validation_data=test_dataset,
     verbose=1,
-    steps_per_epoch=info.splits["train"].num_examples // BATCH_SIZE,
-    validation_steps=info.splits["test"].num_examples // BATCH_SIZE,
+    steps_per_epoch=dataset_info.splits["train"].num_examples // BATCH_SIZE,
+    validation_steps=dataset_info.splits["test"].num_examples // BATCH_SIZE,
     callbacks=[tensorboard],
 )
 
@@ -99,8 +101,9 @@ rock_paper_scissors_test = tfds.as_numpy(rock_paper_scissors_test)
 
 x_test, y_test = rock_paper_scissors_test["image"], rock_paper_scissors_test["label"]
 
-model.evaluate(x_test, y_test)
+cnn_model.evaluate(x_test, y_test)
 
 # Save the model
-model.save("machine-learning-client/model/rps_model.h5", include_optimizer=False, save_format="h5")
+cnn_model.save("machine-learning-client/model/rps_model.h5", include_optimizer=False, save_format="h5")
+
 

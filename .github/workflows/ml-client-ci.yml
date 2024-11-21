@@ -49,7 +49,7 @@ jobs:
       - name: Lint machine learning client with pylint
         working-directory: ./machine-learning-client
         run: |
-          pipenv run pylint ml_client.py
+          pipenv run pylint --disable=import-error,no-member ml_client.py model/train_model.py
 
 
       # format with black
