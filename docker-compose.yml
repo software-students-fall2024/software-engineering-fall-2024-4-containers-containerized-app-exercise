@@ -1,10 +1,10 @@
 version: "3.8"
 
 services:
-  web-app:
-    build:
-      context: ./web-app
-      dockerfile: Dockerfile
+  web-app:
+    build:
+      context: ./web-app
+      dockerfile: Dockerfile
     container_name: web_app
     ports:
       - "5888:5000"  # Map container port 5000 to host port 5888
@@ -19,22 +19,22 @@ services:
     networks:
       - app_network
 
-  ml-client:
-    build:
-      context: ./machine-learning-client
-      dockerfile: Dockerfile
-    container_name: machine_learning_client
-    environment:
-      - DATABASE_URL=mongodb://mongodb:27017
-    depends_on:
-      - mongodb
-    volumes:
-      - ./uploads:/uploads  # Access uploads if needed for preprocessing
-    networks:
-      - app_network
+  ml-client:
+    build:
+      context: ./machine-learning-client
+      dockerfile: Dockerfile
+    container_name: machine_learning_client
+    environment:
+      - DATABASE_URL=mongodb://mongodb:27017
+    depends_on:
+      - mongodb
+    volumes:
+      - ./uploads:/uploads  # Access uploads if needed for preprocessing
+    networks:
+      - app_network
 
-  mongodb:
-    image: mongo
+  mongodb:
+    image: mongo
     container_name: mongodb
     ports:
       - "27017:27017"  # Expose MongoDB on default port
@@ -43,10 +43,10 @@ services:
     networks:
       - app_network
 
-  volumes:
-    mongo_data:  # Volume for MongoDB data
-    uploads:     # Volume for uploaded images
+volumes:
+  mongo_data:  # Volume for MongoDB data
+  uploads:     # Volume for uploaded images
 
-  networks:
-    app_network:
-      driver: bridge
+networks:
+  app_network:
+    driver: bridge
