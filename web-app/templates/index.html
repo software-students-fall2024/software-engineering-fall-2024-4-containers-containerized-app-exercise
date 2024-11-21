@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Swear Jar</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #dcdcd3;
+            color: #333;
+        }
+
+        h1, h2, h3 {
+            color: #0056b3;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+/* {% block body %}
+<head>
+</head>
+    <h2>Counter</h2>
+    {% if swears %}
+    <p>Swears: {{swears}}</p>
+    {% endif %}
+    </ul> */
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .swear-jar {
+            display: flex;
+            align-items: center;
+            justify-content: space-around;
+            padding: 20px;
+            background: #dcdcd3;
+
+        }
+
+        .swear-jar img {
+            width: 150px;
+            height: auto;
+        }
+
+        .swear-jar h3 {
+            margin: 0;
+            font-size: 1.2em;
+        }
+
+        .swear-list {
+            margin-top: 30px;
+            background: #dcdcd3;
+            padding: 20px;
+        }
+
+        .swear-list ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .swear-list li {
+            padding: 5px 0;
+        }
+
+        .buttons {
+            text-align: center;
+            margin-top: 40px;
+        }
+
+        .buttons button {
+            padding: 10px 20px;
+            font-size: 1em;
+            margin: 5px;
+            color: #fff;
+            background: #007bff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .buttons button:hover {
+            background: #0056b3;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Your Swear Jar</h1>
+        </div>
+
+        <!-- Swear Jar Section -->
+        <div class="swear-jar">
+            <img id="swearJarImage" src="{{ url_for('static', filename='images/empty-jar.png') }}" alt="Swear Jar">
+            <div>
+                <h3>Number of Coins in the Jar:</h3>
+                <p style="font-size: 2em;" id="totalSwears">0</p>
+            </div>
+        </div>
+
+        <!-- Swear Counts Section -->
+        <div class="swear-list">
+            <h3>Swear Words:</h3>
+            <ul id="swearList"></ul>
+        </div>
+
+        <!-- Buttons Section -->
+        <div class="buttons">
+            <button id="requestMicButton">Request Microphone Access</button>
+            <button id="stop">Stop</button>
+        </div>
+    </div>
+
+    <script>
+        const requestMicButton = document.getElementById('requestMicButton');
+        const stopButton = document.getElementById('stop');
+        let mediaRecorder;
+        let chunks = [];
+
+        // Update swear jar every 5 seconds
+        async function updateSwearJar() {
+            try {
+                const response = await fetch('/api/swears');
+                const data = await response.json();
+
+                const swearList = document.getElementById('swearList');
+                const totalSwears = document.getElementById('totalSwears');
+                swearList.innerHTML = "";
+                let total = 0;
+
+                for (const [word, count] of Object.entries(data)) {
+                    const li = document.createElement('li');
+                    li.textContent = `${word}: ${count}`;
+                    swearList.appendChild(li);
+                    total += count;
+                }
+                totalSwears.textContent = total;
+
+                // change image based on num of swears
+                if (total === 0) {
+                    swearJarImage.src = "/static/images/empty-jar.png"; 
+                } else if (total < 20) {
+                    swearJarImage.src = "/static/images/swear-jar.png";
+                } else {
+                    swearJarImage.src = "/static/images/full-jar.png";
+                }
+            } catch (err) {
+                console.error('Error fetching swear counts:', err);
+            }
+        }
+
+        // poll the server every 5 seconds
+        setInterval(updateSwearJar, 5000);
+
+        // Call updateSwearJar on page load
+        window.onload = updateSwearJar;
+
+        // Event listener for requesting microphone access
+        requestMicButton.addEventListener('click', async () => {
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                mediaRecorder = new MediaRecorder(stream);
+
+                // Handle data available from the media recorder
+                mediaRecorder.ondataavailable = (e) => {
+                    chunks.push(e.data);
+                };
+                mediaRecorder.start();
+                let track = stream.getAudioTracks()[0];
+                console.log(track.getCapabilities());
+
+                console.log(mediaRecorder.state);
+
+                intervalCount = setInterval(() => {
+                    if(mediaRecorder.state == 'recording'){
+                        mediaRecorder.stop();
+                    }
+                }, 10000) 
+
+                mediaRecorder.onstop = () => {
+                    const blob = new Blob(chunks, { type: 'audio/webm' });
+                    chunks = [];
+                    
+                    const formData = new FormData();
+                    formData.append('audio', blob, 'recording.webm');
+
+                    fetch('/upload', {
+                        method: 'POST',
+                        body: formData
+                    }).then(response => console.log(response))
+
+                    mediaRecorder.start();
+                }
+            } catch (err) {
+                console.error('Error accessing microphone:', err);
+            }
+        });
+
+        // Event listener for stopping the recording
+        stopButton.addEventListener('click', () => {
+            if (mediaRecorder) {
+                clearInterval(intervalCount);
+                mediaRecorder.stop();
+
+                mediaRecorder.onstop = () => {
+                    console.log(mediaRecorder.state)
+                };
+            }
+        });
+    </script>
+</body>
+</html>
