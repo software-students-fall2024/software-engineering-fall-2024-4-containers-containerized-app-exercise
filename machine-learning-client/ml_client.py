@@ -21,6 +21,7 @@ app = Flask(__name__)
 
 print(f"Model input shape: {model.input_shape}")
 
+
 @app.route("/classify", methods=["POST"])
 def classify():
     """
@@ -35,7 +36,10 @@ def classify():
 
         # Validation: Ensure the input is a list
         if not isinstance(image_array, list):
-            return jsonify({"error": "Invalid image_array format. Must be a list."}), 400
+            return (
+                jsonify({"error": "Invalid image_array format. Must be a list."}),
+                400,
+            )
 
         # Debugging: Log the received image array
         print(f"Received image_array: {type(image_array)}, Length: {len(image_array)}")
