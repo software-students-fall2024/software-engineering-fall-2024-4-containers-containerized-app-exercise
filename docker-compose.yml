@@ -1,36 +1,46 @@
+version: '3.8'
+
 services:
+  mongodb:
+    image: mongo:5.0
+    container_name: mongodb-container
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo_data:/data/db
+    networks:
+      - app_network
+
+  ml-client:
+    build:
+      context: ./machine-learning-client
+    container_name: ml-client-container
+    env_file:
+      - ./machine-learning-client/.env
+    ports:
+      - "5001:5000"
+    depends_on:
+      - mongodb
+    networks:
+      - app_network
+
   web-app:
     build:
       context: ./web-app
-      dockerfile: Dockerfile
-    ports:
-      - "8000:8000"
+    container_name: web-app-container
     env_file:
       - ./web-app/.env
-    depends_on:
-      - mongodb
-    networks:
-      - app-network
-
-  machine-learning-client:
-    build:
-      context: ./machine-learning-client
-      dockerfile: Dockerfile
-    env_file:
-      - ./machine-learning-client/.env
-    depends_on:
-      - mongodb
-    networks:
-      - app-network
-
-  mongodb:
-    image: mongo
-    container_name: mongodb
     ports:
-      - "27017:27017"
+      - "8000:8000"
+    depends_on:
+      - ml-client
+      - mongodb
     networks:
-      - app-network
+      - app_network
+
+volumes:
+  mongo_data:
 
 networks:
-  app-network:
+  app_network:
     driver: bridge

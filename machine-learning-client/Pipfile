@@ -14,6 +14,7 @@ python-dotenv = "==1.0.0"
 ffmpeg-python = "==0.2.0"
 gtts = "==2.3.1"
 werkzeug = "==2.3.7"
+watchdog = "*"
 
 [dev-packages]
 pytest = "*"
@@ -22,3 +23,4 @@ black = "*"
 
 [requires]
 python_version = "3.10"
+watchdog = "*"
