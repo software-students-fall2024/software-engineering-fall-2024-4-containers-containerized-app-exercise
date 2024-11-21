@@ -15,7 +15,7 @@ def app():
     """Build app"""
     connection = pymongo.MongoClient(os.getenv("MONGO_URI"))
     # make config to identify test
-    test_app = create_app(test_config={"TESTING": True})
+    test_app = create_app()
     test_app.debug = True
 
     test_app.db = connection[os.getenv("MONGO_TEST_DBNAME")]
@@ -39,7 +39,7 @@ def test_home_with_user(client):
     """Test home route with user input"""
     connection = pymongo.MongoClient(os.getenv("MONGO_URI"))
     # make config to identify test
-    new_app = create_app(test_config={"TESTING": True})
+    new_app = create_app()
     new_app.debug = True
     new_app.db = connection[os.getenv("MONGO_TEST_DBNAME")]
 
@@ -67,7 +67,7 @@ def test_signup_post(client):
     """Test the signup form results post correctly"""
     connection = pymongo.MongoClient(os.getenv("MONGO_URI"))
     # make config to identify test
-    new_app = create_app(test_config={"TESTING": True})
+    new_app = create_app()
     new_app.debug = True
     new_app.db = connection[os.getenv("MONGO_TEST_DBNAME")]
 
@@ -84,7 +84,7 @@ def test_upload_post(client):
     # make sure the correct user is currently logged in
     connection = pymongo.MongoClient(os.getenv("MONGO_URI"))
     # make config to identify test
-    new_app = create_app(test_config={"TESTING": True})
+    new_app = create_app()
     new_app.debug = True
     new_app.db = connection[os.getenv("MONGO_TEST_DBNAME")]
     with client.session_transaction() as session:
@@ -102,7 +102,7 @@ def test_new_entry_post(client):
     """Test that the rest of the new entry posts correctly"""
     connection = pymongo.MongoClient(os.getenv("MONGO_URI"))
     # make config to identify test
-    new_app = create_app(test_config={"TESTING": True})
+    new_app = create_app()
     new_app.debug = True
     new_app.db = connection[os.getenv("MONGO_TEST_DBNAME")]
     # make sure the correct user is currently logged in
@@ -124,7 +124,7 @@ def test_history(client):
     """Test the past entries (history) route"""
     connection = pymongo.MongoClient(os.getenv("MONGO_URI"))
     # make config to identify test
-    new_app = create_app(test_config={"TESTING": True})
+    new_app = create_app()
     new_app.debug = True
     new_app.db = connection[os.getenv("MONGO_TEST_DBNAME")]
     new_app.db.plants.insert_many(
