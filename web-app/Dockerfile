@@ -5,6 +5,7 @@ WORKDIR /web-app
 RUN pip install pipenv
 COPY requirements.txt .
 RUN pip install --trusted-host pypi.python.org -r requirements.txt
+COPY .env .env
 
 ADD . .
 
