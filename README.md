@@ -1,4 +1,5 @@
 ![Lint-free](https://github.com/nyu-software-engineering/containerized-app-exercise/actions/workflows/lint.yml/badge.svg)
+[![log github events](https://github.com/software-students-fall2024/4-containers-its-over-again/actions/workflows/event-logger.yml/badge.svg)](https://github.com/software-students-fall2024/4-containers-its-over-again/actions/workflows/event-logger.yml)
 
 # Containerized App Exercise
 
@@ -28,19 +29,19 @@ The **Online Focus Detection System** is a containerized application designed to
 
 ### **2. Clone the Repository**
 
-    ```bash
+```bash
     git clone https://github.com/software-students-fall2024/4-containers-its-over-again.git
     cd 4-containers-its-over-again
-    ```
+```
 ### **3. Environment Setup**
 
 Create a `.env` file in the root directory with the following content:
 
-    ```env
+```env
     MONGO_DBNAME=itsOver
     MONGO_URI=mongodb+srv://itsOver:itsOver@itsover.bx305.mongodb.net/?retryWrites=true&w=majority
     FLASK_RUN_PORT=5000
-    ```
+```
     This .env file will configure the connection to your MongoDB instance.
 ### **4. Run Using Docker**
 
@@ -63,13 +64,15 @@ Create a `.env` file in the root directory with the following content:
     - **Home Page**: [http://localhost:5001/](http://localhost:5001/)
     - **API Endpoint**: [http://localhost:5001/api/data](http://localhost:5001/api/data)
 
+4. **Play with the Web**
+    After accessing the Home Page, you can sign up and login to use the mouse tracking functionality and camera tracking functionality. You can also view your past tracking records.
 
 ### **5. Local Development Without Docker**
 #### **Setup Instructions**
 1. Clone the repository:
    ```bash
-   git clone https://github.com/your-repo-name.git
-   cd your-repo-name
+   git clone https://github.com/software-students-fall2024/4-containers-its-over-again.git
+   cd ../machine-learning-client
    ```
 
 2. Create and activate a virtual environment:
@@ -78,16 +81,14 @@ Create a `.env` file in the root directory with the following content:
     source env/bin/activate  # On Windows, use `env\Scripts\activate`
     ```
 
-3. Install the dependencies:
-   ```bash
-    pip install -r requirements.txt
-    ```
+3. Install relevant dependencies
 
 4. Set up the .env file:
     Create a .env file in the project root and add the following:
     ```dotenv
-    MONGO_URI=<your_mongo_uri>
-    MONGO_DBNAME=<your_database_name>
+    MONGO_DBNAME=itsOver
+    MONGO_URI=mongodb+srv://itsOver:itsOver@itsover.bx305.mongodb.net/?retryWrites=true&w=majority
+    FLASK_RUN_PORT=5000
     ```
 
 5. Run the Camera Tracker:
