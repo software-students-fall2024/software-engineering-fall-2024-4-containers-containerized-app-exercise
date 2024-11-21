@@ -1,0 +1,34 @@
+{% extends "layout.html" %}
+
+{% block title %} {{ user }} {% endblock %}
+
+{% block content %}
+
+    {% if user %}
+    <section>
+        <h1 class="welcome">Welcome, {{ user }}</h1>
+        <div class="recent-container">
+            <p class="latest">Recent Activity:</p>
+            <div class="recent-entries">
+                {% for entry in user_entries %}
+                    <div class="recent-entry">
+                        <p>{{ entry['name']}}</p>
+                        <img src="{{ entry['photo'] }}" alt="Plant photo">
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+        <div class="recent-activity-button-container">
+            <a href="{{ url_for('history') }}" class="link button">View Full Journal</a>
+            <a href="{{ url_for('upload') }}" class="link button">New Entry</a>
+        </div>
+    </section>
+    {% else %}
+    <section>
+        <div class="intro-message">
+            <h1>Welcome to PlatifyAI!</h1>
+            <h2><a href="{{ url_for('login') }}">Log in</a> or <a href="{{ url_for('signup') }}">Sign up</a> to get started!</h2>
+        </div>
+    </section>
+    {% endif %}
+{% endblock %}

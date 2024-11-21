@@ -6,8 +6,24 @@ name = "pypi"
 [packages]
 pylint = "*"
 black = "*"
+tensorflow = "*"
+opencv-python = "*"
+pymongo = "*"
+torch = "*"
+torchvision = "*"
+numpy = "*"
+scipy = "*"
+pillow = "*"
+tqdm = "*"
+flask = "*"
+flask-cors = "*"
+python-dotenv = "*"
+werkzeug = "*"
 
 [dev-packages]
+pytest = "*"
+coverage = "*"
 
 [requires]
-python_version = "3.10"
+python_version = "3.9"
+

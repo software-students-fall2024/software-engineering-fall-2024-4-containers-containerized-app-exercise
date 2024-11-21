@@ -4,10 +4,26 @@ verify_ssl = true
 name = "pypi"
 
 [packages]
+flask = "*"
+torchvision = "*"
+pillow = "*"
+pymongo = "*"
+python-dotenv = "*"
+werkzeug = "*"
+scipy = "*"
+tqdm = "*"
 pylint = "*"
 black = "*"
+numpy = "*"
+dill = "*"
+flask-cors = "*"
+requests = "*"
+tomli = "*"
+bson = "*"
+pytest = "*"
 
 [dev-packages]
+coverage = "*"          
 
 [requires]
-python_version = "3.10"
+python_version = "3.9"

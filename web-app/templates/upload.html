@@ -1,0 +1,81 @@
+{% extends "layout.html" %}
+
+{% block title %} My Journal {% endblock %}
+
+{% block content %}
+<section>
+    <div class="video-form-container">
+        <form action="{{ url_for('upload') }}" method="POST" enctype="multipart/form-data" class="form-video">
+            <h1>Upload Plant Image</h1>
+            <video id="video" autoplay></video>
+            <canvas id="canvas" style="display: none;"></canvas>
+            <img id="capturedImage" style="display: none;" alt="Captured Photo">
+            <button type="button" id="capture" onclick="capturePhoto()" class="button">Capture Photo</button>
+            <button type="submit" id="submit" class="button" style="visibility: hidden;">Submit Photo</button>
+            <input type="hidden" id="photoData" name="photo">
+        </form>
+    </div>
+
+    <script>
+        // Start the camera
+        let stream;
+        function startCamera() {
+            console.log("Camera initialized");
+            navigator.mediaDevices.getUserMedia({ video: true })
+                .then(mediaStream => {
+                    stream = mediaStream;
+                    const videoElement = document.getElementById('video');
+                    videoElement.srcObject = stream;
+                })
+                .catch(error => {
+                    console.error("Error accessing the camera:", error);
+                });
+        }
+
+        // Capture a photo
+        function capturePhoto() {
+            console.log("Capturing photo");
+            const scaleFactor = 0.5;
+            const videoElement = document.getElementById('video');
+            const canvasElement = document.getElementById('canvas');
+            const context = canvasElement.getContext('2d');
+            const capturedImage = document.getElementById('capturedImage');
+
+            // Set canvas size to video size and draw the frame
+            canvasElement.width = videoElement.videoWidth * scaleFactor;
+            canvasElement.height = videoElement.videoHeight * scaleFactor;
+            context.drawImage(videoElement, 0, 0, canvasElement.width, canvasElement.height);
+
+            // Convert canvas image to base64 and store it in hidden input
+            const photoData = canvasElement.toDataURL('image/png', 0.7);
+            document.getElementById('photoData').value = photoData;
+
+            // Display the captured photo in the image element
+            capturedImage.src = photoData;
+            capturedImage.style.display = 'block';
+
+            // Hide the video
+            videoElement.style.display = 'none';
+
+            // Replace capture button with submit
+            document.getElementById('capture').style.visibility = 'hidden';
+            document.getElementById('submit').style.visibility = 'visible';
+
+            // Stop all video tracks and release the camera
+            if (stream) {
+                stream.getTracks().forEach(track => {
+                    track.stop();  // Stop each track
+                    console.log(`Track ${track.kind} stopped:`, track.readyState); // Log status
+                });
+                videoElement.srcObject = null; // Remove the video source
+            }
+
+            // Optionally, you can auto-submit the form here
+            // document.forms[0].submit();
+        }
+
+        // Initialize camera on page load
+        window.onload = startCamera;
+    </script>
+</section>
+{% endblock %}
