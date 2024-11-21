@@ -107,6 +107,7 @@ def preprocess():
     except Exception as e:  # pylint: disable=broad-except
         return jsonify({"error": f"Preprocessing failed: {str(e)}"}), 500
 
+
 def preprocess_image(image):
     """
     Resize and normalize the image for the model.
