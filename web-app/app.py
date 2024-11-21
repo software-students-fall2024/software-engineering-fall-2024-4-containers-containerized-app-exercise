@@ -87,7 +87,9 @@ class MouseMetrics:
         Generate a report with the collected mouse metrics.
         """
         total_time = self.focused_time + self.unfocused_time
-        focus_percentage = (self.focused_time / total_time) * 100 if total_time > 0 else 0
+        focus_percentage = (
+            (self.focused_time / total_time) * 100 if total_time > 0 else 0
+        )
 
         return {
             "total_mouse_distance": round(self.mouse_distance, 2),
