@@ -37,7 +37,6 @@ def test_classify_success(client):
         "/classify",
         data=json.dumps({"image_array": image_array}),
         content_type="application/json",
-        timeout=10,
     )
     assert response.status_code == 200
     assert "result" in response.json
@@ -48,7 +47,7 @@ def test_classify_missing_image_array(client):
     Test the /classify endpoint with a missing image array.
     """
     response = client.post(
-        "/classify", data=json.dumps({}), content_type="application/json", timeout=10
+        "/classify", data=json.dumps({}), content_type="application/json"
     )
     assert response.status_code == 400
     assert "error" in response.json
