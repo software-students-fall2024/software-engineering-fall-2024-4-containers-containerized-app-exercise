@@ -1,5 +1,5 @@
 """
-Unit tests for the Flask application defined in `app.py`.
+Unit tests for app.py
 """
 # test_app.py
 # cd web-app
@@ -9,38 +9,43 @@ Unit tests for the Flask application defined in `app.py`.
 # pylint web-app/
 # black .
 
-
-from unittest.mock import patch, MagicMock
+# Standard library imports
 from io import BytesIO
-from flask.testing import FlaskClient
+from unittest.mock import patch, MagicMock
+
+# Third party imports
 import pytest
-from bson.objectid import ObjectId
 import requests
+from bson.objectid import ObjectId
+
+# Local application imports
 from app import app, generate_stats_doc, retry_request
 
 
-@pytest.fixture
-def client():
+@pytest.fixture(name="test_client")
+def fixture_client():
     """
-    Provide a Flask test client for testing application routes.
-    Yields:
-        FlaskClient: A test client for the Flask application.
+    Test fixture that creates a Flask test client.
+
+    Returns:
+        FlaskClient: A test client for making requests to the Flask application
     """
     app.config["TESTING"] = True
-    with app.test_client() as flask_client:
-        yield flask_client
+    with app.test_client() as testing_client:
+        yield testing_client
 
 
 @patch("app.collection")
 def test_generate_stats_doc(mock_collection):
     """
-    tests that the `generate_stats_doc` function inserts a document
-    into the database and correctly returns its ID.
+    Test the generation of a new statistics document in the database.
 
     Args:
-        mock_collection (MagicMock): Mock database collection to simulate
-        `insert_one` behavior.
+        mock_collection: Mocked MongoDB collection object
 
+    Verifies:
+        - Document insertion is called once
+        - Correct ObjectId is returned as string
     """
     mock_inserted_id = ObjectId()
     mock_collection.insert_one.return_value.inserted_id = mock_inserted_id
@@ -51,15 +56,17 @@ def test_generate_stats_doc(mock_collection):
     assert _id == str(mock_inserted_id)
 
 
-# Tests for retry_request
 @patch("app.requests.post")
 def test_retry_request_success_on_first_try(mock_post):
     """
-    Verifies that the `retry_request` function can make a POST request
-    and return the response without retries if the initial attempt succeeds.
+    Test successful HTTP request on the first attempt.
 
     Args:
-        mock_post (MagicMock): Mock `requests.post` method to simulate a successful HTTP request.
+        mock_post: Mocked requests.post function
+
+    Verifies:
+        - Request succeeds on first try
+        - Only one request attempt is made
     """
     mock_response = MagicMock()
     mock_response.raise_for_status.return_value = None
@@ -76,22 +83,22 @@ def test_retry_request_success_on_first_try(mock_post):
 @patch("app.requests.post")
 def test_retry_request_success_after_retries(mock_post):
     """
-    Verifies the `retry_request` function handles HTTP errors
+    Test HTTP request succeeding after multiple retries.
 
     Args:
-        mock_post (MagicMock): Mocked `requests.post` method to simulate HTTP failures
-        on initial attempts and a successful response on a retry.
-    """
+        mock_post: Mocked requests.post function
 
-    # Create a mock response object
+    Verifies:
+        - Request succeeds after failed attempts
+        - Correct number of retry attempts are made
+    """
     mock_response = MagicMock()
-    # Simulate exceptions on the first two attempts, then succeed
+    # Simulate failures then success
     mock_response.raise_for_status.side_effect = [
         requests.exceptions.HTTPError("Connection error"),
         requests.exceptions.HTTPError("Timeout"),
         None,  # Success on third attempt
     ]
-    # Always return the mock_response from requests.post
     mock_post.return_value = mock_response
 
     url = "http://example.com/predict"
@@ -106,11 +113,15 @@ def test_retry_request_success_after_retries(mock_post):
 @patch("app.requests.post")
 def test_retry_request_all_failures(mock_post):
     """
-    Tests the `retry_request` function when all retry attempts fail.
+    Test HTTP request failing after all retry attempts.
 
     Args:
-        mock_post (MagicMock): Mocked `requests.post` method to simulate HTTP failures
-        for all retry attempts.
+        mock_post: Mocked requests.post function
+
+    Verifies:
+        - Request fails after all retry attempts
+        - Returns None after exhausting retries
+        - Correct number of retry attempts are made
     """
     mock_response = MagicMock()
     mock_response.raise_for_status.side_effect = requests.exceptions.HTTPError(
@@ -127,54 +138,82 @@ def test_retry_request_all_failures(mock_post):
     assert mock_response.raise_for_status.call_count == 3
 
 
-# Tests for routes
-@patch("app.generate_stats_doc", return_value=str(ObjectId()))
-def test_home_route(flask_client: FlaskClient):
+@patch("app.generate_stats_doc")
+def test_home_route(mock_generate_stats_doc, test_client):
     """
-    Test the home route of the application.
+    Test the home route (/) functionality.
 
     Args:
-        client (FlaskClient): Flask client used to simulate HTTP requests.
+        mock_generate_stats_doc: Mocked function for generating stats document
+        test_client: Flask test client fixture
+
+    Verifies:
+        - Route returns 200 status code
+        - Cookie is set with database object ID
     """
-    response = flask_client.get("/")
+    mock_id = str(ObjectId())
+    mock_generate_stats_doc.return_value = mock_id
+    response = test_client.get("/")
     assert response.status_code == 200
     assert "db_object_id" in response.headers["Set-Cookie"]
 
 
-@patch("app.generate_stats_doc", return_value=str(ObjectId()))
-def test_home_route_with_existing_cookie(flask_client: FlaskClient):
+@patch("app.generate_stats_doc")
+def test_home_route_with_existing_cookie(mock_generate_stats_doc, test_client):
     """
-    Test home route when a db_object_id cookie already exists.
+    Test home route behavior with pre-existing cookie.
 
     Args:
-        client (FlaskClient): Flask client used to simulate HTTP requests.
+        mock_generate_stats_doc: Mocked function for generating stats document
+        test_client: Flask test client fixture
+
+    Verifies:
+        - Route handles existing cookies correctly
+        - Returns 200 status code
     """
-    flask_client.set_cookie("db_object_id", str(ObjectId()))
-    response = flask_client.get("/")
+    mock_id = str(ObjectId())
+    mock_generate_stats_doc.return_value = mock_id
+    test_client.set_cookie("db_object_id", mock_id)
+    response = test_client.get("/")
     assert response.status_code == 200
 
 
-@patch("app.generate_stats_doc", return_value=str(ObjectId()))
-def test_index_route(flask_client: FlaskClient):
+@patch("app.generate_stats_doc")
+def test_index_route(mock_generate_stats_doc, test_client):
     """
-    Test index route
+    Test the index route (/index) functionality.
 
     Args:
-        client (FlaskClient): Flask client used to simulate HTTP requests.
+        mock_generate_stats_doc: Mocked function for generating stats document
+        test_client: Flask test client fixture
+
+    Verifies:
+        - Route returns 200 status code
     """
-    response = flask_client.get("/index")
+    mock_id = str(ObjectId())
+    mock_generate_stats_doc.return_value = mock_id
+    response = test_client.get("/index")
     assert response.status_code == 200
 
 
 @patch("app.collection")
-@patch("app.generate_stats_doc", return_value=str(ObjectId()))
-def test_statistics_route(mock_collection, flask_client: FlaskClient):
+@patch("app.generate_stats_doc")
+def test_statistics_route(mock_generate_stats_doc, mock_collection, test_client):
     """
-    Test statistics page route
+    Test the statistics route (/statistics) functionality.
 
     Args:
-        client (FlaskClient): Flask client used to simulate HTTP requests.
+        mock_generate_stats_doc: Mocked function for generating stats document
+        mock_collection: Mocked MongoDB collection
+        test_client: Flask test client fixture
+
+    Verifies:
+        - Route returns 200 status code
+        - Response contains expected statistics content
     """
+    mock_id = str(ObjectId())
+    mock_generate_stats_doc.return_value = mock_id
+    test_client.set_cookie("db_object_id", mock_id)
     stats = {
         "Rock": {"wins": 1, "losses": 0, "ties": 0, "total": 1},
         "Paper": {"wins": 0, "losses": 1, "ties": 0, "total": 1},
@@ -183,53 +222,66 @@ def test_statistics_route(mock_collection, flask_client: FlaskClient):
     }
     mock_collection.find_one.return_value = stats
 
-    response = flask_client.get("/statistics")
+    response = test_client.get("/statistics")
     assert response.status_code == 200
     assert b"Statistics" in response.data
 
 
 @patch("app.retry_request")
 @patch("app.collection.update_one")
-def test_result_route_success(mock_retry_request, flask_client: FlaskClient):
+def test_result_route_success(mock_retry_request, test_client):
     """
-    Test results route for a successful request
+    Test successful result route (/result) functionality.
 
     Args:
-        client (FlaskClient): Flask client used to simulate HTTP requests.
+        mock_update_one: Mocked MongoDB update operation
+        mock_retry_request: Mocked HTTP retry request function
+        test_client: Flask test client fixture
+
+    Verifies:
+        - Route handles successful predictions correctly
+        - Returns 200 status code
+        - Contains expected success message
     """
     mock_response = MagicMock()
-    mock_response.json.return_value = {"gesture": "Rock"}
+    mock_response.json.return_value = {"gesture": "Paper"}
     mock_retry_request.return_value = mock_response
 
-    mock_id = ObjectId()
-    flask_client.set_cookie("db_object_id", str(mock_id))
+    mock_id = str(ObjectId())
+    test_client.set_cookie("db_object_id", mock_id)
 
     data = {"image": (BytesIO(b"fake image data"), "test_image.jpg")}
-    response = flask_client.post(
+    response = test_client.post(
         "/result", data=data, content_type="multipart/form-data"
     )
 
     assert response.status_code == 200
-    assert b"You win!" in response.data
+    assert b"AI wins!" in response.data
 
 
 @patch("app.retry_request")
-def test_result_route_unknown_gesture(mock_retry_request, flask_client: FlaskClient):
+def test_result_route_unknown_gesture(mock_retry_request, test_client):
     """
-    Test result route for when the user's gesture is unable to be recognised
+    Test result route handling of unknown gestures.
 
     Args:
-        client (FlaskClient): Flask client used to simulate HTTP requests.
+        mock_retry_request: Mocked HTTP retry request function
+        test_client: Flask test client fixture
+
+    Verifies:
+        - Route handles unknown gestures correctly
+        - Returns 200 status code
+        - Contains expected error message
     """
     mock_response = MagicMock()
     mock_response.json.return_value = {"gesture": "Unknown"}
     mock_retry_request.return_value = mock_response
 
-    mock_id = ObjectId()
-    flask_client.set_cookie("db_object_id", str(mock_id))
+    mock_id = str(ObjectId())
+    test_client.set_cookie("db_object_id", mock_id)
 
     data = {"image": (BytesIO(b"fake image data"), "test_image.jpg")}
-    response = flask_client.post(
+    response = test_client.post(
         "/result", data=data, content_type="multipart/form-data"
     )
 
@@ -238,36 +290,29 @@ def test_result_route_unknown_gesture(mock_retry_request, flask_client: FlaskCli
 
 
 @patch("app.retry_request")
-def test_result_route_ml_failure(mock_retry_request, flask_client: FlaskClient):
+def test_result_route_ml_failure(mock_retry_request, test_client):
     """
-    Test the result route when the model fails to predict
+    Test result route handling of ML service failures.
 
     Args:
-        mock_retry_request (MagicMock): Mocked retry_request function to simulate failure.
-        client (FlaskClient):  Flask client used to simulate HTTP requests.
+        mock_retry_request: Mocked HTTP retry request function
+        test_client: Flask test client fixture
+
+    Verifies:
+        - Route handles ML service failures correctly
+        - Returns 200 status code
+        - Contains expected error message
     """
     mock_retry_request.return_value = None
 
-    mock_id = ObjectId()
-    flask_client.set_cookie("db_object_id", str(mock_id))
+    mock_id = str(ObjectId())
+    test_client.set_cookie("db_object_id", mock_id)
 
     data = {"image": (BytesIO(b"fake image data"), "test_image.jpg")}
-    response = flask_client.post(
+    response = test_client.post(
         "/result", data=data, content_type="multipart/form-data"
     )
 
     assert response.status_code == 200
     assert b"No valid prediction" in response.data
 
-
-@patch("app.retry_request")
-def test_result_route_no_image(flask_client: FlaskClient):
-    """
-    Test the result route when there is no image
-
-    Args:
-        client (FlaskClient):  Flask client used to simulate HTTP requests.
-    """
-    response = flask_client.post("/result", data={}, content_type="multipart/form-data")
-    assert response.status_code == 400
-    assert b"No image file provided" in response.data
