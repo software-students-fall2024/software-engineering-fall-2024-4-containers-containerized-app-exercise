@@ -7,26 +7,77 @@
     <link rel="icon" type="image/x-icon" href="{{ url_for('static', filename='favicon.png') }}">
 </head>
 <body>
-    <h1>Welcome to itsOver!</h1>
     <div class="container">
-        <button><a href="start-session">Start new session</a></button>
-        <!-- <div class="session-container">
-        {% for session in past %}
-            <div class="sessions">
-                {% if session.created_at %}
-                    <h2>{{ session.created_at.strftime('%B %d, %Y, %I:%M %p') }}</h2>
-                {% else %}
-                    <h2>Unknown</h2>
-                {% endif %}
-                <p>{{ session.focus_time }} minutes studied</p>
-                <p>Studied for {{ session.subject }}</p>
-                <p>Earned {{ ((session.focus_time | default(0) | int) / 
-                    ((session.focus_time | default(0) | int) - 5)) | int }} bunnie(s)
-                </p>              
-            </div>
-        {% endfor %}
-        </div> -->
+        <h1>Welcome!</h1>
+
+        <button><a href="/start-session">Start New Session</a></button>
+
+        <h2>Your Past Sessions</h2>
+
+        {% if past_sessions %}
+        <div class="table-container">
+            <table>
+              <thead>
+                <tr>
+                  <th>Date</th>
+                  <th>Distance (px)</th>
+                  <th>Clicks</th>
+                  <th>Focused Time (s)</th>
+                  <th>Unfocused Time (s)</th>
+                  <th>Focus Percentage</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for session in past_sessions %}
+                <tr>
+                    <td>{{ session.timestamp | datetimeformat }}</td>
+                    <td>{{ session.total_mouse_distance }}</td>
+                    <td>{{ session.total_clicks }}</td>
+                    <td>{{ session.focused_time }}</td>
+                    <td>{{ session.unfocused_time }}</td>
+                    <td>{{ session.focus_percentage }}%</td>
+                    <td>{{ session.overall_status }}</td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+          
+        
+            <!-- <table>
+                <thead>
+                    <tr>
+                        <th>Session Date</th>
+                        <th>Total Mouse Distance (px)</th> -->
+                        <!-- <th>Total Clicks</th>
+                        <th>Focused Time (s)</th>
+                        <th>Unfocused Time (s)</th>
+                        <th>Focus Percentage (%)</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for session in past_sessions %}
+                        <tr>
+                            <td>{{ session.timestamp | datetimeformat }}</td>
+                            <td>{{ session.total_mouse_distance }}</td>
+                            <td>{{ session.total_clicks }}</td>
+                            <td>{{ session.focused_time }}</td>
+                            <td>{{ session.unfocused_time }}</td>
+                            <td>{{ session.focus_percentage }}</td>
+                            <td>{{ session.overall_status }}</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table> -->
+        {% else %}
+            <p>No sessions found. Start a new session to track your activity!</p>
+        {% endif %}
     </div>
 
+    <div class="footer">
+        <a href="/logout">LOGOUT</a>
+      </div>
 </body>
 </html>
