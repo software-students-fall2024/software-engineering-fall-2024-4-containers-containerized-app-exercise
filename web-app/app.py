@@ -19,7 +19,6 @@ login_manager.init_app(app)
 users = {"bob123": {"password": "test"}, "jen987": {"password": "foobar"}}
 
 
-
 class User(flask_login.UserMixin):  # pylint: disable = too-few-public-methods
     """user class for flask-login"""
 
@@ -57,7 +56,6 @@ def login():
         else:
             error = "Error: Invalid credentials"
 
-
     return render_template("login.html", error=error)
 
 
@@ -82,7 +80,6 @@ def create_account():
             # Add new user to "database"
             users[username] = {"password": password}
             return redirect(url_for("login"))
-
 
     return render_template("create_account.html", error=error)
 
