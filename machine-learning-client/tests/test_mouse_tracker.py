@@ -27,6 +27,7 @@ def test_initial_metrics(mouse_metrics):
     assert mouse_metrics.last_y is None
 
 
+    
 def test_process_mouse_move(mouse_metrics):
     """
     Test the process_mouse_move method.
