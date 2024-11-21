@@ -14,7 +14,7 @@ from flask import Flask, request, jsonify
 MODEL_PATH = "model/rps_model.h5"
 
 # Load the pre-trained model
-model = tf.keras.models.load_model(MODEL_PATH)
+model = tf.keras.models.load_model(MODEL_PATH)  # pylint: disable=no-member
 
 # Initialize Flask app
 app = Flask(__name__)
@@ -104,7 +104,7 @@ def preprocess():
         image = request.files["image"]  # Get the uploaded file
         image_array = preprocess_image(image)  # Preprocess the image
         return jsonify({"image_array": image_array.tolist()})
-    except Exception as e:
+    except Exception as e:  # pylint: disable=broad-except
         return jsonify({"error": f"Preprocessing failed: {str(e)}"}), 500
 
 def preprocess_image(image):
