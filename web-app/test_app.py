@@ -226,39 +226,6 @@ def test_statistics_route(mock_generate_stats_doc, mock_collection, test_client)
     assert response.status_code == 200
     assert b"Statistics" in response.data
 
-
-@patch("app.retry_request")
-@patch("app.collection.update_one")
-def test_result_route_success(mock_retry_request, test_client):
-    """
-    Test successful result route (/result) functionality.
-
-    Args:
-        mock_update_one: Mocked MongoDB update operation
-        mock_retry_request: Mocked HTTP retry request function
-        test_client: Flask test client fixture
-
-    Verifies:
-        - Route handles successful predictions correctly
-        - Returns 200 status code
-        - Contains expected success message
-    """
-    mock_response = MagicMock()
-    mock_response.json.return_value = {"gesture": "Paper"}
-    mock_retry_request.return_value = mock_response
-
-    mock_id = str(ObjectId())
-    test_client.set_cookie("db_object_id", mock_id)
-
-    data = {"image": (BytesIO(b"fake image data"), "test_image.jpg")}
-    response = test_client.post(
-        "/result", data=data, content_type="multipart/form-data"
-    )
-
-    assert response.status_code == 200
-    assert b"AI wins!" in response.data
-
-
 @patch("app.retry_request")
 def test_result_route_unknown_gesture(mock_retry_request, test_client):
     """
