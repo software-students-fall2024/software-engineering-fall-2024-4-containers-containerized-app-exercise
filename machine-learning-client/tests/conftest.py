@@ -1,3 +1,7 @@
+"""
+This module contains pytest fixtures for the test suite.
+"""
+
 import pytest
 
 @pytest.fixture
