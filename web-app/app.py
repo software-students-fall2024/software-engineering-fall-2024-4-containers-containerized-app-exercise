@@ -182,15 +182,14 @@ def register_routes(app, db):
     @app.route("/history")
     def history():
         """Display prediction results specific to the logged-in user."""
-        username = session.get("username") 
+        username = session.get("username")
         if not username:
-            return redirect(url_for("login"))  
+            return redirect(url_for("login"))
 
         # Fetch only the predictions associated with the logged-in user
         user_results = list(db.predictions.find({"user": username}))
 
         return render_template("history.html", results=user_results)
-
 
     @app.route("/uploads/<filename>")
     def uploaded_file(filename):
@@ -221,7 +220,6 @@ def save_photo(photo_binary):
 
     return filepath, filename
 
-
 def process_photo(filepath, filename):
     """Sends the photo to the ML client and saves the prediction to MongoDB."""
     ml_client_url = "http://ml-client:3001/predict"
@@ -237,7 +235,7 @@ def process_photo(filepath, filename):
             "photo": filename,
             "filepath": filepath,
             "plant_name": plant_name,
-            "user": session.get("username")
+            "user": session.get("username"),
         }
 
         # Save the result to the database

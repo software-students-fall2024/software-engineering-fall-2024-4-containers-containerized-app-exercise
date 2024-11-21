@@ -14,7 +14,7 @@
             {% for result in results %}
                 <div class="card">
                     <p class="entry-name">{{ result['plant_name'] }}</p>
-                    <img src="/static/uploads/{{ result.photo }}" alt="Plant photo" class="entry-photo">
+                    <img src="{{ url_for('static', filename='uploads/' ~ result.photo) }}" alt="Plant photo" class="entry-photo">
                     {% if result.get('instructions') %}
                         <p>Notes and Instructions:</p>
                         <p class="entry-instructions">{{ result['instructions'] }}</p>
