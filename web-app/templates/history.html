@@ -9,14 +9,22 @@
         <h1>Journal</h1>
         <div class="card-container">
             {% for result in all_results %}
-                <div class="card">
+                <!-- <div class="card">
                     <p class="entry-name">{{ result['name'] }}</p>
                     <img src="{{ result['photo'] }}" alt="Plant photo" class="entry-photo">
                     <p>Notes and Instructions:</p>
                     <p class="entry-instructions">
                         {{ result['instructions']}}
                     </p>
+                </div> -->
+                <div class="card">
+                    <img src="{{ result['photo'] }}" alt="Plant photo" class="entry-photo">
+                    <h3>{{ result['name'] }}</h3>
+                    <p>Notes:</p>
+                    <p>{{ result['instructions'] }}</p>
+                    <button class="button"><i class="fa fa-edit"></i> Edit</button>
                 </div>
+                
             {% endfor %}
         </div>
         {% else %}

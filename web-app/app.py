@@ -66,6 +66,13 @@ def create_app(test_config=None):
             return redirect(url_for("home", user=username))
 
         return render_template("login.html")
+    
+    @app.route("/logout")
+    def logout():
+        # clear session
+        session.clear()
+        return redirect(url_for("home"))
+
 
     @app.route("/signup", methods=["GET", "POST"])
     def signup():
