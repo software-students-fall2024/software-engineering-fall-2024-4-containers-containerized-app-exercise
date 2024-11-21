@@ -4,9 +4,9 @@ This Module Loads A Trained Machine Learning Model, Preprocesses an Input Image,
 Then Classifies the Image as Either Rock, Paper, or Scissors. 
 """
 
-import tensorflow as tf
-import numpy as np
 from datetime import datetime
+import numpy as np
+import tensorflow as tf
 
 MODEL_PATH = "models/rps_model.h5"
 

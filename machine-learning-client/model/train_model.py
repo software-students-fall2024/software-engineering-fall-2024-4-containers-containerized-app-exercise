@@ -1,6 +1,7 @@
 """
 This Module Trains a Rock, Paper, Scissors Machine Learning Model
 """
+# pylint: disable=E1101
 
 import os
 import tensorflow as tf
