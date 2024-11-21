@@ -1,7 +1,6 @@
 let mediaRecorder; // Global variable to track the recorder
 
 
-const mlClientUrl = "http://127.0.0.1:5001";
 // Function to handle sending a text message
 async function sendMessage(event) {
   event.preventDefault();

@@ -1,11 +1,16 @@
+"""
+Machine Learning Client for Hello Kitty AI application.
+Monitors a shared folder for audio files, processes them, and stores transcriptions in MongoDB.
+"""
+
 import os
-import subprocess
 import logging
-import requests
+import subprocess
+import time
+import re
+from threading import Thread
 from watchdog.observers import Observer
 from watchdog.events import FileSystemEventHandler
-from flask import Flask, request, jsonify
-from werkzeug.utils import secure_filename
 from pymongo import MongoClient, errors
 from google.cloud import speech
 from google.api_core.exceptions import GoogleAPICallError
@@ -18,11 +23,6 @@ load_dotenv()
 logging.basicConfig(level=logging.DEBUG, format="%(asctime)s - %(levelname)s - %(message)s")
 logging.getLogger("pymongo").setLevel(logging.WARNING)
 
-# Ensure the GOOGLE_APPLICATION_CREDENTIALS environment variable is set externally
-
-# Flask app setup
-app = Flask(__name__)
-
 # MongoDB setup
 mongo_uri = os.getenv("MONGO_URI")
 if not mongo_uri:
@@ -30,36 +30,39 @@ if not mongo_uri:
 
 try:
     mongo_client = MongoClient(mongo_uri)
-    db = mongo_client["hellokittyai_db"]  
+    db = mongo_client["hellokittyai_db"]
     collection = db["speech_data"]
     mongo_client.admin.command("ping")
     logging.info("Successfully connected to MongoDB!")
 except errors.PyMongoError as error:
-    logging.error(f"Failed to connect to MongoDB: {error}")
-    raise
+    logging.error("Failed to connect to MongoDB: %s", error)
+    raise RuntimeError("MongoDB connection failed.") from error
 
-# Directory for uploads
-UPLOAD_FOLDER = "uploads"
+# Path to the shared uploads folder in the `web-app`
+UPLOAD_FOLDER = os.path.join(os.path.dirname(os.path.abspath(__file__)), "../web-app/uploads")
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 
 # Google Speech-to-Text client
 try:
     speech_client = speech.SpeechClient()
     logging.info("Google Speech-to-Text client initialized.")
-except Exception as e:
-    logging.error(f"Failed to initialize Speech-to-Text client: {e}")
-    raise
+except Exception as error:
+    logging.error("Failed to initialize Speech-to-Text client: %s", error)
+    raise RuntimeError("Speech-to-Text client initialization failed.") from error
+
+# Track processed files to avoid duplicate processing
+processed_files = set()
 
 
 def convert_to_linear16(filepath):
     """Convert the audio file to LINEAR16 format."""
-    logging.debug(f"Converting {filepath} to LINEAR16 format...")
+    logging.debug("Converting %s to LINEAR16 format...", filepath)
     output_path = filepath.replace(".wav", "_linear16.wav")
     try:
         subprocess.run(
             [
                 "ffmpeg",
-                "-y",  # Overwrite output files without asking
+                "-y",
                 "-i",
                 filepath,
                 "-ar",
@@ -70,18 +73,17 @@ def convert_to_linear16(filepath):
                 "s16",
                 output_path,
             ],
-            check=True,
+            check=True,  # Explicitly define 'check'
         )
-        logging.debug(f"Conversion successful: {output_path}")
+        logging.debug("Conversion successful: %s", output_path)
         return output_path
-    except subprocess.CalledProcessError as e:
-        logging.error(f"FFmpeg conversion failed for {filepath}: {e}")
-        raise RuntimeError(f"FFmpeg conversion failed: {e}")
-
+    except subprocess.CalledProcessError as error:
+        logging.error("FFmpeg conversion failed for %s: %s", filepath, error)
+        raise RuntimeError(f"FFmpeg conversion failed: {error}") from error
 
 def transcribe_audio(filepath):
     """Transcribe audio using Google Speech-to-Text API."""
-    logging.debug(f"Transcribing audio: {filepath}")
+    logging.debug("Transcribing audio: %s", filepath)
     try:
         with open(filepath, "rb") as audio_file:
             content = audio_file.read()
@@ -96,73 +98,111 @@ def transcribe_audio(filepath):
         response = speech_client.recognize(config=config, audio=audio)
         if response.results:
             transcript = response.results[0].alternatives[0].transcript
-            logging.debug(f"Transcription successful: {transcript}")
+            logging.debug("Transcription successful: %s", transcript)
             return transcript
-        logging.warning(f"No speech recognized in audio: {filepath}")
+        logging.warning("No speech recognized in audio: %s", filepath)
         return None
     except GoogleAPICallError as error:
-        logging.error(f"Speech-to-Text API error for {filepath}: {error}")
-        raise RuntimeError(f"Speech-to-Text API error: {error}")
+        logging.error("Speech-to-Text API error for %s: %s", filepath, error)
+        raise RuntimeError(f"Speech-to-Text API error: {error}") from error
 
 
 def save_transcript_to_db(transcript):
     """Save the transcript to the MongoDB database."""
-    logging.debug(f"Saving transcript to MongoDB: {transcript}")
+    logging.debug("Saving transcript to MongoDB: %s", transcript)
     try:
         result = collection.insert_one({"transcript": transcript})
-        logging.info(f"Transcript saved with ID: {result.inserted_id}")
+        logging.info("Transcript saved with ID: %s", result.inserted_id)
         return str(result.inserted_id)
     except errors.PyMongoError as error:
-        logging.error(f"MongoDB insertion failed: {error}")
-        raise RuntimeError(f"MongoDB insertion failed: {error}")
+        logging.error("MongoDB insertion failed: %s", error)
+        raise RuntimeError(f"MongoDB insertion failed: {error}") from error
+
+
+def cleanup_files(*files):
+    """Delete temporary files."""
+    for file in files:
+        try:
+            if os.path.exists(file):
+                os.remove(file)
+                logging.info("Deleted file: %s", file)
+        except OSError as error:
+            logging.error("Failed to delete file %s: %s", file, error)
 
 
 def process_file(filepath):
     """Process a single audio file."""
-    logging.info(f"Processing file: {filepath}")
+    if filepath in processed_files:
+        logging.info("File already processed, skipping: %s", filepath)
+        return
+
+    logging.info("Processing file: %s", filepath)
     try:
+        processed_files.add(filepath)
         converted_filepath = convert_to_linear16(filepath)
         transcript = transcribe_audio(converted_filepath)
 
         if transcript:
-            document_id = save_transcript_to_db(transcript)
-            logging.info(f"File processed and saved. Transcript ID: {document_id}")
+            save_transcript_to_db(transcript)
+            logging.info("File processed and transcript saved: %s", filepath)
         else:
-            logging.warning(f"No speech recognized in file: {filepath}")
+            logging.warning("No transcription generated for file: %s", filepath)
     except RuntimeError as error:
-        logging.error(f"Error processing file {filepath}: {error}")
+        logging.error("Error processing file %s: %s", filepath, error)
     finally:
-        cleanup_files([filepath, converted_filepath])
-
-
-def cleanup_files(file_list):
-    """Remove temporary files."""
-    for temp_file in file_list:
-        try:
-            os.remove(temp_file)
-            logging.debug(f"Removed temporary file: {temp_file}")
-        except OSError as error:
-            logging.error(f"Error removing file {temp_file}: {error}")
+        cleanup_files(filepath, filepath.replace(".wav", "_linear16.wav"))
 
 
 class AudioFileHandler(FileSystemEventHandler):
     """Handles new files in the uploads folder."""
 
     def on_created(self, event):
+        """Handle created events."""
         if not event.is_directory and event.src_path.endswith(".wav"):
-            logging.info(f"New file detected: {event.src_path}")
-            process_file(event.src_path)
+            logging.info("New file detected: %s", event.src_path)
+            self.schedule_processing(event.src_path)
 
+    def on_modified(self, event):
+        """Handle modified events."""
+        if not event.is_directory and event.src_path.endswith(".wav"):
+            logging.info("File modified: %s", event.src_path)
+            self.schedule_processing(event.src_path)
 
-# Flask endpoint for testing
-@app.route("/")
-def index():
-    """Root endpoint to confirm the server is running."""
-    return "Welcome to the audio processing server!"
+    def schedule_processing(self, filepath):
+        """
+        Schedule processing for the file after ensuring it is stable.
+        Files are processed only if the size remains unchanged for 2 seconds.
+        """
+        if filepath in processed_files:
+            logging.debug("File already processed, skipping: %s", filepath)
+            return
+
+        if re.search(r"_linear16\.wav$", filepath):
+            logging.debug("Ignoring intermediate file: %s", filepath)
+            return
+
+        def process_if_stable():
+            time.sleep(2)
+            if not os.path.exists(filepath):
+                return
+
+            current_size = os.path.getsize(filepath)
+            time.sleep(1)
+            if not os.path.exists(filepath):
+                return
+
+            final_size = os.path.getsize(filepath)
+            if current_size == final_size:
+                logging.info("File is stable, processing: %s", filepath)
+                process_file(filepath)
+            else:
+                logging.debug("File size still changing, re-checking: %s", filepath)
+                self.schedule_processing(filepath)
+
+        Thread(target=process_if_stable).start()
 
 
 if __name__ == "__main__":
-    # Start monitoring the uploads folder
     observer = Observer()
     event_handler = AudioFileHandler()
     observer.schedule(event_handler, UPLOAD_FOLDER, recursive=False)
@@ -170,7 +210,8 @@ if __name__ == "__main__":
 
     try:
         logging.info("Machine-learning-client is monitoring the uploads folder...")
-        app.run(host="0.0.0.0", port=5001)
+        while True:
+            time.sleep(1)
     except KeyboardInterrupt:
         observer.stop()
     observer.join()
