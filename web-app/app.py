@@ -20,7 +20,7 @@ users = {"bob123": {"password": "test"}, "jen987": {"password": "foobar"}}
 
 
 
-class User(flask_login.UserMixin): # pylint: disable = too-few-public-methods
+class User(flask_login.UserMixin):  # pylint: disable = too-few-public-methods
     """user class for flask-login"""
 
     def __init__(self, username: str) -> None:
@@ -36,40 +36,40 @@ def user_loader(username):
     return user
 
 
-@app.route("/login", methods=['GET', 'POST'])
+@app.route("/login", methods=["GET", "POST"])
 def login():
     """handles login functionality"""
     error = None
 
-    if request.method == 'POST':
-        username = request.form.get('username')
-        password = request.form.get('password')
+    if request.method == "POST":
+        username = request.form.get("username")
+        password = request.form.get("password")
 
         # validate input
         if not username or not password:
             error = "Error: Missing username or password"
 
-        elif username in users and users[username]['password'] == password:
+        elif username in users and users[username]["password"] == password:
             user = User(username)
             login_user(user)
 
-            return redirect(url_for('show_home', username=username))
+            return redirect(url_for("show_home", username=username))
         else:
             error = "Error: Invalid credentials"
 
 
-    return render_template('login.html', error=error)
+    return render_template("login.html", error=error)
 
 
-@app.route("/create_account", methods=['GET', 'POST'])
+@app.route("/create_account", methods=["GET", "POST"])
 def create_account():
     """handles account creation interface and functionality"""
     error = None
 
-    if request.method == 'POST':
-        username = request.form.get('username')
-        password = request.form.get('password')
-        password_confirm = request.form.get('password_confirm')
+    if request.method == "POST":
+        username = request.form.get("username")
+        password = request.form.get("password")
+        password_confirm = request.form.get("password_confirm")
 
         # validation logic
         if username in users:
@@ -80,19 +80,19 @@ def create_account():
             error = "Error: Passwords do not match."
         else:
             # Add new user to "database"
-            users[username] = {'password': password}
-            return redirect(url_for('login'))
+            users[username] = {"password": password}
+            return redirect(url_for("login"))
 
 
-    return render_template('create_account.html', error=error)
+    return render_template("create_account.html", error=error)
 
 
-@app.route('/logout')
+@app.route("/logout")
 def logout():
     """handles user logout"""
     logout_user()
 
-    return redirect(url_for('login'))
+    return redirect(url_for("login"))
 
 
 @login_manager.unauthorized_handler
@@ -105,11 +105,12 @@ def unauthorized_handler():
 def redirect_login():
     """redirect to login page"""
 
-    return redirect(url_for('login'))
+    return redirect(url_for("login"))
 
 
 @app.route("/<username>")
 @login_required
 def show_home(username):
     """show logged-in user's homepage"""
-    return render_template("user_home.html", username = username)
+
+    return render_template("user_home.html", username=username)
