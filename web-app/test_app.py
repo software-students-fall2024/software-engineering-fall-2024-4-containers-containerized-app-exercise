@@ -2,6 +2,7 @@
 Simplified test suite for the Flask application without pymongo.
 """
 
+import os
 import pytest
 from app import create_app, decode_photo
 
@@ -9,13 +10,15 @@ from app import create_app, decode_photo
 @pytest.fixture
 def app():  # pylint: disable=redefined-outer-name
     """Create and configure a new app instance for testing."""
+    # Mock environment variables
+    os.environ["MONGO_URI"] = "mongodb://mockdb:27017/"
+    os.environ["MONGO_DBNAME"] = "test"
+
     app = create_app()  # pylint: disable=redefined-outer-name
     app.config.update(
         {
             "TESTING": True,
             "SECRET_KEY": "testsecretkey",
-            "MONGO_URI": "mongodb://mongodb:27017/",
-            "MONGO_DBNAME": "test"
         }
     )
     return app
