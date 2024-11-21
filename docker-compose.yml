@@ -1,0 +1,24 @@
+services:
+  web-app:
+    build:
+      context: ./web-app
+      dockerfile: Dockerfile
+    ports:
+      - "5001:5000"  # Map internal 5000 to external 5001
+    environment:
+      MONGO_DBNAME: "itsOver"
+      MONGO_URI: "mongodb+srv://itsOver:itsOver@itsover.bx305.mongodb.net/?retryWrites=true&w=majority&appName=itsOver"
+      FLASK_APP: "app.py"
+      FLASK_ENV: "development"
+      FLASK_PORT: "5000"
+      SECRET_KEY: "itsOver"
+
+  machine-learning-client:
+    build:
+      context: ./machine-learning-client
+      dockerfile: Dockerfile
+    ports:
+      - "8000:8000"  # Map the container's 8000 port to the same port on the host
+    environment:
+      MONGO_DBNAME: "itsOver"
+      MONGO_URI: "mongodb+srv://itsOver:itsOver@itsover.bx305.mongodb.net/?retryWrites=true&w=majority&appName=itsOver"
