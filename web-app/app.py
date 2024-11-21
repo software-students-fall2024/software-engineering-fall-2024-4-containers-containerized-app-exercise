@@ -98,7 +98,6 @@ def add_data():
         return jsonify({"message": f"Error adding data: {add_data_exception}"}), 500
 
 
-
 if __name__ == "__main__":
     # Use Flask configuration from environment variables
     app.run(
