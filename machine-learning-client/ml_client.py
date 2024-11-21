@@ -39,11 +39,7 @@ def classify():
 
         return jsonify({"result": result})
     
-    except KeyError as e:  
-        return jsonify({"error": f"Key error: {str(e)}"}), 400
-    except ValueError as e:  
-        return jsonify({"error": f"Value error: {str(e)}"}), 400
-    except Exception as e:  
+    except Exception as e:  # pylint: disable=broad-except
         return jsonify({"error": f"Unexpected error: {str(e)}"}), 500
 
 
@@ -73,7 +69,7 @@ def store():
         }
 
         return jsonify({"status": "success", "data": stored_data})
-    except Exception as e:
+    except Exception as e:  # pylint: disable=broad-except
         return jsonify({"error": str(e)}), 500
 
 
