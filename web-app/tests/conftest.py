@@ -2,7 +2,7 @@
 Pytest configuration and fixtures for the Flask web application.
 """
 
-import pytest
+import pytest  # pylint: disable=E0401
 from ..app import app as flask_app, db  # Ensure app module is discoverable
 
 
