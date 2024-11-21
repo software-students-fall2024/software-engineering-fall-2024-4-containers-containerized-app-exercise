@@ -149,12 +149,30 @@ def classify():
     """
     try:
         # Capture the uploaded image and preprocess it
-        image = requests.files["image"]
-        image_array = preprocess_uploaded_image(image)  # Convert image to numpy array
+        image = requests.files["image"]  # pylint: disable=no-member
+
+        # Send the image to the ML Client API for preprocessing
+        preprocess_response = requests.post(
+            f"{ML_CLIENT_URL}/preprocess", files={"image": image}, timeout=10
+        )
+        if preprocess_response.status_code != 200:
+            return jsonify({"status": "error", "message": "Preprocessing failed"}), 500
+
+        # Receive the preprocessed image array
+        image_array = preprocess_response.json().get("image_array")
+        if not image_array:
+            return (
+                jsonify(
+                    {"status": "error", "message": "Invalid preprocessing response"}
+                ),
+                500,
+            )
 
         # Send the image_array to the ML Client API
         response = requests.post(
-            f"{ML_CLIENT_URL}/classify", json={"image_array": image_array.tolist()}
+            f"{ML_CLIENT_URL}/classify",
+            json={"image_array": image_array.tolist()},
+            timeout=10,
         )
         response_data = response.json()
         if "error" in response_data:
@@ -176,6 +194,7 @@ def classify():
                 "computer_choice": computer_choice,
                 "result": result,
             },
+            timeout=10,
         )
         if store_response.status_code != 200:
             return (

@@ -6,19 +6,20 @@ verify_ssl = true
 name = "pypi"
 
 [packages]
-flask = "==3.0.3"
 flask_cors = "==3.0.10"
-pymongo = "==4.10.1"
-python-dotenv = "==1.0.1"
-requests = "==2.32.3"
+flask = "*"
+flask-cors = "*"
+pymongo = "*"
+python-dotenv = "*"
+requests = "*"
 
 [dev-packages]
-pylint = "*"  # Linter for code quality
-black = "*"   # Code formatter
-pytest = "*"  # Test framework
 pytest-flask = "*"  # Flask-specific pytest extension
 flask = "*"
 tomli = "*"
+pylint = "*"
+black = "*"
+pytest = "*"
 
 [requires]
 python_version = "3.10"

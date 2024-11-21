@@ -95,6 +95,18 @@ def store():
         return jsonify({"error": str(e)}), 500
 
 
+@app.route("/preprocess", methods=["POST"])
+def preprocess():
+    """
+    API endpoint to preprocess an uploaded image.
+    """
+    try:
+        image = request.files["image"]  # Get the uploaded file
+        image_array = preprocess_image(image)  # Preprocess the image
+        return jsonify({"image_array": image_array.tolist()})
+    except Exception as e:
+        return jsonify({"error": f"Preprocessing failed: {str(e)}"}), 500
+
 def preprocess_image(image):
     """
     Resize and normalize the image for the model.
