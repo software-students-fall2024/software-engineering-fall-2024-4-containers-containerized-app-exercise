@@ -5,17 +5,32 @@ name = "pypi"
 
 [packages]
 flask = "==3.1.0"
-pymongo = {extras = ["srv"], version = "==4.10.1"}
 flask-login = "==0.6.3"
 python-dotenv = "==1.0.1"
 certifi = "*"
 pynput = "*"
-
-# Add a marker to ensure macOS-specific dependencies are installed only on macOS
 pyobjc-core = {version = "==10.3.1", markers = "sys_platform == 'darwin'"}
 pyobjc-framework-quartz = {version = "==10.3.1", markers = "sys_platform == 'darwin'"}
 pyobjc-framework-applicationservices = {version = "==10.3.1", markers = "sys_platform == 'darwin'"}
 pyobjc-framework-cocoa = {version = "==10.3.1", markers = "sys_platform == 'darwin'"}
+astroid = "==3.3.5"
+black = "==24.10.0"
+click = "==8.1.7"
+colorama = "==0.4.6"
+dill = "==0.3.9"
+dnspython = "==2.7.0"
+iniconfig = "==2.0.0"
+isort = "==5.13.2"
+mccabe = "==0.7.0"
+mypy-extensions = "==1.0.0"
+packaging = "==24.2"
+pathspec = "==0.12.1"
+platformdirs = "==4.3.6"
+pluggy = "==1.5.0"
+pylint = "==3.3.1"
+pymongo = "==4.10.1"
+pytest = "==8.3.3"
+tomlkit = "==0.13.2"
 
 [dev-packages]
 black = "*"
