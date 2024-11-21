@@ -1,218 +1,133 @@
 """
-Mouse Activity Tracker
-
-This module tracks mouse movement, clicks, and scrolls to monitor user focus.
-It generates a final report summarizing user activity.
+Mouse tracking metrics and routes for Flask application.
 """
 
-import time
 import math
-from dataclasses import dataclass
-from pymongo import MongoClient
-from pymongo.errors import ConnectionFailure, OperationFailure, WriteError
-from pynput import mouse
-
-# MongoDB connection URI
-MONGODB_URI = (
-    "mongodb+srv://itsOver:itsOver@itsover.bx305.mongodb.net/"
-    "?retryWrites=true&w=majority&appName=itsOver"
-)
-
-# Connect to MongoDB
-try:
-    client = MongoClient(MONGODB_URI)
-    db = client["itsOver"]
-    mouse_collection = db["mouse_activity"]
-
-    # Test connection by inserting a test document
-    test_document = {"test": "connection", "timestamp": time.time()}
-    test_result = mouse_collection.insert_one(test_document)
-    print(
-        f"Connected to MongoDB successfully! Test document ID: {test_result.inserted_id}"
-    )
-except (ConnectionFailure, OperationFailure) as error:
-    print(f"Failed to connect to MongoDB: {error}")
+import time
+from flask import Blueprint, request, jsonify
 
 
-FOCUS_THRESHOLD = 5  # Time (in seconds) before marking the user as unfocused
-
-
-@dataclass
 class MouseMetrics:
-    """Group metrics related to mouse activity."""
+    """
+    A class to handle and process mouse tracking metrics.
+    """
 
-    mouse_distance: float = 0
-    click_count: int = 0
-    scroll_distance: float = 0
-    last_x: float = None
-    last_y: float = None
-
-
-class MouseTracker:
-    """Tracks mouse activity and calculates focus metrics."""
+    FOCUS_THRESHOLD = 5  # Time in seconds to determine focus
 
     def __init__(self):
-        self.last_event_time = time.time()
-        self.metrics = MouseMetrics()
+        """
+        Initialize mouse metrics with default values.
+        """
+        self.mouse_distance = 0
+        self.click_count = 0
         self.focused_time = 0
         self.unfocused_time = 0
-        self.is_focused = True
+        self.last_x = None
+        self.last_y = None
+        self.last_event_time = time.time()
 
-    def update_focus_state(self):
-        """Updates the focus state based on recent mouse activity."""
+    def reset_metrics(self):
+        """
+        Reset all mouse metrics to their initial values.
+        """
+        self.mouse_distance = 0
+        self.click_count = 0
+        self.focused_time = 0
+        self.unfocused_time = 0
+        self.last_x = None
+        self.last_y = None
+        self.last_event_time = time.time()
+
+    def process_mouse_move(self, x, y):
+        """
+        Process mouse movement and calculate distance moved.
+        Args:
+            x (float): Current X coordinate of the mouse.
+            y (float): Current Y coordinate of the mouse.
+        """
         current_time = time.time()
+        if self.last_x is not None and self.last_y is not None:
+            distance = math.sqrt((x - self.last_x) ** 2 + (y - self.last_y) ** 2)
+            self.mouse_distance += distance
+        self.last_x, self.last_y = x, y
         time_since_last_event = current_time - self.last_event_time
 
-        if time_since_last_event > FOCUS_THRESHOLD:
-            if self.is_focused:
-                self.is_focused = False
-                print(
-                    f"Warning: Student is not focused! "
-                    f"No activity for {time_since_last_event:.2f} seconds."
-                )
-            self.unfocused_time += time_since_last_event - FOCUS_THRESHOLD
+        if time_since_last_event > self.FOCUS_THRESHOLD:
+            self.unfocused_time += time_since_last_event - self.FOCUS_THRESHOLD
         else:
-            if not self.is_focused:
-                self.is_focused = True
-                print("Student regained focus.")
             self.focused_time += time_since_last_event
 
-    def on_move(self, x, y):
-        """Handles mouse movement events."""
-        current_time = time.time()
         self.last_event_time = current_time
 
-        if self.metrics.last_x is not None and self.metrics.last_y is not None:
-            distance = math.sqrt(
-                (x - self.metrics.last_x) ** 2 + (y - self.metrics.last_y) ** 2
-            )
-            self.metrics.mouse_distance += distance
-            print(f"Mouse moved to ({x}, {y}), Distance: {distance:.2f} pixels")
+    def process_mouse_click(self):
+        """
+        Increment the click count when a mouse click event is detected.
+        """
+        self.click_count += 1
 
-        self.metrics.last_x, self.metrics.last_y = x, y
-        self.update_focus_state()
+    def generate_report(self):
+        """
+        Generate a report with the collected mouse metrics.
 
-    def on_click(self, x, y, button, pressed):
-        """Handles mouse click events."""
-        self.last_event_time = time.time()
-        action = "pressed" if pressed else "released"
-        print(f"Mouse {action} at ({x}, {y}) with {button}")
-
-        if pressed:
-            self.metrics.click_count += 1
-            print(f"Click count: {self.metrics.click_count}")
-
-        self.update_focus_state()
-
-    def on_scroll(self, x, y, dx, dy):
-        """Handles mouse scroll events."""
-        self.last_event_time = time.time()
-        self.metrics.scroll_distance += abs(dy)
-        print(f"Mouse scrolled at ({x}, {y}) with delta ({dx}, {dy})")
-
-        self.update_focus_state()
-
-    def generate_final_report(self):
-        """Generate a final report in dictionary format."""
+        Returns:
+            dict: A dictionary containing the mouse metrics report.
+        """
         total_time = self.focused_time + self.unfocused_time
         focus_percentage = (
             (self.focused_time / total_time) * 100 if total_time > 0 else 0
         )
-        unfocus_percentage = 100 - focus_percentage
 
         report = {
-            "total_mouse_distance": round(self.metrics.mouse_distance, 2),
-            "total_clicks": self.metrics.click_count,
-            "total_scrolls": self.metrics.scroll_distance,
+            "total_mouse_distance": round(self.mouse_distance, 2),
+            "click_count": self.click_count,
             "focused_time": round(self.focused_time, 2),
             "unfocused_time": round(self.unfocused_time, 2),
             "focus_percentage": round(focus_percentage, 2),
-            "unfocus_percentage": round(unfocus_percentage, 2),
-            "overall_status": (
-                "Focused" if focus_percentage > unfocus_percentage else "Unfocused"
-            ),
+            "status": "Focused" if focus_percentage > 50 else "Unfocused",
         }
+
+        # Sanitize invalid floats
+        for key, value in report.items():
+            if isinstance(value, float) and (math.isnan(value) or math.isinf(value)):
+                report[key] = 0
+
         return report
 
-    def save_to_database(self, report):
-        """Saves the final report to MongoDB."""
-        try:
-            result = mouse_collection.insert_one(report)
-            print(f"Final report saved to MongoDB with ID: {result.inserted_id}")
-        except WriteError as error:
-            print(f"Failed to save report to MongoDB: {error}")
+
+mouse_metrics = MouseMetrics()
 
 
-class MouseTrackerWithInterface(MouseTracker):
-    """Mouse Tracker with start and stop interfaces."""
-
-    def __init__(self):
-        super().__init__()
-        self.listener = None
-
-    def start_tracking(self):
-        """Start mouse tracking."""
-        if not self.listener:
-            self.listener = mouse.Listener(
-                on_move=self.on_move, on_click=self.on_click, on_scroll=self.on_scroll
-            )
-            self.listener.start()
-            print("Mouse tracking started.")
-
-    def stop_tracking(self):
-        """Stop mouse tracking."""
-        if self.listener:
-            self.listener.stop()
-            self.listener = None
-            print("Mouse tracking stopped.")
-            # Generate and save the final report after stopping
-            final_report = self.generate_final_report()
-            self.save_to_database(final_report)
-
-
-if __name__ == "__main__":
-    try:
-        tracker = MouseTrackerWithInterface()
-
-        print("Starting mouse tracking...")
-        tracker.start_tracking()
-
-        try:
-            # Run indefinitely until manually stopped
-            while True:
-                time.sleep(1)
-        except KeyboardInterrupt:
-            print("\nManual interruption detected. Stopping mouse tracking...")
-        finally:
-            tracker.stop_tracking()
-            print("\nMouse tracking stopped. Generating final report...")
-
-    except (ConnectionFailure, OperationFailure, WriteError) as db_error:
-        print(f"A database error occurred: {db_error}")
-    except ValueError as value_error:
-        print(f"A value error occurred: {value_error}")
-    except RuntimeError as runtime_error:
-        print(f"A runtime error occurred: {runtime_error}")
-    finally:
-        # Ensure the tracker is stopped if initialized
-        if "tracker" in locals() and isinstance(tracker, MouseTrackerWithInterface):
-            try:
-                tracker.stop_tracking()
-            except WriteError as cleanup_error:
-                print(f"An error occurred while stopping the tracker: {cleanup_error}")
-
-_tracker_instance = MouseTrackerWithInterface()
-
-
-def start_tracking():
+def init_mouse_routes(app, db):
     """
-    Start mouse tracking using the global tracker instance.
-    """
-    _tracker_instance.start_tracking()
+    Initialize mouse tracking routes for the Flask application.
 
+    Args:
+        app (Flask): The Flask application instance.
+        db (pymongo.Database): The MongoDB database instance.
+    """
+    mouse_bp = Blueprint("mouse", __name__)
 
-def stop_tracking():
-    """
-    Stop mouse tracking using the global tracker instance.
-    """
-    _tracker_instance.stop_tracking()
+    @mouse_bp.route("/track-mouse", methods=["POST"])
+    def track_mouse():
+        """
+        Route to handle mouse tracking events (mousemove or click).
+        """
+        data = request.json
+        event = data.get("event")
+        x, y = data.get("x"), data.get("y")
+        if event == "mousemove":
+            mouse_metrics.process_mouse_move(x, y)
+        elif event == "click":
+            mouse_metrics.process_mouse_click()
+        db.mouse_activity.insert_one({**data, "timestamp": time.time()})
+        return jsonify({"status": "success"}), 200
+
+    @mouse_bp.route("/mouse-report", methods=["GET"])
+    def mouse_report():
+        """
+        Route to generate and return the mouse tracking report.
+        """
+        report = mouse_metrics.generate_report()
+        return jsonify(report), 200
+
+    app.register_blueprint(mouse_bp)

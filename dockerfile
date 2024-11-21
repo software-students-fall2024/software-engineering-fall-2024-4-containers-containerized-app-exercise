@@ -18,18 +18,20 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 # Upgrade pip and install pipenv
 RUN pip3 install --no-cache-dir --upgrade pip pipenv
 
-# Install dependencies for machine-learning-client
+RUN pip3 install gunicorn
+
+# Copy Pipfiles for machine-learning-client and install dependencies
 WORKDIR /app/machine-learning-client
 COPY machine-learning-client/Pipfile machine-learning-client/Pipfile.lock ./
 RUN pipenv install --system --deploy --dev --skip-lock \
     && pip3 install opencv-python-headless
 
-# Install dependencies for web-app
+# Copy Pipfiles for web-app and install dependencies
 WORKDIR /app/web-app
 COPY web-app/Pipfile web-app/Pipfile.lock ./
 RUN pipenv install --system --deploy --dev --skip-lock
 
-# Copy application source code
+# Copy the entire application source code
 COPY machine-learning-client /app/machine-learning-client
 COPY web-app /app/web-app
 
@@ -42,5 +44,5 @@ ENV FLASK_RUN_PORT=5000
 # Expose Flask's default port
 EXPOSE 5000
 
-# Start Xvfb and Flask application
-CMD ["sh", "-c", "Xvfb :99 -screen 0 1024x768x16 & flask run"]
+# Start Xvfb (for GUI support, if needed) and run Flask
+CMD ["gunicorn", "--bind", "0.0.0.0:5000", "app:app"]
