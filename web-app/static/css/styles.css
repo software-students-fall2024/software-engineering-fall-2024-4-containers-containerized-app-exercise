@@ -21,7 +21,7 @@ body {
     display: flex;
     align-items: center;
     gap: 10px;
-    margin-bottom: 20px; /* Adds space below the header */
+    margin: 20px; /* Adds space below the header */
 }
 
 .back-button {
