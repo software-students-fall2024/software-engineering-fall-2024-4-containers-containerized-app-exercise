@@ -8,8 +8,10 @@ import uuid
 
 from bson import ObjectId
 from dotenv import load_dotenv
+from werkzeug.security import generate_password_hash, check_password_hash
 from flask import (
     Flask,
+    flash,
     request,
     render_template,
     redirect,
@@ -73,12 +75,17 @@ def register_routes(app, db):
     def login():
         if request.method == "POST":
             username = request.form["username"]
-            # password = request.form["password"]
+            password = request.form["password"]
 
-            # Simulate authentication logic here
-            session["username"] = username  # Set the username in the session
+            # look up user in the database
+            user = db.users.find_one({"username": username})
+            if not user or not check_password_hash(user["password"], password):
+                flash("Invalid username or password!", "error")
+                return render_template("login.html")
+
+            # set the session if credentials are correct
+            session["username"] = username
             return redirect(url_for("home"))
-
         return render_template("login.html")
 
     @app.route("/logout")
@@ -93,10 +100,18 @@ def register_routes(app, db):
             username = request.form["username"]
             password = request.form["password"]
 
-            db.users.insert_one({"username": username, "password": password})
+            # Check if username already exists
+            if db.users.find_one({"username": username}):
+                flash("Username already exists", "error")
+                return render_template("signup.html")
+
+            hashed_password = generate_password_hash(password)
+
+            # Save user to database
+            db.users.insert_one({"username": username, "password": hashed_password})
             session["username"] = username
 
-            return redirect(url_for("home", user=username))
+            return redirect(url_for("home"))
 
         return render_template("signup.html")
 
