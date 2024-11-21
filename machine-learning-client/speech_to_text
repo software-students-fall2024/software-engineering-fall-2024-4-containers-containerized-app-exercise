@@ -1,17 +1,10 @@
-from pymongo import MongoClient
 import speech_recognition as sr
 import numpy as np
 import wave
 import soundfile as sf
 import noisereduce as nr
 from datetime import datetime
-
-# MongoDB setup
-client = MongoClient("mongodb://database/scoobygang")
-db = client.audio_analysis
-collection = db.audio_logs
-
-recognizer = sr.Recognizer()
+from . import collection
 
 # Analyze the audio for noise
 def analyze_noise(audio_file_path, noise_threshold):

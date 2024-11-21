@@ -1,16 +1,24 @@
 import pytest
-import mongomock
 import numpy as np
 import os
 import wave
 from datetime import datetime
 from speech_to_text import analyze_noise, suppress_noise, save_to_db
 
-# Mock MongoDB setup
+# Simulate a MongoDB collection with a Python list
 @pytest.fixture
 def mock_collection():
-    mock_client = mongomock.MongoClient()
-    return mock_client.audio_analysis.audio_logs
+    class MockCollection:
+        def __init__(self):
+            self.data = []
+
+        def insert_one(self, document):
+            self.data.append(document)
+
+        def find(self):
+            return self.data
+
+    return MockCollection()
 
 # Test analyze_noise function
 def test_analyze_noise(tmp_path):
