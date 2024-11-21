@@ -3,6 +3,7 @@ A simple Flask application.
 This module sets up a basic web server using Flask.
 """
 
+import random
 import os
 import logging
 from flask import Flask, render_template, jsonify
@@ -10,7 +11,6 @@ from flask_cors import CORS
 from pymongo import MongoClient
 from pymongo.errors import ConnectionFailure
 from dotenv import load_dotenv
-import random
 import requests
 
 
@@ -108,11 +108,10 @@ def simulate_computer_choice():
     choices = ["rock", "paper", "scissors"]
     return random.choice(choices)
 
-
 def determine_result(user_choice, computer_choice):
     """
     Determine the result of the game based on user and computer choices.
-
+    
     Args:
         user_choice (str): The user's choice ('rock', 'paper', or 'scissors').
         computer_choice (str): The computer's choice ('rock', 'paper', or 'scissors').
@@ -138,9 +137,7 @@ def determine_result(user_choice, computer_choice):
     # Otherwise, the user loses
     return "lose"
 
-
 ML_CLIENT_URL = "http://ml-client:5001"  # Machine Learning Client's API endpoint
-
 
 @app.route("/classify", methods=["POST"])
 def classify():
@@ -178,20 +175,12 @@ def classify():
             },
         )
         if store_response.status_code != 200:
-            return (
-                jsonify({"status": "error", "message": "Failed to store game result"}),
-                500,
-            )
+            return jsonify({"status": "error", "message": "Failed to store game result"}), 500
 
-        return jsonify(
-            {
-                "user_choice": user_choice,
-                "computer_choice": computer_choice,
-                "result": result,
-            }
-        )
+        return jsonify({"user_choice": user_choice, "computer_choice": computer_choice, "result": result})
     except Exception as e:
         return jsonify({"status": "error", "message": str(e)}), 500
+    
 
 
 if __name__ == "__main__":

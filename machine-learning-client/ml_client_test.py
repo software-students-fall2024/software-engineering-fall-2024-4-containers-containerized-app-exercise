@@ -1,76 +1,90 @@
 import pytest
+import json
 import numpy as np
-from unittest.mock import MagicMock
-from ml_client import classify_image, preprocess_image, store_game_result
-
-
-@pytest.fixture
-def mock_model(mocker):
-    """
-    Fixture to mock the trained model's predict method.
-    """
-    mock_model = mocker.patch("ml_client.model")
-    mock_model.predict.return_value = np.array([[0.1, 0.7, 0.2]])  # Mock prediction
-    return mock_model
-
+from io import BytesIO
+from PIL import Image
+from ml_client import app, preprocess_image
 
 @pytest.fixture
-def mock_games_collection():
+def client():
     """
-    Fixture to mock the MongoDB games collection.
+    Fixture to set up the Flask test client.
     """
-    mock_collection = MagicMock()
-    return mock_collection
+    with app.test_client() as client:
+        yield client
+
+
+def create_image_array():
+    """
+    Helper function to create a dummy image array for testing.
+    """
+    image = Image.new("RGB", (224, 224), color=(255, 0, 0))  # Create a red image
+    image_array = np.array(image) / 255.0  # Normalize
+    return image_array
+
+
+def test_classify_success(client):
+    """
+    Test the /classify endpoint with a valid image array.
+    """
+    image_array = create_image_array().tolist()
+
+    # Debugging: Print the payload being sent
+    print(f"Payload being sent: {type(image_array)}, Length: {len(image_array)}")
+
+    response = client.post(
+        "/classify",
+        data=json.dumps({"image_array": image_array}),
+        content_type="application/json",
+    )
+    assert response.status_code == 200
+    assert "result" in response.json
+
+
+def test_classify_missing_image_array(client):
+    """
+    Test the /classify endpoint with a missing image array.
+    """
+    response = client.post("/classify", data=json.dumps({}), content_type="application/json")
+    assert response.status_code == 400
+    assert "error" in response.json
+    assert response.json["error"] == "No image_array provided"
+
+
+def test_store_success(client):
+    """
+    Test the /store endpoint with valid game results.
+    """
+    payload = {
+        "user_choice": "rock",
+        "computer_choice": "scissors",
+        "result": "win",
+    }
+    response = client.post("/store", data=json.dumps(payload), content_type="application/json")
+    assert response.status_code == 200
+    assert "status" in response.json
+    assert response.json["status"] == "success"
+
+
+def test_store_missing_fields(client):
+    """
+    Test the /store endpoint with missing fields.
+    """
+    payload = {
+        "user_choice": "rock",
+        "computer_choice": "scissors",
+    }  # Missing "result"
+    response = client.post("/store", data=json.dumps(payload), content_type="application/json")
+    assert response.status_code == 400
+    assert "error" in response.json
+    assert response.json["error"] == "Missing required fields"
 
 
 def test_preprocess_image():
     """
-    Test that the image is resized and normalized correctly.
+    Test the preprocess_image function to ensure resizing and normalization.
     """
-    # Create a mock image tensor (300x300x3)
-    mock_image = np.random.randint(0, 256, size=(300, 300, 3), dtype=np.uint8)
-    preprocessed_image = preprocess_image(mock_image)
-
-    # Check the shape
-    assert preprocessed_image.shape == (224, 224, 3)
-
-    # Check the pixel value range is [0, 1]
-    assert np.all(preprocessed_image >= 0.0)
-    assert np.all(preprocessed_image <= 1.0)
-
-
-def test_classify_image(mock_model):
-    """
-    Test that classify_image returns the correct class based on the mocked model.
-    """
-    # Create a mock image array
-    mock_image = np.random.rand(224, 224, 3)
-
-    # Call classify_image
-    result = classify_image(mock_image)
-
-    # Assert the result matches the expected class
-    assert result == "paper"  # Based on mock_model.predict output
-
-
-def test_store_game_result(mock_games_collection):
-    """
-    Test that store_game_result inserts the correct game data into the database.
-    """
-    user_choice = "rock"
-    computer_choice = "scissors"
-    result = "win"
-
-    # Call store_game_result
-    game_data = store_game_result(
-        mock_games_collection, user_choice, computer_choice, result
-    )
-
-    # Check that insert_one was called with the correct data
-    mock_games_collection.insert_one.assert_called_once()
-    inserted_data = mock_games_collection.insert_one.call_args[0][0]
-
-    assert inserted_data["user_choice"] == user_choice
-    assert inserted_data["computer_choice"] == computer_choice
-    assert inserted_data["result"] == result
-    assert "timestamp" in inserted_data  # Ensure timestamp is present
+    image_array = create_image_array()
+    processed_image = preprocess_image(image_array).numpy()  # Convert to NumPy array
+    assert processed_image.shape == (300, 300, 3)  # Updated to match the model's input shape
+    assert (processed_image >= 0).all() and (processed_image <= 1).all()
