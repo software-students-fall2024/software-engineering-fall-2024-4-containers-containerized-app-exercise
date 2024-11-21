@@ -1,6 +1,7 @@
 """
 This Module Trains a Rock, Paper, Scissors Machine Learning Model
 """
+
 # pylint: disable=E1101
 # pylint: disable=import-error
 # pylint: disable=no-member
@@ -30,6 +31,7 @@ def load_data():
         ds_test: Preprocessed test dataset
         info: Dataset metadata
     """
+
     def preprocess_image(image, label):
         # Convert [0, 255] range integers to [0, 1] range floats
         image = tf.image.convert_image_dtype(image, tf.float32)
@@ -97,7 +99,9 @@ cnn_model.fit(
 )
 
 # Evaluate the model
-rock_paper_scissors_test = tfds.load(name="rock_paper_scissors", split="test", batch_size=-1)
+rock_paper_scissors_test = tfds.load(
+    name="rock_paper_scissors", split="test", batch_size=-1
+)
 rock_paper_scissors_test = tfds.as_numpy(rock_paper_scissors_test)
 
 x_test, y_test = rock_paper_scissors_test["image"], rock_paper_scissors_test["label"]
@@ -105,5 +109,8 @@ x_test, y_test = rock_paper_scissors_test["image"], rock_paper_scissors_test["la
 cnn_model.evaluate(x_test, y_test)
 
 # Save the model
-cnn_model.save("machine-learning-client/model/rps_model.h5",
-               include_optimizer=False, save_format="h5")
+cnn_model.save(
+    "machine-learning-client/model/rps_model.h5",
+    include_optimizer=False,
+    save_format="h5",
+)

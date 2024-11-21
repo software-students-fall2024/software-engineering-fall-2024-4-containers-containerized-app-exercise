@@ -19,6 +19,7 @@ model = tf.keras.models.load_model(MODEL_PATH)
 # Initialize Flask app
 app = Flask(__name__)
 
+
 @app.route("/classify", methods=["POST"])
 def classify():
     """
