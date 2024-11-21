@@ -303,3 +303,34 @@ def test_result_route_no_image(mock_retry_request, test_client):
     response = test_client.post("/result", data={}, content_type="multipart/form-data")
     assert response.status_code == 400
     assert b"No image file provided" in response.data
+
+@patch("app.collection.update_one")
+@patch("app.retry_request")
+def test_result_route_success(mock_retry_request, mock_update_one, test_client):
+    """
+    Test successful result route (/result) functionality.
+
+    Args:
+        mock_retry_request: Mocked HTTP retry request function
+        mock_update_one: Mocked MongoDB update operation
+        test_client: Flask test client fixture
+
+    Verifies:
+        - Route handles successful predictions correctly
+        - Returns 200 status code
+        - Contains expected success message
+    """
+    mock_response = MagicMock()
+    mock_response.json.return_value = {"gesture": "Rock"}  # AI plays Rock
+    mock_retry_request.return_value = mock_response
+
+    mock_id = str(ObjectId())
+    test_client.set_cookie("db_object_id", mock_id)
+
+    # User plays Paper
+    data = {"image": (BytesIO(b"fake image data"), "test_image.jpg")}
+    response = test_client.post("/result", data=data, content_type="multipart/form-data")
+
+    assert response.status_code == 200
+    assert b"You win!" in response.data  # Paper beats Rock, so user wins
+    
