@@ -3,8 +3,8 @@ Module: a flask application that acts as the interface for user login,
 audio recording, and viewing statistics
 """
 
-import flask_login
 from flask import Flask, render_template, request, redirect, url_for
+import flask_login
 from flask_login import login_user, login_required, logout_user
 
 # instantiate flask app, create key
@@ -17,6 +17,7 @@ login_manager.init_app(app)
 
 # simulated database of users, need to implement
 users = {"bob123": {"password": "test"}, "jen987": {"password": "foobar"}}
+
 
 
 class User(flask_login.UserMixin): # pylint: disable = too-few-public-methods
@@ -33,15 +34,6 @@ def user_loader(username):
         return None
     user = User(username)
     return user
-
-
-#@login_manager.request_loader
-#def request_loader(request):
-#    """load a user from a request, for APIs"""
-#    username = request.form.get('username')
-#    if username in users:
-#        return User(username)
-#    return None
 
 
 @app.route("/login", methods=['GET', 'POST'])
