@@ -4,21 +4,16 @@ Unit tests for app.py
 # test_app.py
 # cd web-app
 # pytest test_app.py -v
-
 # pytest -v
+
 # pylint web-app/
 # black .
 
-# Standard library imports
 from io import BytesIO
 from unittest.mock import patch, MagicMock
-
-# Third party imports
 import pytest
 import requests
 from bson.objectid import ObjectId
-
-# Local application imports
 from app import app, generate_stats_doc, retry_request
 
 
@@ -226,6 +221,7 @@ def test_statistics_route(mock_generate_stats_doc, mock_collection, test_client)
     assert response.status_code == 200
     assert b"Statistics" in response.data
 
+
 @patch("app.retry_request")
 def test_result_route_unknown_gesture(mock_retry_request, test_client):
     """
@@ -283,6 +279,7 @@ def test_result_route_ml_failure(mock_retry_request, test_client):
     assert response.status_code == 200
     assert b"No valid prediction" in response.data
 
+
 @patch("app.retry_request")
 def test_result_route_no_image(_, test_client):
     """
@@ -302,4 +299,3 @@ def test_result_route_no_image(_, test_client):
     response = test_client.post("/result", data={}, content_type="multipart/form-data")
     assert response.status_code == 400
     assert b"No image file provided" in response.data
-    
