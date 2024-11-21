@@ -55,8 +55,10 @@ To set up this project locally, follow these steps:
     ```
 
 5. **Build using Docker**:
-    ```docker-compose up
+    ```bash
+    docker-compose up --build
     ```
+
     - This will start the Flask app inside the container and map it to port 5001 on your host machine. You can access the application at http://localhost:5001. The machine learning client will map to port 3000.
 
 
