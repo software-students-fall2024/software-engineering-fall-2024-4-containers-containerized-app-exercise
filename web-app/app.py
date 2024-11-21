@@ -1,28 +1,33 @@
-# import necessary pkgs
+"""
+Module: a flask application that acts as the interface for user login, audio recording, and viewing statistics
+"""
+
 import flask
-from flask import Flask, render_template, request, redirect, url_for
 import flask_login
-from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
+from flask import Flask, render_template, request, redirect, url_for
+from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user
 
 # instantiate flask app, create key
 app = Flask(__name__)
 app.secret_key = "tripledoubleholymoly"
 
-# Setup flask-login
+# setup flask-login
 login_manager = flask_login.LoginManager()
 login_manager.init_app(app)
 
-# Simulated database of users
+# simulated database of users, need to implement
 users = {'bob123': {'password': 'test'}, 'jen987': {'password': 'foobar'}}
 
+
 class User(flask_login.UserMixin):
+    """user class for flask-login"""
     def __init__(self, username: str) -> None:
         self.id = username
     pass
 
 @login_manager.user_loader
 def user_loader(username):
-    # Fetch user from "database"
+    """load a user by their username"""
     if username not in users:
         return None
     user = User(username)
@@ -30,21 +35,21 @@ def user_loader(username):
 
 @login_manager.request_loader
 def request_loader(request):
+    """load a user from a request, for APIs"""
     username = request.form.get('username')
-    if username not in users:
-        return
-    
-    user = User(username)
-    return user
+    if username in users:
+        return User(username)
+    return None
 
 @app.route("/login", methods=['GET', 'POST'])
 def login():
+    """handles login functionality"""
     error = None
     if request.method == 'POST':
         username = request.form.get('username')
         password = request.form.get('password')
 
-        # Validate input
+        # validate input
         if not username or not password:
             error = "Error: Missing username or password"
         elif username in users and users[username]['password'] == password:
@@ -58,6 +63,7 @@ def login():
 
 @app.route("/create_account", methods=['GET', 'POST'])
 def create_account():
+    """handles account creation interface and functionality"""
     error = None
     if request.method == 'POST':
         username = request.form.get('username')
@@ -80,18 +86,22 @@ def create_account():
 
 @app.route('/logout')
 def logout():
+    """handles user logout"""
     logout_user()
     return redirect(url_for('login'))
 
 @login_manager.unauthorized_handler
 def unauthorized_handler():
+    """handles situation during unauthorized access"""
     return "Unauthorized Access. Please log in.", 401
 
 @app.route("/")
 def redirect_login():
+    """redirect to login page"""
     return redirect(url_for('login'))
 
 @app.route("/<username>")
 @login_required
 def show_home(username):
+    """show logged-in user's homepage"""
     return render_template("user_home.html", username = username)
