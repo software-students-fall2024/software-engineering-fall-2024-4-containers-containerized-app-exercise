@@ -68,7 +68,9 @@ def register_routes(app, db):
             if user and check_password_hash(user["password"], password):
                 session["username"] = username
                 return redirect(url_for("home", user=username))
-            return render_template("login.html", error="Invalid credentials")  # Removed 'else'
+            return render_template(
+                "login.html", error="Invalid credentials"
+            )  # Removed 'else'
 
         return render_template("login.html")
 
@@ -223,4 +225,3 @@ def handle_error(message, status_code):
 if __name__ == "__main__":
     APP = create_app()
     APP.run(host="0.0.0.0", port=5000)
-    
