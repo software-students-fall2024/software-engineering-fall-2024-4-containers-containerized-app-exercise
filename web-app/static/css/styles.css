@@ -215,6 +215,15 @@ section {
     background-color: #f1f1f1;
 }
 
+.logo-link {
+    text-decoration: none; /* removes underline from link */
+    color: inherit; 
+}
+
+
+.logo-link:hover {
+    color: #224a22; 
+}
 
 /* .entry {
     display: flex;

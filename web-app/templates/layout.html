@@ -20,7 +20,9 @@
     <body>
         <main>
             <div class="nav">
-                <h1>PlantifyAI</h1>
+                <a href="{{ url_for('home') }}" class="logo-link">
+                    <h1>PlantifyAI</h1>
+                </a>
                 {% if 'username' in session %}
                     <div class="dropdown">
                         <button class="button">Menu <i class="fa fa-caret-down"></i></button>
