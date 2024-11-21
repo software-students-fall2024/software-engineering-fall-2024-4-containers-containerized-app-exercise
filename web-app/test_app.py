@@ -4,7 +4,7 @@ Extended test suite for the Flask application without pymongo.
 
 import os
 import pytest
-from app import create_app, decode_photo, handle_error, save_photo
+from app import create_app, decode_photo, save_photo
 
 
 @pytest.fixture
