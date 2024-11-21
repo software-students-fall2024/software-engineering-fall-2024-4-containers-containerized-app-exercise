@@ -11,15 +11,11 @@ from torchvision import transforms
 from PIL import Image
 import torchvision
 from flask import Flask, jsonify, request, send_from_directory
-from pymongo import MongoClient
 from flask_cors import CORS
 from werkzeug.utils import secure_filename
+from dotenv import load_dotenv
 
-# Initialize MongoDB connection
-MONGO_URI = os.getenv("MONGO_URI", "mongodb://localhost:27017/")
-MONGO_DBNAME = os.getenv("MONGO_DBNAME", "plant_identifier")
-client = MongoClient(MONGO_URI)
-db = client[MONGO_DBNAME]
+load_dotenv()
 
 # Initialize Flask app
 app = Flask(__name__)
@@ -168,6 +164,6 @@ def uploaded_file(filename):
 
 
 if __name__ == "__main__":
-    FLASK_PORT = os.getenv("FLASK_PORT", "3001")
+    FLASK_PORT = os.getenv("FLASK_PORT_ML")
     CORS(app)
     app.run(host="0.0.0.0", port=FLASK_PORT)

@@ -3,11 +3,6 @@ services:
     build: ./web-app # build the Docker image from the Dockerfile in the back-end directory
     ports:
       - 5001:5000 # map port 5000 of host machine to port 5000 of container
-    environment:
-      - MONGO_URI=mongodb://mongodb:27017
-      - MONGO_DBNAME=plant_identifier
-      - FLASK_PORT=5000
-      - SECRET_KEY=supersecretkey
     depends_on:
       - ml-client
       - mongodb
@@ -15,6 +10,7 @@ services:
       - app-network
     volumes:
       - ./uploads:/web-app/uploads
+      - ./.env:/../.env
     command: python app.py
   
   mongodb:
@@ -23,6 +19,7 @@ services:
       - "27017:27017"
     volumes:
       - mongo_data:/data/db
+      - ./.env:/../.env
     networks:
       - app-network
 
