@@ -6,17 +6,20 @@ url = "https://pypi.org/simple"
 verify_ssl = true
 
 [dev-packages]
+pytest-mock = "*"
 pylint = "*"
 black = "*"
 pytest = "*"
-pytest-mock = "*"
+tomli = "*"
 
 [packages]
-tensorflow = ">=2.0"
 tensorflow-datasets = "*"
 pymongo = "*"
-numpy = "*"
+pillow = "==11.0.0"
 flask = "*"
+tensorflow = "*"
+numpy = "*"
+requests = "*"
 
 [requires]
 python_version = "3.12"

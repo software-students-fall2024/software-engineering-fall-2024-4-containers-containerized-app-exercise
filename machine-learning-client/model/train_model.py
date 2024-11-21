@@ -10,10 +10,14 @@ This Module Trains a Rock, Paper, Scissors Machine Learning Model
 import os
 import tensorflow as tf
 import tensorflow_datasets as tfds
-from tensorflow.keras.models import Sequential
-from tensorflow.keras.layers import Dense, Dropout, Flatten
-from tensorflow.keras.layers import Conv2D, MaxPooling2D, AveragePooling2D
-from tensorflow.keras.callbacks import TensorBoard
+from tensorflow.keras.models import Sequential  # pylint: disable=no-member
+from tensorflow.keras.layers import Dense, Dropout, Flatten  # pylint: disable=no-member
+from tensorflow.keras.layers import (
+    Conv2D,
+    MaxPooling2D,
+    AveragePooling2D,
+)  # pylint: disable=no-member
+from tensorflow.keras.callbacks import TensorBoard  # pylint: disable=no-member
 
 # Set hyper-parameters
 BATCH_SIZE = 32
