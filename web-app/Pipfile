@@ -14,6 +14,7 @@ pymongo = "*"
 asyncio = "*"
 websockets = "*"
 aiohttp = "*"
+characterai = "*"
 
 [dev-packages]
 pylint = "*"
