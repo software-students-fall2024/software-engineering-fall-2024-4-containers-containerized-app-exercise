@@ -18,7 +18,6 @@ from flask import (
     make_response,
     session,
     url_for,
-    send_from_directory,
 )
 import pymongo
 import requests
@@ -54,148 +53,133 @@ def create_app():
 
 def register_routes(app, db):
     """Registers all the routes for the Flask app."""
+    register_home_routes(app, db)
+    register_auth_routes(app, db)
+    register_entry_routes(app, db)
+
+
+def register_home_routes(app, db):
+    """Register routes for the home page and history."""
 
     @app.route("/")
     def home():
-        """Render the home page."""
-        username = session.get(
-            "username"
-        )  # Fetch the logged-in user's name from the session
+        username = session.get("username")
         if username:
             user_entries = list(db.plants.find({"user": username}))
             recent_entries = (
                 user_entries[-3:] if len(user_entries) > 3 else user_entries
-            )  # Show last 3 entries
+            )
             return render_template(
                 "home.html", user=username, user_entries=recent_entries
             )
         return render_template("home.html", user=None)
+
+    @app.route("/history")
+    def history():
+        username = session.get("username")
+        if not username:
+            return redirect(url_for("login"))
+        user_results = list(db.predictions.find({"user": username}))
+        return render_template("history.html", results=user_results)
+
+    @app.route("/delete/<entry_id>", methods=["POST"])
+    def delete_entry(entry_id):
+        """Delete an entry by ID."""
+        username = session.get("username")
+        if not username:
+            return redirect(url_for("login"))
+        db.predictions.delete_one({"_id": ObjectId(entry_id), "user": username})
+        flash("Entry deleted successfully", "success")
+        return redirect(url_for("history"))
+
+
+def register_auth_routes(app, db):
+    """Register authentication-related routes."""
 
     @app.route("/login", methods=["GET", "POST"])
     def login():
         if request.method == "POST":
             username = request.form["username"]
             password = request.form["password"]
-
-            # look up user in the database
             user = db.users.find_one({"username": username})
             if not user or not check_password_hash(user["password"], password):
                 flash("Invalid username or password!", "error")
                 return render_template("login.html")
-
-            # set the session if credentials are correct
             session["username"] = username
             return redirect(url_for("home"))
         return render_template("login.html")
 
     @app.route("/logout")
     def logout():
-        session.pop("username", None)  # Remove username from the session
+        session.pop("username", None)
         return redirect(url_for("home"))
 
     @app.route("/signup", methods=["GET", "POST"])
     def signup():
-        """Handle user signup."""
         if request.method == "POST":
             username = request.form["username"]
             password = request.form["password"]
-
-            # Check if username already exists
             if db.users.find_one({"username": username}):
                 flash("Username already exists", "error")
                 return render_template("signup.html")
-
             hashed_password = generate_password_hash(password)
-
-            # Save user to database
             db.users.insert_one({"username": username, "password": hashed_password})
             session["username"] = username
-
             return redirect(url_for("home"))
-
         return render_template("signup.html")
+
+
+def register_entry_routes(app, db):
+    """Register routes for entry management."""
 
     @app.route("/upload", methods=["GET", "POST"])
     def upload():
-        """Handle image upload and processing."""
         if request.method == "POST":
             photo_data = request.form.get("photo")
             if not photo_data:
                 return handle_error("No photo data received", 400)
-
             try:
                 photo_binary = decode_photo(photo_data)
-            except ValueError as error:
-                print(f"Invalid photo data: {error}")
-                return handle_error("Invalid photo data", 400)
-
-            try:
                 filepath, filename = save_photo(photo_binary)
-            except IOError as error:
-                print(f"Error saving file: {error}")
-                return handle_error("File save failed", 500)
-
-            try:
                 process_photo(filepath, filename)
-            except (requests.RequestException, pymongo.errors.PyMongoError) as error:
-                print(f"Processing error: {error}")
+            except (
+                ValueError,
+                IOError,
+                requests.RequestException,
+                pymongo.errors.PyMongoError,
+            ) as error:
+                print(f"Error processing file: {error}")
                 return handle_error("Error processing the photo", 500)
-
             return redirect(url_for("results", filename=filename))
-
         return render_template("upload.html")
+
+    @app.route("/results/<filename>")
+    def results(filename):
+        result = db.predictions.find_one({"photo": filename})
+        if result:
+            return render_template("results.html", result=result)
+        return handle_error("Result not found", 404)
 
     @app.route("/new_entry", methods=["GET", "POST"])
     def new_entry():
-        """Handle adding new instructions to an entry."""
         new_entry_id = request.args.get("new_entry_id")
         if not new_entry_id:
             return handle_error("No entry ID provided", 400)
-
         entry_id = ObjectId(new_entry_id)
-
         if request.method == "POST":
             instructions = request.form["instructions"]
             db.plants.update_one(
                 {"_id": entry_id}, {"$set": {"instructions": instructions}}
             )
             return redirect(url_for("home", user=session.get("username")))
-
         document = db.plants.find_one({"_id": entry_id})
         if not document:
             return handle_error("Entry not found", 404)
-
         photo = document.get("photo")
         name = document.get("name")
         return render_template(
             "new-entry.html", photo=photo, name=name, new_entry_id=new_entry_id
         )
-
-    @app.route("/results/<filename>")
-    def results(filename):
-        """Fetch and display prediction results from MongoDB."""
-        result = db.predictions.find_one({"photo": filename})
-        if result:
-            return render_template("results.html", result=result)
-        return handle_error("Result not found", 404)
-
-    @app.route("/history")
-    def history():
-        """Display prediction results specific to the logged-in user."""
-        username = session.get("username")
-        if not username:
-            return redirect(url_for("login"))
-
-        # Fetch only the predictions associated with the logged-in user
-        user_results = list(db.predictions.find({"user": username}))
-
-        return render_template("history.html", results=user_results)
-
-    @app.route("/uploads/<filename>")
-    def uploaded_file(filename):
-        """Serve uploaded files."""
-        uploads_dir = os.path.join(app.root_path, "static", "uploads")
-        return send_from_directory(uploads_dir, filename)
 
 
 def decode_photo(photo_data):
