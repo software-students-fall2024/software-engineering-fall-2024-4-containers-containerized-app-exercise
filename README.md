@@ -45,9 +45,15 @@ cd <4-containers-rawf>
 - *Connect to Database URL:* mongodb://mongodb:27017/
 
 **3. Go to Correct Filepath:**
-```
-cd Desktop/4-containers-rawf-main/web-app
-```
+- *Mac:*
+   ```
+   cd Desktop/4-containers-rawf-main/web-app
+   ```
+
+- *Windows:*
+   ```
+   cd Desktop\4-containers-rawf-main\web-app
+   ```
 
 **4. Create a Virtual Environment:**
 - *Mac:*
@@ -68,12 +74,18 @@ pip install requests
 pip install pymongo
 ```
 
-**6. Integrate with Docker Compose:** 
+**6. Install Docker-Compose:**
 ```
+brew install docker-compose
+```
+
+**7. Integrate with Docker Compose:** 
+```
+docker-compose down --volumes --remove-orphans
 docker-compose up --build
 ```
 
-**6. Play:** access our web app, [Rock, Paper, Scissors](http://localhost:5000), and play! 
+**6. Access** [here](http://127.0.0.1:5888)! 
 
 ## TEAM MEMBERS
 
