@@ -53,7 +53,6 @@ except Exception as error:
 # Track processed files to avoid duplicate processing
 processed_files = set()
 
-
 def convert_to_linear16(filepath):
     """Convert the audio file to LINEAR16 format."""
     logging.debug("Converting %s to LINEAR16 format...", filepath)
