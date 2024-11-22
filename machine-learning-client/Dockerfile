@@ -7,6 +7,7 @@ RUN apt-get update && apt-get install -y \
     swig \
     portaudio19-dev \
     libpulse-dev \
+    git \
     && apt-get clean && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app

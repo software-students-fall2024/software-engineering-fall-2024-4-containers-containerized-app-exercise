@@ -16,14 +16,12 @@ import certifi
 from pydub import AudioSegment
 
 # Configure pydub to use ffmpeg
-AudioSegment.converter = "/usr/local/bin/ffmpeg"
-AudioSegment.ffprobe = "/usr/local/bin/ffprobe"
-
+AudioSegment.converter = "/opt/homebrew/bin/ffmpeg"
+AudioSegment.ffprobe = "/opt/homebrew/bin/ffprobe"
 
 def setup_logging():
     """Set up application-wide logging."""
     logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
-
 
 def connect_to_mongo(mongo_uri):
     """Establish a MongoDB connection."""
@@ -36,14 +34,12 @@ def connect_to_mongo(mongo_uri):
         logging.error("Failed to connect to MongoDB: %s", error)
         raise RuntimeError("MongoDB connection failed.") from error
 
-
 def initialize_upload_folder():
     """Initialize the upload folder."""
     base_dir = os.path.dirname(os.path.abspath(__file__))
     upload_folder = os.path.join(base_dir, "uploads")
     os.makedirs(upload_folder, exist_ok=True)
     return upload_folder
-
 
 def load_environment_variables():
     """Load and validate required environment variables."""
@@ -55,19 +51,16 @@ def load_environment_variables():
     if not mongo_uri:
         raise ValueError("MONGO_URI is missing. Add it to your .env file.")
 
-    ml_client_url = os.getenv("ML_CLIENT_URL")
-    if not ml_client_url:
-        raise ValueError("ML_CLIENT_URL is missing in the .env file.")
+    google_credentials = os.getenv("GOOGLE_APPLICATION_CREDENTIALS", None)
 
-    return secret_key, mongo_uri, ml_client_url
-
+    return secret_key, mongo_uri, google_credentials
 
 def create_app():
     """Creates and configures the Flask application."""
     load_dotenv()
 
     # Load environment variables
-    secret_key, mongo_uri, _ = load_environment_variables()
+    secret_key, mongo_uri, google_credentials = load_environment_variables()
 
     # Initialize Flask app
     flask_app = initialize_flask(secret_key)
@@ -75,11 +68,14 @@ def create_app():
     # Set up MongoDB
     users = setup_mongo(mongo_uri)
 
+    # Optionally log Google credentials
+    if google_credentials:
+        logging.info("Google Application Credentials: %s", google_credentials)
+
     # Configure routes
     configure_routes(flask_app, users)
 
     return flask_app
-
 
 def initialize_flask(secret_key):
     """Initialize and configure the Flask app."""
@@ -91,7 +87,6 @@ def initialize_flask(secret_key):
     setup_logging()
     return flask_app
 
-
 def setup_mongo(mongo_uri):
     """Set up MongoDB client and users collection."""
     mongo_client = connect_to_mongo(mongo_uri)
@@ -99,13 +94,11 @@ def setup_mongo(mongo_uri):
     users = db["users"]
     return users
 
-
 def configure_routes(flask_app, users):
     """Define and register all routes."""
     configure_login_routes(flask_app, users)
     configure_chat_routes(flask_app, users)
     configure_audio_routes(flask_app)
-
 
 def configure_login_routes(flask_app, users):
     """Define routes related to user login."""
@@ -151,7 +144,6 @@ def configure_login_routes(flask_app, users):
         except pymongo.errors.PyMongoError as mongo_error:
             logging.error("MongoDB error: %s", mongo_error)
             return jsonify({"error": "Database error"}), 500
-
 
 def configure_chat_routes(flask_app, users):
     """Define routes related to chat functionality."""
@@ -199,7 +191,6 @@ def configure_chat_routes(flask_app, users):
         except pymongo.errors.PyMongoError as mongo_error:
             logging.error("MongoDB error: %s", mongo_error)
             return jsonify({"error": "Database error"}), 500
-
 
 def configure_audio_routes(flask_app):
     """Define routes related to audio functionality."""

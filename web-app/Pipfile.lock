@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "b89e5e0998c0c04634b634f8d54af058b221989c63db22e43493ba3d725d92d5"
+            "sha256": "80ce2a6237d64c7b2d7db03ad8b38c606be2d34a3fdc612ced637c44aba24131"
         },
         "pipfile-spec": 6,
         "requires": {
@@ -115,7 +115,7 @@
             "version": "==1.17.1"
         },
         "characterai": {
-            "git": "https://github.com/kramcat/characterai.git",
+            "git": "git+https://github.com/kramcat/characterai.git",
             "ref": "80b1bbff11859f6d0ec0510abb7f9e0982babb93"
         },
         "charset-normalizer": {
@@ -482,6 +482,14 @@
             ],
             "markers": "python_version >= '3.8'",
             "version": "==2.27.1"
+        },
+        "pydub": {
+            "hashes": [
+                "sha256:65617e33033874b59d87db603aa1ed450633288aefead953b30bded59cb599a6",
+                "sha256:980a33ce9949cab2a569606b65674d748ecbca4f0796887fd6f46173a7b0d30f"
+            ],
+            "index": "pypi",
+            "version": "==0.25.1"
         },
         "pymongo": {
             "hashes": [
