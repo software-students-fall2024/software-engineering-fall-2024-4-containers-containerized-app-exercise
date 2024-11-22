@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Chat with Your Boyfriend</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}" />
+  <script defer src="{{ url_for('static', filename='chat.js') }}"></script>
+</head>
+<body>
+  <div class="chat-container">
+    <h1>Chat with Your Boyfriend</h1>
+
+    <!-- Chat Log Section -->
+    <div id="chat-log" class="chat-log" aria-live="polite" aria-label="Chat log">
+      <!-- Chat messages will appear here -->
+    </div>
+
+    <!-- Text Chat Form -->
+    <form id="chat-form" onsubmit="sendMessage(event)">
+      <input
+        type="text"
+        id="message"
+        name="message"
+        placeholder="Type your message here..."
+        autocomplete="off"
+        required
+        aria-label="Type your message here"
+      />
+      <button type="submit" aria-label="Send message">Send</button>
+    </form>
+
+    <!-- Audio Upload Section -->
+    <div class="audio-upload">
+      <label for="audio-input">Upload Audio:</label>
+      <input
+        type="file"
+        id="audio-input"
+        accept="audio/*"
+        aria-label="Choose an audio file to upload"
+      />
+      <button onclick="sendAudio()" aria-label="Send uploaded audio">Send Audio</button>
+    </div>
+
+    <!-- Audio Recording Section -->
+    <div class="audio-recording">
+      <button id="record-button" onclick="recordAudio()" aria-label="Start recording audio">
+        Start Recording
+      </button>
+      <button
+        id="stop-recording"
+        style="display: none;"
+        onclick="stopRecording()"
+        aria-label="Stop recording audio"
+      >
+        Stop Recording
+      </button>
+    </div>
+  </div>
+</body>
+</html>

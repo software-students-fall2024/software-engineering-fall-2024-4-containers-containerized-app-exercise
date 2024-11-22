@@ -1,0 +1,132 @@
+@font-face {
+    font-family: "hellokitty";
+    src: url("../fonts/hellokitty.ttf") format("truetype");
+    font-weight: normal;
+    font-style: normal;
+  }
+
+html, body {
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    font-family: 'Poppins', sans-serif;
+    background: linear-gradient(to bottom, #fef7ff, #fdcede, #9387be);
+    background-size: cover; 
+    display: flex;
+    justify-content: center; 
+    align-items: center;
+    overflow: hidden; 
+}
+
+
+.content {
+    margin: auto;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+.container {
+    position: relative;
+    width: 300px;
+    height: 350px;
+    padding: 20px;
+    border-radius: 20px;
+    border: 1px solid rgba(255, 255, 255, 0.5);
+    background: rgba(255, 255, 255, 0.1);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    overflow: hidden;
+    z-index: 1;
+}
+
+.container::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    border-radius: 20px;
+    backdrop-filter: blur(15px); 
+    -webkit-backdrop-filter: blur(15px); 
+    z-index: -1;
+}
+
+.login-container {
+    text-align: center;
+    z-index: 2; 
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+h1 {
+    margin-top: 0;
+    margin-bottom: 50px;
+    font-size: 32px;
+    color: white;
+}
+
+.title {
+    font-family: "hellokitty";
+    font-size: 60px;
+    background: linear-gradient(to bottom, #fdcede, #ff99c8, #9387be); /* Gradient colors */
+    background-clip: text;
+    -webkit-background-clip: text; /* Clips the background to the text */
+    -webkit-text-fill-color: transparent; /* Makes the text color transparent */
+    -webkit-text-stroke: 1px white; /* White outline */
+}
+
+
+form {
+    display: flex;
+    flex-direction: column;
+    gap: 50px;
+}
+
+input {
+    padding: 10px;
+    background-color: transparent;
+    border: 1px solid white;
+    border-radius: 10px;
+    font-size: 16px;
+    color: white;
+}
+
+input::placeholder {
+    color: white;
+    opacity: 0.8;
+}
+
+.login {
+    width: 100%;
+    padding: 10px;
+    background-color: white;
+    color: #6c538a;
+    border: none;
+    border-radius: 10px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+.login:hover {
+    background-color: white;
+    color: #fcaecf;
+}
+
+p {
+    color: white;
+    font-size: 16px;
+    text-align: left;
+}
+
+.logo {
+    width: 200px;
+    height: 200px;
+    margin: auto;
+}

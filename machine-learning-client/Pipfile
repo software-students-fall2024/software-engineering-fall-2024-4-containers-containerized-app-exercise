@@ -6,8 +6,21 @@ name = "pypi"
 [packages]
 pylint = "*"
 black = "*"
+flask = "==2.3.2"
+pymongo = "==4.10.1"
+google-cloud-speech = "==2.21.0"
+google-api-core = "==2.11.1"
+python-dotenv = "==1.0.0"
+ffmpeg-python = "==0.2.0"
+gtts = "==2.3.1"
+werkzeug = "==2.3.7"
+watchdog = "*"
 
 [dev-packages]
+pytest = "*"
+pylint = "*"
+black = "*"
 
 [requires]
 python_version = "3.10"
+watchdog = "*"
