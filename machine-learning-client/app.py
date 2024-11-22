@@ -8,6 +8,7 @@ import logging
 import subprocess
 import time
 import re
+import certifi
 from threading import Thread
 from watchdog.observers import Observer
 from watchdog.events import FileSystemEventHandler
@@ -26,10 +27,14 @@ logging.getLogger("pymongo").setLevel(logging.WARNING)
 # MongoDB setup
 mongo_uri = os.getenv("MONGO_URI")
 if not mongo_uri:
-    raise ValueError("MONGO_URI not found in environment variables.")
+    raise ValueError("MONGO_URI is missing. Add it to your .env file.")
 
 try:
-    mongo_client = MongoClient(mongo_uri)
+    logging.info("Connecting to MongoDB with URI: %s", mongo_uri)
+    mongo_client = MongoClient(
+        mongo_uri,
+        tlsCAFile=certifi.where()
+    )
     db = mongo_client["hellokittyai_db"]
     collection = db["speech_data"]
     mongo_client.admin.command("ping")
@@ -214,3 +219,4 @@ if __name__ == "__main__":
     except KeyboardInterrupt:
         observer.stop()
     observer.join()
+

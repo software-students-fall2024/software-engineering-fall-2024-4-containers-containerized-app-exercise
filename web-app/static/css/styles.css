@@ -130,3 +130,197 @@ p {
     height: 200px;
     margin: auto;
 }
+
+/* Chat Container Styles */
+.chat-container {
+    max-width: 800px;
+    margin: 20px auto;
+    padding: 20px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 20px;
+    border: 1px solid rgba(255, 255, 255, 0.5);
+    backdrop-filter: blur(15px);
+    -webkit-backdrop-filter: blur(15px);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+}
+
+/* Chat Log Styles */
+.chat-log {
+    height: 400px;
+    overflow-y: auto;
+    padding: 15px;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 10px;
+    margin-bottom: 20px;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+/* Message Styles */
+.message {
+    margin: 10px 0;
+    padding: 10px;
+    border-radius: 10px;
+    background: rgba(255, 255, 255, 0.3);
+    word-wrap: break-word;
+    animation: messageAppear 0.3s ease-out;
+}
+
+.user-message {
+    background: rgba(253, 206, 223, 0.3);
+    margin-left: 20px;
+}
+
+.bot-message {
+    background: rgba(147, 135, 190, 0.3);
+    margin-right: 20px;
+}
+
+.error-message {
+    background: rgba(255, 0, 0, 0.1);
+    color: #ff4444;
+}
+
+/* Form Styles */
+.chat-form {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+.chat-form input {
+    flex: 1;
+    padding: 10px;
+    border: 1px solid rgba(255, 255, 255, 0.5);
+    border-radius: 10px;
+    background: rgba(255, 255, 255, 0.1);
+    color: white;
+    font-size: 16px;
+}
+
+.chat-form input::placeholder {
+    color: rgba(255, 255, 255, 0.7);
+}
+
+/* Button Styles */
+.send-button {
+    padding: 10px 20px;
+    background: white;
+    border: none;
+    border-radius: 10px;
+    color: #6c538a;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.send-button:hover {
+    background: #fcaecf;
+    color: white;
+}
+.transcription-section {
+    background: rgba(255, 255, 255, 0.15);
+    border-radius: 15px;
+    padding: 20px;
+    margin: 20px 0;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.transcription-box {
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 10px;
+    padding: 15px;
+    margin: 10px 0;
+    min-height: 60px;
+    color: white;
+    font-size: 16px;
+    line-height: 1.5;
+    transition: all 0.3s ease;
+}
+
+.transcription-box.has-content {
+    background: rgba(255, 255, 255, 0.3);
+    border: 1px solid rgba(255, 255, 255, 0.4);
+}
+
+.use-transcription-btn {
+    background: linear-gradient(to right, #9387be, #fdcede);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    padding: 10px 20px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    width: 100%;
+    margin-top: 10px;
+}
+
+.use-transcription-btn:disabled {
+    background: rgba(255, 255, 255, 0.2);
+    cursor: not-allowed;
+    color: rgba(255, 255, 255, 0.5);
+}
+
+.use-transcription-btn:not(:disabled):hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.recording-btn {
+    background: linear-gradient(to right, #fdcede, #9387be);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    padding: 12px 24px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    width: 100%;
+    margin-top: 20px;
+}
+
+.recording-btn.recording {
+    background: linear-gradient(to right, #ff6b6b, #ff8787);
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+    0% {
+        box-shadow: 0 0 0 0 rgba(255, 107, 107, 0.4);
+    }
+    70% {
+        box-shadow: 0 0 0 10px rgba(255, 107, 107, 0);
+    }
+    100% {
+        box-shadow: 0 0 0 0 rgba(255, 107, 107, 0);
+    }
+}
+
+/* Enhance existing chat styles */
+.chat-log {
+    background: rgba(255, 255, 255, 0.15);
+    border-radius: 15px;
+    padding: 20px;
+    margin-bottom: 20px;
+    height: 400px;
+    overflow-y: auto;
+}
+
+.message {
+    padding: 12px;
+    margin: 8px 0;
+    border-radius: 12px;
+    max-width: 80%;
+}
+
+.user-message {
+    background: rgba(253, 206, 223, 0.3);
+    margin-left: auto;
+    margin-right: 0;
+}
+
+.bot-message {
+    background: rgba(147, 135, 190, 0.3);
+    margin-right: auto;
+    margin-left: 0;
+}

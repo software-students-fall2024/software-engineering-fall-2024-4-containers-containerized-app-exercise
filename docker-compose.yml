@@ -1,44 +1,53 @@
+version: "3.9"
+
 services:
   mongodb:
     image: mongo:5.0
     container_name: mongodb-container
     ports:
       - "27017:27017"
-    volumes:
-      - mongo_data:/data/db
     networks:
       - app_network
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: dummy_user
+      MONGO_INITDB_ROOT_PASSWORD: dummy_pass
+    command: ["mongod", "--auth"]
+    volumes:
+      - mongodb_data:/data/db
 
   ml-client:
     build:
       context: ./machine-learning-client
     container_name: ml-client-container
-    env_file:
-      - ./machine-learning-client/.env
     ports:
       - "5001:5000"
     depends_on:
       - mongodb
     networks:
       - app_network
+    environment:
+      - MONGO_URI=mongodb://dummy_user:dummy_pass@mongodb:27017/hellokittyai_db
+      - GOOGLE_APPLICATION_CREDENTIALS=/app/service_account.json
 
   web-app:
     build:
       context: ./web-app
     container_name: web-app-container
-    env_file:
-      - ./web-app/.env
     ports:
       - "8000:8000"
     depends_on:
-      - ml-client
       - mongodb
+      - ml-client
     networks:
       - app_network
-
-volumes:
-  mongo_data:
-
+    environment:
+      - SECRET_KEY=${SECRET_KEY}
+      - MONGO_URI=${MONGO_URI}
+      - GOOGLE_APPLICATION_CREDENTIALS=${GOOGLE_APPLICATION_CREDENTIALS}
+      - UPLOAD_FOLDER=${UPLOAD_FOLDER}
 networks:
   app_network:
     driver: bridge
+
+volumes:
+  mongodb_data:
