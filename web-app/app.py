@@ -19,20 +19,27 @@ from pydub import AudioSegment
 AudioSegment.converter = "/opt/homebrew/bin/ffmpeg"
 AudioSegment.ffprobe = "/opt/homebrew/bin/ffprobe"
 
+
 def setup_logging():
     """Set up application-wide logging."""
     logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
 
+
 def connect_to_mongo(mongo_uri):
     """Establish a MongoDB connection."""
-    mongo_client = pymongo.MongoClient(mongo_uri, tlsCAFile=certifi.where())
+    logging.info("Connecting to MongoDB with URI: %s", mongo_uri)
     try:
-        mongo_client.admin.command("ping")
+        mongo_client = pymongo.MongoClient(
+            mongo_uri,
+            tlsCAFile=certifi.where()
+        )
+        mongo_client.admin.command("ping")  # Check connection
         logging.info("Successfully connected to MongoDB!")
         return mongo_client
     except pymongo.errors.PyMongoError as error:
         logging.error("Failed to connect to MongoDB: %s", error)
         raise RuntimeError("MongoDB connection failed.") from error
+
 
 def initialize_upload_folder():
     """Initialize the upload folder."""
@@ -40,6 +47,7 @@ def initialize_upload_folder():
     upload_folder = os.path.join(base_dir, "uploads")
     os.makedirs(upload_folder, exist_ok=True)
     return upload_folder
+
 
 def load_environment_variables():
     """Load and validate required environment variables."""
@@ -51,9 +59,10 @@ def load_environment_variables():
     if not mongo_uri:
         raise ValueError("MONGO_URI is missing. Add it to your .env file.")
 
-    google_credentials = os.getenv("GOOGLE_APPLICATION_CREDENTIALS", None)
+    google_credentials = os.getenv("GOOGLE_APPLICATION_CREDENTIALS")
 
     return secret_key, mongo_uri, google_credentials
+
 
 def create_app():
     """Creates and configures the Flask application."""
@@ -66,16 +75,20 @@ def create_app():
     flask_app = initialize_flask(secret_key)
 
     # Set up MongoDB
-    users = setup_mongo(mongo_uri)
+    mongo_client = connect_to_mongo(mongo_uri)
+    db = mongo_client["hellokittyai_db"]
+    users = db["users"]
+    transcriptions = db["speech_data"]
 
     # Optionally log Google credentials
     if google_credentials:
         logging.info("Google Application Credentials: %s", google_credentials)
 
     # Configure routes
-    configure_routes(flask_app, users)
+    configure_routes(flask_app, users, transcriptions)
 
     return flask_app
+
 
 def initialize_flask(secret_key):
     """Initialize and configure the Flask app."""
@@ -87,18 +100,14 @@ def initialize_flask(secret_key):
     setup_logging()
     return flask_app
 
-def setup_mongo(mongo_uri):
-    """Set up MongoDB client and users collection."""
-    mongo_client = connect_to_mongo(mongo_uri)
-    db = mongo_client["hellokittyai_db"]
-    users = db["users"]
-    return users
 
-def configure_routes(flask_app, users):
+def configure_routes(flask_app, users, transcriptions):
     """Define and register all routes."""
     configure_login_routes(flask_app, users)
-    configure_chat_routes(flask_app, users)
+    configure_chat_routes(flask_app, users, transcriptions)
     configure_audio_routes(flask_app)
+    configure_transcription_routes(flask_app, transcriptions)
+
 
 def configure_login_routes(flask_app, users):
     """Define routes related to user login."""
@@ -145,7 +154,8 @@ def configure_login_routes(flask_app, users):
             logging.error("MongoDB error: %s", mongo_error)
             return jsonify({"error": "Database error"}), 500
 
-def configure_chat_routes(flask_app, users):
+
+def configure_chat_routes(flask_app, users, transcriptions):
     """Define routes related to chat functionality."""
     @flask_app.route("/chat", methods=["GET", "POST"])
     def chat_with_character():
@@ -172,6 +182,7 @@ def configure_chat_routes(flask_app, users):
 
                 response = chat.send_message(character_id, new.chat_id, user_message)
 
+                # Save chat to MongoDB
                 users.update_one(
                     {"email": email},
                     {
@@ -188,9 +199,10 @@ def configure_chat_routes(flask_app, users):
                 return jsonify(
                     {"character_name": response.name, "character_message": response.text}
                 )
-        except pymongo.errors.PyMongoError as mongo_error:
-            logging.error("MongoDB error: %s", mongo_error)
-            return jsonify({"error": "Database error"}), 500
+        except Exception as error:
+            logging.error("Chat error: %s", error)
+            return jsonify({"error": "Failed to process chat message"}), 500
+
 
 def configure_audio_routes(flask_app):
     """Define routes related to audio functionality."""
@@ -218,6 +230,44 @@ def configure_audio_routes(flask_app):
         except FileNotFoundError as file_error:
             logging.error("File not found: %s", file_error)
             return jsonify({"error": "File not found"}), 500
+        except Exception as error:
+            logging.error("Error converting audio: %s", error)
+            return jsonify({"error": "Failed to convert audio"}), 500
+
+
+def configure_transcription_routes(flask_app, transcriptions):
+    """Define routes related to transcription functionality."""
+    @flask_app.route("/get-latest-transcription")
+    def get_latest_transcription():
+        """Fetch the most recent transcription from MongoDB."""
+        try:
+            # Get the most recent transcription
+            latest = transcriptions.find_one(
+                sort=[("_id", pymongo.DESCENDING)]
+            )
+            
+            if latest:
+                return jsonify({
+                    "transcript": latest["transcript"],
+                    "id": str(latest["_id"])
+                })
+            return jsonify({"error": "No transcriptions found"}), 404
+        except Exception as e:
+            logging.error("Error fetching latest transcription: %s", e)
+            return jsonify({"error": "Database error"}), 500
+
+    @flask_app.route("/fetch-transcription/<transcription_id>", methods=["GET"])
+    def fetch_transcription(transcription_id):
+        """Fetch a specific transcription by ID."""
+        try:
+            transcription = transcriptions.find_one({"_id": ObjectId(transcription_id)})
+            if transcription:
+                return jsonify({"transcript": transcription["transcript"]}), 200
+            return jsonify({"error": "Transcription not found"}), 404
+        except Exception as e:
+            logging.error("Error fetching transcription: %s", e)
+            return jsonify({"error": "Failed to fetch transcription"}), 500
+
 
 if __name__ == "__main__":
     app_instance = create_app()

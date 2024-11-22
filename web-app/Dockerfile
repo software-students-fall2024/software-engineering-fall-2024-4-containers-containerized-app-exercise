@@ -11,6 +11,8 @@ COPY .env /app/.env
 # Install system dependencies
 RUN apt-get update && apt-get install -y \
     git \
+    ffmpeg \
+    curl \
     && apt-get clean && rm -rf /var/lib/apt/lists/*
 
 # Install pipenv and dependencies
