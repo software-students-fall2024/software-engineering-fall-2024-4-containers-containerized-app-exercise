@@ -1,57 +1,61 @@
 <!DOCTYPE html>
-<html>
-  <head>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Chat with Your Boyfriend</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}" />
-    <script>
-      async function sendMessage(event) {
-        event.preventDefault(); // Prevent form submission
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Chat with Your Boyfriend</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}" />
+  <script defer src="{{ url_for('static', filename='chat.js') }}"></script>
+</head>
+<body>
+  <div class="chat-container">
+    <h1>Chat with Your Boyfriend</h1>
 
-        const messageInput = document.getElementById("message");
-        const chatLog = document.getElementById("chat-log");
-
-        const userMessage = messageInput.value;
-        if (!userMessage) return;
-
-        // Display user's message
-        chatLog.innerHTML += `<div class="user-message"><b>You:</b> ${userMessage}</div>`;
-
-        // Send the message to the server
-        const response = await fetch("/chat", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ message: userMessage }),
-        });
-
-        if (response.ok) {
-          const data = await response.json();
-          // Display character's response
-          chatLog.innerHTML += `<div class="character-message"><b>${data.character_name}:</b> ${data.character_message}</div>`;
-        } else {
-          chatLog.innerHTML += `<div class="error-message">Failed to get a response. Please try again.</div>`;
-        }
-
-        // Clear the input field
-        messageInput.value = "";
-        chatLog.scrollTop = chatLog.scrollHeight; // Scroll to the bottom
-      }
-    </script>
-  </head>
-  <body>
-    <div class="chat-container">
-      <h1>Chat with Your Boyfriend</h1>
-      <div id="chat-log" class="chat-log"></div>
-      <form id="chat-form" onsubmit="sendMessage(event)">
-        <input
-          type="text"
-          id="message"
-          placeholder="Type your message here..."
-          autocomplete="off"
-          required
-        />
-        <button type="submit">Send</button>
-      </form>
+    <!-- Chat Log Section -->
+    <div id="chat-log" class="chat-log" aria-live="polite" aria-label="Chat log">
+      <!-- Chat messages will appear here -->
     </div>
-  </body>
+
+    <!-- Text Chat Form -->
+    <form id="chat-form" onsubmit="sendMessage(event)">
+      <input
+        type="text"
+        id="message"
+        name="message"
+        placeholder="Type your message here..."
+        autocomplete="off"
+        required
+        aria-label="Type your message here"
+      />
+      <button type="submit" aria-label="Send message">Send</button>
+    </form>
+
+    <!-- Audio Upload Section -->
+    <div class="audio-upload">
+      <label for="audio-input">Upload Audio:</label>
+      <input
+        type="file"
+        id="audio-input"
+        accept="audio/*"
+        aria-label="Choose an audio file to upload"
+      />
+      <button onclick="sendAudio()" aria-label="Send uploaded audio">Send Audio</button>
+    </div>
+
+    <!-- Audio Recording Section -->
+    <div class="audio-recording">
+      <button id="record-button" onclick="recordAudio()" aria-label="Start recording audio">
+        Start Recording
+      </button>
+      <button
+        id="stop-recording"
+        style="display: none;"
+        onclick="stopRecording()"
+        aria-label="Stop recording audio"
+      >
+        Stop Recording
+      </button>
+    </div>
+  </div>
+</body>
 </html>

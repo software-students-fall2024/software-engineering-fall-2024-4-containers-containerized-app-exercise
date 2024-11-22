@@ -6,15 +6,15 @@ import os
 import pytest
 from bson.objectid import ObjectId
 from gtts import gTTS
+from flask import json
 
-from app import (
+from .app import (
     app,
     collection,
     convert_to_linear16,
     transcribe_audio,
     save_transcript_to_db,
 )
-
 
 @pytest.fixture(name="clear_test_data")
 def clear_test_data_fixture():
@@ -41,7 +41,7 @@ def test_index(client):
 
 def test_mongodb_connection(clear_test_data):
     """Test MongoDB connection and basic insert and retrieve operations."""
-    _ = clear_test_data  # Suppress unused-argument warning
+    _ = clear_test_data
     result = collection.insert_one({"transcript": "test transcript"})
     assert result.inserted_id is not None
     saved_doc = collection.find_one({"_id": result.inserted_id})
@@ -53,24 +53,39 @@ def test_convert_to_linear16():
     """Test audio conversion to LINEAR16 format."""
     input_file = "test_audio.wav"
     output_file = "test_audio_linear16.wav"
-    os.system(f"ffmpeg -f lavfi -i sine=frequency=1000:duration=1 {input_file}")
-    output_path = convert_to_linear16(input_file)
-    assert os.path.exists(output_path)
-    assert output_path == output_file
-    os.remove(input_file)
-    os.remove(output_path)
+
+    try:
+        # Generate a test sine wave audio file
+        os.system(f"ffmpeg -f lavfi -i sine=frequency=1000:duration=1 {input_file}")
+        output_path = convert_to_linear16(input_file)
+
+        assert os.path.exists(output_path)
+        assert output_path == output_file
+    finally:
+        # Cleanup files
+        if os.path.exists(input_file):
+            os.remove(input_file)
+        if os.path.exists(output_file):
+            os.remove(output_file)
 
 
 def test_transcribe_audio():
     """Test audio transcription with a dummy audio file."""
     input_file = "test_audio_linear16.wav"
-    os.system(
-        f"ffmpeg -f lavfi -i sine=frequency=1000:duration=1 "
-        f"-ar 16000 -ac 1 -sample_fmt s16 {input_file}"
-    )
-    transcript = transcribe_audio(input_file)
-    assert transcript is None
-    os.remove(input_file)
+
+    try:
+        # Generate a test sine wave audio file
+        os.system(
+            f"ffmpeg -f lavfi -i sine=frequency=1000:duration=1 "
+            f"-ar 16000 -ac 1 -sample_fmt s16 {input_file}"
+        )
+        transcript = transcribe_audio(input_file)
+        # Since sine wave audio has no speech, the transcription should be None
+        assert transcript is None
+    finally:
+        # Cleanup file
+        if os.path.exists(input_file):
+            os.remove(input_file)
 
 
 def test_save_transcript_to_db(clear_test_data):
@@ -89,27 +104,42 @@ def test_process_audio_endpoint(client, clear_test_data):
     """Test the /process-audio endpoint."""
     _ = clear_test_data
     input_file = "test_audio.wav"
-    os.system(f"ffmpeg -f lavfi -i sine=frequency=1000:duration=1 {input_file}")
-    with open(input_file, "rb") as audio:
-        response = client.post("/process-audio", data={"audio": audio})
-    assert response.status_code == 400
-    assert b"No speech recognized" in response.data
-    os.remove(input_file)
+
+    try:
+        # Generate a test sine wave audio file
+        os.system(f"ffmpeg -f lavfi -i sine=frequency=1000:duration=1 {input_file}")
+        with open(input_file, "rb") as audio:
+            response = client.post("/process-audio", data={"audio": (audio, "test_audio.wav")})
+
+        assert response.status_code == 400
+        response_json = json.loads(response.data)
+        assert "error" in response_json
+        assert response_json["error"] == "No speech recognized"
+    finally:
+        # Cleanup file
+        if os.path.exists(input_file):
+            os.remove(input_file)
 
 
 def test_real_transcription():
     """Test transcription with real speech audio."""
     input_text = "Hello, this is a test."
     input_file = "real_speech.wav"
+    linear16_file = None
 
-    tts = gTTS(text=input_text, lang="en")
-    tts.save(input_file)
+    try:
+        # Create a test speech audio file using gTTS
+        tts = gTTS(text=input_text, lang="en")
+        tts.save(input_file)
 
-    linear16_file = convert_to_linear16(input_file)
+        linear16_file = convert_to_linear16(input_file)
 
-    transcript = transcribe_audio(linear16_file)
-    assert transcript is not None
-    assert "test" in transcript.lower()
-
-    os.remove(input_file)
-    os.remove(linear16_file)
+        transcript = transcribe_audio(linear16_file)
+        assert transcript is not None
+        assert "test" in transcript.lower()
+    finally:
+        # Cleanup files
+        if os.path.exists(input_file):
+            os.remove(input_file)
+        if linear16_file and os.path.exists(linear16_file):
+            os.remove(linear16_file)
