@@ -1,0 +1,298 @@
+/* ----------GENERAL SETUP---------- */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    border: none;
+    outline: none;
+    scroll-behavior: smooth;
+    font-family: "Times New Roman", serif;
+    text-decoration: none;
+}
+:root {
+    --bg-color: white;
+    --second-bg-color: #1b0686;
+    --text-color: black;
+    --icon-color: #9ce69d;
+    ;
+}
+html {
+    font-size: 60%;
+    overflow-x: hidden;
+}
+body {
+    background: var(--bg-color);
+    color: white;
+}
+
+/* ----------HEADING---------- */
+header {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    padding: 2.5rem 8%;
+    background: rgba(0, 0, 101, 0.8);
+    backdrop-filter: blur(10px);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    z-index: 5;
+}
+#logo {
+    width: 4.5rem;
+    height: 4.5rem;
+    background: transparent;
+    color: var(--icon-color);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+.webName {
+    display: flex;
+    align-items: center;
+    color: white;
+    font-size: 4rem;
+    gap: 1.5rem;
+}
+.button-container {
+    display: flex;
+    gap: 3rem;
+    align-items: center;
+}
+.replay-button, .stats-button {
+    position: center;
+    top: 10px;
+    right: 20px;
+    font-size: 2.75rem;
+    z-index: 10;
+    color: white;
+    padding-right: -5rem;
+}
+.replay-button a, .stats-button a {
+    color: white;
+    text-decoration: none;
+}
+.replay-button a:hover, .stats-button a:hover {
+    color: var(--icon-color);
+    text-decoration: underline;
+}
+
+
+/* ----------HOME PAGE---------- */
+.home h2 {
+    padding-top: 5rem;
+    font-size: 4rem;
+    margin-top: 8rem;
+    text-align: center;
+    color: black;
+}
+.home h3 {
+    padding: 1rem 0 5rem 0;
+    font-size: 2.75rem;
+    text-align: center;
+    color: black;
+}
+.home p {
+    font-size: 2.75rem;
+    text-align: center;
+    margin-bottom: 1rem;
+    color: black;
+}
+.tutorial-container {        /* Class = block element */
+    display: flex;           /* Turn into flex container */
+    justify-content: center; /* Align to center */
+    gap: 2rem;
+    font-size: 2.75rem;
+    text-align: center;
+    margin-top: 1rem;
+    margin-bottom: 1rem;
+}
+#yes, #no {color: var(--text-color);}
+#yes:hover, #no:hover {
+    text-decoration: underline;
+    gap: 1rem;
+}
+#yes:hover {color: green;}
+#no:hover {color: red;}
+
+
+/* ----------TUTORIAL PAGE---------- */
+.tutorial h2 {           /* Headings */
+    padding: 5rem 4rem;
+    font-size: 4rem;
+    margin-top: 8rem;
+    text-align: center;
+    color: black;
+    margin-bottom: -2.5rem;
+}
+#rules-heading {margin-top: 1rem;} /* Overwrite heading margin */
+.steps-container {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;  /* Aligns each step to left */
+    justify-content: center;
+    width: fit-content;       /* Move to middle of screen width */
+    margin: 0 auto;
+    text-align: left;
+    gap: 0.5rem;              /* Adds spacing between steps */
+    font-size: 2.75rem;
+    color: black;
+}
+.steps-container p {           
+    text-align: center;
+    margin-top: -1rem;
+    margin-bottom: 1rem;
+    color: black;
+}
+#step {
+    color: var(--second-bg-color);
+    background: transparent;
+}
+.rules-container {
+    display: grid;
+    grid-template-columns: repeat(2, 3); /* Two columns */
+    justify-content: center;                /* Centers images */
+    gap: 0.25rem;                              /* Adds space between images */
+    margin: -1.5rem 0 2rem 0;
+    font-size: 2.75rem;
+}
+.labels {
+    display: flex;
+    justify-content: center;
+    gap: 8rem;
+    width: 100%;
+}
+#win, #lose {text-align: center;}
+#win {color: green;}
+#lose {color: red;}
+#rock {               
+    height: 4.25rem;
+    width: 4rem;
+}
+#paper, #scissors {
+    height: 6rem;
+    width: 4rem;
+}
+.combo {
+    margin-top: 1rem;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 4rem;
+}
+.combo p {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    font-size: 2rem;
+    color: var(--text-color);
+}
+#play {
+    font-size: 4rem;
+    text-align: center;
+    margin: 7rem 0 4rem 0;
+    color: black;
+    display: block;       /* Make block element */
+}
+#play:hover {
+    color: green;
+    text-decoration: underline;
+}
+
+
+/* ----------GAME PAGE---------- */
+.game {
+    padding: 5rem 4rem;
+    font-size: 4rem;
+    margin-top: 8rem;
+    text-align: center;
+    color: black;
+}
+.ready-buttons {
+    display: flex;
+    justify-content: center;
+    gap: 2rem;
+    margin-top: 2rem;
+}
+#yes-button {
+    font-size: 2rem;
+    padding: 0.5rem 1rem;
+    cursor: pointer;
+}
+#no-button {
+    font-size: 2rem;
+    padding: 0.5rem 1rem;
+    color: var(--text-color);
+}
+#yes-button:hover {color: green;}
+#no-button:hover {color: red;}
+#countdown {
+    font-size: 4rem;
+    text-align: center;
+    margin-top: 0.5rem;
+    color: black;
+    animation: flash 0.5s ease-in-out;
+}
+@keyframes flash {          /* Flashes rock, paper, scissors */
+    0%, 100% {opacity: 1;}
+    50% {opacity: 0;}
+}
+#camera-box {
+    width: 500px;
+    height: 300px;
+    margin: 3rem auto;           /* Center box and add space above */
+    background-color: #e0e0e0; /* Light gray background for visibility */
+    border: 2px solid #333;    /* Dark border */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 2rem;
+    color: var(--text-color);  
+    overflow: hidden;             /* No overflow */
+    position: relative;           /* Layers video properly */
+}
+#camera-box video {
+    width: 100%;        /* Ensure video fills box */
+    height: 100%;       /* Maintain ratio of video */
+    object-fit: cover;  /* Ensures video fits perfectly */
+    position: absolute; /* Layer video inside box */
+    z-index: 1;         /* Ensures video appears above background */
+}
+#choices {
+    font-size: 2.75rem;
+    text-align: center;
+    margin-top: 0.5rem;
+    color: black;
+}
+
+
+
+/* ----------STATS PAGE---------- */
+.stats h2 {
+    padding: 5rem 4rem;
+    font-size: 4rem;
+    margin-top: 8rem;
+    margin-bottom: -2rem;
+    text-align: center;
+    color: black;
+}
+.stats-table {
+    width: 50%;
+    margin: 3rem auto;
+    border-collapse: collapse;
+    text-align: center;
+    font-size: 2.5rem;
+    color: black;
+}
+.stats-table thead {
+    background-color: var(--icon-color);
+    color: black;
+}
+.stats-table th,
+.stats-table td {
+    padding: 1rem;
+    border: 1px solid #1b0686;
+}
+.stats-table tbody td {background-color: #f4f4f4;}
+.stats-table tbody tr:nth-child(even) td {background-color: #e9e9e9;}

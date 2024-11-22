@@ -1,13 +1,25 @@
+# Pipfile
+
 [[source]]
 url = "https://pypi.org/simple"
 verify_ssl = true
 name = "pypi"
 
 [packages]
-pylint = "*"
-black = "*"
+flask_cors = "==3.0.10"
+flask = "*"
+flask-cors = "*"
+pymongo = "*"
+python-dotenv = "*"
+requests = "*"
 
 [dev-packages]
+pytest-flask = "*"  # Flask-specific pytest extension
+flask = "*"
+tomli = "*"
+pylint = "*"
+black = "*"
+pytest = "*"
 
 [requires]
 python_version = "3.10"
