@@ -12,6 +12,9 @@
         <div class="container">
             <div class="login-container">
                 <h1>Verify Your Email</h1>
+                {% if error %}
+                    <div class="error-message">{{ error }}</div>
+                {% endif %}
                 <form method="POST" action="{{ url_for('auth')}}">
                     <p>An authentication link has been sent to <b>{{ address }}</b>. Please check your email and insert the link to verify your account and begin chatting.</p>
                     <input type="text" name="link" required placeholder="Link"/>

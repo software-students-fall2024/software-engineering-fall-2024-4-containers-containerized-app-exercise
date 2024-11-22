@@ -14,9 +14,8 @@ Before starting, ensure you have the following installed:
 - [Docker](https://www.docker.com/products/docker-desktop/)
 - [Docker Compose](https://docs.docker.com/compose/install/)
 - Python 3.10+
-   ```
+```bash
 - brew install ffmpeg
-   ```
 
 ## `.env` File Setup Instructions
 #### `.env` File for Database Connection
@@ -117,16 +116,16 @@ cd machine-learning-client
 pip install pipenv
 ```
 
-### 4. Install dependencies
-
-```
-pipenv install
-```
-
-### 5. Activate the shell
+### 4. Activate the shell
 
 ```
 pipenv shell
+```
+
+### 5. Install dependencies
+
+```
+pipenv install
 ```
 
 
