@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+
+    <!-- Setup the HTML file -->
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Rock, Paper, Scissors</title>
+
+        <!-- Link to the CSS file for styling -->
+        <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+        <!-- Link to external icon library -->
+        <link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet">
+    </head>
+
+    <body>
+        <!-- HEADING -->
+        <header>
+            <!-- Modification: Link to the home page dynamically -->
+            <a href="{{ url_for('home') }}" class="webName">
+                <img src="{{ url_for('static', filename='logo.png') }}" id="logo">Rock, Paper, Scissors
+            </a>
+
+            <!-- Buttons -->
+            <div class="button-container">
+                <!-- Modification: Link to start a new game dynamically -->
+                <div class="replay-button"><a href="{{ url_for('home') }}">New Game</a></div>
+                <!-- Modification: Link to the stats page dynamically -->
+                <div class="stats-button"><a href="{{ url_for('stats') }}">Stats</a></div>
+            </div>
+        </header>
+
+        <!-- HOME PAGE -->
+        <section class="home" id="home">
+            <h2>Welcome to Rock, Paper, Scissors!</h2>
+            <h3>User vs Puter Edition!</h3>
+            <p>Would you like to learn how to play?</p>
+
+            <!-- Modification: Link to tutorial and game pages dynamically -->
+            <div class="tutorial-container">
+                <a href="{{ url_for('tutorial') }}" id="yes">Yes</a>
+                <a href="{{ url_for('game') }}" id="no">No</a>
+            </div>
+        </section>
+        <script src="{{ url_for('static', filename='script.js') }}"></script>
+    </body>
+</html>

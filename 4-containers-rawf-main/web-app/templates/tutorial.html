@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+
+    <!-- Setup the HTML file -->
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Rock, Paper, Scissors</title>
+        
+        <!-- Link to the CSS file for styling -->
+        <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+        <!-- Link to external icon library -->
+        <link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet">
+    </head>
+    
+    <body>
+        <!-- HEADER SECTION -->
+        <header>
+            <!-- Modification: Link to the home page dynamically -->
+            <a href="{{ url_for('home') }}" class="webName">
+                <img src="{{ url_for('static', filename='logo.png') }}" id="logo">Rock, Paper, Scissors
+            </a>
+
+            <!-- Buttons -->
+            <div class="button-container">
+                <!-- Modification: Link to start a new game dynamically -->
+                <div class="replay-button"><a href="{{ url_for('home') }}">New Game</a></div>
+                <!-- Modification: Link to the stats page dynamically -->
+                <div class="stats-button"><a href="{{ url_for('stats') }}">Stats</a></div>
+            </div>
+        </header>
+
+        <!-- TUTORIAL PAGE -->
+        <section class="tutorial" id="tutorial">
+            <div class="main-container">
+                <!-- Steps -->
+                <h2 id="steps-heading">How to Play:</h2>
+                <div class="steps-container">
+                    <p><i class='bx bx-dice-1' id="step"></i> Choose how many wins needed to end a game</p> <!-- Step 1 -->
+                    <p><i class='bx bx-dice-2' id="step"></i> Hold up <i>rock, paper, or scissors</i> so the camera can see your choice</p> <!-- Step 2 -->
+                    <p><i class='bx bx-dice-3' id="step"></i> Play until someone wins!</p> <!-- Step 3 -->
+                </div>
+
+                <!-- Rules -->
+                <h2 id="rules-heading">Rules:</h2>
+                <div class="rules-container">
+                    <!-- Win, Lose column labels -->
+                    <div class="labels">
+                        <p id="win">Win</p>
+                        <p id="lose">Lose</p>
+                    </div>
+
+                    <!-- Rock vs Scissors -->
+                    <div class="combo">
+                        <img src="{{ url_for('static', filename='rock.png') }}" id="rock">
+                        <p>></p>
+                        <img src="{{ url_for('static', filename='scissors.png') }}" id="scissors">
+                    </div>
+
+                    <!-- Scissors vs Paper -->
+                    <div class="combo">
+                        <img src="{{ url_for('static', filename='scissors.png') }}" id="scissors">
+                        <p>></p>
+                        <img src="{{ url_for('static', filename='paper.png') }}" id="paper">
+                    </div>
+
+                    <!-- Paper vs Rock -->
+                    <div class="combo">
+                        <img src="{{ url_for('static', filename='paper.png') }}" id="paper">
+                        <p>></p>
+                        <img src="{{ url_for('static', filename='rock.png') }}" id="rock">
+                    </div>
+                </div>
+            </div>
+            <!-- Modification: Link to the game page dynamically -->
+            <a href="{{ url_for('game') }}" id="play">Let's Play!</a>
+        </section>
+        <script src="{{ url_for('static', filename='script.js') }}"></script>
+    </body>
+</html>
