@@ -6,8 +6,6 @@
 
 # CONTAINERIZED APP EXERCISE
 
-Build a containerized app that uses machine learning. See [instructions](./instructions.md) for details.
-
 ## TABLE OF CONTENTS
 1. [Description](#description)
 3. [Setup Steps](#setup-steps)
@@ -85,7 +83,7 @@ docker-compose down --volumes --remove-orphans
 docker-compose up --build
 ```
 
-**6. Access** [here](http://127.0.0.1:5888)! 
+**8. Play:** acess Rock, Paper, Scissors [here](http://127.0.0.1:5888)!
 
 ## TEAM MEMBERS
 
