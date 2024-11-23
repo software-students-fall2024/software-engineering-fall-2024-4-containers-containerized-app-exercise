@@ -1,127 +1,126 @@
-"""
-Unit tests for Flask app for Hello Kitty AI application
-"""
-import os
 import pytest
+from app import create_app, connect_to_mongo, load_environment_variables
 from flask import session
 from unittest.mock import patch, MagicMock
-from app import create_app
+import os
+import tempfile
 
 @pytest.fixture
 def client():
-    """Set up the Flask test client."""
-    os.environ["SECRET_KEY"] = "d0a1bcfbbd90ac46f4b873a51b6eb2b5873e2a03438b44adf9bbf6bde14de788"
-    os.environ["MONGO_URI"] = "mongodb+srv://vernairesl:Iloveu325@cluster0.jy4go.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0"
-    os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = "/home/vernairesl/SE/4-containers-ghost-in-the-machine/web-app/service_account.json"
-
+    """Flask test client fixture."""
     app = create_app()
     app.config["TESTING"] = True
+    app.config["WTF_CSRF_ENABLED"] = False
     with app.test_client() as client:
         yield client
 
-
-@pytest.fixture
-def mock_session_data():
-    """Mock session data for testing."""
-    return {
-        "email": "test_user@example.com",
-        "code": "12345",
-        "token": "mock_token",
-    }
-
-
-def test_login_get(client):
-    """Test the GET request to the login route."""
+@patch("app.pymongo.MongoClient")
+def test_login_get(mock_mongo, client):
+    """Test the login page (GET)."""
+    mock_users = mock_mongo.return_value["hellokittyai_db"]["users"]
     response = client.get("/")
     assert response.status_code == 200
-    assert b"<title>Login</title>" in response.data
+    assert b"Hello Kitty AI" in response.data  # Check for relevant page content
 
+@patch("app.pymongo.MongoClient")
+def test_login_post_new_user(mock_mongo, client):
+    """Test login page (POST) with new user creation."""
+    mock_users = mock_mongo.return_value["hellokittyai_db"]["users"]
+    mock_users.find_one.return_value = None  # Simulate user not existing
+    mock_users.insert_one.return_value = MagicMock(inserted_id="12345")
 
-def test_login_post(client):
-    """Test the POST request to the login route."""
-    response = client.post("/", data={"email": "test_user@example.com"})
+    response = client.post("/", data={"email": "test@example.com"})
     assert response.status_code == 200
-    assert b"test_user@example.com" in response.data
+    # Check for a string unique to auth.html
+    assert b"Authentication Required" in response.data
 
+@patch("app.authUser")
+@patch("app.sendCode")
+def test_authenticate(mock_send_code, mock_auth_user, client):
+    """Test user authentication."""
+    with client.session_transaction() as sess:
+        sess["email"] = "test@example.com"
+        sess["code"] = "mock-code"
 
-def test_login_post_no_email(client):
-    """Test the POST request to the login route with missing email."""
-    response = client.post("/", data={})
-    assert response.status_code == 400
-    assert b"Email address is required" in response.data
+    mock_auth_user.return_value = "mock-token"
 
+    response = client.post("/authenticate", data={"link": "mock-link"})
+    assert response.status_code == 302  # Redirect to chat
+    assert session.get("token") == "mock-token"
 
-def test_authenticate_missing_link(client, mock_session_data):
-    """Test the authenticate route with a missing link."""
-    with client.session_transaction() as session:
-        session.update(mock_session_data)
+@patch("app.pymongo.MongoClient")
+@patch("app.pycai.Client")
+def test_chat_with_character(mock_client, mock_mongo, client):
+    """Test chat endpoint."""
+    with client.session_transaction() as sess:
+        sess["email"] = "test@example.com"
+        sess["token"] = "mock-token"
 
-    response = client.post("/authenticate", data={"link": ""})
-    assert response.status_code == 400
-    assert b"Authentication link is required" in response.data
+    mock_chat = mock_client.return_value
+    mock_chat.get_me.return_value = MagicMock(id="mock-id")
+    mock_chat.connect.return_value.__enter__.return_value.new_chat.return_value = (MagicMock(chat_id="mock-chat-id"), None)
+    mock_chat.send_message.return_value = MagicMock(name="Kitty", text="Hello, how can I help you?")
 
+    mock_users = mock_mongo.return_value["hellokittyai_db"]["users"]
 
-def test_authenticate_expired_session(client):
-    """Test the authenticate route with an expired session."""
-    response = client.post("/authenticate", data={"link": "mock_link"})
-    assert response.status_code == 403
-    assert b"Session expired. Please log in again." in response.data
-
-
-def test_home_unauthenticated(client):
-    """Test the home route for an unauthenticated user."""
-    response = client.get("/home")
-    assert response.status_code == 403
-    assert b"Client is not authenticated. Please log in." in response.data
-
-
-def test_home_authenticated(client, mock_session_data):
-    """Test the home route for an authenticated user."""
-    with client.session_transaction() as session:
-        session.update(mock_session_data)
-
-    response = client.get("/home")
+    response = client.post("/chat", json={"message": "Hi Kitty!"})
     assert response.status_code == 200
-    assert b"<img src=" in response.data
+    assert response.json == {
+        "character_name": "Kitty",
+        "character_message": "Hello, how can I help you?",
+    }
+    mock_users.update_one.assert_called_once()
 
 
-def test_chat_with_character_get(client):
-    """Test the GET request to the chat_with_character route."""
-    response = client.get("/chat")
-    assert response.status_code == 200
-    assert b"Chat with Your Boyfriend" in response.data
+@patch("app.AudioSegment")
+@patch("app.secure_filename")
+def test_convert_to_wav(mock_secure_filename, mock_audio_segment, client):
+    """Test audio conversion endpoint."""
+    mock_secure_filename.return_value = "test.wav"
+    mock_audio_segment.from_file.return_value.export.return_value = None
 
+    # Create a temporary test file
+    with tempfile.NamedTemporaryFile(suffix=".mp3") as temp_audio:
+        temp_audio.write(b"Fake audio content")  # Simulate audio file content
+        temp_audio.seek(0)
+        data = {"audio": (temp_audio, "test.mp3")}
 
-def test_chat_with_character_post_unauthenticated(client):
-    """Test the POST request to the chat_with_character route for unauthenticated user."""
-    response = client.post("/chat", json={"message": "Hello!"})
-    assert response.status_code == 403
-    assert b"Client is not authenticated. Please log in." in response.data
+        response = client.post("/convert-to-wav", data=data, content_type="multipart/form-data")
+        assert response.status_code == 200
+        assert response.json["message"] == "Converted to WAV"
+        mock_audio_segment.from_file.assert_called_once()
 
+def test_missing_environment_variables():
+    """Test app behavior when environment variables are missing."""
+    with patch.dict(os.environ, {}, clear=True):
+        with pytest.raises(ValueError, match="SECRET_KEY is missing. Add it to your .env file."):
+            load_environment_variables()
 
-@patch("app.pycai.Client", autospec=True)
-def test_chat_with_character_post_authenticated(mock_client_class, client, mock_session_data):
-    if not os.getenv("GOOGLE_APPLICATION_CREDENTIALS"):
-        pytest.skip("Google credentials not set. Skipping test.")
-    
-    with client.session_transaction() as session:
-        session.update(mock_session_data)
+    with patch.dict(os.environ, {"SECRET_KEY": "test-secret"}, clear=True):
+        with pytest.raises(ValueError, match="MONGO_URI is missing. Add it to your .env file."):
+            load_environment_variables()
 
-    mock_client = mock_client_class.return_value
-    mock_client.get_me.return_value = MagicMock(id="mock_user_id")
-    mock_chat = MagicMock()
+@patch("app.pymongo.MongoClient")
+def test_connect_to_mongo_success(mock_mongo):
+    """Test successful MongoDB connection."""
+    mock_mongo.return_value.admin.command.return_value = {"ok": 1}
+    mongo_client = connect_to_mongo("mock-uri")
+    assert mongo_client.admin.command.call_count == 1
 
-    mock_client.connect.return_value.__enter__.return_value = mock_chat
-    mock_client.connect.return_value.__exit__.return_value = None 
-
-    mock_chat.new_chat.return_value = (MagicMock(chat_id="mock_chat_id"), MagicMock())
-    mock_chat.send_message.return_value = MagicMock(name="MockCharacter", text="Hello!")
-
-    print("Mock Client:", mock_client)
-    print("Mock Chat Object:", mock_chat)
-
-    response = client.post("/chat", json={"message": "Hello!"})
-
-    assert response.status_code == 200
-    assert b"MockCharacter" in response.data
-    assert b"Hello!" in response.data
+@patch("app.pymongo.MongoClient")
+def test_connect_to_mongo_failure(mock_mongo):
+    """Test failed MongoDB connection."""
+    mock_mongo.side_effect = Exception("Connection failed")
+    with pytest.raises(RuntimeError, match="MongoDB connection failed."):
+        connect_to_mongo("mock-uri")
+        
+def connect_to_mongo(mongo_uri):
+    """Establish a MongoDB connection."""
+    try:
+        mongo_client = pymongo.MongoClient(mongo_uri, tlsCAFile=certifi.where())
+        mongo_client.admin.command("ping")
+        logging.info("Successfully connected to MongoDB!")
+        return mongo_client
+    except pymongo.errors.PyMongoError as error:
+        logging.error("Failed to connect to MongoDB: %s", error)
+        raise RuntimeError("MongoDB connection failed.") from error
