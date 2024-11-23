@@ -162,3 +162,7 @@ dmypy.json
 cython_debug/
 service_account.json
 machine-learning-client/service_account.jsonmongo_uri.secret
+web-app/CACHED
+web-app/ERROR
+web-app/auth
+web-app/internal

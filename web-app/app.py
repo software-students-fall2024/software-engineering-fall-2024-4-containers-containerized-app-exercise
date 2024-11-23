@@ -13,11 +13,18 @@ from characterai import pycai, sendCode, authUser
 import pymongo
 from bson import ObjectId
 import certifi
+import shutil
 from pydub import AudioSegment
 
 # Configure pydub to use ffmpeg
-AudioSegment.converter = "/opt/homebrew/bin/ffmpeg"
-AudioSegment.ffprobe = "/opt/homebrew/bin/ffprobe"
+#AudioSegment.converter = "/opt/homebrew/bin/ffmpeg"
+#AudioSegment.ffprobe = "/opt/homebrew/bin/ffprobe"
+
+ffmpeg_path = shutil.which("ffmpeg") or "/usr/bin/ffmpeg"
+ffprobe_path = shutil.which("ffprobe") or "/usr/bin/ffprobe"
+
+AudioSegment.converter = ffmpeg_path
+AudioSegment.ffprobe = ffprobe_path
 
 
 def setup_logging():
