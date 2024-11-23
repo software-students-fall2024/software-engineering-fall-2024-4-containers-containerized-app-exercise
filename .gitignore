@@ -36,6 +36,20 @@ share/python-wheels/
 .installed.cfg
 *.egg
 MANIFEST
+*.env
+# Ignore machine-learning-client unnecessary files
+machine-learning-client/0.0.0.0:0:
+
+# Ignore web-app temporary files
+web-app/=
+web-app/CACHED
+web-app/ERROR
+web-app/[auth]
+web-app/[internal]
+web-app/transferring
+
+# Ignore specific uploads
+web-app/uploads/*.wav
 
 # PyInstaller
 #  Usually these files are written by a python script from a template
@@ -116,7 +130,6 @@ celerybeat.pid
 *.sage.py
 
 # Environments
-.env
 .venv
 env/
 venv/
@@ -147,3 +160,9 @@ dmypy.json
 
 # Cython debug symbols
 cython_debug/
+service_account.json
+machine-learning-client/service_account.jsonmongo_uri.secret
+web-app/CACHED
+web-app/ERROR
+web-app/auth
+web-app/internal

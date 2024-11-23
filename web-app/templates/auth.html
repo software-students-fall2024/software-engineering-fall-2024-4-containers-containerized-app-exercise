@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Login</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}"/>
+  </head>
+  <body>
+    <div class="content">
+        <img src="{{ url_for('static', filename='hkai-logo.png') }}" class="logo"/>
+        <h1 class="title">Hello Kitty AI</h1>
+        <div class="container">
+            <div class="login-container">
+                <h1>Verify Your Email</h1>
+                {% if error %}
+                    <div class="error-message">{{ error }}</div>
+                {% endif %}
+                <form method="POST" action="{{ url_for('auth')}}">
+                    <p>An authentication link has been sent to <b>{{ address }}</b>. Please check your email and insert the link to verify your account and begin chatting.</p>
+                    <input type="text" name="link" required placeholder="Link"/>
+                    <input type="submit" value="Login" class="login"/>
+                </form>
+            </div>
+        </div>
+    </div>
+  </body>
+</html>

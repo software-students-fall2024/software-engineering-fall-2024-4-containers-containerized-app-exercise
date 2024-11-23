@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Chat with Your Boyfriend</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}" />
+</head>
+<body>
+  <div class="chat-container">
+    <h1>Chat with Your Boyfriend</h1>
+
+    <!-- Chat Log Section -->
+    <div id="chat-log" class="chat-log" aria-live="polite" aria-label="Chat log">
+      <!-- Chat messages will appear here -->
+    </div>
+
+    <!-- Text Chat Form -->
+    <form id="chat-form" onsubmit="sendMessage(event)">
+      <input
+        type="text"
+        id="message"
+        name="message"
+        placeholder="Type your message here..."
+        autocomplete="off"
+        required
+        aria-label="Type your message here"
+      />
+      <button type="submit" class="send-button" aria-label="Send message">Send</button>
+    </form>
+
+    <!-- Audio Recording Section -->
+    <div class="audio-section">
+      <button id="record-button" onclick="recordAudio()" class="recording-btn" aria-label="Start recording audio">
+        Start Recording
+      </button>
+      <button
+        id="stop-recording"
+        style="display: none;"
+        onclick="stopRecording()"
+        class="recording-btn recording"
+        aria-label="Stop recording audio"
+      >
+        Stop Recording
+      </button>
+    </div>
+
+    <!-- Latest Transcription Section -->
+    <div class="transcription-section">
+      <h2>Latest Transcription</h2>
+      <div id="latest-transcription" class="transcription-box">No transcription yet</div>
+      <button onclick="useLatestTranscription()" class="use-transcription-btn">
+        Use This Transcription
+      </button>
+    </div>
+  </div>
+
+  <script>
+    let latestTranscriptionId = null;
+    
+    // Existing sendMessage function...
+    async function sendMessage(event) {
+      event.preventDefault();
+      const messageInput = document.getElementById("message");
+      const userMessage = messageInput.value;
+      if (!userMessage) return;
+
+      try {
+        const response = await fetch("/chat", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ message: userMessage }),
+        });
+
+        const chatLog = document.getElementById("chat-log");
+        if (response.ok) {
+          const data = await response.json();
+          chatLog.innerHTML += `<div class="message user-message"><b>You:</b> ${userMessage}</div>`;
+          chatLog.innerHTML += `<div class="message bot-message"><b>${data.character_name}:</b> ${data.character_message}</div>`;
+          chatLog.scrollTop = chatLog.scrollHeight;
+        } else {
+          chatLog.innerHTML += `<div class="error-message">Failed to get a response. Try again.</div>`;
+        }
+        messageInput.value = "";
+      } catch (error) {
+        console.error("Error sending message:", error);
+      }
+    }
+
+    // Updated audio recording functions
+    async function recordAudio() {
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+        mediaRecorder = new MediaRecorder(stream);
+        audioChunks = [];
+
+        mediaRecorder.ondataavailable = (event) => {
+          audioChunks.push(event.data);
+        };
+
+        mediaRecorder.onstop = async () => {
+          const audioBlob = new Blob(audioChunks, { type: "audio/wav" });
+          const formData = new FormData();
+          formData.append("audio", audioBlob, "recording.wav");
+
+          try {
+            const response = await fetch("/convert-to-wav", {
+              method: "POST",
+              body: formData,
+            });
+
+            if (response.ok) {
+              const data = await response.json();
+              // Poll for transcription
+              pollForTranscription();
+            }
+          } catch (error) {
+            console.error("Error uploading recording:", error);
+          }
+        };
+
+        mediaRecorder.start();
+        document.getElementById("record-button").style.display = "none";
+        document.getElementById("stop-recording").style.display = "inline";
+      } catch (error) {
+        console.error("Error starting recording:", error);
+      }
+    }
+
+    function stopRecording() {
+      if (mediaRecorder) {
+        mediaRecorder.stop();
+        document.getElementById("record-button").style.display = "inline";
+        document.getElementById("stop-recording").style.display = "none";
+      }
+    }
+
+    // New function to poll for transcription
+    async function pollForTranscription() {
+      const transcriptionBox = document.getElementById("latest-transcription");
+      transcriptionBox.textContent = "Processing audio...";
+      
+      try {
+        const response = await fetch("/get-latest-transcription");
+        if (response.ok) {
+          const data = await response.json();
+          if (data.transcript && data.id) {
+            transcriptionBox.textContent = data.transcript;
+            latestTranscriptionId = data.id;
+            transcriptionBox.classList.add("has-content");
+          }
+        }
+      } catch (error) {
+        console.error("Error fetching transcription:", error);
+        transcriptionBox.textContent = "Error processing audio";
+      }
+    }
+
+    // New function to use the latest transcription
+    async function useLatestTranscription() {
+      const transcriptionBox = document.getElementById("latest-transcription");
+      const messageInput = document.getElementById("message");
+      messageInput.value = transcriptionBox.textContent;
+      messageInput.focus();
+    }
+  </script>
+</body>
+</html>
