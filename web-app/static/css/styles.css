@@ -3,21 +3,21 @@
     src: url("../fonts/hellokitty.ttf") format("truetype");
     font-weight: normal;
     font-style: normal;
-  }
+}
 
 html, body {
-    height: 100%;
+    height: 100vh;
     margin: 0;
     padding: 0;
     font-family: 'Poppins', sans-serif;
     background: linear-gradient(to bottom, #fef7ff, #fdcede, #9387be);
-    background-size: cover; 
+    background-size: cover;
+    background-attachment: fixed;
     display: flex;
-    justify-content: center; 
+    justify-content: center;
     align-items: center;
-    overflow: hidden; 
+    overflow-x: hidden;
 }
-
 
 .content {
     margin: auto;
@@ -48,14 +48,14 @@ html, body {
     width: 100%;
     height: 100%;
     border-radius: 20px;
-    backdrop-filter: blur(15px); 
-    -webkit-backdrop-filter: blur(15px); 
+    backdrop-filter: blur(15px);
+    -webkit-backdrop-filter: blur(15px);
     z-index: -1;
 }
 
 .login-container {
     text-align: center;
-    z-index: 2; 
+    z-index: 2;
     width: 100%;
     height: 100%;
     display: flex;
@@ -73,13 +73,12 @@ h1 {
 .title {
     font-family: "hellokitty";
     font-size: 60px;
-    background: linear-gradient(to bottom, #fdcede, #ff99c8, #9387be); /* Gradient colors */
+    background: linear-gradient(to bottom, #fdcede, #ff99c8, #9387be);
     background-clip: text;
-    -webkit-background-clip: text; /* Clips the background to the text */
-    -webkit-text-fill-color: transparent; /* Makes the text color transparent */
-    -webkit-text-stroke: 1px white; /* White outline */
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    -webkit-text-stroke: 1px white;
 }
-
 
 form {
     display: flex;
@@ -134,45 +133,54 @@ p {
 /* Chat Container Styles */
 .chat-container {
     max-width: 800px;
+    width: 95%;
+    height: 90vh;
     margin: 20px auto;
-    padding: 20px;
+    padding: 15px;
     background: rgba(255, 255, 255, 0.1);
     border-radius: 20px;
     border: 1px solid rgba(255, 255, 255, 0.5);
     backdrop-filter: blur(15px);
     -webkit-backdrop-filter: blur(15px);
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
 }
 
 /* Chat Log Styles */
 .chat-log {
-    height: 400px;
+    flex: 1;
+    min-height: 200px;
+    max-height: calc(60vh - 100px);
     overflow-y: auto;
     padding: 15px;
-    background: rgba(255, 255, 255, 0.2);
-    border-radius: 10px;
-    margin-bottom: 20px;
+    background: rgba(255, 255, 255, 0.15);
+    border-radius: 15px;
+    margin-bottom: 10px;
     border: 1px solid rgba(255, 255, 255, 0.3);
 }
 
 /* Message Styles */
 .message {
-    margin: 10px 0;
-    padding: 10px;
-    border-radius: 10px;
-    background: rgba(255, 255, 255, 0.3);
+    padding: 12px;
+    margin: 8px 0;
+    border-radius: 12px;
+    max-width: 80%;
     word-wrap: break-word;
     animation: messageAppear 0.3s ease-out;
 }
 
 .user-message {
     background: rgba(253, 206, 223, 0.3);
-    margin-left: 20px;
+    margin-left: auto;
+    margin-right: 0;
 }
 
 .bot-message {
     background: rgba(147, 135, 190, 0.3);
-    margin-right: 20px;
+    margin-right: auto;
+    margin-left: 0;
 }
 
 .error-message {
@@ -184,7 +192,7 @@ p {
 .chat-form {
     display: flex;
     gap: 10px;
-    margin-bottom: 20px;
+    margin-bottom: 10px;
 }
 
 .chat-form input {
@@ -217,23 +225,27 @@ p {
     background: #fcaecf;
     color: white;
 }
+
+/* Transcription Section */
 .transcription-section {
     background: rgba(255, 255, 255, 0.15);
     border-radius: 15px;
-    padding: 20px;
-    margin: 20px 0;
+    padding: 15px;
+    margin: 10px 0;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    max-height: 30vh;
+    overflow-y: auto;
 }
 
 .transcription-box {
     background: rgba(255, 255, 255, 0.2);
     border-radius: 10px;
-    padding: 15px;
-    margin: 10px 0;
-    min-height: 60px;
+    padding: 12px;
+    margin: 8px 0;
+    min-height: 40px;
     color: white;
-    font-size: 16px;
-    line-height: 1.5;
+    font-size: 14px;
+    line-height: 1.4;
     transition: all 0.3s ease;
 }
 
@@ -266,22 +278,45 @@ p {
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
 }
 
+/* Audio Section */
+.audio-section {
+    position: sticky;
+    bottom: 0;
+    background: rgba(255, 255, 255, 0.1);
+    padding: 10px;
+    border-radius: 10px;
+    margin-top: auto;
+    z-index: 10;
+}
+
 .recording-btn {
     background: linear-gradient(to right, #fdcede, #9387be);
     color: white;
     border: none;
     border-radius: 8px;
-    padding: 12px 24px;
-    font-size: 16px;
+    padding: 10px 20px;
+    font-size: 14px;
     cursor: pointer;
     transition: all 0.3s ease;
     width: 100%;
-    margin-top: 20px;
+    margin-top: 10px;
 }
 
 .recording-btn.recording {
     background: linear-gradient(to right, #ff6b6b, #ff8787);
     animation: pulse 2s infinite;
+}
+
+/* Animations */
+@keyframes messageAppear {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
 
 @keyframes pulse {
@@ -296,31 +331,57 @@ p {
     }
 }
 
-/* Enhance existing chat styles */
-.chat-log {
-    background: rgba(255, 255, 255, 0.15);
-    border-radius: 15px;
-    padding: 20px;
-    margin-bottom: 20px;
-    height: 400px;
-    overflow-y: auto;
+/* Scrollbar Styling */
+::-webkit-scrollbar {
+    width: 6px;
 }
 
-.message {
-    padding: 12px;
-    margin: 8px 0;
-    border-radius: 12px;
-    max-width: 80%;
+::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 3px;
 }
 
-.user-message {
-    background: rgba(253, 206, 223, 0.3);
-    margin-left: auto;
-    margin-right: 0;
+::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.3);
+    border-radius: 3px;
 }
 
-.bot-message {
-    background: rgba(147, 135, 190, 0.3);
-    margin-right: auto;
-    margin-left: 0;
+::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 255, 255, 0.4);
+}
+
+/* Media Queries */
+@media (max-height: 800px) {
+    .chat-container {
+        height: 95vh;
+        margin: 10px auto;
+    }
+
+    .chat-log {
+        max-height: 50vh;
+    }
+
+    .transcription-section {
+        max-height: 25vh;
+    }
+
+    .title {
+        font-size: 40px;
+    }
+}
+
+@media (max-width: 768px) {
+    .chat-container {
+        width: 100%;
+        margin: 0;
+        border-radius: 0;
+    }
+
+    .title {
+        font-size: 40px;
+    }
+
+    .message {
+        max-width: 90%;
+    } 
 }
