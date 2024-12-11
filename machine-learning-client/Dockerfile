@@ -1,5 +1,5 @@
 # ml-client/Dockerfile
-FROM python:3.9
+FROM python:3.10
 
 # Set working directory inside the container
 WORKDIR /app
