@@ -6,6 +6,14 @@ name = "pypi"
 [packages]
 pylint = "*"
 black = "*"
+pytest = "*"
+mongomock = "*"
+numpy = "*"
+soundfile = "*"
+wave = "*"
+noisereduce = "*"
+pymongo = "*"
+speechrecognition = "*"
 
 [dev-packages]
 

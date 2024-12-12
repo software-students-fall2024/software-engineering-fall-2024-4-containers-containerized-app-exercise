@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Sonus</title>
+        <h1>Sonus: Audio to Text Application</h1>
+        <h2>Pick a method to upload your voice!</h2>
+        <link rel="stylesheet" type="text/css" href="../static/css/style.css" />
+    </head>
+
+    <h3>Record your voice:</h3>
+
+
+    <h3>Upload the audio file:</h3>
+
+    <div class="container">
+        <body>
+
+            <form class="box">
+                <button class="btn" type="button" onclick="myFunction()">Microphone</button>
+                <script>
+                    function myFunction() {
+                        console.log("Microphone activated");
+                    }
+                </script>
+            </form>
+
+            <form class="box" method="POST" action="" enctype="multipart/form-data">
+                <label for="file"><strong>Audio file</strong></label>
+                <input class="box__file" type="file" name="files[]" id="file" />
+                <!-- <label for="file"><strong>Audio file</strong></label> -->
+                <button class="box__button" type="submit">Upload</button>
+                <div class="box__uploading">Uploading file…</div>
+                <div class="box__uploaded">Uploaded!</div>
+                <div class="box__err">Upload error! <span></span></div>
+            </form>
+    </div>
+    
+
+
+        
+
+    </body>
+</html>
